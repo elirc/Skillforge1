@@ -1,0 +1,386 @@
+{
+  "slug": "javascript-foundations",
+  "title": "JavaScript Foundations",
+  "description": "Build durable JavaScript basics through tiny lessons, recall prompts, and real code checks.",
+  "language": "javascript",
+  "topicTags": ["variables", "functions", "arrays", "control-flow"],
+  "difficulty": "BEGINNER",
+  "isPro": false,
+  "order": 1,
+  "outcomes": [
+    "Explain variables, values, and expressions",
+    "Write small functions with predictable return values",
+    "Use arrays, loops, and conditionals to transform data"
+  ],
+  "modules": [
+    {
+      "title": "Values and Decisions",
+      "order": 1,
+      "lessons": [
+        {
+          "title": "Variables Hold Values",
+          "order": 1,
+          "contentBlocks": [
+            {
+              "type": "prose",
+              "body": "A variable gives a value a name so the program can reuse it. Prefer const when the binding will not be reassigned."
+            },
+            {
+              "type": "code-example",
+              "language": "javascript",
+              "code": "const dailyGoal = 50;\nconst earned = 35;\nconst remaining = dailyGoal - earned;"
+            },
+            {
+              "type": "callout",
+              "tone": "info",
+              "body": "The value can still be an object or array that changes; const protects the binding, not every nested value."
+            }
+          ],
+          "knowledgeItems": [
+            {
+              "type": "MCQ",
+              "prompt": "Which declaration should you usually choose for a binding that will not be reassigned?",
+              "payload": {
+                "choices": ["const", "var", "let", "function"],
+                "answer": "const",
+                "explanation": "const communicates that the binding itself should stay attached to the same value."
+              },
+              "conceptTags": ["variables", "const"]
+            },
+            {
+              "type": "CLOZE",
+              "prompt": "Complete the sentence about bindings.",
+              "payload": {
+                "text": "A variable gives a value a ____ so it can be reused later.",
+                "blanks": ["name"]
+              },
+              "conceptTags": ["variables"]
+            },
+            {
+              "type": "CODE",
+              "prompt": "Implement addXp so it returns the current XP plus earned XP.",
+              "payload": {
+                "starterCode": "function addXp(current, earned) {\n  // return the updated total\n}\n",
+                "functionName": "addXp",
+                "tests": [
+                  { "name": "adds a small reward", "args": [10, 5], "expected": 15, "hidden": false },
+                  { "name": "handles zero current XP", "args": [0, 25], "expected": 25, "hidden": true }
+                ],
+                "referenceSolution": "function addXp(current, earned) {\n  return current + earned;\n}\n"
+              },
+              "conceptTags": ["variables", "expressions"]
+            }
+          ]
+        },
+        {
+          "title": "Expressions Produce Values",
+          "order": 2,
+          "contentBlocks": [
+            {
+              "type": "prose",
+              "body": "An expression is any piece of JavaScript that produces a value. Function calls, math, comparisons, and template strings are expressions."
+            },
+            {
+              "type": "code-example",
+              "language": "javascript",
+              "code": "const passed = score >= 80;\nconst label = `Score: ${score}`;"
+            }
+          ],
+          "knowledgeItems": [
+            {
+              "type": "MCQ",
+              "prompt": "What does the expression score >= 80 produce?",
+              "payload": {
+                "choices": ["a boolean", "a function", "an array", "nothing"],
+                "answer": "a boolean",
+                "explanation": "Comparison expressions produce true or false."
+              },
+              "conceptTags": ["expressions", "booleans"]
+            },
+            {
+              "type": "CODE",
+              "prompt": "Return true when points meets or exceeds the goal.",
+              "payload": {
+                "starterCode": "function metGoal(points, goal) {\n  \n}\n",
+                "functionName": "metGoal",
+                "tests": [
+                  { "name": "meets goal exactly", "args": [50, 50], "expected": true, "hidden": false },
+                  { "name": "falls short", "args": [49, 50], "expected": false, "hidden": false }
+                ],
+                "referenceSolution": "function metGoal(points, goal) {\n  return points >= goal;\n}\n"
+              },
+              "conceptTags": ["expressions", "booleans"]
+            }
+          ]
+        },
+        {
+          "title": "Branch with Conditions",
+          "order": 3,
+          "contentBlocks": [
+            {
+              "type": "prose",
+              "body": "Use if statements when the program must choose between paths. Keep each condition readable and focused on one decision."
+            },
+            {
+              "type": "code-example",
+              "language": "javascript",
+              "code": "if (streak > 0) {\n  message = \"Keep going\";\n} else {\n  message = \"Start today\";\n}"
+            }
+          ],
+          "knowledgeItems": [
+            {
+              "type": "CLOZE",
+              "prompt": "Fill in the missing keyword.",
+              "payload": {
+                "text": "An ____ statement lets JavaScript choose a path based on a condition.",
+                "blanks": ["if"]
+              },
+              "conceptTags": ["control-flow"]
+            },
+            {
+              "type": "CODE",
+              "prompt": "Return 'pro' for pro users and 'core' for everyone else.",
+              "payload": {
+                "starterCode": "function planLabel(isPro) {\n  \n}\n",
+                "functionName": "planLabel",
+                "tests": [
+                  { "name": "pro account", "args": [true], "expected": "pro", "hidden": false },
+                  { "name": "core account", "args": [false], "expected": "core", "hidden": false }
+                ],
+                "referenceSolution": "function planLabel(isPro) {\n  return isPro ? \"pro\" : \"core\";\n}\n"
+              },
+              "conceptTags": ["control-flow"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Functions",
+      "order": 2,
+      "lessons": [
+        {
+          "title": "Return a Result",
+          "order": 1,
+          "contentBlocks": [
+            {
+              "type": "prose",
+              "body": "A function packages a small behavior. return sends a result back to the caller and stops the function."
+            },
+            {
+              "type": "code-example",
+              "language": "javascript",
+              "code": "function double(value) {\n  return value * 2;\n}"
+            }
+          ],
+          "knowledgeItems": [
+            {
+              "type": "MCQ",
+              "prompt": "What does return do inside a function?",
+              "payload": {
+                "choices": ["sends a value back to the caller", "creates a loop", "declares a variable", "imports a file"],
+                "answer": "sends a value back to the caller",
+                "explanation": "return produces the function result."
+              },
+              "conceptTags": ["functions", "return"]
+            },
+            {
+              "type": "CODE",
+              "prompt": "Implement double.",
+              "payload": {
+                "starterCode": "function double(value) {\n  \n}\n",
+                "functionName": "double",
+                "tests": [
+                  { "name": "doubles positive values", "args": [4], "expected": 8, "hidden": false },
+                  { "name": "doubles negative values", "args": [-3], "expected": -6, "hidden": true }
+                ],
+                "referenceSolution": "function double(value) {\n  return value * 2;\n}\n"
+              },
+              "conceptTags": ["functions", "return"]
+            }
+          ]
+        },
+        {
+          "title": "Parameters are Inputs",
+          "order": 2,
+          "contentBlocks": [
+            {
+              "type": "prose",
+              "body": "Parameters are local names for inputs passed into a function. Choose parameter names that describe what the function needs."
+            }
+          ],
+          "knowledgeItems": [
+            {
+              "type": "CLOZE",
+              "prompt": "Complete the sentence.",
+              "payload": {
+                "text": "Function ____ are local names for incoming values.",
+                "blanks": ["parameters"]
+              },
+              "conceptTags": ["functions", "parameters"]
+            },
+            {
+              "type": "CODE",
+              "prompt": "Return a friendly label like 'Lesson: Variables'.",
+              "payload": {
+                "starterCode": "function lessonLabel(title) {\n  \n}\n",
+                "functionName": "lessonLabel",
+                "tests": [
+                  { "name": "labels variables", "args": ["Variables"], "expected": "Lesson: Variables", "hidden": false },
+                  { "name": "labels Arrays", "args": ["Arrays"], "expected": "Lesson: Arrays", "hidden": true }
+                ],
+                "referenceSolution": "function lessonLabel(title) {\n  return `Lesson: ${title}`;\n}\n"
+              },
+              "conceptTags": ["functions", "strings"]
+            }
+          ]
+        },
+        {
+          "title": "Pure Helpers",
+          "order": 3,
+          "contentBlocks": [
+            {
+              "type": "prose",
+              "body": "A pure helper returns the same output for the same input and avoids changing outside state. Pure helpers are easier to test and review."
+            }
+          ],
+          "knowledgeItems": [
+            {
+              "type": "MCQ",
+              "prompt": "Why are pure helper functions easier to test?",
+              "payload": {
+                "choices": ["same input gives the same output", "they always run in the browser", "they hide every error", "they require no parameters"],
+                "answer": "same input gives the same output",
+                "explanation": "Predictability makes assertions straightforward."
+              },
+              "conceptTags": ["functions", "testing"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Arrays and Loops",
+      "order": 3,
+      "lessons": [
+        {
+          "title": "Arrays Keep Order",
+          "order": 1,
+          "contentBlocks": [
+            {
+              "type": "prose",
+              "body": "An array stores ordered values. Use indexes to read one item and methods to transform collections."
+            },
+            {
+              "type": "code-example",
+              "language": "javascript",
+              "code": "const tags = [\"variables\", \"functions\"];\nconst firstTag = tags[0];"
+            }
+          ],
+          "knowledgeItems": [
+            {
+              "type": "MCQ",
+              "prompt": "What index reads the first item in a JavaScript array?",
+              "payload": {
+                "choices": ["0", "1", "-1", "first"],
+                "answer": "0",
+                "explanation": "JavaScript arrays are zero-indexed."
+              },
+              "conceptTags": ["arrays"]
+            },
+            {
+              "type": "CODE",
+              "prompt": "Return the first tag from an array.",
+              "payload": {
+                "starterCode": "function firstTag(tags) {\n  \n}\n",
+                "functionName": "firstTag",
+                "tests": [
+                  { "name": "reads first item", "args": [["arrays", "loops"]], "expected": "arrays", "hidden": false },
+                  { "name": "reads another first item", "args": [["review", "xp"]], "expected": "review", "hidden": true }
+                ],
+                "referenceSolution": "function firstTag(tags) {\n  return tags[0];\n}\n"
+              },
+              "conceptTags": ["arrays"]
+            }
+          ]
+        },
+        {
+          "title": "Map Transforms Lists",
+          "order": 2,
+          "contentBlocks": [
+            {
+              "type": "prose",
+              "body": "map creates a new array by applying a callback to every item in the original array."
+            },
+            {
+              "type": "code-example",
+              "language": "javascript",
+              "code": "const doubled = [1, 2, 3].map((value) => value * 2);"
+            }
+          ],
+          "knowledgeItems": [
+            {
+              "type": "CLOZE",
+              "prompt": "Name the array method.",
+              "payload": {
+                "text": "____ creates a new array by transforming each item.",
+                "blanks": ["map"]
+              },
+              "conceptTags": ["arrays", "map"]
+            },
+            {
+              "type": "CODE",
+              "prompt": "Return an array with every XP value doubled.",
+              "payload": {
+                "starterCode": "function doubleXp(values) {\n  \n}\n",
+                "functionName": "doubleXp",
+                "tests": [
+                  { "name": "doubles a list", "args": [[5, 10, 15]], "expected": [10, 20, 30], "hidden": false },
+                  { "name": "handles empty list", "args": [[]], "expected": [], "hidden": true }
+                ],
+                "referenceSolution": "function doubleXp(values) {\n  return values.map((value) => value * 2);\n}\n"
+              },
+              "conceptTags": ["arrays", "map"]
+            }
+          ]
+        },
+        {
+          "title": "Filter Keeps Matches",
+          "order": 3,
+          "contentBlocks": [
+            {
+              "type": "prose",
+              "body": "filter creates a new array containing only items whose callback returns true."
+            }
+          ],
+          "knowledgeItems": [
+            {
+              "type": "MCQ",
+              "prompt": "What does filter keep?",
+              "payload": {
+                "choices": ["items where the callback returns true", "only the first item", "every item changed to a string", "nothing"],
+                "answer": "items where the callback returns true",
+                "explanation": "filter selects matching items without changing the originals."
+              },
+              "conceptTags": ["arrays", "filter"]
+            },
+            {
+              "type": "CODE",
+              "prompt": "Return only scores that are at least 80.",
+              "payload": {
+                "starterCode": "function passingScores(scores) {\n  \n}\n",
+                "functionName": "passingScores",
+                "tests": [
+                  { "name": "keeps passing scores", "args": [[75, 80, 92]], "expected": [80, 92], "hidden": false },
+                  { "name": "handles no passing scores", "args": [[1, 2]], "expected": [], "hidden": true }
+                ],
+                "referenceSolution": "function passingScores(scores) {\n  return scores.filter((score) => score >= 80);\n}\n"
+              },
+              "conceptTags": ["arrays", "filter"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

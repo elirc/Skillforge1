@@ -1,0 +1,36 @@
+{
+  "slug": "python-thinking",
+  "title": "Python Thinking",
+  "description": "A short preview course for transfer-friendly programming concepts.",
+  "language": "python",
+  "topicTags": ["variables", "control-flow"],
+  "difficulty": "BEGINNER",
+  "isPro": true,
+  "order": 3,
+  "outcomes": ["Compare familiar JavaScript ideas with Python syntax"],
+  "modules": [
+    {
+      "title": "Readable Code",
+      "order": 1,
+      "lessons": [
+        {
+          "title": "Names and Indentation",
+          "order": 1,
+          "contentBlocks": [{ "type": "prose", "body": "Python uses indentation to group work, making structure visible without braces." }],
+          "knowledgeItems": [
+            {
+              "type": "MCQ",
+              "prompt": "What does Python use to group nested code?",
+              "payload": {
+                "choices": ["indentation", "curly braces", "semicolons", "HTML tags"],
+                "answer": "indentation",
+                "explanation": "Indentation is syntax in Python."
+              },
+              "conceptTags": ["control-flow"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

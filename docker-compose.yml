@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: skillforge
+      POSTGRES_PASSWORD: skillforge
+      POSTGRES_DB: skillforge
+    ports:
+      - "5432:5432"
+    volumes:
+      - skillforge-postgres:/var/lib/postgresql/data
+
+volumes:
+  skillforge-postgres:

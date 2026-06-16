@@ -1,0 +1,287 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum KnowledgeItemType {
+  MCQ
+  CODE
+  CLOZE
+}
+
+enum Plan {
+  CORE
+  PRO
+}
+
+enum RecallScore {
+  AGAIN
+  HARD
+  GOOD
+  EASY
+}
+
+enum ReviewLifecycle {
+  NEW
+  LEARNING
+  REVIEW
+  RELEARNING
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  language    String
+  topicTags   String[]
+  difficulty  Difficulty
+  isPro       Boolean  @default(false)
+  order       Int
+  outcomes    String[] @default([])
+  modules     Module[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([language, difficulty])
+}
+
+model Module {
+  id        String   @id @default(cuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title     String
+  order     Int
+  lessons   Lesson[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, order])
+}
+
+model Lesson {
+  id             String           @id @default(cuid())
+  moduleId       String
+  module         Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title          String
+  order          Int
+  contentBlocks  Json
+  knowledgeItems KnowledgeItem[]
+  completions    LessonCompletion[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([moduleId, order])
+}
+
+model KnowledgeItem {
+  id           String            @id @default(cuid())
+  lessonId     String
+  lesson       Lesson            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  type         KnowledgeItemType
+  prompt       String
+  payload      Json
+  conceptTags  String[]
+  reviewStates ReviewState[]
+  attempts     Attempt[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  githubUsername String?
+  plan          Plan      @default(CORE)
+  orgId         String?
+  org           Organization? @relation("OrgMembers", fields: [orgId], references: [id])
+  adminOf       Organization[] @relation("OrgAdmin")
+  accounts      Account[]
+  sessions      Session[]
+  reviewStates  ReviewState[]
+  attempts      Attempt[]
+  progress      Progress?
+  completions   LessonCompletion[]
+  achievements  UserAchievement[]
+  leaderboardEntries LeaderboardEntry[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ReviewState {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  knowledgeItemId String
+  knowledgeItem   KnowledgeItem   @relation(fields: [knowledgeItemId], references: [id], onDelete: Cascade)
+  dueAt           DateTime
+  stability       Float           @default(0)
+  difficulty      Float           @default(5)
+  interval        Int             @default(0)
+  lapses          Int             @default(0)
+  reps            Int             @default(0)
+  lastReviewedAt  DateTime?
+  state           ReviewLifecycle @default(NEW)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([userId, knowledgeItemId])
+  @@index([userId, dueAt])
+}
+
+model Attempt {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  knowledgeItemId String
+  knowledgeItem   KnowledgeItem @relation(fields: [knowledgeItemId], references: [id], onDelete: Cascade)
+  response        Json
+  correct         Boolean
+  recallScore     RecallScore
+  durationMs      Int
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+model Progress {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  xp              Int      @default(0)
+  level           Int      @default(1)
+  streakCurrent   Int      @default(0)
+  streakLongest   Int      @default(0)
+  lastActiveDate  DateTime?
+  streakFreezes   Int      @default(1)
+  dailyXpGoal     Int      @default(50)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model LessonCompletion {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String
+  icon        String
+  xpReward    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  earnedAt      DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([userId, achievementId])
+}
+
+model League {
+  id        String   @id @default(cuid())
+  name      String
+  startsAt  DateTime
+  endsAt    DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  entries   LeaderboardEntry[]
+}
+
+model LeaderboardEntry {
+  id        String   @id @default(cuid())
+  leagueId  String
+  league    League   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  xp        Int      @default(0)
+  optedIn   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([leagueId, userId])
+  @@index([leagueId, xp])
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  seats     Int      @default(1)
+  adminId   String
+  admin     User     @relation("OrgAdmin", fields: [adminId], references: [id])
+  members   User[]   @relation("OrgMembers")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, token])
+}

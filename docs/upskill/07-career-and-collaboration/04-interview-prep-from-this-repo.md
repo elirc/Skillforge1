@@ -2,6 +2,8 @@
 
 This page turns Skillforge into software engineering interview preparation, including C#/.NET transfer practice for mid-level roles.
 
+For a deeper C#/.NET-specific lab, use [05-csharp-dotnet-interview-lab.md](05-csharp-dotnet-interview-lab.md) after this overview.
+
 ## Language And Runtime Questions
 
 Question: Why does this repo use both TypeScript types and Zod schemas?
@@ -71,3 +73,23 @@ Question: Review a PR that removes `userId` from the ReviewState lookup.
 3. Translate `scheduleReview` into a C# pure function. What tests from [`tests/unit/srs.test.ts:15-44`](../../../tests/unit/srs.test.ts#L15-L44) carry over?
 4. Translate the worker sandbox to a .NET architecture. Would you use a background service, container, WASM, or external judge?
 5. Explain how `Task.WhenAll` can improve independent reads but hurt dependent writes, using [`src/features/catalog/queries.ts:6-14`](../../../src/features/catalog/queries.ts#L6-L14) and [`src/server/actions.ts:18-24`](../../../src/server/actions.ts#L18-L24).
+
+## C#/.NET Question Bank: Mid-Level Signal
+
+Question: In ASP.NET Core, where would you put the logic currently in `completeLessonAction`?
+- Anchor: [`src/server/actions.ts:14-29`](../../../src/server/actions.ts#L14-L29)
+- Junior answer: In the controller endpoint.
+- Mid-level answer: The endpoint should validate route/body shape and user identity, then call an application service that owns completion, review seeding, rewards, and transaction boundaries.
+- Senior answer: Keep transport thin, put the invariant in an application service, wrap multi-write operations in a transaction or recovery workflow, enforce plan authorization server-side, and emit structured logs for completion count and seeded review count.
+
+Question: What EF Core constraints would protect review state?
+- Anchor: [`prisma/schema.prisma:124-143`](../../../prisma/schema.prisma#L124-L143)
+- Junior answer: A table with user id and knowledge item id.
+- Mid-level answer: A unique index on `(UserId, KnowledgeItemId)` and an index on `(UserId, DueAt)` for due queue lookup.
+- Senior answer: Add those indexes, understand query patterns, design migrations carefully, and test duplicate seed attempts plus due queue performance.
+
+Question: How would you use `CancellationToken` in the exercise runner or reminder job?
+- Anchor: worker timeout in [`src/lib/sandbox/client-runner.ts:11-15`](../../../src/lib/sandbox/client-runner.ts#L11-L15), cron stub in [`src/app/api/cron/reviews/route.ts:4-19`](../../../src/app/api/cron/reviews/route.ts#L4-L19)
+- Junior answer: Pass it to async calls.
+- Mid-level answer: Propagate it from HTTP/job boundary into DB/provider calls and enforce timeouts around external work.
+- Senior answer: Combine cancellation, timeout, idempotency, retry, and visibility so aborted work can be safely retried or diagnosed.

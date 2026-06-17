@@ -41,7 +41,7 @@ Ongoing contribution practice:
 | Code reading gym | [04-code-reading-gym/README.md](04-code-reading-gym/README.md) | You practice active reading, trace tables, and review katas. |
 | Quality engineering | [05-quality-engineering/README.md](05-quality-engineering/README.md) | You can test, debug, and reason about security/performance. |
 | Contribution practice | [06-contribution-practice/README.md](06-contribution-practice/README.md) | You can turn learning into maintainable PRs. |
-| Career collaboration | [07-career-and-collaboration/README.md](07-career-and-collaboration/README.md) | You can review, write RFCs, communicate, and interview from the repo. |
+| Career collaboration | [07-career-and-collaboration/README.md](07-career-and-collaboration/README.md) | You can review, write RFCs, communicate, and interview from the repo, including C#/.NET transfer practice. |
 
 ## Recommended Paths
 

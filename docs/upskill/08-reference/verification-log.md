@@ -37,3 +37,18 @@ Date: 2026-06-16 America/Los_Angeles.
 - Whether simplified scheduler is acceptable versus full FSRS for launch.
 - Whether code exercise hidden tests should remain client-visible.
 - Final deployment target and observability stack.
+
+## 2026-06-17 C#/.NET Documentation Expansion
+
+Inspected:
+- Existing C#/.NET mentions across `docs/upskill` with `rg`.
+- [`docs/upskill/07-career-and-collaboration/04-interview-prep-from-this-repo.md`](../07-career-and-collaboration/04-interview-prep-from-this-repo.md)
+- [`docs/upskill/02-stack-and-language-mastery/01-language-runtime-model.md`](../02-stack-and-language-mastery/01-language-runtime-model.md)
+
+Changed:
+- Added [`docs/upskill/07-career-and-collaboration/05-csharp-dotnet-interview-lab.md`](../07-career-and-collaboration/05-csharp-dotnet-interview-lab.md).
+- Expanded C#/.NET transfer guidance in the runtime model and interview overview.
+- Linked the new lab from the upskill README and career module README.
+
+Not run:
+- Product lint/typecheck/tests were not re-run for this docs-only expansion because the worktree already contained unrelated product/content changes outside `docs/upskill`.

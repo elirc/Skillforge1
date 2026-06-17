@@ -7,3 +7,4 @@ Files:
 - [02-writing-prs-and-rfcs.md](02-writing-prs-and-rfcs.md)
 - [03-maintainer-communication.md](03-maintainer-communication.md)
 - [04-interview-prep-from-this-repo.md](04-interview-prep-from-this-repo.md)
+- [05-csharp-dotnet-interview-lab.md](05-csharp-dotnet-interview-lab.md)

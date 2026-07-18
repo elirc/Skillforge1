@@ -1,0 +1,32 @@
+{
+  "title": "Use Set for Unique Values",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A Set stores each value only once. When you need unique tags, completed lesson ids, or visited pages, a Set is clearer than manually checking an array over and over."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const tags = new Set([\"js\", \"arrays\", \"js\"]);\nconst uniqueTags = [...tags]; // [\"js\", \"arrays\"]"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does Set do when the same primitive value is added twice?",
+      "payload": {
+        "choices": ["Keeps one copy", "Keeps both copies", "Throws an error", "Converts the value to null"],
+        "answer": "Keeps one copy",
+        "explanation": "A Set contains unique values, so repeated primitive values are stored once."
+      },
+      "conceptTags": ["sets", "uniqueness"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the unique tags in their first-seen order.",
+      "exercise": "unique-tags",
+      "conceptTags": ["sets", "arrays", "uniqueness"]
+    }
+  ]
+}

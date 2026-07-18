@@ -1,0 +1,22 @@
+{
+  "title": "Practice: Count Vowels",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Practice problem. Count how many vowels (a, e, i, o, u) appear in a lowercase word. Spreading a string into an array lets you filter character by character."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Hint: \"aeiou\".includes(character) is true when the character is a vowel."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Return the number of vowels in a lowercase word.",
+      "exercise": "count-vowels",
+      "conceptTags": ["strings", "arrays", "practice"]
+    }
+  ]
+}

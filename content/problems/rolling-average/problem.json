@@ -1,0 +1,17 @@
+{
+  "slug": "rolling-average",
+  "title": "Rolling Average",
+  "prompt": "A chart smooths noisy values with a rolling average. Write a function that returns the average of every contiguous window of the given size. If the window is larger than the array, return an empty array.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "arrays",
+    "sliding-window"
+  ],
+  "order": 58,
+  "exercise": "rolling-average",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Rolling Average, read the story as a simple input-to-output rule: A chart smooths noisy values with a rolling average. Write a function that returns the average of every contiguous window of the given size. If the window is larger than the array, return an empty array. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and sliding-window. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

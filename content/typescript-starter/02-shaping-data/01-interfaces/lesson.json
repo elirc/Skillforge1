@@ -1,0 +1,35 @@
+{
+  "title": "Describe Objects with Interfaces",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An interface names the shape of an object: which keys it has and the type of each value. Functions can then accept that interface and the compiler checks every property for you."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "interface Learner {\n  name: string;\n  streak: number;\n}\n\nfunction summary(learner: Learner): string {\n  return `${learner.name}: ${learner.streak}`;\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does an interface describe?",
+      "payload": {
+        "choices": ["the shape of an object: its keys and value types", "the color of the UI", "a database connection", "a loop counter"],
+        "answer": "the shape of an object: its keys and value types",
+        "explanation": "Interfaces define the expected properties and their types."
+      },
+      "conceptTags": ["types", "interfaces"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the annotation.",
+      "payload": {
+        "text": "In an interface, a property that holds text is annotated as name: ____.",
+        "blanks": ["string"]
+      },
+      "conceptTags": ["types", "interfaces"]
+    }
+  ]
+}

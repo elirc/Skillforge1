@@ -1,0 +1,18 @@
+{
+  "slug": "todo-remaining-count",
+  "title": "Todo Remaining Count",
+  "prompt": "A React todo component receives todos from state and needs to show how many are still open. Write a helper that returns the number of todos whose completed value is false.",
+  "language": "react",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "react",
+    "state",
+    "arrays"
+  ],
+  "order": 71,
+  "exercise": "todo-remaining-count",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Todo Remaining Count, read the story as a simple input-to-output rule: A React todo component receives todos from state and needs to show how many are still open. Write a helper that returns the number of todos whose completed value is false. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, state and arrays. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

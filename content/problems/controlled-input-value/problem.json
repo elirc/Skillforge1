@@ -1,0 +1,18 @@
+{
+  "slug": "controlled-input-value",
+  "title": "Controlled Input Value",
+  "prompt": "A React controlled input must receive a string value even when data has not loaded. Write a helper that returns the provided value unless it is null or undefined, in which case it returns an empty string.",
+  "language": "react",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "react",
+    "forms",
+    "controlled-inputs"
+  ],
+  "order": 91,
+  "exercise": "controlled-input-value",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Controlled Input Value, read the story as a simple input-to-output rule: A React controlled input must receive a string value even when data has not loaded. Write a helper that returns the provided value unless it is null or undefined, in which case it returns an empty string. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, forms and controlled-inputs. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

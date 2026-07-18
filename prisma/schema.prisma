@@ -38,6 +38,12 @@ enum ReviewLifecycle {
   RELEARNING
 }
 
+enum ProblemDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
 model Course {
   id          String   @id @default(cuid())
   slug        String   @unique
@@ -117,6 +123,7 @@ model User {
   completions   LessonCompletion[]
   achievements  UserAchievement[]
   leaderboardEntries LeaderboardEntry[]
+  problemSubmissions ProblemSubmission[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -244,6 +251,43 @@ model Organization {
   members   User[]   @relation("OrgMembers")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Problem {
+  id                String              @id @default(cuid())
+  slug              String              @unique
+  title             String
+  prompt            String
+  explanation       Json                @default("{\"beginner\":\"\",\"junior\":\"\"}")
+  language          String              @default("javascript")
+  difficulty        ProblemDifficulty
+  conceptTags       String[]
+  starterCode       String
+  functionName      String
+  tests             Json
+  referenceSolution String
+  order             Int                 @default(0)
+  submissions       ProblemSubmission[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([language, difficulty])
+}
+
+model ProblemSubmission {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId  String
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  code       String
+  passed     Boolean
+  durationMs Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId, problemId])
+  @@index([problemId, passed])
 }
 
 model Account {

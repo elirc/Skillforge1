@@ -1,0 +1,17 @@
+{
+  "slug": "js-easy-quiz-has-target",
+  "title": "Quiz Has Target",
+  "prompt": "A quiz alert needs to know whether an exact score appears. Write a function that returns true when the target value is in the array.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "search"
+  ],
+  "order": 10004,
+  "exercise": "js-easy-quiz-has-target",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Quiz Has Target, read the story as a simple input-to-output rule: A quiz alert needs to know whether an exact score appears. Write a function that returns true when the target value is in the array. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and search. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

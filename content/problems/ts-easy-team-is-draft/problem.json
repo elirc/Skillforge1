@@ -1,0 +1,17 @@
+{
+  "slug": "ts-easy-team-is-draft",
+  "title": "Team Is Draft",
+  "prompt": "A TypeScript workflow uses status strings for teams. Write a function that returns true only when status is \"draft\".",
+  "language": "typescript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "typescript",
+    "literal-unions"
+  ],
+  "order": 20027,
+  "exercise": "ts-easy-team-is-draft",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Team Is Draft, read the story as a simple input-to-output rule: A TypeScript workflow uses status strings for teams. Write a function that returns true only when status is \"draft\". Work through one small example by hand, then write the steps in TypeScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure TypeScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is typescript and literal-unions. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

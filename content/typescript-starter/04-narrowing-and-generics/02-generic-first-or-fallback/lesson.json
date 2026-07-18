@@ -1,0 +1,31 @@
+{
+  "title": "Generic First or Fallback",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Generics let a function preserve the caller's type instead of collapsing everything to any. A generic helper can work for strings, numbers, or objects while still returning the same kind of value."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function firstOrFallback<T>(items: T[], fallback: T): T {\n  return items.length > 0 ? items[0] : fallback;\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the generic idea.",
+      "payload": {
+        "text": "A type parameter like ____ lets the function remember the caller's value type.",
+        "blanks": ["T"]
+      },
+      "conceptTags": ["typescript", "generics"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the first item, or the fallback when the array is empty.",
+      "exercise": "first-or-fallback",
+      "conceptTags": ["typescript", "generics", "arrays"]
+    }
+  ]
+}

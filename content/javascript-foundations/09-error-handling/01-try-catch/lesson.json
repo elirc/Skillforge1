@@ -1,0 +1,32 @@
+{
+  "title": "Catch Errors with try / catch",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Some operations can throw, like JSON.parse on malformed text. Wrap risky work in a try block and handle the failure in catch so one bad input does not crash the whole program."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function readJson(text) {\n  try {\n    return JSON.parse(text);\n  } catch {\n    return {};\n  }\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What runs when code inside a try block throws?",
+      "payload": {
+        "choices": ["the catch block", "the try block again", "nothing, the program stops", "the finally block only"],
+        "answer": "the catch block",
+        "explanation": "A thrown error transfers control to the matching catch block."
+      },
+      "conceptTags": ["error-handling", "try-catch"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Parse the JSON text and return the value; return an empty object {} if the text is not valid JSON.",
+      "exercise": "parse-config",
+      "conceptTags": ["error-handling", "try-catch", "json"]
+    }
+  ]
+}

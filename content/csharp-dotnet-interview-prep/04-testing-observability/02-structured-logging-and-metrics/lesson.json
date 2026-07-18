@@ -1,0 +1,45 @@
+{
+  "title": "Structured Logging and Metrics",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Production systems need evidence. Structured logs keep important fields queryable, while metrics show rates, latency, and failures over time. A strong .NET answer mentions correlation ids, user-safe fields, and avoiding secrets in logs."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "logger.LogInformation(\n    \"Completed lesson {LessonId} for user {UserId} in {ElapsedMs}ms\",\n    lessonId,\n    userId,\n    stopwatch.ElapsedMilliseconds);"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Do not log access tokens, passwords, raw authorization headers, or sensitive personal data."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why prefer structured logging over one large interpolated string?",
+      "payload": {
+        "choices": [
+          "Fields like LessonId and UserId remain queryable",
+          "It makes logs impossible to read",
+          "It prevents all production bugs",
+          "It replaces metrics"
+        ],
+        "answer": "Fields like LessonId and UserId remain queryable",
+        "explanation": "Structured properties can be searched, aggregated, and correlated by log tooling."
+      },
+      "conceptTags": ["observability", "logging"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the observability answer.",
+      "payload": {
+        "text": "Use logs for event detail, metrics for trends, and ____ for following one request across services.",
+        "blanks": ["traces"]
+      },
+      "conceptTags": ["observability", "tracing"]
+    }
+  ]
+}

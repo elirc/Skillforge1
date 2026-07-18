@@ -1,0 +1,22 @@
+{
+  "title": "Reduce to a Running Best",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Reduce is not only for sums. By keeping the larger of the accumulator and the current item, you can fold a list down to its maximum. Seed the accumulator with the first element so the comparison starts from a real value."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const best = [3, 9, 2].reduce((max, value) => (value > max ? value : max));\n// best is 9"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Return the highest score in a non-empty array.",
+      "exercise": "max-score",
+      "conceptTags": ["arrays", "reduce"]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "slug": "reverse-words",
+  "title": "Reverse the Word Order",
+  "prompt": "A note-taking app needs a quick way to flip the order of words in a sentence. Given a sentence with single spaces between words, write a function that returns the words in reverse order joined by single spaces.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "strings",
+    "arrays"
+  ],
+  "order": 11,
+  "exercise": "reverse-words",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Reverse the Word Order, read the story as a simple input-to-output rule: A note-taking app needs a quick way to flip the order of words in a sentence. Given a sentence with single spaces between words, write a function that returns the words in reverse order joined by single spaces. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and arrays. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

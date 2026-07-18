@@ -1,0 +1,17 @@
+{
+  "slug": "js-medium-lead-sort-by-score",
+  "title": "Lead Sort By Score",
+  "prompt": "A lead ranking view needs highest scores first. Write a function that returns a new array sorted by score from highest to lowest without mutating the input.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "arrays",
+    "sorting"
+  ],
+  "order": 11026,
+  "exercise": "js-medium-lead-sort-by-score",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Lead Sort By Score, read the story as a simple input-to-output rule: A lead ranking view needs highest scores first. Write a function that returns a new array sorted by score from highest to lowest without mutating the input. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and sorting. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

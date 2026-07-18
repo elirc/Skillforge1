@@ -1,0 +1,32 @@
+{
+  "title": "Reduce Combines a List into One Value",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "reduce walks an array and folds it into a single value. The callback receives the running accumulator and the current item, and the second argument to reduce is the starting accumulator."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const total = [10, 20, 5].reduce((sum, value) => sum + value, 0);\n// total is 35"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is the second argument passed to reduce?",
+      "payload": {
+        "choices": ["the starting accumulator value", "the array length", "a callback to run last", "the index to start at"],
+        "answer": "the starting accumulator value",
+        "explanation": "reduce(callback, initialValue) seeds the accumulator with initialValue."
+      },
+      "conceptTags": ["arrays", "reduce"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the total of every XP value using reduce (0 for an empty list).",
+      "exercise": "total-xp",
+      "conceptTags": ["arrays", "reduce"]
+    }
+  ]
+}

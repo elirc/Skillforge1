@@ -1,0 +1,17 @@
+{
+  "slug": "slugify-title",
+  "title": "Slugify a Title",
+  "prompt": "A blog editor needs URL-friendly titles. Write a function that lowercases the title, removes punctuation, trims extra spaces, and joins remaining words with hyphens.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "strings",
+    "regex"
+  ],
+  "order": 39,
+  "exercise": "slugify-title",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Slugify a Title, read the story as a simple input-to-output rule: A blog editor needs URL-friendly titles. Write a function that lowercases the title, removes punctuation, trims extra spaces, and joins remaining words with hyphens. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and regex. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

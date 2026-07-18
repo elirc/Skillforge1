@@ -1,0 +1,31 @@
+{
+  "title": "Rest Parameters",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A rest parameter, written ...numbers, gathers any number of trailing arguments into a real array. The function can then loop or reduce over them, so callers are not limited to a fixed argument count."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function sumAll(...numbers) {\n  return numbers.reduce((sum, n) => sum + n, 0);\n}\nsumAll(1, 2, 3); // 6"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Name the syntax.",
+      "payload": {
+        "text": "Writing function f(...args) collects the arguments into an array using the ____ parameter syntax.",
+        "blanks": ["rest"]
+      },
+      "conceptTags": ["rest-parameters", "functions"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Using a rest parameter, return the sum of all numbers passed in (0 when none are passed).",
+      "exercise": "sum-all",
+      "conceptTags": ["rest-parameters", "reduce"]
+    }
+  ]
+}

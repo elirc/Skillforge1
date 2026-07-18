@@ -1,0 +1,32 @@
+{
+  "title": "Normalize User Input",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Programs often receive messy text. Trimming whitespace and normalizing case helps searches, comparisons, and tags behave consistently."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const normalized = label.trim().toLowerCase();"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which operation removes spaces from the start and end of a string?",
+      "payload": {
+        "choices": ["trim()", "slice()", "split()", "padStart()"],
+        "answer": "trim()",
+        "explanation": "trim removes leading and trailing whitespace."
+      },
+      "conceptTags": ["strings", "normalization"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return a normalized handle: trim it, lowercase it, and remove a leading @ if present.",
+      "exercise": "normalize-handle",
+      "conceptTags": ["strings", "cleanup"]
+    }
+  ]
+}

@@ -12,11 +12,31 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+interface CoursePageData {
+  slug: string;
+  title: string;
+  description: string;
+  language: string;
+  difficulty: string;
+  isPro: boolean;
+  outcomes: string[];
+  modules: {
+    id: string;
+    title: string;
+    lessons: {
+      id: string;
+      title: string;
+      completions: unknown[];
+      knowledgeItems: unknown[];
+    }[];
+  }[];
+}
+
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const course = await getCourseBySlug(slug);
+  const course = (await getCourseBySlug(slug)) as Pick<CoursePageData, "title" | "description"> | null;
   if (!course) return {};
   return {
     title: `${course.title} | Skillforge`,
@@ -26,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CoursePage({ params }: PageProps) {
   const { slug } = await params;
-  const course = await getCourseBySlug(slug);
+  const course = (await getCourseBySlug(slug)) as CoursePageData | null;
   if (!course) notFound();
 
   const lessons = course.modules.flatMap((module) => module.lessons);

@@ -1,0 +1,35 @@
+{
+  "title": "Array and Record Types",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Type a list of numbers as number[] and a list of strings as string[]. For a lookup object keyed by string, use Record<string, number>. These annotations let the compiler check every element and value."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "const scores: number[] = [80, 92];\nconst counts: Record<string, number> = { a: 2, b: 1 };"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which type describes an array of strings?",
+      "payload": {
+        "choices": ["string[]", "[string]", "Array(string)", "strings"],
+        "answer": "string[]",
+        "explanation": "Append [] to the element type: string[] is an array of strings."
+      },
+      "conceptTags": ["types", "arrays"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the type.",
+      "payload": {
+        "text": "An object used as a string-keyed lookup of numbers can be typed as ____<string, number>.",
+        "blanks": ["Record"]
+      },
+      "conceptTags": ["types", "records"]
+    }
+  ]
+}

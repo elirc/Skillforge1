@@ -1,0 +1,32 @@
+{
+  "title": "Model Results with Discriminated Unions",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A discriminated union uses one shared field, often called kind, type, or ok, to tell TypeScript which branch you have. That makes success and failure states explicit."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "type Result =\n  | { ok: true; value: string }\n  | { ok: false; error: string };\n\nfunction message(result: Result) {\n  return result.ok ? result.value : result.error;\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is the discriminant in `{ ok: true; value: string } | { ok: false; error: string }`?",
+      "payload": {
+        "choices": ["ok", "value", "error", "string"],
+        "answer": "ok",
+        "explanation": "The ok field tells TypeScript which variant is present."
+      },
+      "conceptTags": ["typescript", "unions", "state"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the value for successful results, otherwise return `Error: <message>`.",
+      "exercise": "result-message",
+      "conceptTags": ["typescript", "discriminated-unions"]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "title": "Variables Hold Values",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A variable gives a value a name so the program can reuse it. Prefer const when the binding will not be reassigned."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const dailyGoal = 50;\nconst earned = 35;\nconst remaining = dailyGoal - earned;"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "The value can still be an object or array that changes; const protects the binding, not every nested value."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which declaration should you usually choose for a binding that will not be reassigned?",
+      "payload": {
+        "choices": ["const", "var", "let", "function"],
+        "answer": "const",
+        "explanation": "const communicates that the binding itself should stay attached to the same value."
+      },
+      "conceptTags": ["variables", "const"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the sentence about bindings.",
+      "payload": {
+        "text": "A variable gives a value a ____ so it can be reused later.",
+        "blanks": ["name"]
+      },
+      "conceptTags": ["variables"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement addXp so it returns the current XP plus earned XP.",
+      "exercise": "add-xp",
+      "conceptTags": ["variables", "expressions"]
+    }
+  ]
+}

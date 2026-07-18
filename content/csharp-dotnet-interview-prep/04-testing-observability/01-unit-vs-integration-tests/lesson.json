@@ -1,0 +1,45 @@
+{
+  "title": "Choose Unit or Integration Tests",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Good .NET test strategy starts by choosing the right feedback loop. Unit tests are fast and isolate pure rules. Integration tests prove that routing, dependency injection, authorization, EF Core mapping, and database behavior work together."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "[Fact]\npublic async Task CompleteLesson_creates_review_states()\n{\n    await using var app = new SkillforgeWebApplicationFactory();\n    var client = app.CreateAuthenticatedClient(\"user-1\");\n\n    var response = await client.PostAsync(\"/lessons/lesson-1/complete\", null);\n\n    response.EnsureSuccessStatusCode();\n    await app.AssertReviewStatesCreatedAsync(\"user-1\", \"lesson-1\");\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "In interviews, name the behavior under test, the layer you are testing, and the tradeoff in speed versus confidence."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which behavior is best covered by an integration test?",
+      "payload": {
+        "choices": [
+          "A POST endpoint writes completion and review rows through EF Core",
+          "A pure method clamps a score between 0 and 100",
+          "A string helper trims whitespace",
+          "A simple arithmetic helper adds two values"
+        ],
+        "answer": "A POST endpoint writes completion and review rows through EF Core",
+        "explanation": "That behavior crosses HTTP, auth, DI, EF Core, and persistence boundaries."
+      },
+      "conceptTags": ["testing", "integration-tests", "ef-core"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the testing answer.",
+      "payload": {
+        "text": "Use unit tests for isolated business rules and ____ tests for behavior that depends on real framework wiring or persistence.",
+        "blanks": ["integration"]
+      },
+      "conceptTags": ["testing", "interviews"]
+    }
+  ]
+}

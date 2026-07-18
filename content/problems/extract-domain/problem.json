@@ -1,0 +1,17 @@
+{
+  "slug": "extract-domain",
+  "title": "Extract Domain",
+  "prompt": "An analytics report stores full URLs but wants only the domain. Write a function that removes an optional http:// or https:// prefix and returns everything before the first slash.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "strings",
+    "urls"
+  ],
+  "order": 55,
+  "exercise": "extract-domain",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Extract Domain, read the story as a simple input-to-output rule: An analytics report stores full URLs but wants only the domain. Write a function that removes an optional http:// or https:// prefix and returns everything before the first slash. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and urls. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

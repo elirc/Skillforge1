@@ -1,0 +1,17 @@
+{
+  "slug": "double-numbers",
+  "title": "Double Numbers",
+  "prompt": "A score preview wants to show what each value would look like after a bonus multiplier. Write a function that returns a new array where every number from the input is doubled.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "map"
+  ],
+  "order": 30,
+  "exercise": "double-numbers",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Double Numbers, read the story as a simple input-to-output rule: A score preview wants to show what each value would look like after a bonus multiplier. Write a function that returns a new array where every number from the input is doubled. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and map. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

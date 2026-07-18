@@ -1,0 +1,17 @@
+{
+  "slug": "ts-easy-project-ensure-list",
+  "title": "Project Ensure List",
+  "prompt": "A TypeScript helper for projects accepts either one value or a list. Write a generic function that always returns an array.",
+  "language": "typescript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "typescript",
+    "generics"
+  ],
+  "order": 20020,
+  "exercise": "ts-easy-project-ensure-list",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Project Ensure List, read the story as a simple input-to-output rule: A TypeScript helper for projects accepts either one value or a list. Write a generic function that always returns an array. Work through one small example by hand, then write the steps in TypeScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure TypeScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is typescript and generics. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

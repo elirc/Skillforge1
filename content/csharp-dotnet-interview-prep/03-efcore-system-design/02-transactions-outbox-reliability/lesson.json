@@ -1,0 +1,60 @@
+{
+  "title": "Transactions, Outbox, and Reliability",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A mid-level engineer can spot partial-write risk. A senior engineer explains whether to use a transaction, an outbox, an idempotency key, or eventual consistency."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "await using var tx = await db.Database.BeginTransactionAsync(ct);\n\ncompletion.MarkDone(userId, lessonId);\nreviewSeeder.SeedDueItems(userId, lessonId);\noutbox.Enqueue(new ReminderRecalculationRequested(userId));\n\nawait db.SaveChangesAsync(ct);\nawait tx.CommitAsync(ct);"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Sending an email inside the transaction is usually the wrong move. Persist the intent, then let a worker deliver and retry it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What problem does the outbox pattern solve?",
+      "payload": {
+        "choices": [
+          "It reliably records an external side-effect request alongside database state",
+          "It makes CSS load faster",
+          "It removes the need for validation",
+          "It prevents all exceptions"
+        ],
+        "answer": "It reliably records an external side-effect request alongside database state",
+        "explanation": "The outbox pattern helps bridge database commits and external delivery systems without losing intent."
+      },
+      "conceptTags": ["system-design", "outbox", "reliability"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the reliability sentence.",
+      "payload": {
+        "text": "An idempotency key lets a retried operation avoid creating ____ side effects.",
+        "blanks": ["duplicate"]
+      },
+      "conceptTags": ["system-design", "idempotency"]
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why should email delivery usually happen outside the database transaction?",
+      "payload": {
+        "choices": [
+          "External delivery can fail or hang independently of the database commit",
+          "Transactions cannot write rows",
+          "Email providers require EF Core",
+          "It makes authorization unnecessary"
+        ],
+        "answer": "External delivery can fail or hang independently of the database commit",
+        "explanation": "Persist the intent to send, commit the database transaction, then let a retryable worker perform delivery."
+      },
+      "conceptTags": ["system-design", "transactions", "email"]
+    }
+  ]
+}

@@ -1,16 +1,8 @@
 import { PrismaClient, type Prisma } from "@prisma/client";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-import { courseSeedSchema, type CourseSeed } from "../src/lib/content-schema";
+import { type CourseSeed } from "../src/lib/content-schema";
+import { loadAllCourses, loadAllProblems } from "../scripts/lib/content";
 
 const prisma = new PrismaClient();
-
-const files = ["javascript-foundations.json", "typescript-starter.json", "python-thinking.json"];
-
-async function loadCourse(file: string) {
-  const raw = await readFile(join(process.cwd(), "content", "courses", file), "utf8");
-  return courseSeedSchema.parse(JSON.parse(raw));
-}
 
 async function upsertCourse(course: CourseSeed) {
   await prisma.course.upsert({
@@ -70,6 +62,29 @@ async function upsertCourse(course: CourseSeed) {
         })),
       });
     }
+  }
+}
+
+async function seedProblems() {
+  for (const problem of await loadAllProblems()) {
+    const data = {
+      title: problem.title,
+      prompt: problem.prompt,
+      explanation: problem.explanation as Prisma.InputJsonValue,
+      language: problem.language,
+      difficulty: problem.difficulty,
+      conceptTags: problem.conceptTags,
+      order: problem.order,
+      starterCode: problem.starterCode,
+      functionName: problem.functionName,
+      tests: problem.tests as Prisma.InputJsonValue,
+      referenceSolution: problem.referenceSolution,
+    };
+    await prisma.problem.upsert({
+      where: { slug: problem.slug },
+      update: data,
+      create: { slug: problem.slug, ...data },
+    });
   }
 }
 
@@ -183,9 +198,10 @@ async function seedDemoUser() {
 }
 
 async function main() {
-  for (const file of files) {
-    await upsertCourse(await loadCourse(file));
+  for (const course of await loadAllCourses()) {
+    await upsertCourse(course);
   }
+  await seedProblems();
   await seedAchievements();
   await seedDemoUser();
 }

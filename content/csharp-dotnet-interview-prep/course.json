@@ -1,0 +1,18 @@
+{
+  "slug": "csharp-dotnet-interview-prep",
+  "title": "C# and .NET Interview Prep",
+  "description": "Practice mid-level C# and .NET interview concepts through code-reading drills, architecture scenarios, and review prompts.",
+  "language": "csharp",
+  "topicTags": ["csharp", "dotnet", "aspnet-core", "ef-core", "async", "interviews", "testing", "observability", "performance", "deployment"],
+  "difficulty": "INTERMEDIATE",
+  "isPro": false,
+  "order": 4,
+  "outcomes": [
+    "Explain C# runtime and type-system fundamentals in interview language",
+    "Map ASP.NET Core endpoint, service, validation, and authorization responsibilities",
+    "Reason about EF Core indexes, migrations, transactions, and outbox patterns",
+    "Practice mid-level debugging, code review, and system design answers",
+    "Choose unit, integration, and end-to-end tests for .NET service behavior",
+    "Discuss production readiness through logging, metrics, performance, caching, and secrets"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "react-medium-profile-limit-queue",
+  "title": "Profile Limit Queue",
+  "prompt": "A React profile notification queue should keep only the newest items. Write a helper that appends the next item and returns only the last maxItems entries.",
+  "language": "react",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "react",
+    "state",
+    "arrays"
+  ],
+  "order": 31005,
+  "exercise": "react-medium-profile-limit-queue",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Profile Limit Queue, read the story as a simple input-to-output rule: A React profile notification queue should keep only the newest items. Write a helper that appends the next item and returns only the last maxItems entries. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, state and arrays. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

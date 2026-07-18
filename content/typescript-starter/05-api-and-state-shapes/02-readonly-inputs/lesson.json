@@ -1,0 +1,31 @@
+{
+  "title": "Readonly Inputs",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "ReadonlyArray tells callers that your function will read a list without changing it. It is a small annotation that prevents accidental mutation in shared state."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function passingScores(scores: ReadonlyArray<number>): number[] {\n  return scores.filter((score) => score >= 70);\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the readonly array type.",
+      "payload": {
+        "text": "Use ____<number> when a function should read scores without mutating the input list.",
+        "blanks": ["ReadonlyArray"]
+      },
+      "conceptTags": ["typescript", "readonly"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return passing scores from a readonly input without changing the original array.",
+      "exercise": "passing-readonly",
+      "conceptTags": ["typescript", "readonly", "arrays"]
+    }
+  ]
+}

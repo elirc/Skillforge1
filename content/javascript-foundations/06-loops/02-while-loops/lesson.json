@@ -1,0 +1,31 @@
+{
+  "title": "While Loops Repeat Until Done",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A while loop repeats as long as its condition stays true. Reach for it when you do not know the number of passes up front but you can describe when to stop. Always change something inside the loop so the condition can become false."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "let n = 1234;\nlet digits = 0;\nwhile (n > 0) {\n  digits++;\n  n = Math.floor(n / 10);\n}\n// digits is 4"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Avoid this loop hazard.",
+      "payload": {
+        "text": "A while loop runs forever if its condition never becomes ____.",
+        "blanks": ["false"]
+      },
+      "conceptTags": ["loops"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the sum of the digits of a non-negative whole number (sumDigits(123) is 6).",
+      "exercise": "sum-digits",
+      "conceptTags": ["loops", "math"]
+    }
+  ]
+}

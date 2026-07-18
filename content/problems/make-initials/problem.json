@@ -1,0 +1,17 @@
+{
+  "slug": "make-initials",
+  "title": "Make Initials",
+  "prompt": "A profile avatar needs initials from a person's full name. Write a function that returns the uppercase first letter of each non-empty space-separated part of the name.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "strings",
+    "arrays"
+  ],
+  "order": 46,
+  "exercise": "make-initials",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Make Initials, read the story as a simple input-to-output rule: A profile avatar needs initials from a person's full name. Write a function that returns the uppercase first letter of each non-empty space-separated part of the name. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and arrays. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

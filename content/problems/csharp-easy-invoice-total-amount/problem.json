@@ -1,0 +1,18 @@
+{
+  "slug": "csharp-easy-invoice-total-amount",
+  "title": "Invoice Total Amount",
+  "prompt": "A C# billing worker needs the total amount across invoices. Write a function that adds every amount value and returns the total.",
+  "language": "csharp",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "csharp",
+    "linq",
+    "aggregation"
+  ],
+  "order": 40024,
+  "exercise": "csharp-easy-invoice-total-amount",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Invoice Total Amount, read the story as a simple input-to-output rule: A C# billing worker needs the total amount across invoices. Write a function that adds every amount value and returns the total. Work through one small example by hand, then write the steps in C# using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure C# function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is csharp, linq and aggregation. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

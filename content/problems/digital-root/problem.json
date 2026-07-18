@@ -1,0 +1,17 @@
+{
+  "slug": "digital-root",
+  "title": "Digital Root",
+  "prompt": "A math practice screen reduces a number to one digit. Write a function that repeatedly sums the digits of a non-negative integer until a single digit remains, then returns it. For example, 942 becomes 9 + 4 + 2 = 15, then 1 + 5 = 6.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "math",
+    "loops"
+  ],
+  "order": 19,
+  "exercise": "digital-root",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Digital Root, read the story as a simple input-to-output rule: A math practice screen reduces a number to one digit. Write a function that repeatedly sums the digits of a non-negative integer until a single digit remains, then returns it. For example, 942 becomes 9 + 4 + 2 = 15, then 1 + 5 = 6. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is math and loops. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

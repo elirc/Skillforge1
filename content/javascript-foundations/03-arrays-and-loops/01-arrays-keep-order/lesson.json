@@ -1,0 +1,32 @@
+{
+  "title": "Arrays Keep Order",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An array stores ordered values. Use indexes to read one item and methods to transform collections."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const tags = [\"variables\", \"functions\"];\nconst firstTag = tags[0];"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What index reads the first item in a JavaScript array?",
+      "payload": {
+        "choices": ["0", "1", "-1", "first"],
+        "answer": "0",
+        "explanation": "JavaScript arrays are zero-indexed."
+      },
+      "conceptTags": ["arrays"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the first tag from an array.",
+      "exercise": "first-tag",
+      "conceptTags": ["arrays"]
+    }
+  ]
+}

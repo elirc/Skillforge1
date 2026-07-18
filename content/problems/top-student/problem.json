@@ -1,0 +1,17 @@
+{
+  "slug": "top-student",
+  "title": "Top Student",
+  "prompt": "A class summary needs the student with the highest average score. Write a function that returns that student's name. If there are no students, return an empty string.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "arrays",
+    "objects"
+  ],
+  "order": 41,
+  "exercise": "top-student",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Top Student, read the story as a simple input-to-output rule: A class summary needs the student with the highest average score. Write a function that returns that student's name. If there are no students, return an empty string. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and objects. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

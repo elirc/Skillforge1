@@ -1,0 +1,17 @@
+{
+  "slug": "sum-array",
+  "title": "Sum an Array",
+  "prompt": "A dashboard receives a list of daily point totals. Write a function that returns the sum of all numbers in the array. If there are no entries yet, return 0.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "reduce"
+  ],
+  "order": 1,
+  "exercise": "sum-array",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Sum an Array, read the story as a simple input-to-output rule: A dashboard receives a list of daily point totals. Write a function that returns the sum of all numbers in the array. If there are no entries yet, return 0. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and reduce. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

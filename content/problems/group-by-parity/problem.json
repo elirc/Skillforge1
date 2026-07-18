@@ -1,0 +1,17 @@
+{
+  "slug": "group-by-parity",
+  "title": "Group by Even and Odd",
+  "prompt": "A number sorter needs to split values into even and odd lanes. Write a function that returns an object { even, odd } where each key holds the matching numbers in their original order.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "arrays",
+    "objects"
+  ],
+  "order": 17,
+  "exercise": "group-by-parity",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Group by Even and Odd, read the story as a simple input-to-output rule: A number sorter needs to split values into even and odd lanes. Write a function that returns an object { even, odd } where each key holds the matching numbers in their original order. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and objects. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

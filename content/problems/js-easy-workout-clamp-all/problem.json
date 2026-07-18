@@ -1,0 +1,17 @@
+{
+  "slug": "js-easy-workout-clamp-all",
+  "title": "Workout Clamp All",
+  "prompt": "A workout chart must keep every rep count inside a visible range. Write a function that returns a new array where values below min become min and values above max become max.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "numbers"
+  ],
+  "order": 10025,
+  "exercise": "js-easy-workout-clamp-all",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Workout Clamp All, read the story as a simple input-to-output rule: A workout chart must keep every rep count inside a visible range. Write a function that returns a new array where values below min become min and values above max become max. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and numbers. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

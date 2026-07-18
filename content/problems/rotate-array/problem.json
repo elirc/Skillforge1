@@ -1,0 +1,18 @@
+{
+  "slug": "rotate-array",
+  "title": "Rotate an Array",
+  "prompt": "A carousel needs to move the last k items to the front without changing the original list. Write a function that returns a new array rotated to the right by k steps.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "arrays",
+    "slicing",
+    "immutability"
+  ],
+  "order": 23,
+  "exercise": "rotate-array",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Rotate an Array, read the story as a simple input-to-output rule: A carousel needs to move the last k items to the front without changing the original list. Write a function that returns a new array rotated to the right by k steps. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays, slicing and immutability. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

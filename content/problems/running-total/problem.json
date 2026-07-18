@@ -1,0 +1,18 @@
+{
+  "slug": "running-total",
+  "title": "Running Total",
+  "prompt": "Return an array where each position contains the sum of all numbers up to and including that position.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "loops",
+    "prefix-sums"
+  ],
+  "order": 29,
+  "exercise": "running-total",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Running Total, read the story as a simple input-to-output rule: Return an array where each position contains the sum of all numbers up to and including that position. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays, loops and prefix-sums. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "title": "Branch with Conditions",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Use if statements when the program must choose between paths. Keep each condition readable and focused on one decision."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "if (streak > 0) {\n  message = \"Keep going\";\n} else {\n  message = \"Start today\";\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Fill in the missing keyword.",
+      "payload": {
+        "text": "An ____ statement lets JavaScript choose a path based on a condition.",
+        "blanks": ["if"]
+      },
+      "conceptTags": ["control-flow"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return 'pro' for pro users and 'core' for everyone else.",
+      "exercise": "plan-label",
+      "conceptTags": ["control-flow"]
+    }
+  ]
+}

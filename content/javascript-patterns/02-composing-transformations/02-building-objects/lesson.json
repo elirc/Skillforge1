@@ -1,0 +1,31 @@
+{
+  "title": "Build a Lookup Object",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A common pattern is folding a list into an object that counts or indexes its items. Walk the list and update a key on an accumulator object, starting from {}."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const counts = {};\nfor (const word of [\"a\", \"b\", \"a\"]) {\n  counts[word] = (counts[word] ?? 0) + 1;\n}\n// { a: 2, b: 1 }"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the safe-increment pattern.",
+      "payload": {
+        "text": "counts[word] = (counts[word] ?? 0) + ____ adds one, treating a missing key as 0.",
+        "blanks": ["1"]
+      },
+      "conceptTags": ["objects", "counting"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return an object mapping each word to how many times it appears in the list.",
+      "exercise": "tally",
+      "conceptTags": ["objects", "counting"]
+    }
+  ]
+}

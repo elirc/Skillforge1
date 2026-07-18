@@ -1,0 +1,31 @@
+{
+  "title": "Common String Methods",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Strings carry helper methods that return new strings. trim() removes surrounding whitespace and toUpperCase() returns an all-caps copy. Strings are immutable, so these methods never change the original."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const raw = \"  forge \";\nconst clean = raw.trim().toUpperCase(); // \"FORGE\""
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Name the method.",
+      "payload": {
+        "text": "____() returns a copy of a string with surrounding whitespace removed.",
+        "blanks": ["trim"]
+      },
+      "conceptTags": ["strings", "methods"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the text trimmed of surrounding spaces and converted to upper case.",
+      "exercise": "shout",
+      "conceptTags": ["strings", "methods"]
+    }
+  ]
+}

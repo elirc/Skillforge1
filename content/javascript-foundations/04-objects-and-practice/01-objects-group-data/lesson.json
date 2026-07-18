@@ -1,0 +1,46 @@
+{
+  "title": "Objects Group Related Data",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An object groups related values under named keys. Read a value with dot access (learner.streak) when you know the key name."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const learner = { name: \"Ada\", streak: 5 };\nconst current = learner.streak; // 5"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Use dot access for fixed keys you write by hand, and bracket access (learner[\"streak\"]) when the key lives in a variable."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "How do you read the streak value from const learner = { name, streak }?",
+      "payload": {
+        "choices": ["learner.streak", "learner->streak", "streak(learner)", "learner:streak"],
+        "answer": "learner.streak",
+        "explanation": "Dot access reads a property by its key name."
+      },
+      "conceptTags": ["objects", "property-access"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the access style.",
+      "payload": {
+        "text": "Reading learner.streak uses ____ access.",
+        "blanks": ["dot"]
+      },
+      "conceptTags": ["objects"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the streak value from a learner object.",
+      "exercise": "get-streak",
+      "conceptTags": ["objects", "property-access"]
+    }
+  ]
+}

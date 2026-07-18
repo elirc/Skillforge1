@@ -1,0 +1,40 @@
+{
+  "title": "Debug Production Issues Safely",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "When a production issue appears, the safest answer is systematic: define impact, check recent deploys, inspect telemetry, reproduce with safe data, mitigate, then fix with regression coverage."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Incident checklist:\n// 1. What users and endpoints are affected?\n// 2. Did errors, latency, or dependency failures spike?\n// 3. What changed recently?\n// 4. Can we rollback, disable a feature flag, or drain work?\n// 5. What test or monitor prevents this from returning?"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A deployment caused lesson completion to fail for every user. What is the strongest first response?",
+      "payload": {
+        "choices": [
+          "Mitigate impact with rollback or feature flag, then investigate with logs and metrics",
+          "Start rewriting the module immediately",
+          "Wait to see if users stop reporting it",
+          "Delete failed rows manually without understanding why"
+        ],
+        "answer": "Mitigate impact with rollback or feature flag, then investigate with logs and metrics",
+        "explanation": "Production debugging balances user impact, evidence gathering, and durable fixes."
+      },
+      "conceptTags": ["debugging", "incidents", "production"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the incident answer.",
+      "payload": {
+        "text": "A reliable incident response prioritizes mitigation, evidence, root cause, and ____ coverage.",
+        "blanks": ["regression"]
+      },
+      "conceptTags": ["debugging", "testing"]
+    }
+  ]
+}

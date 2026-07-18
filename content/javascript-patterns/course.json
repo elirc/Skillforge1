@@ -1,0 +1,16 @@
+{
+  "slug": "javascript-patterns",
+  "title": "JavaScript Patterns",
+  "description": "Level up beyond the basics with destructuring, flexible parameters, and composing array transformations into readable pipelines.",
+  "language": "javascript",
+  "topicTags": ["destructuring", "rest-parameters", "method-chaining", "objects", "intermediate"],
+  "difficulty": "INTERMEDIATE",
+  "isPro": false,
+  "order": 5,
+  "outcomes": [
+    "Pull values out of objects and arrays with destructuring",
+    "Write functions that accept a variable number of arguments",
+    "Compose filter, sort, and map into readable pipelines",
+    "Build lookup objects from lists"
+  ]
+}

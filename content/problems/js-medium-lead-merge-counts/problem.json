@@ -1,0 +1,17 @@
+{
+  "slug": "js-medium-lead-merge-counts",
+  "title": "Lead Merge Counts",
+  "prompt": "A lead report receives count objects from two sources. Write a function that returns one object with counts from matching keys added together.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "objects",
+    "counting"
+  ],
+  "order": 11029,
+  "exercise": "js-medium-lead-merge-counts",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Lead Merge Counts, read the story as a simple input-to-output rule: A lead report receives count objects from two sources. Write a function that returns one object with counts from matching keys added together. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is objects and counting. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

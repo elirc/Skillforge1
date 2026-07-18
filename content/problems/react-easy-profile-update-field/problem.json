@@ -1,0 +1,18 @@
+{
+  "slug": "react-easy-profile-update-field",
+  "title": "Profile Update Field",
+  "prompt": "A React profile form stores values in one object. Write a helper that returns a new form object with the requested field updated.",
+  "language": "react",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "react",
+    "forms",
+    "immutability"
+  ],
+  "order": 30005,
+  "exercise": "react-easy-profile-update-field",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Profile Update Field, read the story as a simple input-to-output rule: A React profile form stores values in one object. Write a helper that returns a new form object with the requested field updated. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, forms and immutability. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

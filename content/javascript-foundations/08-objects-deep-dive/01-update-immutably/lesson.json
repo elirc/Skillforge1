@@ -1,0 +1,36 @@
+{
+  "title": "Update Objects Immutably",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Instead of mutating an object in place, build a new one with the spread syntax. { ...original, key: value } copies every existing key and then overrides the ones you list. This keeps the original untouched, which makes state changes predictable."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const learner = { name: \"Ada\", streak: 1 };\nconst updated = { ...learner, streak: 7 };\n// learner.streak is still 1"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Spread copies one level deep. Nested objects and arrays are shared by reference unless you copy them too."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Name the syntax.",
+      "payload": {
+        "text": "{ ...learner, streak: 7 } uses the ____ syntax to copy and override keys.",
+        "blanks": ["spread"]
+      },
+      "conceptTags": ["objects", "immutability"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return a new learner object with streak set to the given value, leaving the input untouched.",
+      "exercise": "with-streak",
+      "conceptTags": ["objects", "immutability", "spread"]
+    }
+  ]
+}

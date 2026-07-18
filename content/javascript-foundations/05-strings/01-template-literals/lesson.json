@@ -1,0 +1,32 @@
+{
+  "title": "Template Literals",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A template literal is a string written with backticks. Inside it, ${expression} is replaced with the value of that expression, which keeps string building readable."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const name = \"Ada\";\nconst greeting = `Hello, ${name}!`; // \"Hello, Ada!\""
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which character wraps a template literal?",
+      "payload": {
+        "choices": ["a backtick `", "a single quote '", "a double quote \"", "a slash /"],
+        "answer": "a backtick `",
+        "explanation": "Template literals use backticks so they can embed ${expressions}."
+      },
+      "conceptTags": ["strings", "template-literals"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return a greeting like 'Hello, Ada!' for the given name.",
+      "exercise": "greet",
+      "conceptTags": ["strings", "template-literals"]
+    }
+  ]
+}

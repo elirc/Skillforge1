@@ -1,0 +1,60 @@
+{
+  "title": "Practice: Mid-Level Interview Scenarios",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Use this lesson as a rehearsal board. Each prompt asks you to answer like a mid-level engineer: name the boundary, invariant, failure mode, and test."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Scenario prompt: a user completes a lesson but no reviews appear.\n// Strong answer outline:\n// 1. Verify completion row.\n// 2. Verify lesson knowledge items.\n// 3. Verify ReviewState rows for the same user.\n// 4. Verify DueAt filter.\n// 5. Add integration coverage for the invariant."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "A strong interview answer is not just the fix. It includes how you narrowed the bug, how you prevent regression, and how you would know it broke again."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A reviewer sees a query for `ReviewState` by id only. What is the strongest review comment?",
+      "payload": {
+        "choices": [
+          "Block: include `UserId` or a resource authorization check to prevent cross-user access",
+          "Nit: rename the variable",
+          "Approve because the id is probably random",
+          "Ask for a screenshot"
+        ],
+        "answer": "Block: include `UserId` or a resource authorization check to prevent cross-user access",
+        "explanation": "Random-looking ids are not authorization. Resource queries must be scoped."
+      },
+      "conceptTags": ["interviews", "code-review", "authorization"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the debugging answer.",
+      "payload": {
+        "text": "A systematic debugging answer starts by reproducing the issue, then ____ the failing layer before changing code.",
+        "blanks": ["narrowing"]
+      },
+      "conceptTags": ["interviews", "debugging"]
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which answer best demonstrates senior judgment for a background reminder system?",
+      "payload": {
+        "choices": [
+          "Use an outbox, retries, idempotency, metrics, and a rollback plan",
+          "Send every email directly inside the request",
+          "Ignore provider failures because they are rare",
+          "Store provider API keys in source control"
+        ],
+        "answer": "Use an outbox, retries, idempotency, metrics, and a rollback plan",
+        "explanation": "Senior answers cover reliability and operations, not only the happy-path implementation."
+      },
+      "conceptTags": ["interviews", "system-design", "reliability"]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "csharp-medium-invoice-validation-errors",
+  "title": "Invoice Validation Errors",
+  "prompt": "A C# API endpoint validates incoming invoice input. Write a function that returns error messages when the number is blank or the amount is negative.",
+  "language": "csharp",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "csharp",
+    "validation",
+    "api"
+  ],
+  "order": 40030,
+  "exercise": "csharp-medium-invoice-validation-errors",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Invoice Validation Errors, read the story as a simple input-to-output rule: A C# API endpoint validates incoming invoice input. Write a function that returns error messages when the number is blank or the amount is negative. Work through one small example by hand, then write the steps in C# using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure C# function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is csharp, validation and api. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

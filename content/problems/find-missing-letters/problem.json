@@ -1,0 +1,17 @@
+{
+  "slug": "find-missing-letters",
+  "title": "Find Missing Letters",
+  "prompt": "A pangram helper checks which lowercase alphabet letters are not present in a sentence. Write a function that returns a string of missing letters in alphabetic order.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "strings",
+    "sets"
+  ],
+  "order": 56,
+  "exercise": "find-missing-letters",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Find Missing Letters, read the story as a simple input-to-output rule: A pangram helper checks which lowercase alphabet letters are not present in a sentence. Write a function that returns a string of missing letters in alphabetic order. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and sets. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

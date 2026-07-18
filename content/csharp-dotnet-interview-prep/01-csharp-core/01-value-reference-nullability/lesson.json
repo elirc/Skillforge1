@@ -1,0 +1,60 @@
+{
+  "title": "Value, Reference, and Nullability",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Mid-level C# interviews often test whether you can explain how values move through a program. Value types store their data directly, reference types store a reference to an object, and nullable reference types help the compiler flag possible null mistakes before runtime."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public sealed class LearnerProfile\n{\n    public required string DisplayName { get; init; }\n    public int CurrentStreak { get; init; }\n    public string? GitHubUserName { get; init; }\n}\n\nLearnerProfile learner = new()\n{\n    DisplayName = \"Ada\",\n    CurrentStreak = 4,\n    GitHubUserName = null\n};"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Interview signal: do not only say 'classes are reference types.' Explain the failure mode: a null reference crossing a service boundary can become a production exception unless the contract is explicit."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "In modern C#, what does `string? GitHubUserName` communicate?",
+      "payload": {
+        "choices": [
+          "The value may intentionally be null",
+          "The string is stored on the stack",
+          "The property can only be assigned once",
+          "The compiler will encrypt the value"
+        ],
+        "answer": "The value may intentionally be null",
+        "explanation": "Nullable reference type syntax documents that null is allowed and lets the compiler warn when callers forget to handle it."
+      },
+      "conceptTags": ["csharp", "nullability", "contracts"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the interview sentence.",
+      "payload": {
+        "text": "Nullable reference types are a compile-time ____ tool; they do not remove the need for runtime validation at external boundaries.",
+        "blanks": ["contract"]
+      },
+      "conceptTags": ["csharp", "nullability", "validation"]
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which answer best describes why `int CurrentStreak` behaves differently from `LearnerProfile learner`?",
+      "payload": {
+        "choices": [
+          "`int` is a value type while `LearnerProfile` is a reference type",
+          "`int` is always nullable while classes never are",
+          "classes are copied field-by-field on assignment",
+          "records are the only reference types in C#"
+        ],
+        "answer": "`int` is a value type while `LearnerProfile` is a reference type",
+        "explanation": "Value types contain their data directly; variables of class type hold references to objects."
+      },
+      "conceptTags": ["csharp", "value-types", "reference-types"]
+    }
+  ]
+}

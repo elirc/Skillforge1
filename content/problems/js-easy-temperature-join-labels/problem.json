@@ -1,0 +1,17 @@
+{
+  "slug": "js-easy-temperature-join-labels",
+  "title": "Temperature Join Labels",
+  "prompt": "A temperature export receives label parts. Write a function that joins the labels with the provided separator string.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "strings",
+    "arrays"
+  ],
+  "order": 10016,
+  "exercise": "js-easy-temperature-join-labels",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Temperature Join Labels, read the story as a simple input-to-output rule: A temperature export receives label parts. Write a function that joins the labels with the provided separator string. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and arrays. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

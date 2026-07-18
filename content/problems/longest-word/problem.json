@@ -1,0 +1,18 @@
+{
+  "slug": "longest-word",
+  "title": "Longest Word",
+  "prompt": "A reading app highlights the longest word in a sentence. Write a function that ignores punctuation at the start or end of each word, then returns the first longest word it finds.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "strings",
+    "arrays",
+    "parsing"
+  ],
+  "order": 24,
+  "exercise": "longest-word",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Longest Word, read the story as a simple input-to-output rule: A reading app highlights the longest word in a sentence. Write a function that ignores punctuation at the start or end of each word, then returns the first longest word it finds. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings, arrays and parsing. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

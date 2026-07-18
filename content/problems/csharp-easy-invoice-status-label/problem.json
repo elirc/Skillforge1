@@ -1,0 +1,18 @@
+{
+  "slug": "csharp-easy-invoice-status-label",
+  "title": "Invoice Status Label",
+  "prompt": "A C# billing worker shows a simple status label. Write a function that returns \"Active\" when isActive is true and \"Inactive\" when it is false.",
+  "language": "csharp",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "csharp",
+    "conditionals",
+    "booleans"
+  ],
+  "order": 40025,
+  "exercise": "csharp-easy-invoice-status-label",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Invoice Status Label, read the story as a simple input-to-output rule: A C# billing worker shows a simple status label. Write a function that returns \"Active\" when isActive is true and \"Inactive\" when it is false. Work through one small example by hand, then write the steps in C# using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure C# function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is csharp, conditionals and booleans. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

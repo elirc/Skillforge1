@@ -1,0 +1,26 @@
+{
+  "title": "Parameters are Inputs",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Parameters are local names for inputs passed into a function. Choose parameter names that describe what the function needs."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the sentence.",
+      "payload": {
+        "text": "Function ____ are local names for incoming values.",
+        "blanks": ["parameters"]
+      },
+      "conceptTags": ["functions", "parameters"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return a friendly label like 'Lesson: Variables'.",
+      "exercise": "lesson-label",
+      "conceptTags": ["functions", "strings"]
+    }
+  ]
+}

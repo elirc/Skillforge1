@@ -1,0 +1,21 @@
+{
+  "slug": "javascript-foundations",
+  "title": "JavaScript Foundations",
+  "description": "Build durable JavaScript basics through tiny lessons, recall prompts, and real code checks.",
+  "language": "javascript",
+  "topicTags": ["variables", "functions", "arrays", "objects", "strings", "loops", "reduce", "control-flow", "error-handling", "sets", "maps", "sorting", "data-cleaning"],
+  "difficulty": "BEGINNER",
+  "isPro": false,
+  "order": 1,
+  "outcomes": [
+    "Explain variables, values, and expressions",
+    "Write small functions with predictable return values",
+    "Use arrays, loops, and conditionals to transform data",
+    "Build and read strings with template literals and methods",
+    "Aggregate collections with reduce",
+    "Read and update plain objects immutably",
+    "Handle invalid input with guards and try/catch",
+    "Use Set and Map for uniqueness and counting",
+    "Clean, group, and sort records without mutating inputs"
+  ]
+}

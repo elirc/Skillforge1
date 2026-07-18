@@ -1,0 +1,32 @@
+{
+  "title": "Destructure Object Parameters",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Destructuring pulls properties out of an object into local variables. Doing it right in the parameter list, like function f({ first, last }), keeps a function readable when it only needs a few keys."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function fullName({ first, last }) {\n  return `${first} ${last}`;\n}\nfullName({ first: \"Ada\", last: \"Lovelace\" }); // \"Ada Lovelace\""
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does function fullName({ first, last }) do with its argument?",
+      "payload": {
+        "choices": ["pulls the first and last properties into local variables", "expects two separate string arguments", "creates a new object", "ignores the argument"],
+        "answer": "pulls the first and last properties into local variables",
+        "explanation": "Destructuring in the parameter list binds the named properties of the passed object."
+      },
+      "conceptTags": ["destructuring", "objects"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Using object destructuring, return the full name as 'first last'.",
+      "exercise": "full-name",
+      "conceptTags": ["destructuring", "objects", "strings"]
+    }
+  ]
+}

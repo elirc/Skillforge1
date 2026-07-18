@@ -1,0 +1,40 @@
+{
+  "title": "Caching and Invalidation",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Caching can reduce repeated database or service work, but every cache introduces freshness rules. Interview answers should name the key, lifetime, invalidation trigger, and fallback when the cache misses."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var key = $\"catalog:{userId}\";\nvar catalog = await cache.GetOrCreateAsync(key, async entry =>\n{\n    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);\n    return await catalogService.BuildCatalogAsync(userId, ct);\n});"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What question must you answer before adding a cache?",
+      "payload": {
+        "choices": [
+          "How and when does cached data become invalid?",
+          "Can every value be cached forever?",
+          "Can caching replace authorization?",
+          "Will caching remove the need for tests?"
+        ],
+        "answer": "How and when does cached data become invalid?",
+        "explanation": "Freshness and invalidation rules determine whether a cache is correct."
+      },
+      "conceptTags": ["caching", "performance"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the caching answer.",
+      "payload": {
+        "text": "A cache key should include every input that changes the result, such as tenant id, user id, locale, or ____.",
+        "blanks": ["permissions"]
+      },
+      "conceptTags": ["caching", "authorization"]
+    }
+  ]
+}

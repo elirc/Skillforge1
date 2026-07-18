@@ -1,0 +1,18 @@
+{
+  "slug": "pair-sum",
+  "title": "Pair Sums to Target",
+  "prompt": "A checkout system wants to know whether two distinct coupons can exactly match a target discount. Write a function that returns true if any two different array positions add up to the target, otherwise false.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "arrays",
+    "search",
+    "sets"
+  ],
+  "order": 2,
+  "exercise": "pair-sum",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Pair Sums to Target, read the story as a simple input-to-output rule: A checkout system wants to know whether two distinct coupons can exactly match a target discount. Write a function that returns true if any two different array positions add up to the target, otherwise false. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays, search and sets. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

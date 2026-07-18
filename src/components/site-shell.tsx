@@ -5,8 +5,10 @@ import { getCurrentUser } from "@/server/user";
 
 export async function SiteShell({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
-  const progress = await prisma.progress.findUnique({ where: { userId: user.id } });
-  const due = await prisma.reviewState.count({ where: { userId: user.id, dueAt: { lte: new Date() } } });
+  const [progress, due] = await Promise.all([
+    prisma.progress.findUnique({ where: { userId: user.id } }).catch(() => null),
+    prisma.reviewState.count({ where: { userId: user.id, dueAt: { lte: new Date() } } }).catch(() => 0),
+  ]);
 
   return (
     <div className="min-h-screen bg-stone-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
@@ -21,6 +23,9 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
           <nav className="flex items-center gap-1 text-sm">
             <Link className="rounded-md px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900" href="/">
               Catalog
+            </Link>
+            <Link className="rounded-md px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900" href="/problems">
+              Problems
             </Link>
             <Link className="rounded-md px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900" href="/reviews">
               Reviews {due > 0 ? <span className="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">{due}</span> : null}

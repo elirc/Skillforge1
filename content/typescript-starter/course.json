@@ -1,0 +1,18 @@
+{
+  "slug": "typescript-starter",
+  "title": "TypeScript Starter",
+  "description": "Add type annotations to small functions, shape data with interfaces and unions, and learn how the compiler guides you.",
+  "language": "typescript",
+  "topicTags": ["types", "functions", "interfaces", "unions", "inference", "narrowing", "generics", "readonly", "partial"],
+  "difficulty": "BEGINNER",
+  "isPro": false,
+  "order": 2,
+  "outcomes": [
+    "Read and write parameter and return type annotations",
+    "Describe object shapes with interfaces",
+    "Model alternatives with union types",
+    "Recognize where TypeScript infers types for you",
+    "Narrow union values before using type-specific behavior",
+    "Use generics, keyof, readonly arrays, and partial updates for safer APIs"
+  ]
+}

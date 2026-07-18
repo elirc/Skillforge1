@@ -1,0 +1,18 @@
+{
+  "slug": "csharp-easy-customer-active-count",
+  "title": "Customer Active Count",
+  "prompt": "A C# CRM service receives a list of customers. Write a function that returns how many items have IsActive set to true.",
+  "language": "csharp",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "csharp",
+    "collections",
+    "filtering"
+  ],
+  "order": 40002,
+  "exercise": "csharp-easy-customer-active-count",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Customer Active Count, read the story as a simple input-to-output rule: A C# CRM service receives a list of customers. Write a function that returns how many items have IsActive set to true. Work through one small example by hand, then write the steps in C# using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure C# function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is csharp, collections and filtering. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

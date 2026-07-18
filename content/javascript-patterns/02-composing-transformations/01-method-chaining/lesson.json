@@ -1,0 +1,37 @@
+{
+  "title": "Chain Array Methods",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Because filter, map, and sort each return an array, you can chain them into a pipeline that reads top to bottom. Keep each step doing one thing so the chain stays easy to follow."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const result = [70, 95, 80]\n  .filter((s) => s >= 80)\n  .sort((a, b) => b - a); // [95, 80]"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "sort compares as strings by default, so always pass a comparator like (a, b) => b - a for numbers."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why can you chain .filter(...).sort(...) on an array?",
+      "payload": {
+        "choices": ["each method returns an array to call the next on", "arrays are mutable", "sort runs before filter", "filter returns a number"],
+        "answer": "each method returns an array to call the next on",
+        "explanation": "filter and sort both yield arrays, so the next method has something to operate on."
+      },
+      "conceptTags": ["method-chaining", "arrays"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return scores that are at least 80, sorted from highest to lowest.",
+      "exercise": "rank-passing",
+      "conceptTags": ["method-chaining", "arrays", "sorting"]
+    }
+  ]
+}

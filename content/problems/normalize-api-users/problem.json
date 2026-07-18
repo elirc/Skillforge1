@@ -1,0 +1,18 @@
+{
+  "slug": "normalize-api-users",
+  "title": "Normalize API Users",
+  "prompt": "A TypeScript frontend receives snake_case user objects from an API but the app uses camelCase. Write a function that maps each API user to { id, displayName, isActive }.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "typescript",
+    "mapping",
+    "objects"
+  ],
+  "order": 57,
+  "exercise": "normalize-api-users",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Normalize API Users, read the story as a simple input-to-output rule: A TypeScript frontend receives snake_case user objects from an API but the app uses camelCase. Write a function that maps each API user to { id, displayName, isActive }. Work through one small example by hand, then write the steps in TypeScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure TypeScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is typescript, mapping and objects. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

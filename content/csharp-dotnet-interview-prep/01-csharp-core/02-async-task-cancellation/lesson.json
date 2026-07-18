@@ -1,0 +1,60 @@
+{
+  "title": "Async, Task, and Cancellation",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A strong .NET answer separates concurrency from consistency. `Task.WhenAll` is useful for independent async work, but ordered writes that protect an invariant usually belong in a transaction or a carefully designed workflow."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public async Task<CatalogView> GetCatalogAsync(string userId, CancellationToken ct)\n{\n    Task<IReadOnlyList<Course>> coursesTask = courses.ListAsync(ct);\n    Task<IReadOnlySet<string>> completionsTask = progress.CompletedLessonIdsAsync(userId, ct);\n\n    await Task.WhenAll(coursesTask, completionsTask);\n    return CatalogView.From(coursesTask.Result, completionsTask.Result);\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Do not parallelize multiple operations on the same EF Core DbContext. EF Core contexts are scoped units of work, not general-purpose concurrent workers."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "When is `Task.WhenAll` a good fit in a .NET service?",
+      "payload": {
+        "choices": [
+          "When operations are independent and can safely run concurrently",
+          "When each operation depends on the previous write",
+          "Whenever code looks slow",
+          "Only inside constructors"
+        ],
+        "answer": "When operations are independent and can safely run concurrently",
+        "explanation": "Parallel async work is useful for independent reads or external calls, but dependent writes need ordering and consistency."
+      },
+      "conceptTags": ["dotnet", "async", "task-when-all"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the reliability sentence.",
+      "payload": {
+        "text": "A CancellationToken helps stop abandoned work, but it is not a substitute for ____ when writes may partially succeed.",
+        "blanks": ["idempotency"]
+      },
+      "conceptTags": ["dotnet", "cancellation", "reliability"]
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why should request-handling code pass a `CancellationToken` into EF Core and external service calls?",
+      "payload": {
+        "choices": [
+          "So abandoned requests can stop unnecessary work and release resources",
+          "So every query becomes transactional",
+          "So exceptions are automatically ignored",
+          "So CPU-bound work becomes parallel"
+        ],
+        "answer": "So abandoned requests can stop unnecessary work and release resources",
+        "explanation": "Cancellation helps reduce wasted work after a client disconnect or timeout, but it does not replace transactions or retries."
+      },
+      "conceptTags": ["dotnet", "cancellation-token", "resource-management"]
+    }
+  ]
+}

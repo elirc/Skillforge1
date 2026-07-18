@@ -1,0 +1,32 @@
+{
+  "title": "Compose Small Helpers",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Small helpers are easier to test and reuse. Instead of hiding every step inside one large function, compose focused helpers for cleaning, filtering, and formatting."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function isPassing(score) {\n  return score >= 70;\n}\n\nfunction passingLabels(scores) {\n  return scores.filter(isPassing).map((score) => `Score ${score}`);\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why are small pure helpers useful?",
+      "payload": {
+        "choices": ["They are easier to test and combine", "They make code run only once", "They remove the need for variables", "They automatically catch errors"],
+        "answer": "They are easier to test and combine",
+        "explanation": "Focused helpers make behavior easier to verify and reuse."
+      },
+      "conceptTags": ["functions", "composition", "testing"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return clean, non-empty tags: trim each tag, lowercase it, and remove empty results.",
+      "exercise": "clean-tags",
+      "conceptTags": ["arrays", "strings", "composition"]
+    }
+  ]
+}

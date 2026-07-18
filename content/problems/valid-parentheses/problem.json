@@ -1,0 +1,17 @@
+{
+  "slug": "valid-parentheses",
+  "title": "Valid Parentheses",
+  "prompt": "A code editor wants to warn about unmatched brackets. Write a function that returns true when every opening bracket is closed by the correct type of bracket in the correct order. Brackets may be (), [], or {}.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "strings",
+    "stacks"
+  ],
+  "order": 21,
+  "exercise": "valid-parentheses",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Valid Parentheses, read the story as a simple input-to-output rule: A code editor wants to warn about unmatched brackets. Write a function that returns true when every opening bracket is closed by the correct type of bracket in the correct order. Brackets may be (), [], or {}. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and stacks. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

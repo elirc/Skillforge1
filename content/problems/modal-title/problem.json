@@ -1,0 +1,18 @@
+{
+  "slug": "modal-title",
+  "title": "Modal Title",
+  "prompt": "A React modal can create or edit an item. Write a helper that returns \"Create item\" when mode is \"create\" and \"Edit item\" when mode is \"edit\".",
+  "language": "react",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "react",
+    "props",
+    "conditionals"
+  ],
+  "order": 90,
+  "exercise": "modal-title",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Modal Title, read the story as a simple input-to-output rule: A React modal can create or edit an item. Write a helper that returns \"Create item\" when mode is \"create\" and \"Edit item\" when mode is \"edit\". Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, props and conditionals. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

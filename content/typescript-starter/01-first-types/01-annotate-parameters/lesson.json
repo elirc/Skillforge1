@@ -1,0 +1,18 @@
+{
+  "title": "Annotate Parameters",
+  "contentBlocks": [
+    { "type": "prose", "body": "A parameter annotation tells TypeScript what kind of value a function expects." }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which annotation describes a string parameter?",
+      "payload": {
+        "choices": ["name: string", "name = string", "string name", "name -> string"],
+        "answer": "name: string",
+        "explanation": "TypeScript places the type after a colon."
+      },
+      "conceptTags": ["types"]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "count-by-length",
+  "title": "Count by Length",
+  "prompt": "A vocabulary app wants to know how many words have each length. Write a function that returns an object whose keys are word lengths and whose values are counts.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "strings",
+    "objects",
+    "counting"
+  ],
+  "order": 54,
+  "exercise": "count-by-length",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Count by Length, read the story as a simple input-to-output rule: A vocabulary app wants to know how many words have each length. Write a function that returns an object whose keys are word lengths and whose values are counts. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings, objects and counting. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

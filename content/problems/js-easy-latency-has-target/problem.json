@@ -1,0 +1,17 @@
+{
+  "slug": "js-easy-latency-has-target",
+  "title": "Latency Has Target",
+  "prompt": "A latency alert needs to know whether an exact measurement appears. Write a function that returns true when the target value is in the array.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "search"
+  ],
+  "order": 10044,
+  "exercise": "js-easy-latency-has-target",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Latency Has Target, read the story as a simple input-to-output rule: A latency alert needs to know whether an exact measurement appears. Write a function that returns true when the target value is in the array. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and search. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

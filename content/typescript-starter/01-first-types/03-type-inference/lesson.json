@@ -1,0 +1,40 @@
+{
+  "title": "Type Inference",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "You do not have to annotate everything. When you initialize a variable, TypeScript infers its type from the value. const total = 0 is inferred as number, so a later total = \"oops\" is a compile error."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "let count = 3;      // inferred as number\n// count = \"three\"; // error: string is not assignable to number"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Annotate function parameters and public APIs; let inference handle obvious local variables to keep code readable."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What type does TypeScript infer for const total = 0?",
+      "payload": {
+        "choices": ["number", "string", "any", "zero"],
+        "answer": "number",
+        "explanation": "The initializer 0 is a number, so total is inferred as number."
+      },
+      "conceptTags": ["types", "inference"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the idea.",
+      "payload": {
+        "text": "When a variable's type is figured out from its initial value, TypeScript is using type ____.",
+        "blanks": ["inference"]
+      },
+      "conceptTags": ["types", "inference"]
+    }
+  ]
+}

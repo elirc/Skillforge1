@@ -1,0 +1,11 @@
+{
+  "slug": "python-thinking",
+  "title": "Python Thinking",
+  "description": "A short preview course for transfer-friendly programming concepts.",
+  "language": "python",
+  "topicTags": ["variables", "control-flow"],
+  "difficulty": "BEGINNER",
+  "isPro": true,
+  "order": 3,
+  "outcomes": ["Compare familiar JavaScript ideas with Python syntax"]
+}

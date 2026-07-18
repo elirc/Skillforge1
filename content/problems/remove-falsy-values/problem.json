@@ -1,0 +1,17 @@
+{
+  "slug": "remove-falsy-values",
+  "title": "Remove Falsy Values",
+  "prompt": "A feed cleanup step receives a list with placeholder values mixed in. Write a function that returns a new array with all JavaScript falsy values removed.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "truthiness"
+  ],
+  "order": 35,
+  "exercise": "remove-falsy-values",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Remove Falsy Values, read the story as a simple input-to-output rule: A feed cleanup step receives a list with placeholder values mixed in. Write a function that returns a new array with all JavaScript falsy values removed. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and truthiness. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

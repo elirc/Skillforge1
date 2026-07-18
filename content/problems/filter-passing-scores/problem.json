@@ -1,0 +1,17 @@
+{
+  "slug": "filter-passing-scores",
+  "title": "Filter Passing Scores",
+  "prompt": "A gradebook only wants to show scores that pass the current threshold. Write a function that returns a new array containing scores greater than or equal to the passing score, preserving their original order.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "filter"
+  ],
+  "order": 31,
+  "exercise": "filter-passing-scores",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Filter Passing Scores, read the story as a simple input-to-output rule: A gradebook only wants to show scores that pass the current threshold. Write a function that returns a new array containing scores greater than or equal to the passing score, preserving their original order. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and filter. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

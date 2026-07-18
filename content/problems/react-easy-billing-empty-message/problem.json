@@ -1,0 +1,17 @@
+{
+  "slug": "react-easy-billing-empty-message",
+  "title": "Billing Empty Message",
+  "prompt": "A React billing list needs empty-state text. Write a helper that returns \"No billing items\" when count is 0 and an empty string otherwise.",
+  "language": "react",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "react",
+    "empty-states"
+  ],
+  "order": 30042,
+  "exercise": "react-easy-billing-empty-message",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Billing Empty Message, read the story as a simple input-to-output rule: A React billing list needs empty-state text. Write a helper that returns \"No billing items\" when count is 0 and an empty string otherwise. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react and empty-states. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

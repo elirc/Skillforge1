@@ -1,0 +1,45 @@
+{
+  "title": "Configuration and Secrets",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": ".NET configuration commonly combines appsettings files, environment variables, user secrets in development, and managed secret stores in production. Strong answers separate configuration from secrets and validate options at startup."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services\n    .AddOptions<EmailOptions>()\n    .Bind(builder.Configuration.GetSection(\"Email\"))\n    .ValidateDataAnnotations()\n    .ValidateOnStart();"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Connection strings, API keys, signing keys, and tokens do not belong in source control."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Where should production secrets usually live?",
+      "payload": {
+        "choices": [
+          "A managed secret store or secure environment-specific configuration",
+          "A committed appsettings.Production.json file",
+          "A comment in Program.cs",
+          "A public README"
+        ],
+        "answer": "A managed secret store or secure environment-specific configuration",
+        "explanation": "Production secrets should be kept outside source control and accessed through secure configuration channels."
+      },
+      "conceptTags": ["configuration", "secrets", "deployment"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the options answer.",
+      "payload": {
+        "text": "Validate critical options at ____ so the app fails fast when required configuration is missing.",
+        "blanks": ["startup"]
+      },
+      "conceptTags": ["configuration", "options-pattern"]
+    }
+  ]
+}

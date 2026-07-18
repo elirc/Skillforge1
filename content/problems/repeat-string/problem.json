@@ -1,0 +1,17 @@
+{
+  "slug": "repeat-string",
+  "title": "Repeat a String",
+  "prompt": "A label printer needs to repeat short text a specific number of times. Write a function that returns the text repeated count times. If count is 0, return an empty string.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "strings",
+    "loops"
+  ],
+  "order": 43,
+  "exercise": "repeat-string",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Repeat a String, read the story as a simple input-to-output rule: A label printer needs to repeat short text a specific number of times. Write a function that returns the text repeated count times. If count is 0, return an empty string. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and loops. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

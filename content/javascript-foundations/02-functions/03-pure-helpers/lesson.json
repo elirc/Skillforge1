@@ -1,0 +1,21 @@
+{
+  "title": "Pure Helpers",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A pure helper returns the same output for the same input and avoids changing outside state. Pure helpers are easier to test and review."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why are pure helper functions easier to test?",
+      "payload": {
+        "choices": ["same input gives the same output", "they always run in the browser", "they hide every error", "they require no parameters"],
+        "answer": "same input gives the same output",
+        "explanation": "Predictability makes assertions straightforward."
+      },
+      "conceptTags": ["functions", "testing"]
+    }
+  ]
+}

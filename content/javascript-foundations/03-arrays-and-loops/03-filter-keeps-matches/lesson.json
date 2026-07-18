@@ -1,0 +1,27 @@
+{
+  "title": "Filter Keeps Matches",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "filter creates a new array containing only items whose callback returns true."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does filter keep?",
+      "payload": {
+        "choices": ["items where the callback returns true", "only the first item", "every item changed to a string", "nothing"],
+        "answer": "items where the callback returns true",
+        "explanation": "filter selects matching items without changing the originals."
+      },
+      "conceptTags": ["arrays", "filter"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return only scores that are at least 80.",
+      "exercise": "passing-scores",
+      "conceptTags": ["arrays", "filter"]
+    }
+  ]
+}

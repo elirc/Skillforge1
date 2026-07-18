@@ -13,6 +13,15 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    // Exercise starter stubs are intentionally incomplete: unused params and
+    // empty bodies are the point, since the learner fills them in.
+    files: ["content/**/*.starter.ts"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-empty-function": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

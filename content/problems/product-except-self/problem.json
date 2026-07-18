@@ -1,0 +1,17 @@
+{
+  "slug": "product-except-self",
+  "title": "Product Except Self",
+  "prompt": "A math visualizer wants each position to show the product of every other value. Write a function that returns an array where each index contains the product of all input numbers except the number at that index.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "arrays",
+    "prefix-products"
+  ],
+  "order": 49,
+  "exercise": "product-except-self",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Product Except Self, read the story as a simple input-to-output rule: A math visualizer wants each position to show the product of every other value. Write a function that returns an array where each index contains the product of all input numbers except the number at that index. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and prefix-products. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

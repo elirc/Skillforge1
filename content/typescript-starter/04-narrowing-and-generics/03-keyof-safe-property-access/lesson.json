@@ -1,0 +1,32 @@
+{
+  "title": "Safe Property Access with keyof",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "keyof creates a union of an object's property names. It is useful when a helper accepts a key and you want TypeScript to prevent misspelled or impossible property names."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function getProperty<T, K extends keyof T>(item: T, key: K): T[K] {\n  return item[key];\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "For `type User = { id: string; name: string }`, what is `keyof User`?",
+      "payload": {
+        "choices": ["\"id\" | \"name\"", "string", "User[]", "id.name"],
+        "answer": "\"id\" | \"name\"",
+        "explanation": "keyof produces a union of known property names."
+      },
+      "conceptTags": ["typescript", "keyof"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the value at the requested property key.",
+      "exercise": "get-property",
+      "conceptTags": ["typescript", "keyof", "generics"]
+    }
+  ]
+}

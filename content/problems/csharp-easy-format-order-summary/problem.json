@@ -1,0 +1,18 @@
+{
+  "slug": "csharp-easy-format-order-summary",
+  "title": "Format Order Summary",
+  "prompt": "A C# ASP.NET order API needs a compact summary for orders. Write a function that returns the number followed by the id in square brackets, like \"Alpha [1]\".",
+  "language": "csharp",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "csharp",
+    "objects",
+    "strings"
+  ],
+  "order": 40011,
+  "exercise": "csharp-easy-format-order-summary",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Format Order Summary, read the story as a simple input-to-output rule: A C# ASP.NET order API needs a compact summary for orders. Write a function that returns the number followed by the id in square brackets, like \"Alpha [1]\". Work through one small example by hand, then write the steps in C# using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure C# function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is csharp, objects and strings. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

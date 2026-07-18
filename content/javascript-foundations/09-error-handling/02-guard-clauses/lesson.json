@@ -1,0 +1,31 @@
+{
+  "title": "Guard Clauses Handle Edge Cases First",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A guard clause checks for an invalid or empty case at the top of a function and returns early. Handling the edge case first keeps the main logic below it simple and avoids errors like dividing by zero."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function average(scores) {\n  if (scores.length === 0) return 0;\n  return scores.reduce((sum, n) => sum + n, 0) / scores.length;\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the idea.",
+      "payload": {
+        "text": "A guard clause returns ____ when an input is invalid so the rest of the function can assume good data.",
+        "blanks": ["early"]
+      },
+      "conceptTags": ["error-handling", "guard-clauses"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the average of the scores, or 0 when the array is empty.",
+      "exercise": "safe-average",
+      "conceptTags": ["error-handling", "guard-clauses"]
+    }
+  ]
+}

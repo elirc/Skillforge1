@@ -1,0 +1,17 @@
+{
+  "slug": "clamp-number",
+  "title": "Clamp a Number",
+  "prompt": "A slider control must keep values inside its allowed range. Write a function that returns the value if it is between min and max, min if it is too low, and max if it is too high.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "numbers",
+    "conditionals"
+  ],
+  "order": 44,
+  "exercise": "clamp-number",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Clamp a Number, read the story as a simple input-to-output rule: A slider control must keep values inside its allowed range. Write a function that returns the value if it is between min and max, min if it is too low, and max if it is too high. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is numbers and conditionals. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

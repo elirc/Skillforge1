@@ -1,0 +1,35 @@
+{
+  "title": "Optional Parameters",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A question mark after a parameter name makes it optional: greeting?: string. Inside the function the value is either the passed string or undefined, so you handle the missing case explicitly."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function greet(name: string, greeting?: string): string {\n  return `${greeting ?? \"Hello\"}, ${name}!`;\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What marks a parameter as optional in TypeScript?",
+      "payload": {
+        "choices": ["a ? after the name", "a ! after the name", "the word maybe", "wrapping it in []"],
+        "answer": "a ? after the name",
+        "explanation": "greeting?: string makes greeting optional; its type becomes string | undefined."
+      },
+      "conceptTags": ["types", "functions", "optional"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the idea.",
+      "payload": {
+        "text": "An optional parameter may be the given value or ____ when the caller omits it.",
+        "blanks": ["undefined"]
+      },
+      "conceptTags": ["types", "optional"]
+    }
+  ]
+}

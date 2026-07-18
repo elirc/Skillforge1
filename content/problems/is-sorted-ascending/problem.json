@@ -1,0 +1,17 @@
+{
+  "slug": "is-sorted-ascending",
+  "title": "Is Sorted Ascending",
+  "prompt": "A data import step needs to confirm values are already sorted. Write a function that returns true when the numbers are in non-decreasing order.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "loops"
+  ],
+  "order": 59,
+  "exercise": "is-sorted-ascending",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Is Sorted Ascending, read the story as a simple input-to-output rule: A data import step needs to confirm values are already sorted. Write a function that returns true when the numbers are in non-decreasing order. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and loops. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

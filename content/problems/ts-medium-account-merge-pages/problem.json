@@ -1,0 +1,18 @@
+{
+  "slug": "ts-medium-account-merge-pages",
+  "title": "Account Merge Pages",
+  "prompt": "A TypeScript API client receives pages of accounts. Write a generic function that returns all page items in page order.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "typescript",
+    "api",
+    "arrays"
+  ],
+  "order": 21023,
+  "exercise": "ts-medium-account-merge-pages",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Account Merge Pages, read the story as a simple input-to-output rule: A TypeScript API client receives pages of accounts. Write a generic function that returns all page items in page order. Work through one small example by hand, then write the steps in TypeScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure TypeScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is typescript, api and arrays. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "slug": "count-words",
+  "title": "Count the Words",
+  "prompt": "A writing widget shows a live word count. Write a function that returns how many words are in the sentence. Words are separated by one or more spaces, leading and trailing spaces should be ignored, and an empty or all-space string has 0 words.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "strings",
+    "regex"
+  ],
+  "order": 13,
+  "exercise": "count-words",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Count the Words, read the story as a simple input-to-output rule: A writing widget shows a live word count. Write a function that returns how many words are in the sentence. Words are separated by one or more spaces, leading and trailing spaces should be ignored, and an empty or all-space string has 0 words. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and regex. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

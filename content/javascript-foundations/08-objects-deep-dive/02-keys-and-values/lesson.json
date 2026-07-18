@@ -1,0 +1,32 @@
+{
+  "title": "Walk Keys and Values",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Object.keys, Object.values, and Object.entries turn an object into arrays you can loop over or reduce. Object.values is handy when you only care about the stored values, not their key names."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const done = { intro: true, arrays: false, loops: true };\nconst count = Object.values(done).filter(Boolean).length;\n// count is 2"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which call returns just the values of an object as an array?",
+      "payload": {
+        "choices": ["Object.values(obj)", "Object.keys(obj)", "obj.values", "values(obj)"],
+        "answer": "Object.values(obj)",
+        "explanation": "Object.values returns an array of the object's values."
+      },
+      "conceptTags": ["objects", "object-methods"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Given a record mapping lesson names to a completed flag, return how many are completed (true).",
+      "exercise": "count-completed",
+      "conceptTags": ["objects", "object-methods"]
+    }
+  ]
+}

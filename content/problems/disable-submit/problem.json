@@ -1,0 +1,18 @@
+{
+  "slug": "disable-submit",
+  "title": "Disable Submit",
+  "prompt": "A React login form disables submit while saving or while required fields are empty. Write a helper that returns true if saving is true, email is empty, or password is empty.",
+  "language": "react",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "react",
+    "forms",
+    "derived-state"
+  ],
+  "order": 83,
+  "exercise": "disable-submit",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Disable Submit, read the story as a simple input-to-output rule: A React login form disables submit while saving or while required fields are empty. Write a helper that returns true if saving is true, email is empty, or password is empty. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, forms and derived-state. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

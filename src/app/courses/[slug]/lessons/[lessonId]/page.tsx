@@ -15,14 +15,19 @@ export const dynamic = "force-dynamic";
 export default async function LessonPage({ params }: PageProps) {
   const { slug, lessonId } = await params;
   const user = await getCurrentUser();
-  const lesson = await prisma.lesson.findUnique({
-    where: { id: lessonId },
-    include: {
-      knowledgeItems: { orderBy: { createdAt: "asc" } },
-      completions: { where: { userId: user.id } },
-      module: { include: { course: true } },
-    },
-  });
+  const lesson = await prisma.lesson
+    .findUnique({
+      where: { id: lessonId },
+      include: {
+        knowledgeItems: { orderBy: { createdAt: "asc" } },
+        completions: { where: { userId: user.id } },
+        module: { include: { course: true } },
+      },
+    })
+    .catch((error) => {
+      console.warn("Database unavailable; lesson lookup failed.", error);
+      return null;
+    });
 
   if (!lesson || lesson.module.course.slug !== slug) notFound();
 

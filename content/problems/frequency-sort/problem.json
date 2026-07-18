@@ -1,0 +1,18 @@
+{
+  "slug": "frequency-sort",
+  "title": "Sort Words by Frequency",
+  "prompt": "A search page wants popular words first. Write a function that returns each unique word sorted by frequency from highest to lowest. If two words have the same frequency, sort them alphabetically.",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": [
+    "objects",
+    "sorting",
+    "counting"
+  ],
+  "order": 25,
+  "exercise": "frequency-sort",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Sort Words by Frequency, read the story as a simple input-to-output rule: A search page wants popular words first. Write a function that returns each unique word sorted by frequency from highest to lowest. If two words have the same frequency, sort them alphabetically. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is objects, sorting and counting. Choose the data structure deliberately and check complexity before settling on the first working approach."
+  }
+}

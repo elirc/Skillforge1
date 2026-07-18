@@ -1,0 +1,17 @@
+{
+  "slug": "react-medium-profile-optimistic-count",
+  "title": "Profile Optimistic Count",
+  "prompt": "A React profile item applies an optimistic toggle before the server responds. Write a helper that flips selected and adjusts selectedCount up or down by 1.",
+  "language": "react",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "react",
+    "optimistic-ui"
+  ],
+  "order": 31003,
+  "exercise": "react-medium-profile-optimistic-count",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Profile Optimistic Count, read the story as a simple input-to-output rule: A React profile item applies an optimistic toggle before the server responds. Write a helper that flips selected and adjusts selectedCount up or down by 1. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react and optimistic-ui. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "title": "Dependency Injection Lifetimes",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "ASP.NET Core dependency injection lifetimes are a frequent interview topic because the wrong lifetime can create correctness, memory, or concurrency bugs. Know the difference between singleton, scoped, and transient."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddScoped<IReviewService, ReviewService>();\nbuilder.Services.AddSingleton<ISystemClock, SystemClock>();\nbuilder.Services.AddTransient<IEmailTemplateRenderer, EmailTemplateRenderer>();"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Rule of thumb: EF Core DbContext is usually scoped per request. Do not inject a scoped DbContext into a singleton service."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which lifetime is usually appropriate for an EF Core DbContext in a web app?",
+      "payload": {
+        "choices": ["Scoped", "Singleton", "Static global", "Browser local"],
+        "answer": "Scoped",
+        "explanation": "A scoped DbContext acts as a unit of work for a request or operation."
+      },
+      "conceptTags": ["dotnet", "dependency-injection", "ef-core"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the DI warning.",
+      "payload": {
+        "text": "Do not inject a scoped DbContext into a ____ service.",
+        "blanks": ["singleton"]
+      },
+      "conceptTags": ["dotnet", "dependency-injection", "lifetimes"]
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is a good candidate for singleton lifetime?",
+      "payload": {
+        "choices": [
+          "A stateless system clock abstraction",
+          "A per-request database transaction",
+          "The current user's claims",
+          "A mutable request buffer"
+        ],
+        "answer": "A stateless system clock abstraction",
+        "explanation": "Singleton services should be thread-safe and not depend on request-scoped state."
+      },
+      "conceptTags": ["dotnet", "dependency-injection", "singleton"]
+    }
+  ]
+}

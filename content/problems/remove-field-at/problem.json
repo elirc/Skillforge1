@@ -1,0 +1,18 @@
+{
+  "slug": "remove-field-at",
+  "title": "Remove Field At",
+  "prompt": "A React dynamic form removes one field by index. Write a helper that returns a new array without the item at that index. If the index is out of range, return a copy of the original array.",
+  "language": "react",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "react",
+    "state",
+    "arrays"
+  ],
+  "order": 85,
+  "exercise": "remove-field-at",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Remove Field At, read the story as a simple input-to-output rule: A React dynamic form removes one field by index. Write a helper that returns a new array without the item at that index. If the index is out of range, return a copy of the original array. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, state and arrays. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

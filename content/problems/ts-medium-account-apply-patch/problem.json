@@ -1,0 +1,17 @@
+{
+  "slug": "ts-medium-account-apply-patch",
+  "title": "Account Apply Patch",
+  "prompt": "A TypeScript edit form updates accounts with partial patches. Write a function that returns a new object with patch values applied over the original.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "typescript",
+    "objects"
+  ],
+  "order": 21020,
+  "exercise": "ts-medium-account-apply-patch",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Account Apply Patch, read the story as a simple input-to-output rule: A TypeScript edit form updates accounts with partial patches. Write a function that returns a new object with patch values applied over the original. Work through one small example by hand, then write the steps in TypeScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure TypeScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is typescript and objects. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

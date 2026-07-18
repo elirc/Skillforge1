@@ -1,0 +1,17 @@
+{
+  "slug": "fizzbuzz",
+  "title": "FizzBuzz",
+  "prompt": "A classroom game counts from 1 to n with special words for certain numbers. Write a function that returns an array where multiples of 3 become \"Fizz\", multiples of 5 become \"Buzz\", multiples of both become \"FizzBuzz\", and every other number becomes its own string.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "loops",
+    "conditionals"
+  ],
+  "order": 10,
+  "exercise": "fizzbuzz",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For FizzBuzz, read the story as a simple input-to-output rule: A classroom game counts from 1 to n with special words for certain numbers. Write a function that returns an array where multiples of 3 become \"Fizz\", multiples of 5 become \"Buzz\", multiples of both become \"FizzBuzz\", and every other number becomes its own string. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is loops and conditionals. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

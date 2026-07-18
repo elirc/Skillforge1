@@ -1,0 +1,17 @@
+{
+  "slug": "js-medium-lead-group-by-field",
+  "title": "Lead Group By Field",
+  "prompt": "A lead dashboard needs to group sales leads by a chosen field. Write a function that returns an object where each field value maps to an array of matching records.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "objects",
+    "grouping"
+  ],
+  "order": 11025,
+  "exercise": "js-medium-lead-group-by-field",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Lead Group By Field, read the story as a simple input-to-output rule: A lead dashboard needs to group sales leads by a chosen field. Write a function that returns an object where each field value maps to an array of matching records. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is objects and grouping. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

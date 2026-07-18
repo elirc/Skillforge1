@@ -1,0 +1,60 @@
+{
+  "title": "Validation and Authorization Policies",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Authentication answers 'who are you?' Authorization answers 'may you do this?' Validation answers 'is this input shaped correctly?' Strong candidates keep those ideas separate."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public async Task GradeReviewAsync(string userId, string reviewStateId, GradeReviewRequest request, CancellationToken ct)\n{\n    validator.ValidateAndThrow(request);\n\n    var state = await db.ReviewStates\n        .SingleAsync(x => x.Id == reviewStateId && x.UserId == userId, ct);\n\n    // Domain logic happens after validation and resource authorization.\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`[Authorize]` proves the caller is signed in. It does not prove they own a ReviewState, organization, lesson completion, or subscription."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is the main security reason to query by both `reviewStateId` and `userId`?",
+      "payload": {
+        "choices": [
+          "To prevent a user from accessing another user's review state",
+          "To make the query slower",
+          "To avoid using indexes",
+          "To skip validation"
+        ],
+        "answer": "To prevent a user from accessing another user's review state",
+        "explanation": "This is a resource-authorization check that prevents an IDOR-style bug."
+      },
+      "conceptTags": ["aspnet-core", "authorization", "idor"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the security sentence.",
+      "payload": {
+        "text": "Authentication identifies the caller; ____ decides whether that caller can access a specific resource.",
+        "blanks": ["authorization"]
+      },
+      "conceptTags": ["security", "authorization"]
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Where should request shape validation happen in a typical ASP.NET Core request?",
+      "payload": {
+        "choices": [
+          "At the transport boundary before domain logic uses the data",
+          "Only after the database commit",
+          "Only in the browser",
+          "Inside CSS"
+        ],
+        "answer": "At the transport boundary before domain logic uses the data",
+        "explanation": "Validate external input before it reaches domain logic or persistence."
+      },
+      "conceptTags": ["aspnet-core", "validation", "contracts"]
+    }
+  ]
+}

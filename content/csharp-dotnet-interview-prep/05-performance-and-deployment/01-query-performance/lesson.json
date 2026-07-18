@@ -1,0 +1,40 @@
+{
+  "title": "Reason About Query Performance",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "EF Core performance issues often come from loading too much data, missing indexes, N+1 queries, or tracking entities that only need to be read. A strong answer starts with measurement before changing code."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var dueReviews = await db.ReviewStates\n    .AsNoTracking()\n    .Where(x => x.UserId == userId && x.DueAt <= now)\n    .OrderBy(x => x.DueAt)\n    .Take(20)\n    .Select(x => new DueReviewDto(x.Id, x.Prompt, x.DueAt))\n    .ToListAsync(ct);"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Look for the generated SQL and the actual query plan when performance matters."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which change usually helps read-only EF Core queries?",
+      "payload": {
+        "choices": ["Use AsNoTracking when you do not update the entities", "Call ToList before every Where", "Remove all indexes", "Load every column just in case"],
+        "answer": "Use AsNoTracking when you do not update the entities",
+        "explanation": "AsNoTracking avoids change-tracking overhead for read-only projections."
+      },
+      "conceptTags": ["ef-core", "performance", "queries"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the query review.",
+      "payload": {
+        "text": "Before optimizing a slow query, capture the generated SQL, timing, and query ____.",
+        "blanks": ["plan"]
+      },
+      "conceptTags": ["performance", "sql"]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "update-form-field",
+  "title": "Update Form Field",
+  "prompt": "A React form stores field values in one object. Write an immutable helper that returns a new object with one field updated to the provided value.",
+  "language": "react",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "react",
+    "state",
+    "objects"
+  ],
+  "order": 74,
+  "exercise": "update-form-field",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Update Form Field, read the story as a simple input-to-output rule: A React form stores field values in one object. Write an immutable helper that returns a new object with one field updated to the provided value. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, state and objects. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

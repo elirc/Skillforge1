@@ -1,0 +1,31 @@
+{
+  "title": "Count with Map",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Map is useful when keys are discovered while your program runs. Read the old count with get, provide a default when it is missing, then set the next count."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const counts = new Map();\nfor (const status of statuses) {\n  counts.set(status, (counts.get(status) ?? 0) + 1);\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the Map counting pattern.",
+      "payload": {
+        "text": "Use counts.____(key) to read the previous value and counts.set(key, next) to store the update.",
+        "blanks": ["get"]
+      },
+      "conceptTags": ["maps", "counting"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return a plain object that counts how often each status appears.",
+      "exercise": "count-statuses",
+      "conceptTags": ["maps", "objects", "counting"]
+    }
+  ]
+}

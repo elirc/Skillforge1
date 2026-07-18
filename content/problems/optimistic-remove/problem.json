@@ -1,0 +1,18 @@
+{
+  "slug": "optimistic-remove",
+  "title": "Optimistic Remove",
+  "prompt": "A React list removes an item immediately while a delete request is in flight. Write a helper that returns a new array without the item whose id matches the id to remove.",
+  "language": "react",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "react",
+    "optimistic-ui",
+    "arrays"
+  ],
+  "order": 93,
+  "exercise": "optimistic-remove",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Optimistic Remove, read the story as a simple input-to-output rule: A React list removes an item immediately while a delete request is in flight. Write a helper that returns a new array without the item whose id matches the id to remove. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, optimistic-ui and arrays. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

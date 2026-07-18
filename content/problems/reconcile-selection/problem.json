@@ -1,0 +1,18 @@
+{
+  "slug": "reconcile-selection",
+  "title": "Reconcile Selection",
+  "prompt": "A React table keeps selected row ids in state, but rows can disappear after filtering. Write a helper that returns only selected ids that still exist in the current rows, preserving the selection order.",
+  "language": "react",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "react",
+    "state",
+    "sets"
+  ],
+  "order": 80,
+  "exercise": "reconcile-selection",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Reconcile Selection, read the story as a simple input-to-output rule: A React table keeps selected row ids in state, but rows can disappear after filtering. Write a helper that returns only selected ids that still exist in the current rows, preserving the selection order. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, state and sets. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

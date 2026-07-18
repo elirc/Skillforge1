@@ -1,0 +1,17 @@
+{
+  "slug": "capitalize-names",
+  "title": "Capitalize Names",
+  "prompt": "A roster imports names in inconsistent lowercase text. Write a function that returns a new array where each name starts with an uppercase letter and the rest of that name stays lowercase.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "strings"
+  ],
+  "order": 33,
+  "exercise": "capitalize-names",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Capitalize Names, read the story as a simple input-to-output rule: A roster imports names in inconsistent lowercase text. Write a function that returns a new array where each name starts with an uppercase letter and the rest of that name stays lowercase. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and strings. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

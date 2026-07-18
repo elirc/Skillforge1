@@ -1,0 +1,35 @@
+{
+  "title": "Return Type Annotations",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A return type annotation goes after the parameter list, written as ): Type. It documents what the function hands back and lets the compiler flag a body that returns the wrong kind of value."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function double(value: number): number {\n  return value * 2;\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Where does the return type go in function double(value: number): number?",
+      "payload": {
+        "choices": ["after the parameter list, following a colon", "before the function keyword", "inside the parameter list", "after the function body"],
+        "answer": "after the parameter list, following a colon",
+        "explanation": "The return type is written as ): Type, right before the body."
+      },
+      "conceptTags": ["types", "return-types"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the return type.",
+      "payload": {
+        "text": "A function that returns true or false should be annotated to return ____.",
+        "blanks": ["boolean"]
+      },
+      "conceptTags": ["types", "return-types", "boolean"]
+    }
+  ]
+}

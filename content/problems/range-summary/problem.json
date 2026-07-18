@@ -1,0 +1,18 @@
+{
+  "slug": "range-summary",
+  "title": "Summarize Ranges",
+  "prompt": "A log viewer receives sorted unique line numbers and wants compact labels. Write a function that turns single numbers into strings like \"7\" and consecutive runs into strings like \"2->5\".",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": [
+    "arrays",
+    "ranges",
+    "loops"
+  ],
+  "order": 27,
+  "exercise": "range-summary",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Summarize Ranges, read the story as a simple input-to-output rule: A log viewer receives sorted unique line numbers and wants compact labels. Write a function that turns single numbers into strings like \"7\" and consecutive runs into strings like \"2->5\". Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays, ranges and loops. Choose the data structure deliberately and check complexity before settling on the first working approach."
+  }
+}

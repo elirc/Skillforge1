@@ -1,0 +1,17 @@
+{
+  "slug": "merge-settings",
+  "title": "Merge Settings",
+  "prompt": "A preferences screen has default settings and user overrides. Write a function that returns a new object where user settings replace matching default keys while untouched defaults remain.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "objects",
+    "spread"
+  ],
+  "order": 37,
+  "exercise": "merge-settings",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Merge Settings, read the story as a simple input-to-output rule: A preferences screen has default settings and user overrides. Write a function that returns a new object where user settings replace matching default keys while untouched defaults remain. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is objects and spread. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

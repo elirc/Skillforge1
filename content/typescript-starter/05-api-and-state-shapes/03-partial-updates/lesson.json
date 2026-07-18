@@ -1,0 +1,32 @@
+{
+  "title": "Partial Updates",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Partial<T> is useful for patch-style updates where callers provide only the fields that changed. Merge the patch into the existing object and return a new object when state should stay immutable."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "type Profile = { name: string; goal: string; streak: number };\n\nfunction updateProfile(profile: Profile, patch: Partial<Profile>): Profile {\n  return { ...profile, ...patch };\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does Partial<Profile> mean?",
+      "payload": {
+        "choices": ["Every Profile field is optional", "Every Profile field is required twice", "Profile becomes an array", "Profile cannot be changed"],
+        "answer": "Every Profile field is optional",
+        "explanation": "Partial<T> creates a type where each property from T is optional."
+      },
+      "conceptTags": ["typescript", "partial", "objects"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Merge a profile patch into the existing profile and return a new object.",
+      "exercise": "apply-profile-patch",
+      "conceptTags": ["typescript", "partial", "immutability"]
+    }
+  ]
+}

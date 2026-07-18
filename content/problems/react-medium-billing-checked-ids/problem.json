@@ -1,0 +1,18 @@
+{
+  "slug": "react-medium-billing-checked-ids",
+  "title": "Billing Checked IDs",
+  "prompt": "A React billing checkbox group stores selected ids. Write a helper that adds the id when checked is true and removes it when checked is false, without duplicates.",
+  "language": "react",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "react",
+    "forms",
+    "immutability"
+  ],
+  "order": 31030,
+  "exercise": "react-medium-billing-checked-ids",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Billing Checked IDs, read the story as a simple input-to-output rule: A React billing checkbox group stores selected ids. Write a helper that adds the id when checked is true and removes it when checked is false, without duplicates. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, forms and immutability. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

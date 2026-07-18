@@ -1,0 +1,17 @@
+{
+  "slug": "js-easy-workout-count-at-least",
+  "title": "Workout Count At Least",
+  "prompt": "A workout dashboard receives workout reps. Write a function that returns how many values are greater than or equal to the minimum rep count.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "counting"
+  ],
+  "order": 10021,
+  "exercise": "js-easy-workout-count-at-least",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Workout Count At Least, read the story as a simple input-to-output rule: A workout dashboard receives workout reps. Write a function that returns how many values are greater than or equal to the minimum rep count. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and counting. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

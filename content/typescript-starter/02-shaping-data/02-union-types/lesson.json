@@ -1,0 +1,35 @@
+{
+  "title": "Model Alternatives with Unions",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A union type, written A | B, says a value is one of several types. It is perfect for a fixed set of options, like a status that is only ever \"core\" or \"pro\"."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "type Plan = \"core\" | \"pro\";\n\nfunction price(plan: Plan): number {\n  return plan === \"pro\" ? 12 : 0;\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does the type Plan = \"core\" | \"pro\" allow?",
+      "payload": {
+        "choices": ["only the strings \"core\" or \"pro\"", "any string", "only numbers", "any object"],
+        "answer": "only the strings \"core\" or \"pro\"",
+        "explanation": "A string-literal union restricts the value to the listed options."
+      },
+      "conceptTags": ["types", "unions"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the symbol.",
+      "payload": {
+        "text": "A union type separates its alternatives with the ____ symbol.",
+        "blanks": ["|"]
+      },
+      "conceptTags": ["types", "unions"]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "title": "Practice: Clamp a Score",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Practice problem. Clamping keeps a number inside a range: anything below the minimum becomes the minimum, anything above the maximum becomes the maximum. Combine Math.max and Math.min to do it in one expression."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Hint: Math.max(low, value) lifts values up to a floor; Math.min(high, ...) caps them at a ceiling."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Clamp a score so the result is never below 0 or above 100.",
+      "exercise": "clamp-score",
+      "conceptTags": ["numbers", "math", "practice"]
+    }
+  ]
+}

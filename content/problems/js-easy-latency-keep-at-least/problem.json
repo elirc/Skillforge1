@@ -1,0 +1,17 @@
+{
+  "slug": "js-easy-latency-keep-at-least",
+  "title": "Latency Keep At Least",
+  "prompt": "A latency report should hide small latency measurements. Write a function that returns a new array containing only values greater than or equal to the minimum.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "arrays",
+    "filter"
+  ],
+  "order": 10042,
+  "exercise": "js-easy-latency-keep-at-least",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Latency Keep At Least, read the story as a simple input-to-output rule: A latency report should hide small latency measurements. Write a function that returns a new array containing only values greater than or equal to the minimum. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and filter. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

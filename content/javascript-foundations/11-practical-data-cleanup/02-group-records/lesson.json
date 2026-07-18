@@ -1,0 +1,31 @@
+{
+  "title": "Group Records by Key",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Grouping turns a flat list into a lookup. This pattern appears in dashboards, course catalogs, notifications, and analytics."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const groups = {};\nfor (const item of items) {\n  const key = item.status;\n  groups[key] = groups[key] ?? [];\n  groups[key].push(item);\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the grouping idea.",
+      "payload": {
+        "text": "A grouping object maps each key to an ____ of matching records.",
+        "blanks": ["array"]
+      },
+      "conceptTags": ["objects", "arrays", "grouping"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Group lessons by their status and return an object of arrays.",
+      "exercise": "group-by-status",
+      "conceptTags": ["objects", "arrays", "grouping"]
+    }
+  ]
+}

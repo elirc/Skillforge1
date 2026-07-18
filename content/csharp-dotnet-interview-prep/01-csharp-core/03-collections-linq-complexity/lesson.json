@@ -1,0 +1,45 @@
+{
+  "title": "Collections, LINQ, and Complexity",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "LINQ is expressive, but interviewers expect you to understand the data structure underneath. A `List<T>` scan is O(n), a `Dictionary<TKey,TValue>` lookup is usually O(1), and deferred execution can surprise you when a query is enumerated more than once."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var dueByTag = reviewStates\n    .Where(state => state.DueAt <= now)\n    .GroupBy(state => state.ConceptTag)\n    .ToDictionary(group => group.Key, group => group.Count());"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Interview signal: mention both readability and cost. LINQ is often the right tool, but materializing with `ToList` or `ToDictionary` should be intentional."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is a common reason to choose `Dictionary<TKey,TValue>` over `List<T>`?",
+      "payload": {
+        "choices": [
+          "Fast key-based lookup",
+          "Guaranteed sorted order",
+          "Automatic database persistence",
+          "Lower memory use in every case"
+        ],
+        "answer": "Fast key-based lookup",
+        "explanation": "A dictionary trades memory and hashing constraints for efficient key lookup."
+      },
+      "conceptTags": ["csharp", "collections", "complexity"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the LINQ sentence.",
+      "payload": {
+        "text": "Many LINQ queries use ____ execution, meaning work may not happen until the query is enumerated.",
+        "blanks": ["deferred"]
+      },
+      "conceptTags": ["csharp", "linq", "deferred-execution"]
+    }
+  ]
+}

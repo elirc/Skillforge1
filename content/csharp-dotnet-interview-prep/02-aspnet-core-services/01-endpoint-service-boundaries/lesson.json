@@ -1,0 +1,60 @@
+{
+  "title": "Endpoint and Service Boundaries",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "In a healthy ASP.NET Core app, the endpoint handles transport concerns while an application service owns the use case. For a Skillforge-style lesson completion, the endpoint should parse the route, derive the user from claims, and delegate the real workflow."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "app.MapPost(\"/lessons/{lessonId}/complete\", async (\n    string lessonId,\n    ClaimsPrincipal user,\n    ILessonCompletionService service,\n    CancellationToken ct) =>\n{\n    var userId = user.RequireUserId();\n    await service.CompleteLessonAsync(userId, lessonId, ct);\n    return Results.Ok(new { ok = true });\n});"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Mid-level interview answer: a thin endpoint is not enough. You must also say what invariant the service protects and how it is tested."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What should the endpoint avoid accepting from the request body in this lesson-completion example?",
+      "payload": {
+        "choices": [
+          "The authenticated user's id",
+          "The lesson id route value",
+          "A cancellation token",
+          "A success response shape"
+        ],
+        "answer": "The authenticated user's id",
+        "explanation": "The user id should come from authenticated claims/session state, not from client-supplied data."
+      },
+      "conceptTags": ["aspnet-core", "authorization", "service-boundaries"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the boundary sentence.",
+      "payload": {
+        "text": "A controller or minimal API endpoint should stay thin; the application ____ should own the use-case workflow.",
+        "blanks": ["service"]
+      },
+      "conceptTags": ["aspnet-core", "application-service"]
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which invariant belongs in the lesson completion service?",
+      "payload": {
+        "choices": [
+          "A successful completion creates or preserves review state for the lesson's concepts",
+          "The button color must be emerald",
+          "The route string must include the word complete",
+          "The response must always include CSS classes"
+        ],
+        "answer": "A successful completion creates or preserves review state for the lesson's concepts",
+        "explanation": "The service owns durable product behavior, not presentation details."
+      },
+      "conceptTags": ["aspnet-core", "invariants", "domain-logic"]
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "title": "Entities, Indexes, and Migrations",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "EF Core interviews are not just about writing entities. Strong answers explain database invariants, indexes that match query patterns, migration risk, and rollback."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Entity<ReviewState>()\n    .HasIndex(x => new { x.UserId, x.KnowledgeItemId })\n    .IsUnique();\n\nbuilder.Entity<ReviewState>()\n    .HasIndex(x => new { x.UserId, x.DueAt });"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "This mirrors a common spaced-repetition invariant: each learner should have at most one schedule row per knowledge item, and due reviews should be fast to query."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why add a unique index on `(UserId, KnowledgeItemId)` for review state?",
+      "payload": {
+        "choices": [
+          "To prevent duplicate schedule rows for the same learner and item",
+          "To sort courses alphabetically",
+          "To encrypt review answers",
+          "To make every query full-scan the table"
+        ],
+        "answer": "To prevent duplicate schedule rows for the same learner and item",
+        "explanation": "This unique constraint protects the core review-state invariant."
+      },
+      "conceptTags": ["ef-core", "indexes", "invariants"]
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the migration sentence.",
+      "payload": {
+        "text": "A safe schema migration includes a rollout plan and a ____ plan.",
+        "blanks": ["rollback"]
+      },
+      "conceptTags": ["ef-core", "migrations", "rollback"]
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which index supports fetching a learner's due reviews efficiently?",
+      "payload": {
+        "choices": [
+          "`(UserId, DueAt)`",
+          "`(Title, Description)`",
+          "`(EmailVerified, Image)`",
+          "`(Prompt, Payload)`"
+        ],
+        "answer": "`(UserId, DueAt)`",
+        "explanation": "The due queue filters by user and due time, so the index should match that access pattern."
+      },
+      "conceptTags": ["ef-core", "indexes", "query-patterns"]
+    }
+  ]
+}

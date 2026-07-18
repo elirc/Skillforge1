@@ -1,0 +1,18 @@
+{
+  "slug": "optimistic-like",
+  "title": "Optimistic Like Update",
+  "prompt": "A React feed applies an optimistic like update before the server responds. Write a helper that returns a new post object with liked flipped and likeCount increased by 1 when becoming liked or decreased by 1 when becoming unliked.",
+  "language": "react",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "react",
+    "optimistic-ui",
+    "immutability"
+  ],
+  "order": 81,
+  "exercise": "optimistic-like",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Optimistic Like Update, read the story as a simple input-to-output rule: A React feed applies an optimistic like update before the server responds. Write a helper that returns a new post object with liked flipped and likeCount increased by 1 when becoming liked or decreased by 1 when becoming unliked. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, optimistic-ui and immutability. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

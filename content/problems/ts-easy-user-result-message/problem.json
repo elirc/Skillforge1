@@ -1,0 +1,17 @@
+{
+  "slug": "ts-easy-user-result-message",
+  "title": "User Result Message",
+  "prompt": "A TypeScript action returns a small result object for users. Write a function that returns the message field.",
+  "language": "typescript",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "typescript",
+    "objects"
+  ],
+  "order": 20008,
+  "exercise": "ts-easy-user-result-message",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For User Result Message, read the story as a simple input-to-output rule: A TypeScript action returns a small result object for users. Write a function that returns the message field. Work through one small example by hand, then write the steps in TypeScript using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure TypeScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is typescript and objects. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

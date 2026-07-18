@@ -1,0 +1,32 @@
+{
+  "title": "Expressions Produce Values",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An expression is any piece of JavaScript that produces a value. Function calls, math, comparisons, and template strings are expressions."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const passed = score >= 80;\nconst label = `Score: ${score}`;"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does the expression score >= 80 produce?",
+      "payload": {
+        "choices": ["a boolean", "a function", "an array", "nothing"],
+        "answer": "a boolean",
+        "explanation": "Comparison expressions produce true or false."
+      },
+      "conceptTags": ["expressions", "booleans"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return true when points meets or exceeds the goal.",
+      "exercise": "met-goal",
+      "conceptTags": ["expressions", "booleans"]
+    }
+  ]
+}

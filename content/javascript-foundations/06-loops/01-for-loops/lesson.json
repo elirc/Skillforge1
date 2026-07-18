@@ -1,0 +1,32 @@
+{
+  "title": "For Loops Repeat with a Counter",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A for loop repeats a block while a counter moves through a range. The three parts are the start, the condition to keep going, and the step that runs after each pass."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "let total = 0;\nfor (let i = 1; i <= 3; i++) {\n  total += i;\n}\n// total is 6"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "In for (let i = 0; i < n; i++), what does the middle part do?",
+      "payload": {
+        "choices": ["decides whether the loop keeps running", "runs once at the very end", "declares the function", "imports the counter"],
+        "answer": "decides whether the loop keeps running",
+        "explanation": "The middle expression is the condition checked before each pass."
+      },
+      "conceptTags": ["loops", "control-flow"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the sum of every whole number from 1 to n (0 when n is below 1).",
+      "exercise": "sum-to",
+      "conceptTags": ["loops", "math"]
+    }
+  ]
+}

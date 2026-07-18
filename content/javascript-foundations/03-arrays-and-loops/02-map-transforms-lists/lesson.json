@@ -1,0 +1,31 @@
+{
+  "title": "Map Transforms Lists",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "map creates a new array by applying a callback to every item in the original array."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const doubled = [1, 2, 3].map((value) => value * 2);"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CLOZE",
+      "prompt": "Name the array method.",
+      "payload": {
+        "text": "____ creates a new array by transforming each item.",
+        "blanks": ["map"]
+      },
+      "conceptTags": ["arrays", "map"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return an array with every XP value doubled.",
+      "exercise": "double-xp",
+      "conceptTags": ["arrays", "map"]
+    }
+  ]
+}

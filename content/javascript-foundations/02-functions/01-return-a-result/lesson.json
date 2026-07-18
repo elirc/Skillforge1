@@ -1,0 +1,32 @@
+{
+  "title": "Return a Result",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A function packages a small behavior. return sends a result back to the caller and stops the function."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function double(value) {\n  return value * 2;\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does return do inside a function?",
+      "payload": {
+        "choices": ["sends a value back to the caller", "creates a loop", "declares a variable", "imports a file"],
+        "answer": "sends a value back to the caller",
+        "explanation": "return produces the function result."
+      },
+      "conceptTags": ["functions", "return"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement double.",
+      "exercise": "double",
+      "conceptTags": ["functions", "return"]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Narrow String or Number",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A union type says a value could be one of several shapes. Before using string-only or number-only behavior, narrow with typeof, equality checks, or property checks."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function formatId(id: string | number) {\n  if (typeof id === \"number\") {\n    return `#${id}`;\n  }\n  return id.trim().toUpperCase();\n}"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does `typeof value === \"string\"` do for TypeScript?",
+      "payload": {
+        "choices": ["Narrows the value to string in that branch", "Converts the value to string", "Deletes non-string values", "Turns off type checking"],
+        "answer": "Narrows the value to string in that branch",
+        "explanation": "TypeScript tracks the typeof check and allows string operations inside the matching branch."
+      },
+      "conceptTags": ["typescript", "narrowing", "unions"]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Format an id: numbers become `#42`; strings are trimmed and uppercased.",
+      "exercise": "format-id",
+      "conceptTags": ["typescript", "narrowing", "strings"]
+    }
+  ]
+}

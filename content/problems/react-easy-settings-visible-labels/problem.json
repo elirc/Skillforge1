@@ -1,0 +1,17 @@
+{
+  "slug": "react-easy-settings-visible-labels",
+  "title": "Settings Visible Labels",
+  "prompt": "A React settings list receives hidden items but should render only visible labels. Write a helper that returns labels for items where hidden is not true.",
+  "language": "react",
+  "difficulty": "EASY",
+  "conceptTags": [
+    "react",
+    "lists"
+  ],
+  "order": 30016,
+  "exercise": "react-easy-settings-visible-labels",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Settings Visible Labels, read the story as a simple input-to-output rule: A React settings list receives hidden items but should render only visible labels. Write a helper that returns labels for items where hidden is not true. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react and lists. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+  }
+}

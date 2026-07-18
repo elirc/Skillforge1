@@ -1,0 +1,18 @@
+{
+  "slug": "next-sort-state",
+  "title": "Next Sort State",
+  "prompt": "A React table header cycles through sort states when clicked. Write a helper that returns \"asc\" after \"none\", \"desc\" after \"asc\", and \"none\" after \"desc\".",
+  "language": "react",
+  "difficulty": "MEDIUM",
+  "conceptTags": [
+    "react",
+    "state-machines",
+    "conditionals"
+  ],
+  "order": 76,
+  "exercise": "next-sort-state",
+  "explanation": {
+    "beginner": "Start by identifying what the function receives and what it must return. For Next Sort State, read the story as a simple input-to-output rule: A React table header cycles through sort states when clicked. Write a helper that returns \"asc\" after \"none\", \"desc\" after \"asc\", and \"none\" after \"desc\". Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
+    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, state-machines and conditionals. Pay attention to edge cases and keep the transformation predictable as the input grows."
+  }
+}

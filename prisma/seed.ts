@@ -1,68 +1,99 @@
 import { PrismaClient, type Prisma } from "@prisma/client";
 import { type CourseSeed } from "../src/lib/content-schema";
+import { achievementDefinitions } from "../src/lib/gamification";
 import { loadAllCourses, loadAllProblems } from "../scripts/lib/content";
 
 const prisma = new PrismaClient();
 
+/** SQLite has no scalar lists, so `string[]` content fields are stored as JSON text. */
+const tags = (value: readonly string[]) => JSON.stringify(value);
+
 async function upsertCourse(course: CourseSeed) {
-  await prisma.course.upsert({
+  const fields = {
+    title: course.title,
+    description: course.description,
+    language: course.language,
+    topicTags: tags(course.topicTags),
+    difficulty: course.difficulty,
+    order: course.order,
+    outcomes: tags(course.outcomes),
+  };
+
+  const savedCourse = await prisma.course.upsert({
     where: { slug: course.slug },
-    update: {
-      title: course.title,
-      description: course.description,
-      language: course.language,
-      topicTags: course.topicTags,
-      difficulty: course.difficulty,
-      isPro: course.isPro,
-      order: course.order,
-      outcomes: course.outcomes,
-    },
-    create: {
-      slug: course.slug,
-      title: course.title,
-      description: course.description,
-      language: course.language,
-      topicTags: course.topicTags,
-      difficulty: course.difficulty,
-      isPro: course.isPro,
-      order: course.order,
-      outcomes: course.outcomes,
-    },
+    update: fields,
+    create: { slug: course.slug, ...fields },
   });
 
-  const savedCourse = await prisma.course.findUniqueOrThrow({ where: { slug: course.slug } });
-  await prisma.module.deleteMany({ where: { courseId: savedCourse.id } });
+  // Identity here is POSITION, not content: reordering modules or lessons, or
+  // inserting a knowledge item mid-lesson, re-points existing completions and
+  // review states at whatever now occupies that slot. Append rather than
+  // reorder when editing published content.
+  //
+  // Content rows are upserted against their stable position keys
+  // (course+order, module+order, lesson+order) rather than deleted and
+  // recreated. Their cuid()s therefore survive a re-seed, and so do the
+  // learner rows that point at them -- LessonCompletion by lessonId,
+  // ReviewState and Attempt by knowledgeItemId. Rebuilding instead would
+  // cascade-delete every completion and review state on each content edit.
+  const moduleOrders: number[] = [];
 
   for (const courseModule of course.modules) {
-    const savedModule = await prisma.module.create({
-      data: {
-        courseId: savedCourse.id,
-        title: courseModule.title,
-        order: courseModule.order,
-      },
+    moduleOrders.push(courseModule.order);
+
+    const savedModule = await prisma.module.upsert({
+      where: { courseId_order: { courseId: savedCourse.id, order: courseModule.order } },
+      update: { title: courseModule.title },
+      create: { courseId: savedCourse.id, title: courseModule.title, order: courseModule.order },
     });
 
+    const lessonOrders: number[] = [];
+
     for (const lesson of courseModule.lessons) {
-      const savedLesson = await prisma.lesson.create({
-        data: {
-          moduleId: savedModule.id,
-          title: lesson.title,
-          order: lesson.order,
-          contentBlocks: lesson.contentBlocks as Prisma.InputJsonValue,
-        },
+      lessonOrders.push(lesson.order);
+
+      const lessonFields = {
+        title: lesson.title,
+        contentBlocks: lesson.contentBlocks as Prisma.InputJsonValue,
+      };
+
+      const savedLesson = await prisma.lesson.upsert({
+        where: { moduleId_order: { moduleId: savedModule.id, order: lesson.order } },
+        update: lessonFields,
+        create: { moduleId: savedModule.id, order: lesson.order, ...lessonFields },
       });
 
-      await prisma.knowledgeItem.createMany({
-        data: lesson.knowledgeItems.map((item) => ({
-          lessonId: savedLesson.id,
+      for (const [index, item] of lesson.knowledgeItems.entries()) {
+        const itemFields = {
           type: item.type,
           prompt: item.prompt,
           payload: item.payload as Prisma.InputJsonValue,
-          conceptTags: item.conceptTags,
-        })),
+          conceptTags: tags(item.conceptTags),
+        };
+
+        await prisma.knowledgeItem.upsert({
+          where: { lessonId_order: { lessonId: savedLesson.id, order: index } },
+          update: itemFields,
+          create: { lessonId: savedLesson.id, order: index, ...itemFields },
+        });
+      }
+
+      // Items removed from the lesson since the last seed.
+      await prisma.knowledgeItem.deleteMany({
+        where: { lessonId: savedLesson.id, order: { gte: lesson.knowledgeItems.length } },
       });
     }
+
+    // Lessons removed from the module since the last seed.
+    await prisma.lesson.deleteMany({
+      where: { moduleId: savedModule.id, order: { notIn: lessonOrders } },
+    });
   }
+
+  // Modules removed from the course since the last seed.
+  await prisma.module.deleteMany({
+    where: { courseId: savedCourse.id, order: { notIn: moduleOrders } },
+  });
 }
 
 async function seedProblems() {
@@ -73,7 +104,7 @@ async function seedProblems() {
       explanation: problem.explanation as Prisma.InputJsonValue,
       language: problem.language,
       difficulty: problem.difficulty,
-      conceptTags: problem.conceptTags,
+      conceptTags: tags(problem.conceptTags),
       order: problem.order,
       starterCode: problem.starterCode,
       functionName: problem.functionName,
@@ -89,121 +120,42 @@ async function seedProblems() {
 }
 
 async function seedAchievements() {
-  const achievements = [
-    {
-      key: "first-forge",
-      name: "First Forge",
-      description: "Earn 50 XP from genuine learning activity.",
-      icon: "FF",
-      xpReward: 10,
-    },
-    {
-      key: "three-day-heat",
-      name: "Three-Day Heat",
-      description: "Keep a three-day learning streak alive.",
-      icon: "3D",
-      xpReward: 15,
-    },
-    {
-      key: "recall-smith",
-      name: "Recall Smith",
-      description: "Complete five spaced-repetition reviews.",
-      icon: "RS",
-      xpReward: 20,
-    },
-    {
-      key: "module-maker",
-      name: "Module Maker",
-      description: "Complete three lessons in a course.",
-      icon: "MM",
-      xpReward: 15,
-    },
-  ];
-
-  for (const achievement of achievements) {
+  for (const definition of achievementDefinitions) {
+    const data = {
+      name: definition.name,
+      description: definition.description,
+      icon: definition.icon,
+      tier: definition.tier,
+      xpReward: definition.xpReward,
+    };
     await prisma.achievement.upsert({
-      where: { key: achievement.key },
-      update: achievement,
-      create: achievement,
+      where: { key: definition.key },
+      update: data,
+      create: { key: definition.key, ...data },
     });
   }
 }
 
-async function seedDemoUser() {
-  const user = await prisma.user.upsert({
-    where: { email: "demo@skillforge.local" },
-    update: { name: "Guest Learner" },
-    create: {
-      email: "demo@skillforge.local",
-      name: "Guest Learner",
-      progress: {
-        create: {
-          xp: 80,
-          level: 2,
-          streakCurrent: 2,
-          streakLongest: 4,
-          streakFreezes: 1,
-          lastActiveDate: new Date(),
-        },
-      },
-    },
-  });
-
-  await prisma.progress.upsert({
-    where: { userId: user.id },
-    update: { xp: 80, level: 2, streakCurrent: 2, streakLongest: 4 },
-    create: { userId: user.id, xp: 80, level: 2, streakCurrent: 2, streakLongest: 4 },
-  });
-
-  const firstLesson = await prisma.lesson.findFirst({
-    where: { module: { course: { slug: "javascript-foundations" } } },
-    include: { knowledgeItems: true },
-    orderBy: { order: "asc" },
-  });
-
-  if (firstLesson) {
-    await prisma.lessonCompletion.upsert({
-      where: { userId_lessonId: { userId: user.id, lessonId: firstLesson.id } },
-      update: {},
-      create: { userId: user.id, lessonId: firstLesson.id },
-    });
-
-    for (const item of firstLesson.knowledgeItems) {
-      await prisma.reviewState.upsert({
-        where: { userId_knowledgeItemId: { userId: user.id, knowledgeItemId: item.id } },
-        update: { dueAt: new Date(Date.now() - 60_000) },
-        create: {
-          userId: user.id,
-          knowledgeItemId: item.id,
-          dueAt: new Date(Date.now() - 60_000),
-          stability: 1,
-          difficulty: 5,
-          interval: 0,
-          state: "NEW",
-        },
-      });
-    }
-  }
-
-  await prisma.organization.upsert({
-    where: { id: "demo-org" },
-    update: { adminId: user.id, seats: 12 },
-    create: {
-      id: "demo-org",
-      name: "Skillforge Labs",
-      seats: 12,
-      adminId: user.id,
-    },
+/** The single local learner. Progress is preserved across re-seeds. */
+async function seedLocalUser() {
+  await prisma.user.upsert({
+    where: { id: "local" },
+    update: {},
+    create: { id: "local", name: "Learner", progress: { create: {} } },
   });
 }
 
 async function main() {
-  for (const course of await loadAllCourses()) {
+  const courses = await loadAllCourses();
+  for (const course of courses) {
     await upsertCourse(course);
   }
   await seedProblems();
   await seedAchievements();
-  await seedDemoUser();
+  await seedLocalUser();
+
+  const [lessons, problems] = await Promise.all([prisma.lesson.count(), prisma.problem.count()]);
+  console.log(`Seeded ${courses.length} courses, ${lessons} lessons, ${problems} problems.`);
 }
 
 main()

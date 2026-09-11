@@ -1,50 +1,79 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { experienceSchema, goalSchema, parseTags, serializeTags, type Experience, type Goal } from "@/lib/enums";
 
-const demoUser = {
-  id: "local-demo-user",
-  email: "demo@skillforge.local",
-  name: "Guest Learner",
-};
+/**
+ * Skillforge runs solo and local: one learner, one row, no sign-in. Everything
+ * that used to key off a session keys off this constant instead.
+ */
+export const LOCAL_USER_ID = "local";
 
-export async function getCurrentUser() {
-  try {
-    const session = await auth();
-    if (session?.user?.id) {
-      await ensureProgress(session.user.id);
-      return { id: session.user.id, email: session.user.email ?? null, name: session.user.name ?? "Skillforge Learner" };
-    }
-  } catch (error) {
-    console.warn("Auth unavailable; using local demo user.", error);
-  }
+export interface LocalProfile {
+  id: string;
+  name: string;
+  goal: Goal;
+  experience: Experience;
+  focusTags: string[];
+  onboarded: boolean;
+  dailyXpGoal: number;
+}
 
-  try {
-    const user = await prisma.user.upsert({
-      where: { email: "demo@skillforge.local" },
-      update: {},
-      create: {
-        email: "demo@skillforge.local",
-        name: "Guest Learner",
-        progress: { create: {} },
-      },
-    });
-    await ensureProgress(user.id);
-    return user;
-  } catch (error) {
-    console.warn("Database unavailable; using local demo user.", error);
-    return demoUser;
-  }
+/** Creates the learner row and its progress row on first run. */
+export async function getCurrentUser(): Promise<LocalProfile> {
+  const user = await prisma.user.upsert({
+    where: { id: LOCAL_USER_ID },
+    update: {},
+    create: { id: LOCAL_USER_ID, name: "Learner", progress: { create: {} } },
+    include: { progress: true },
+  });
+
+  const progress = user.progress ?? (await ensureProgress(user.id));
+
+  return {
+    id: user.id,
+    name: user.name,
+    goal: goalSchema.catch("crud-dev").parse(user.goal),
+    experience: experienceSchema.catch("beginner").parse(user.experience),
+    focusTags: parseTags(user.focusTags),
+    onboarded: user.onboardedAt !== null,
+    dailyXpGoal: progress?.dailyXpGoal ?? 60,
+  };
 }
 
 export async function ensureProgress(userId: string) {
-  try {
-    return await prisma.progress.upsert({
-      where: { userId },
-      update: {},
-      create: { userId },
+  return prisma.progress.upsert({
+    where: { userId },
+    update: {},
+    create: { userId },
+  });
+}
+
+export interface ProfileUpdate {
+  name?: string;
+  goal?: Goal;
+  experience?: Experience;
+  focusTags?: string[];
+  dailyXpGoal?: number;
+  markOnboarded?: boolean;
+}
+
+export async function updateProfile(update: ProfileUpdate) {
+  const user = await getCurrentUser();
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      name: update.name,
+      goal: update.goal,
+      experience: update.experience,
+      focusTags: update.focusTags ? serializeTags(update.focusTags) : undefined,
+      onboardedAt: update.markOnboarded ? new Date() : undefined,
+    },
+  });
+
+  if (update.dailyXpGoal !== undefined) {
+    await prisma.progress.update({
+      where: { userId: user.id },
+      data: { dailyXpGoal: update.dailyXpGoal },
     });
-  } catch (error) {
-    console.warn("Unable to ensure progress record.", error);
-    return null;
   }
 }

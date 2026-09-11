@@ -1,52 +1,55 @@
 # 03 Senior Build Projects
 
-## Project 1: Production-Ready Auth And Guest Mode
-**Problem statement:** Demo fallback is shared.
-**Product value:** Anonymous learners can try safely and migrate progress.
-**Likely files:** [`src/server/user.ts`](../../../src/server/user.ts), [`src/lib/auth.ts`](../../../src/lib/auth.ts), Prisma schema.
-**Migration plan:** Add guest identity table or signed anonymous id; migrate on sign-in.
-**Test plan:** guest isolation, migration, duplicate merge.
-**Security plan:** prevent cross-user progress access.
-**Rollback:** disable guest migration behind env flag.
+## Project 1: Progress Durability
+**Problem statement:** Every piece of learner progress lives in one unversioned SQLite file at `data/skillforge.db`. There is no migration history, and a destructive `prisma db push` asks for `--force-reset`, which drops it.
+**Product value:** Months of streak and review history stop being one keystroke from gone.
+**Likely files:** [`src/server/actions.ts:88-104`](../../../src/server/actions.ts#L88-L104) (the authoritative list of learner tables), [`prisma/schema.prisma`](../../../prisma/schema.prisma), [`src/features/profile/profile-settings.tsx`](../../../src/features/profile/profile-settings.tsx).
+**Migration plan:** Export keyed by content slug and item position rather than cuid, so a restore survives a re-seed.
+**Test plan:** export, `db:reset`, import, assert XP, streak, and every `ReviewState` due date round-trip.
+**Security plan:** the export contains the learner's entire history; decide where it is written and whether it is ever offered over HTTP.
+**Rollback:** import is additive-off by default; nothing overwrites without an explicit confirm.
 
 ## Project 2: Transactional Learning Activity Pipeline
-Anchors: [`src/server/actions.ts:18-24`](../../../src/server/actions.ts#L18-L24), [`src/server/review.ts:65-90`](../../../src/server/review.ts#L65-L90).
-Value: no partial completion/reward states.
-Decisions: transaction boundaries, idempotency keys, retry behavior.
-Tests: integration tests with failure injection.
+Anchors: [`src/server/actions.ts:27-40`](../../../src/server/actions.ts#L27-L40), [`src/server/review.ts:65-91`](../../../src/server/review.ts#L65-L91), [`src/server/gamification.ts:61-123`](../../../src/server/gamification.ts#L61-L123).
+Value: no partial completion or reward states — never an advanced review card with no attempt behind it, never quest progress with no XP event.
+Decisions: transaction boundaries, whether `awardActivity` joins the caller's transaction or owns its own, idempotency keys.
+Tests: integration tests with failure injection against a throwaway database file.
 
-## Project 3: Notification Outbox And Reminder Delivery
-Anchors: [`src/app/api/cron/reviews/route.ts:4-19`](../../../src/app/api/cron/reviews/route.ts#L4-L19).
-Value: real reminders with retry and observability.
-Architecture: outbox table, worker/cron processor, provider adapter.
-Security: cron secret, no PII in logs.
+## Project 3: Time As An Input
+Anchors: [`src/lib/gamification.ts:97-156`](../../../src/lib/gamification.ts#L97-L156), [`src/server/quests.ts:31-56`](../../../src/server/quests.ts#L31-L56), [`src/server/feed.ts:134-197`](../../../src/server/feed.ts#L134-L197).
+Value: everything time-dependent — streak, freezes, the daily quest roll, the due queue — is currently evaluated whenever something asks. There is no cron and no worker, which is the right call; the risk is that "what day is it" is answered in several places.
+Architecture: one place that decides the local day, threaded as a parameter; an explicit rule for what happens when the app is left open across midnight.
+Tests: fixed clocks across a DST boundary, a two-day gap consuming exactly one freeze, a three-day gap resetting the streak.
 
-## Project 4: Full Pro Subscription Enforcement
-Anchors: [`prisma/schema.prisma:22-24`](../../../prisma/schema.prisma#L22-L24), [`src/app/courses/[slug]/page.tsx:61-65`](../../../src/app/courses/%5Bslug%5D/page.tsx#L61-L65).
-Value: monetization works.
-Plan: Stripe webhook, user plan updates, server-side gate, UI messaging.
-Rollback: disable enforcement with feature flag.
+## Project 4: Mastery Model
+Anchors: [`getWeakConcepts`](../../../src/server/feed.ts#L34-L58), [`conceptStrength`](../../../src/lib/srs/scheduler.ts), [`src/app/tracks/page.tsx`](../../../src/app/tracks/page.tsx).
+Value: the learner's real question is "what am I bad at", and the data to answer it already exists but is only used to bias a single problem recommendation.
+Plan: a first-class concept-mastery read model, surfaced on `/tracks`, driving both the feed and the quest board.
+Risk: a nested `include` over every `ReviewState` on every render; decide where this is computed and how often.
 
 ## Project 5: Content Versioning And Review Continuity
-Anchors: [`content/courses/javascript-foundations.json`](../../../content/courses/javascript-foundations.json), [`prisma/seed.ts:41-73`](../../../prisma/seed.ts#L41-L73).
-Value: content can evolve without wiping learner review history.
-Plan: stable ids, versions, migration script.
-Risk: duplicate/stale KnowledgeItems.
+Anchors: [`content/courses/javascript-foundations.json`](../../../content/courses/javascript-foundations.json), [`prisma/seed.ts:28-92`](../../../prisma/seed.ts#L28-L92), [`src/lib/content-schema.ts`](../../../src/lib/content-schema.ts).
+Value: content can evolve without wiping review history.
+Current state: the seed already upserts by position key so ids survive, and the comment at [`prisma/seed.ts:28-33`](../../../prisma/seed.ts#L28-L33) explains why. What is still fragile is that position *is* identity — reordering lessons re-points history.
+Plan: author-supplied stable ids, a content version, and a reconciliation step for existing rows.
 
-## Project 6: Observability Baseline
-Anchors: server actions and cron route.
-Value: maintainers know when learning flows break.
-Plan: structured logs, error boundary, health route, dashboard metrics.
+## Project 6: Observability Baseline, Local-Sized
+Anchors: [`src/server/actions.ts`](../../../src/server/actions.ts), [`src/server/gamification.ts`](../../../src/server/gamification.ts), [`src/lib/sandbox/`](../../../src/lib/sandbox).
+Value: when a learning flow breaks on one machine, the learner is the only reporter and "it didn't give me XP" is the whole bug report.
+Plan: structured logs at the three progress write paths, error boundaries on the major routes, the seed summary surfaced in the UI.
+Non-goals: health routes, metrics dashboards, alerting. There is no service to page anyone about.
 Rollback: log-level config.
 
 ## Project 7: Secure Exercise Execution V2
-Anchors: [`src/lib/sandbox/shared.ts:33-76`](../../../src/lib/sandbox/shared.ts#L33-L76).
-Value: more trustworthy exercise grading.
-Decisions: client vs server execution, hidden tests, language runners.
-Performance: CPU quotas and queueing.
+Anchors: [`src/lib/sandbox/shared.ts:33-76`](../../../src/lib/sandbox/shared.ts#L33-L76), [`client-runner.ts`](../../../src/lib/sandbox/client-runner.ts), [`node-runner.ts`](../../../src/lib/sandbox/node-runner.ts).
+Value: more trustworthy exercise grading, and honest hidden tests — today the full test list is serialized into the harness the browser runs.
+Decisions: client versus server execution, where hidden tests live, and how a second language runner would work given that only JavaScript is supported now.
+Performance: CPU quotas and queueing if execution ever moves off the learner's own machine.
 
-## Project 8: Org/Tenant Model
-Anchors: [`prisma/schema.prisma:238-247`](../../../prisma/schema.prisma#L238-L247).
-Value: team/admin tier.
-Security: tenant isolation, admin permissions, invite model.
-Tests: IDOR and cross-org rejection.
+## Project 8: A Second Learner
+Anchors: [`src/server/user.ts:8-40`](../../../src/server/user.ts#L8-L40), and every `where: { userId }` in `src/server/` and `src/features/`.
+Value: this is the design exercise the codebase was built to support — `LOCAL_USER_ID` is a single constant, and every query is already scoped by `userId`, so the question is what *else* would have to change.
+Plan: enumerate every place identity is assumed rather than passed; decide what authentication would look like and whether it belongs here at all.
+Security: this is where IDOR guards like [`src/server/review.ts:47-49`](../../../src/server/review.ts#L47-L49) stop being decorative.
+Tests: cross-user rejection on every learner-owned read and write.
+**Write the RFC that argues against doing it.** A senior engineer's most valuable output here may be a clear case that this app should stay single-user, and what that costs.

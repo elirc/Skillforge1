@@ -4,7 +4,9 @@ This curriculum turns this repository into a training lab for a junior engineer 
 
 ## Repo Identity
 
-Skillforge is a single Next.js App Router application for short coding lessons, spaced-repetition reviews, gamification, and course catalog browsing. The UI lives in `src/app`, `src/features`, and `src/components`, while server mutations live mostly in `src/server`. Persistence is modeled with Prisma in `prisma/schema.prisma`, seeded from JSON course files under `content/courses`. The most important product spine is lesson completion -> review-state seeding -> review grading -> scheduler update -> XP/streak/achievement update. The code-exercise sandbox is intentionally isolated in a Web Worker and has a Node worker twin for tests. Auth.js is configured but local guest/demo behavior is used to keep the app runnable without provider keys.
+Skillforge is a single Next.js App Router application for short coding lessons, spaced-repetition reviews, gamification, standalone practice problems, and course browsing. It is deliberately **local-only and single-learner**: no sign-in, no accounts, no billing, no multi-tenancy, no deployment target. The UI lives in `src/app`, `src/features`, and `src/components`, while server mutations live mostly in `src/server`. Persistence is Prisma over a SQLite file at `data/skillforge.db`, modeled in `prisma/schema.prisma` and seeded from the content tree under `content/`. The current learner is one hard-coded row, `LOCAL_USER_ID = "local"`, resolved by `getCurrentUser()` in [`src/server/user.ts`](../../src/server/user.ts). The most important product spine is lesson completion -> review-state seeding -> review grading -> scheduler update -> XP/streak/quest/achievement update. The code-exercise sandbox is isolated in a Web Worker and has a Node worker twin for tests.
+
+That constraint is a teaching asset, not an apology. Much of what this curriculum asks you to notice — untransacted multi-writes, client-supplied facts, user-scoping clauses no test can falsify — is visible here precisely because nothing else is in the way.
 
 ## How To Use This
 
@@ -63,7 +65,7 @@ Senior engineer doing architecture review:
 
 ## Conventions
 
-- File anchors use relative links such as [`src/server/actions.ts:10-24`](../../src/server/actions.ts#L10-L24).
+- File anchors use relative links such as [`src/server/actions.ts:23-43`](../../src/server/actions.ts#L23-L43).
 - Fake code is labeled `Illustrative fake code: not from this repo.`
 - Drills require action: annotate, trace, test, review, or write design notes.
 - Self-grading is explicit: basic, solid, strong.
@@ -75,6 +77,6 @@ A junior asks, "How do I make it work?" A mid-level engineer adds, "Is this the 
 
 ## Verification Notes
 
-- Inspected `rg --files`, root README, package scripts, Prisma schema, server actions, review scheduler, sandbox, tests, and CI.
-- Commands previously verified in this workspace include `npm run lint`, `npm run typecheck`, `npm test`, `npm run validate:content`, `npm run build`, and `prisma validate` with `DATABASE_URL` set.
-- Docker daemon was not available during the earlier product build verification, so DB-backed dev/E2E setup remains locally documented but not re-run here.
+- Inspected `rg --files`, root README, `.env.example`, package scripts, Prisma schema, server modules, review scheduler, sandbox, tests, and CI.
+- Commands previously verified in this workspace include `npm run lint`, `npm run typecheck`, `npm test`, `npm run validate:content`, and `npm run build`.
+- The database is a local SQLite file, so `npm run db:setup` and the E2E suite need no external service. CI runs the same `db:setup` step at [`.github/workflows/ci.yml:23`](../../.github/workflows/ci.yml#L23).

@@ -11,6 +11,7 @@
  * never imported by the Next.js app, which reads finished content from the DB.
  */
 import { access, readFile, readdir } from "node:fs/promises";
+import { cpus } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import ts from "typescript";
@@ -120,6 +121,32 @@ async function loadLesson(lessonDir: string, order: number) {
   return { title: raw.title, order, contentBlocks: raw.contentBlocks, knowledgeItems };
 }
 
+/**
+ * Bounded-concurrency map that preserves input order.
+ *
+ * Loading a single exercise costs ~0.8s (three TypeScript transpiles plus a
+ * dynamic `import()` of the tests module under tsx). With a few hundred
+ * problems that is minutes of wall clock if done one at a time, and both the
+ * seed and the content validator pay it. The directories are independent, so
+ * run a pool over them.
+ */
+async function mapWithConcurrency<T, R>(items: T[], limit: number, run: (item: T) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let cursor = 0;
+
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor++;
+      results[index] = await run(items[index]);
+    }
+  });
+
+  await Promise.all(workers);
+  return results;
+}
+
+const LOAD_CONCURRENCY = Math.max(4, Math.min(16, cpus().length * 2));
+
 export async function loadAllCourses(): Promise<CourseSeed[]> {
   const courses: CourseSeed[] = [];
 
@@ -134,10 +161,9 @@ export async function loadAllCourses(): Promise<CourseSeed[]> {
       const moduleDir = join(courseDir, moduleName);
       const moduleMeta = await readJson<{ title: string }>(join(moduleDir, "module.json"));
 
-      const lessons = [];
-      for (const lessonName of await listDirs(moduleDir)) {
-        lessons.push(await loadLesson(join(moduleDir, lessonName), orderFromName(lessonName)));
-      }
+      const lessons = await mapWithConcurrency(await listDirs(moduleDir), LOAD_CONCURRENCY, (lessonName) =>
+        loadLesson(join(moduleDir, lessonName), orderFromName(lessonName)),
+      );
 
       modules.push({ title: moduleMeta.title, order: orderFromName(moduleName), lessons });
     }
@@ -160,23 +186,26 @@ export async function loadAllCourses(): Promise<CourseSeed[]> {
 export async function loadAllProblems(): Promise<ProblemSeed[]> {
   if (!(await exists(PROBLEMS_DIR))) return [];
 
-  const problems: ProblemSeed[] = [];
-  for (const problemName of await listDirs(PROBLEMS_DIR)) {
-    const problemDir = join(PROBLEMS_DIR, problemName);
-    if (!(await exists(join(problemDir, "problem.json")))) continue;
+  const loaded = await mapWithConcurrency(
+    await listDirs(PROBLEMS_DIR),
+    LOAD_CONCURRENCY,
+    async (problemName): Promise<ProblemSeed | null> => {
+      const problemDir = join(PROBLEMS_DIR, problemName);
+      if (!(await exists(join(problemDir, "problem.json")))) return null;
 
-    const meta = await readJson<{ exercise?: string }>(join(problemDir, "problem.json"));
-    if (!meta.exercise) {
-      throw new Error(`Problem "${problemName}" is missing an "exercise" key.`);
-    }
-    const payload = await buildCodePayload(problemDir, meta.exercise);
+      const meta = await readJson<{ exercise?: string }>(join(problemDir, "problem.json"));
+      if (!meta.exercise) {
+        throw new Error(`Problem "${problemName}" is missing an "exercise" key.`);
+      }
+      const payload = await buildCodePayload(problemDir, meta.exercise);
 
-    try {
-      problems.push(problemSeedSchema.parse({ ...meta, ...payload }));
-    } catch (error) {
-      throw new Error(`Problem "${problemName}" failed validation: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
+      try {
+        return problemSeedSchema.parse({ ...meta, ...payload });
+      } catch (error) {
+        throw new Error(`Problem "${problemName}" failed validation: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    },
+  );
 
-  return problems.sort((a, b) => a.order - b.order);
+  return loaded.filter((problem): problem is ProblemSeed => problem !== null).sort((a, b) => a.order - b.order);
 }

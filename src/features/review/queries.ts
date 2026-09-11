@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { parseTags } from "@/lib/enums";
 import { conceptStrength } from "@/lib/srs/scheduler";
 import { getCurrentUser } from "@/server/user";
 
@@ -10,13 +11,7 @@ export async function getReviewQueue() {
     include: {
       knowledgeItem: {
         include: {
-          lesson: {
-            include: {
-              module: {
-                include: { course: true },
-              },
-            },
-          },
+          lesson: { include: { module: { include: { course: true } } } },
         },
       },
     },
@@ -26,6 +21,7 @@ export async function getReviewQueue() {
 
   return items.map((item) => ({
     ...item,
+    knowledgeItem: { ...item.knowledgeItem, conceptTags: parseTags(item.knowledgeItem.conceptTags) },
     strength: conceptStrength(item, now),
   }));
 }
@@ -41,7 +37,7 @@ export async function getConceptInsights() {
   });
 
   return states.map((state) => ({
-    tag: state.knowledgeItem.conceptTags[0] ?? "general",
+    tag: parseTags(state.knowledgeItem.conceptTags)[0] ?? "general",
     prompt: state.knowledgeItem.prompt,
     strength: conceptStrength(state, now),
     dueAt: state.dueAt,

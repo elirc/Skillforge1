@@ -5,6 +5,7 @@ import { CheckCircle2, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { completeLessonAction } from "@/server/actions";
+import { useRewardStore } from "@/store/reward-store";
 import { contentBlockSchema, knowledgeItemSchema, type ContentBlock, type KnowledgeSeed } from "@/lib/content-schema";
 import { CodeExercise } from "@/features/lessons/code-exercise";
 
@@ -24,12 +25,14 @@ export function LessonPlayer({
   const [passed, setPassed] = useState<Record<number, boolean>>({});
   const [isComplete, setIsComplete] = useState(completed);
   const [isPending, startTransition] = useTransition();
+  const celebrate = useRewardStore((state) => state.celebrate);
 
   const allPassed = items.every((item, index) => item.type !== "CODE" || passed[index]);
 
   function complete() {
     startTransition(async () => {
-      await completeLessonAction({ lessonId });
+      const summary = await completeLessonAction({ lessonId });
+      celebrate(summary);
       setIsComplete(true);
     });
   }

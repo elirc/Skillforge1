@@ -5,7 +5,6 @@
   "language": "typescript",
   "topicTags": ["types", "functions", "interfaces", "unions", "inference", "narrowing", "generics", "readonly", "partial"],
   "difficulty": "BEGINNER",
-  "isPro": false,
   "order": 2,
   "outcomes": [
     "Read and write parameter and return type annotations",

@@ -23,8 +23,8 @@ it("...", () => expect(scheduleReview(state, "easy", now).interval).toBeGreaterT
 **Suggested checks:** `npm test -- tests/unit/srs.test.ts`
 **Review questions:** Is the assertion about behavior, not implementation trivia?
 
-## Ticket 2: Document Cron Security TODO
-Easy, 30 minutes. Add a TODO note in docs or an issue template referencing [`src/app/api/cron/reviews/route.ts:4-19`](../../../src/app/api/cron/reviews/route.ts#L4-L19). Checks: docs spellcheck/manual review.
+## Ticket 2: Document The Client-Supplied Correctness TODO
+Easy, 30 minutes. Add a TODO note in docs or an issue template referencing [`src/features/review/review-session.tsx:59-70`](../../../src/features/review/review-session.tsx#L59-L70), where the browser decides `correct` and the server takes its word for it. Checks: docs spellcheck/manual review.
 
 ## Ticket 3: Add Duplicate Slug Content Validation
 Easy, 1 hour. Extend [`scripts/validate-content.ts:6-29`](../../../scripts/validate-content.ts#L6-L29) to track slugs. Acceptance: duplicate fixture or unit-style check fails.
@@ -36,7 +36,7 @@ Medium, 1-2 hours. Touch [`src/lib/sandbox/shared.ts:19-31`](../../../src/lib/sa
 Easy, 45 minutes. Add an empty state in [`src/features/catalog/catalog-client.tsx:74-79`](../../../src/features/catalog/catalog-client.tsx#L74-L79). Check manually or component test.
 
 ## Ticket 6: Add Test For Streak Same-Day Activity
-Easy, 30 minutes. Extend [`tests/unit/gamification.test.ts`](../../../tests/unit/gamification.test.ts) around [`src/lib/gamification.ts:49-53`](../../../src/lib/gamification.ts#L49-L53).
+Easy, 30 minutes. Extend [`tests/unit/gamification.test.ts`](../../../tests/unit/gamification.test.ts) around `applyStreak` in [`src/lib/gamification.ts:124-156`](../../../src/lib/gamification.ts#L124-L156). Pass a fixed `now`; a second activity on the same local day must not advance the streak.
 
 ## Ticket 7: Add Content Estimated Minutes Field
 Medium, 2 hours. Update Zod schema [`src/lib/content-schema.ts:80-86`](../../../src/lib/content-schema.ts#L80-L86), content JSON, seed if needed, and course/lesson UI. Risk: migration if persisted.
@@ -48,19 +48,19 @@ Easy, 30 minutes. Update [`src/features/review/review-session.tsx:37-43`](../../
 Easy docs ticket. Write a component test plan for [`src/features/catalog/catalog-client.tsx:39-47`](../../../src/features/catalog/catalog-client.tsx#L39-L47).
 
 ## Ticket 10: Add Prisma Schema Comments
-Easy, 45 minutes. Add brief comments for ReviewState fields in [`prisma/schema.prisma:124-143`](../../../prisma/schema.prisma#L124-L143). Risk: avoid noise.
+Easy, 45 minutes. Add brief comments for ReviewState fields in [`prisma/schema.prisma:106-125`](../../../prisma/schema.prisma#L106-L125). Risk: avoid noise; the file already uses trailing comments to carry the valid values of string-typed enum columns, so match that style.
 
 ## Ticket 11: Add Server-Derived Correctness Design Note
-Easy docs ticket. Reference [`src/features/review/review-session.tsx:57-66`](../../../src/features/review/review-session.tsx#L57-L66) and [`src/server/review.ts:79-90`](../../../src/server/review.ts#L79-L90). Acceptance: design note includes tests.
+Easy docs ticket. Reference [`src/features/review/review-session.tsx:59-70`](../../../src/features/review/review-session.tsx#L59-L70) and [`src/server/review.ts:79-91`](../../../src/server/review.ts#L79-L91). Acceptance: design note includes tests.
 
-## Ticket 12: Add `npm run db:reset` Script
-Easy, 30 minutes. Add script that runs Prisma reset/seed. Risk: destructive command naming must be explicit.
+## Ticket 12: Add Unit Tests For The Level Curve
+Easy, 30 minutes. Cover `xpForLevel`, `levelForXp`, and `levelInfo` in [`src/lib/gamification.ts:47-95`](../../../src/lib/gamification.ts#L47-L95). The curve is `75 * (n-1)^2`, so level 1 starts at 0 XP; assert the boundary, not a table of magic numbers.
 
-## Ticket 13: Add Health Route Stub
-Medium, 1 hour. Add `/api/health` returning app status, no secrets. Tests optional route handler test.
+## Ticket 13: Add Unit Test For Streak Freeze Consumption
+Easy, 45 minutes. There are two freezes, they are never replenished, and each covers exactly one missed day — see [`src/lib/gamification.ts:120-156`](../../../src/lib/gamification.ts#L120-L156). Assert a one-day gap consumes one freeze and keeps the streak, and a two-day gap resets it to 1.
 
-## Ticket 14: Improve Auth README Section
-Easy, 45 minutes. Expand [`README.md`](../../../README.md) with provider setup and demo mode warning.
+## Ticket 14: Improve The README Setup Section
+Easy, 45 minutes. Expand [`README.md`](../../../README.md) so a newcomer understands that the database is one SQLite file at `data/skillforge.db`, that there are no migrations (`prisma db push` applies the schema), and that `npm run db:reset` erases progress.
 
 ## Ticket 15: Add Review Session Keyboard Shortcuts
 Medium, 2 hours. Add key handlers to [`src/features/review/review-session.tsx`](../../../src/features/review/review-session.tsx). Risk: accessibility and accidental grading.
@@ -77,5 +77,5 @@ Easy, 30 minutes. Update [`src/app/profile/page.tsx`](../../../src/app/profile/p
 ## Ticket 19: Add Playwright Locator Comments
 Easy docs/test cleanup. Explain why role locators are used in [`tests/e2e/happy-path.spec.ts:5-25`](../../../tests/e2e/happy-path.spec.ts#L5-L25).
 
-## Ticket 20: Add Risk Register Entry For Demo User
-Easy docs ticket. Reference [`src/server/user.ts:11-21`](../../../src/server/user.ts#L11-L21).
+## Ticket 20: Add Risk Register Entry For Destructive Schema Pushes
+Easy docs ticket. There is no migration history: a destructive schema change requires `prisma db push --force-reset`, which drops `data/skillforge.db` and every bit of learner progress with it. Reference [`prisma/schema.prisma`](../../../prisma/schema.prisma) and the `db:reset` script in `package.json`.

@@ -1,89 +1,86 @@
 # Skillforge
 
-Skillforge is a web-first coding-skills learning platform built with Next.js App Router, TypeScript, Prisma/PostgreSQL, Auth.js, Tailwind, CodeMirror, server-side spaced repetition, and gamification.
+A local-only, single-learner coding trainer: short lessons, runnable exercises, spaced repetition, and boot.dev-style gamification (XP, levels, streaks, daily quests, achievements) aimed at building CRUD web apps with C#, .NET, and SQL.
+
+Everything lives on your machine. There is no sign-in, no account, no server to deploy, and no data leaves the box — progress is a SQLite file at `data/skillforge.db`.
 
 ## Quick Start
 
-1. Install dependencies:
-
 ```bash
-corepack enable
-corepack pnpm install
-```
-
-2. Copy environment defaults:
-
-```bash
-cp .env.example .env
-```
-
-3. Start Postgres:
-
-```bash
-docker compose up -d
-```
-
-4. Migrate and seed:
-
-```bash
-npm run db:migrate
-npm run db:seed
-```
-
-5. Start the app:
-
-```bash
+pnpm install          # or: npm install
+cp .env.example .env  # DATABASE_URL points at data/skillforge.db
+npm run db:setup      # generate client, create the SQLite file, seed content
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. The first visit creates your learner row; `/onboarding` sets your goal, experience, and daily XP target.
 
 ## Scripts
 
-- `npm run dev`: start Next.js.
-- `npm run lint`: ESLint.
-- `npm run typecheck`: strict TypeScript check.
-- `npm test`: Vitest unit tests.
-- `npm run test:e2e`: Playwright happy path.
-- `npm run validate:content`: validate course JSON and execute reference solutions.
-- `npm run db:migrate`: Prisma migration.
-- `npm run db:seed`: seed courses, achievements, demo learner, due reviews, and org stub.
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Start Next.js. |
+| `npm run db:setup` | Generate the Prisma client, create/update the SQLite file, seed content. |
+| `npm run db:seed` | Re-seed courses, problems, and achievements from `content/`. |
+| `npm run db:reset` | Recreate the database from scratch (**erases your progress**). |
+| `npm run db:studio` | Browse the local database in Prisma Studio. |
+| `npm run lint` / `npm run typecheck` | ESLint / strict TypeScript. |
+| `npm test` | Vitest unit tests (gamification, SRS, sandbox). |
+| `npm run test:e2e` | Playwright happy path. Runs against the dev server with a seeded database; not part of CI. |
+| `npm run validate:content` | Assemble course JSON and execute every reference solution. |
+
+Your progress survives `db:seed`: content rows are upserted against stable position keys (course + module + lesson order), so their ids -- and the completions and review states pointing at them -- persist across re-seeds. Deleting or reordering a lesson still drops the review history for that slot. Only `db:reset` (or the **Reset progress** button on `/profile`) clears everything.
+
+## How it works
+
+**Personalization.** `/onboarding` records a goal (`crud-dev`, `interview`, `fundamentals`), an experience level, a daily XP goal, and optional focus tags on the single `User` row. `src/server/feed.ts` turns those into a ranked *Next up* list on the dashboard: due reviews first, then a practice problem chosen to hit your weakest concept tags, then the next unfinished lesson in the language your goal prioritizes. (A problem only outranks the lesson when it actually targets a weak concept; otherwise the lesson comes first.)
+
+**Weakness detection.** Every graded review updates a `ReviewState` (`src/lib/srs/scheduler.ts`). `getWeakConcepts` averages `conceptStrength` per concept tag, which drives both the "Shakiest concepts" panel and problem recommendations. Nothing is hand-configured — it comes from your own recall data.
+
+**Gamification.** `src/lib/gamification.ts` is the pure engine (unit-tested, no DB):
+
+- **XP** per activity, multiplied by a streak bonus that caps at 1.5x.
+- **Levels** on a quadratic curve (`75 * (n-1)^2`), each with a rank name.
+- **Streaks** that extend on consecutive local days; a freeze covers exactly one missed day, longer gaps reset. You get two freezes and they are never replenished.
+- **Daily quests** generated from your goal and experience, rolled fresh each local day.
+- **Achievements** as declarative definitions with an `earned` predicate and a progress bar.
+
+`src/server/gamification.ts` is the single write path: it applies XP and streak, appends to the `XpEvent` ledger, advances quests, unlocks achievements, pays out both bonuses, and returns an `AwardSummary`. Every server action returns that summary, and the client fans it out into toasts via `src/store/reward-store.ts`.
 
 ## Architecture
 
-- `prisma/schema.prisma` models courses, lessons, knowledge items, review states, attempts, progress, achievements, leagues, organizations, and Auth.js tables.
-- `content/<course>/` stores versioned course content as a directory tree (see "Authoring content"), compiled and validated by `scripts/lib/content.ts` + `src/lib/content-schema.ts`.
-- `src/lib/srs/scheduler.ts` exposes `scheduleReview(state, recallScore, now)` so FSRS/SM-2 style scheduling can be swapped without touching UI.
-- `src/server/actions.ts` keeps lesson completion, review grading, XP, streaks, and ReviewState updates server-side.
-- `src/lib/sandbox` executes user JavaScript in a worker harness with a hard timeout and disabled network escape APIs.
-- `src/features/*` groups catalog, lessons, reviews, gamification-facing UI, and auth-adjacent behavior.
+- `prisma/schema.prisma` — SQLite. Because SQLite has no enums or scalar lists, those columns are strings/JSON parsed through `src/lib/enums.ts`.
+- `content/<course>/` — versioned course content, the source of truth (see below). Seeded into SQLite; never authored in the database.
+- `src/lib/sandbox/` — runs learner JavaScript in a worker with a hard timeout and network escape APIs disabled.
+- `src/server/` — `user.ts` (the local profile), `feed.ts` (what to do next), `gamification.ts` (XP/quests/achievements), `quests.ts`, `review.ts`, `problems.ts`, `actions.ts`.
+- `src/features/` — catalog, lessons, review, problems, dashboard, onboarding, profile.
 
 ## Authoring Content
 
-Course content is the source of truth in the repo and is seeded into Postgres; you never author directly in the database. Each course is a directory tree under `content/`:
+Each course is a directory tree under `content/`:
 
 ```
 content/
   _authoring/types.ts            # shared TestCase type for exercises (build-time only)
   javascript-foundations/
-    course.json                  # course metadata (slug, title, language, difficulty, isPro, order, outcomes)
+    course.json                  # slug, title, description, language, topicTags, difficulty, order, outcomes
     01-values-and-decisions/
       module.json                # { "title": "Values and Decisions" }
       01-variables-hold-values/
-        lesson.json              # prose/code/callout blocks + MCQ/CLOZE/CODE knowledge items
+        lesson.json              # prose/code/callout blocks + MCQ/CLOZE/CODE items
         add-xp.starter.ts        # the incomplete stub the learner sees
         add-xp.solution.ts       # the reference solution (must pass the tests)
-        add-xp.tests.ts          # export `functionName` and a typed `tests` array
+        add-xp.tests.ts          # exports `functionName` and a typed `tests` array
 ```
 
-- **Order** for modules and lessons comes from the numeric directory prefix (`01-`, `02-`); titles live in `module.json` / `lesson.json`.
+- **Order** for modules and lessons comes from the numeric directory prefix; titles live in `module.json` / `lesson.json`.
 - **MCQ and CLOZE** items are authored inline in `lesson.json`.
-- **CODE** items reference an exercise by file prefix: `{ "type": "CODE", "prompt": "...", "exercise": "add-xp", "conceptTags": [...] }`. The loader reads the three `add-xp.*.ts` files, transpiles the starter/solution to plain JS for the sandbox, and reads `functionName`/`tests` from the tests module. Authoring code as real TypeScript means it is linted, type-checked, and runnable — no escaped strings in JSON.
-- Exercise functions must be **self-contained** (no value imports); only `import type` from `@content/_authoring/types` is allowed.
+- **CODE** items reference an exercise by file prefix: `{ "type": "CODE", "prompt": "...", "exercise": "add-xp", "conceptTags": [...] }`. Authoring exercises as real TypeScript means they are linted, type-checked, and runnable.
+- Exercise functions must be self-contained (no value imports); only `import type` from `@content/_authoring/types`.
 
 ### Standalone practice problems
 
-A problem bank lives in `content/problems/<slug>/` and is independent of any lesson (`Problem` / `ProblemSubmission` models in the schema). Each problem is a `problem.json` plus the same `<exercise>.{starter,solution,tests}.ts` trio:
+`content/problems/<slug>/` holds a `problem.json` plus the same `<exercise>.{starter,solution,tests}.ts` trio:
 
 ```json
 {
@@ -94,24 +91,19 @@ A problem bank lives in `content/problems/<slug>/` and is independent of any les
   "difficulty": "EASY | MEDIUM | HARD",
   "conceptTags": ["arrays", "search"],
   "order": 2,
-  "exercise": "pair-sum"
+  "exercise": "pair-sum",
+  "explanation": {
+    "beginner": "Plain-language walkthrough of the rule.",
+    "junior": "What good code for this looks like and which edge cases matter."
+  }
 }
 ```
 
-Problems support difficulty ratings, concept-tag filtering, and many problems per concept. Read them with `getProblems(filters)` (`src/features/problems/queries.ts`) and record attempts with `recordProblemSubmissionAction` (`src/server/problems.ts`).
+`explanation` is required (both `beginner` and `junior` keys); `language` and `order` have defaults.
 
-### Validating
+Run `npm run validate:content` to assemble every course and problem and execute each reference solution against its tests.
 
-Run `npm run validate:content` to assemble every course and problem, type-check the tree (`npm run typecheck`), and execute each reference solution against its tests in the sandbox. CI runs both, so a broken exercise fails the build rather than reaching a learner. To preview content end to end, run `npm run db:migrate && npm run db:seed` and open the app.
+## Not built yet
 
-## Auth, Guest Mode, And Payments
-
-Auth.js is configured for GitHub OAuth and email magic links. If provider keys are absent, the app still runs with a seeded guest/demo learner so local evaluation and E2E can proceed. Guest progress migration is documented as the next production hardening step: local guest progress should be serialized client-side and replayed through a server action after sign-in.
-
-Stripe is included behind `NEXT_PUBLIC_STRIPE_ENABLED` and empty-key safe defaults. Pro catalog gates render, but checkout is intentionally stubbed until keys and products exist.
-
-## Open Questions
-
-- Which email provider should own production magic-link delivery?
-- Should organizations use invite-only seats or domain-based auto-join?
-- When Python launches, should Pyodide run in the same worker protocol or a language-specific runner package?
+- **C# and SQL execution.** The sandbox runs JavaScript/TypeScript only. Real C# grading (a prewarmed `dotnet` scratch project behind a local API route) and real SQL grading (in-browser SQLite with result-set comparison) are the next step; the C# content currently ships as reading plus MCQ/CLOZE items.
+- **The C#/.NET/SQL CRUD curriculum** as executable lessons. `content/csharp-dotnet-interview-prep/` is prose and quizzes today.

@@ -5,7 +5,6 @@
   "language": "javascript",
   "topicTags": ["destructuring", "rest-parameters", "method-chaining", "objects", "intermediate"],
   "difficulty": "INTERMEDIATE",
-  "isPro": false,
   "order": 5,
   "outcomes": [
     "Pull values out of objects and arrays with destructuring",

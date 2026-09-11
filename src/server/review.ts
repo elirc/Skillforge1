@@ -1,4 +1,4 @@
-import { $Enums, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { scheduleReview, type RecallScore, type SrsReviewState } from "@/lib/srs/scheduler";
 import { prisma } from "@/lib/prisma";
@@ -6,12 +6,12 @@ import { awardActivity } from "@/server/gamification";
 
 export const recallScoreSchema = z.enum(["again", "hard", "good", "easy"]);
 
-function toPrismaRecall(score: RecallScore) {
-  return score.toUpperCase() as $Enums.RecallScore;
+function toStoredRecall(score: RecallScore) {
+  return score.toUpperCase();
 }
 
-function toPrismaState(state: SrsReviewState["state"]) {
-  return state.toUpperCase() as $Enums.ReviewLifecycle;
+function toStoredState(state: SrsReviewState["state"]) {
+  return state.toUpperCase();
 }
 
 export async function seedLessonReviewStates(userId: string, lessonId: string) {
@@ -72,7 +72,7 @@ export async function gradeReviewItem(input: {
       lapses: next.lapses,
       reps: next.reps,
       lastReviewedAt: next.lastReviewedAt,
-      state: toPrismaState(next.state),
+      state: toStoredState(next.state),
     },
   });
 
@@ -82,11 +82,11 @@ export async function gradeReviewItem(input: {
       knowledgeItemId: state.knowledgeItemId,
       response: input.response as Prisma.InputJsonValue,
       correct: input.correct,
-      recallScore: toPrismaRecall(input.recallScore),
+      recallScore: toStoredRecall(input.recallScore),
       durationMs: input.durationMs,
     },
   });
 
-  await awardActivity(input.userId, "review", input.correct);
-  return updated;
+  const summary = await awardActivity(input.userId, "review", input.correct);
+  return { state: updated, summary };
 }

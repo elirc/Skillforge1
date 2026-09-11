@@ -5,7 +5,6 @@
   "language": "javascript",
   "topicTags": ["variables", "functions", "arrays", "objects", "strings", "loops", "reduce", "control-flow", "error-handling", "sets", "maps", "sorting", "data-cleaning"],
   "difficulty": "BEGINNER",
-  "isPro": false,
   "order": 1,
   "outcomes": [
     "Explain variables, values, and expressions",

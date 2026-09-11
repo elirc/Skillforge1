@@ -5,7 +5,6 @@
   "language": "python",
   "topicTags": ["variables", "control-flow"],
   "difficulty": "BEGINNER",
-  "isPro": true,
   "order": 3,
   "outcomes": ["Compare familiar JavaScript ideas with Python syntax"]
 }

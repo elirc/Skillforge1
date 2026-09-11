@@ -40,3 +40,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local learner progress (SQLite)
+/data/*.db
+/data/*.db-journal
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/

@@ -83,7 +83,7 @@ Better:
 await prisma.$transaction([writeDatabaseState(), enqueueEmail()]);
 ```
 
-Repo risk to discuss: cron currently returns stubbed delivery in [`src/app/api/cron/reviews/route.ts:11-18`](../../../src/app/api/cron/reviews/route.ts#L11-L18).
+Repo risk to discuss: review grading updates the `ReviewState`, then creates the `Attempt`, then awards XP as three separate writes in [`src/server/review.ts:65-91`](../../../src/server/review.ts#L65-L91). A failure between them leaves a card rescheduled with no record of the answer that rescheduled it. Compare with [`resetProgressAction`](../../../src/server/actions.ts#L88-L104), which does wrap its writes in `prisma.$transaction`.
 
 ## Contrast 6: Swallowing Errors
 
@@ -163,4 +163,4 @@ Better:
 const correct = gradeOnServer(item.payload, input.response);
 ```
 
-Repo risk: [`src/features/review/review-session.tsx:62-66`](../../../src/features/review/review-session.tsx#L62-L66).
+Repo risk: [`src/features/review/review-session.tsx:59-70`](../../../src/features/review/review-session.tsx#L59-L70).

@@ -75,7 +75,6 @@ export const courseSeedSchema = z.object({
   language: z.string(),
   topicTags: z.array(z.string()),
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
-  isPro: z.boolean(),
   order: z.number().int(),
   outcomes: z.array(z.string()),
   modules: z.array(

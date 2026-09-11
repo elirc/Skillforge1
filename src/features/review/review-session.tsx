@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { gradeReviewAction } from "@/server/actions";
 import { knowledgeItemSchema } from "@/lib/content-schema";
 import { useReviewStore } from "@/store/review-store";
+import { useRewardStore } from "@/store/reward-store";
 
 interface ReviewItem {
   id: string;
@@ -31,6 +32,7 @@ export function ReviewSession({ items }: { items: ReviewItem[] }) {
   const [revealed, setRevealed] = useState(false);
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [isPending, startTransition] = useTransition();
+  const celebrate = useRewardStore((state) => state.celebrate);
   const item = items[index];
   const parsed = useMemo(() => (item ? knowledgeItemSchema.parse(item.knowledgeItem) : null), [item]);
 
@@ -59,13 +61,14 @@ export function ReviewSession({ items }: { items: ReviewItem[] }) {
 
   function grade(recallScore: "again" | "hard" | "good" | "easy") {
     startTransition(async () => {
-      await gradeReviewAction({
+      const summary = await gradeReviewAction({
         reviewStateId: item.id,
         response: { answer },
         correct: recallScore !== "again" && correct,
         recallScore,
         durationMs: Date.now() - startedAt,
       });
+      celebrate(summary);
       await queryClient.invalidateQueries();
       setAnswer("");
       setRevealed(false);

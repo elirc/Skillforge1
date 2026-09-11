@@ -70,11 +70,12 @@ Excerpt: [`src/features/catalog/queries.ts:22-40`](../../../src/features/catalog
 - Where is user scoping applied?
 - What would grow expensive?
 
-## Drill 10: Cron Stub
-Excerpt: [`src/app/api/cron/reviews/route.ts:4-19`](../../../src/app/api/cron/reviews/route.ts#L4-L19)
-- What query is run?
-- What is stubbed?
-- What auth/retry/observability is missing?
+## Drill 10: The Dashboard Feed
+Excerpt: [`src/server/feed.ts:134-197`](../../../src/server/feed.ts#L134-L197)
+- What queries are run, and how many per dashboard load?
+- Which weights are constants and which ones move?
+- What makes an item appear at all, versus what makes it appear first?
+- Where would you put a test so a weight change cannot silently reorder the page?
 
 ## General Rubric
 

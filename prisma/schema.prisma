@@ -1,47 +1,40 @@
+// Skillforge -- local-only, single-learner build.
+// Storage is a SQLite file (see DATABASE_URL); there is no auth, no billing,
+// and no multi-tenant tables. SQLite via Prisma has no enum or scalar-list
+// support, so those columns are strings/JSON validated in src/lib/enums.ts.
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-enum Difficulty {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
-}
+/// The one local learner. Row id is always "local".
+model User {
+  id         String  @id @default("local")
+  name       String  @default("Learner")
+  email      String? @unique
 
-enum KnowledgeItemType {
-  MCQ
-  CODE
-  CLOZE
-}
+  // Personalization captured during onboarding.
+  goal        String    @default("crud-dev") // crud-dev | interview | fundamentals
+  experience  String    @default("beginner") // beginner | junior | mid
+  focusTags   String    @default("[]") // JSON string[] of concept tags that bias the feed
+  onboardedAt DateTime?
 
-enum Plan {
-  CORE
-  PRO
-}
+  reviewStates       ReviewState[]
+  attempts           Attempt[]
+  progress           Progress?
+  completions        LessonCompletion[]
+  achievements       UserAchievement[]
+  problemSubmissions ProblemSubmission[]
+  xpEvents           XpEvent[]
+  quests             Quest[]
 
-enum RecallScore {
-  AGAIN
-  HARD
-  GOOD
-  EASY
-}
-
-enum ReviewLifecycle {
-  NEW
-  LEARNING
-  REVIEW
-  RELEARNING
-}
-
-enum ProblemDifficulty {
-  EASY
-  MEDIUM
-  HARD
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Course {
@@ -50,11 +43,10 @@ model Course {
   title       String
   description String
   language    String
-  topicTags   String[]
-  difficulty  Difficulty
-  isPro       Boolean  @default(false)
+  topicTags   String   @default("[]") // JSON string[]
+  difficulty  String // BEGINNER | INTERMEDIATE | ADVANCED
   order       Int
-  outcomes    String[] @default([])
+  outcomes    String   @default("[]") // JSON string[]
   modules     Module[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -76,108 +68,126 @@ model Module {
 }
 
 model Lesson {
-  id             String           @id @default(cuid())
+  id             String             @id @default(cuid())
   moduleId       String
-  module         Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  module         Module             @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   title          String
   order          Int
   contentBlocks  Json
   knowledgeItems KnowledgeItem[]
   completions    LessonCompletion[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 
   @@unique([moduleId, order])
 }
 
 model KnowledgeItem {
-  id           String            @id @default(cuid())
-  lessonId     String
-  lesson       Lesson            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  type         KnowledgeItemType
+  id       String @id @default(cuid())
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  /// Position within the lesson. Together with `lessonId` this is the stable
+  /// identity the seed upserts against, so re-seeding unchanged content keeps
+  /// the row id -- and therefore the learner's ReviewState -- intact.
+  order        Int
+  type         String // MCQ | CODE | CLOZE
   prompt       String
   payload      Json
-  conceptTags  String[]
+  conceptTags  String        @default("[]") // JSON string[]
   reviewStates ReviewState[]
   attempts     Attempt[]
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-}
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  githubUsername String?
-  plan          Plan      @default(CORE)
-  orgId         String?
-  org           Organization? @relation("OrgMembers", fields: [orgId], references: [id])
-  adminOf       Organization[] @relation("OrgAdmin")
-  accounts      Account[]
-  sessions      Session[]
-  reviewStates  ReviewState[]
-  attempts      Attempt[]
-  progress      Progress?
-  completions   LessonCompletion[]
-  achievements  UserAchievement[]
-  leaderboardEntries LeaderboardEntry[]
-  problemSubmissions ProblemSubmission[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  @@unique([lessonId, order])
+  @@index([lessonId])
 }
 
 model ReviewState {
-  id              String          @id @default(cuid())
+  id              String        @id @default(cuid())
   userId          String
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   knowledgeItemId String
-  knowledgeItem   KnowledgeItem   @relation(fields: [knowledgeItemId], references: [id], onDelete: Cascade)
+  knowledgeItem   KnowledgeItem @relation(fields: [knowledgeItemId], references: [id], onDelete: Cascade)
   dueAt           DateTime
-  stability       Float           @default(0)
-  difficulty      Float           @default(5)
-  interval        Int             @default(0)
-  lapses          Int             @default(0)
-  reps            Int             @default(0)
+  stability       Float         @default(0)
+  difficulty      Float         @default(5)
+  interval        Int           @default(0)
+  lapses          Int           @default(0)
+  reps            Int           @default(0)
   lastReviewedAt  DateTime?
-  state           ReviewLifecycle @default(NEW)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  state           String        @default("NEW") // NEW | LEARNING | REVIEW | RELEARNING
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@unique([userId, knowledgeItemId])
   @@index([userId, dueAt])
 }
 
 model Attempt {
-  id              String      @id @default(cuid())
+  id              String        @id @default(cuid())
   userId          String
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   knowledgeItemId String
   knowledgeItem   KnowledgeItem @relation(fields: [knowledgeItemId], references: [id], onDelete: Cascade)
   response        Json
   correct         Boolean
-  recallScore     RecallScore
+  recallScore     String // AGAIN | HARD | GOOD | EASY
   durationMs      Int
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([userId, createdAt])
 }
 
 model Progress {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  xp              Int      @default(0)
-  level           Int      @default(1)
-  streakCurrent   Int      @default(0)
-  streakLongest   Int      @default(0)
-  lastActiveDate  DateTime?
-  streakFreezes   Int      @default(1)
-  dailyXpGoal     Int      @default(50)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  xp             Int       @default(0)
+  level          Int       @default(1)
+  streakCurrent  Int       @default(0)
+  streakLongest  Int       @default(0)
+  lastActiveDate DateTime?
+  streakFreezes  Int       @default(2)
+  dailyXpGoal    Int       @default(60)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+/// Append-only XP ledger. Powers the daily goal ring, the activity heatmap and
+/// quest progress without recomputing from every other table.
+model XpEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String // lesson | review | exercise | quest | achievement
+  amount    Int
+  day       String // local YYYY-MM-DD, so day rollups stay in the learner timezone
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, day])
+  @@index([userId, createdAt])
+}
+
+/// One row per quest per local day. Rolled fresh each morning.
+model Quest {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day         String // local YYYY-MM-DD
+  key         String
+  title       String
+  target      Int
+  progress    Int       @default(0)
+  xpReward    Int       @default(0)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, day, key])
+  @@index([userId, day])
 }
 
 model LessonCompletion {
@@ -193,15 +203,16 @@ model LessonCompletion {
 }
 
 model Achievement {
-  id          String   @id @default(cuid())
-  key         String   @unique
+  id          String            @id @default(cuid())
+  key         String            @unique
   name        String
   description String
   icon        String
-  xpReward    Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  tier        String            @default("bronze") // bronze | silver | gold
+  xpReward    Int               @default(0)
   users       UserAchievement[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
 
 model UserAchievement {
@@ -217,51 +228,15 @@ model UserAchievement {
   @@unique([userId, achievementId])
 }
 
-model League {
-  id        String   @id @default(cuid())
-  name      String
-  startsAt  DateTime
-  endsAt    DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  entries   LeaderboardEntry[]
-}
-
-model LeaderboardEntry {
-  id        String   @id @default(cuid())
-  leagueId  String
-  league    League   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  xp        Int      @default(0)
-  optedIn   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([leagueId, userId])
-  @@index([leagueId, xp])
-}
-
-model Organization {
-  id        String   @id @default(cuid())
-  name      String
-  seats     Int      @default(1)
-  adminId   String
-  admin     User     @relation("OrgAdmin", fields: [adminId], references: [id])
-  members   User[]   @relation("OrgMembers")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model Problem {
   id                String              @id @default(cuid())
   slug              String              @unique
   title             String
   prompt            String
-  explanation       Json                @default("{\"beginner\":\"\",\"junior\":\"\"}")
+  explanation       Json
   language          String              @default("javascript")
-  difficulty        ProblemDifficulty
-  conceptTags       String[]
+  difficulty        String // EASY | MEDIUM | HARD
+  conceptTags       String              @default("[]") // JSON string[]
   starterCode       String
   functionName      String
   tests             Json
@@ -288,44 +263,4 @@ model ProblemSubmission {
 
   @@index([userId, problemId])
   @@index([problemId, passed])
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
-
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([identifier, token])
 }

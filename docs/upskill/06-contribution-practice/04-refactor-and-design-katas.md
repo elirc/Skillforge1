@@ -1,10 +1,10 @@
 # 04 Refactor And Design Katas
 
 ## Kata 1: Identify A Boundary Leak
-Use [`src/features/review/review-session.tsx:62-66`](../../../src/features/review/review-session.tsx#L62-L66). Propose how to move correctness authority server-side.
+Use [`src/features/review/review-session.tsx:59-70`](../../../src/features/review/review-session.tsx#L59-L70). Propose how to move correctness authority server-side.
 
-## Kata 2: Propose An Outbox
-Use [`src/app/api/cron/reviews/route.ts:4-19`](../../../src/app/api/cron/reviews/route.ts#L4-L19). Design NotificationOutbox schema and processor.
+## Kata 2: Make The Write Path Atomic
+Use [`src/server/gamification.ts:61-123`](../../../src/server/gamification.ts#L61-L123) and [`src/server/review.ts:65-91`](../../../src/server/review.ts#L65-L91). `awardActivity` is the single write path for progress, but it is not a single transaction: XP, the `XpEvent`, quest advancement, achievement unlocks, and two bonus payouts are separate writes. Design the transaction boundary. Decide what a caller like `gradeReviewItem` owns and what `awardActivity` owns, and name the invariant you are protecting.
 
 ## Kata 3: Split A Large Client Component
 Use [`src/features/review/review-session.tsx`](../../../src/features/review/review-session.tsx). Identify subcomponents without changing behavior.

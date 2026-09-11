@@ -27,8 +27,8 @@
 
 Good:
 - `Add server-derived review correctness tests`
-- `Gate cron review route with shared secret`
-- `Document guest-mode migration risks`
+- `Wrap review grading writes in a transaction`
+- `Document destructive db push risks in the risk register`
 
 Weak:
 - `fix stuff`

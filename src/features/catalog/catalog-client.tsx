@@ -16,7 +16,6 @@ interface CatalogCourse {
   language: string;
   topicTags: string[];
   difficulty: string;
-  isPro: boolean;
   modules: { lessons: { id: string }[] }[];
 }
 
@@ -109,7 +108,6 @@ function CourseCard({ course, completed, compact = false }: { course: CatalogCou
           <div className="mb-2 flex flex-wrap gap-2">
             <Badge>{course.language}</Badge>
             <Badge>{course.difficulty.toLowerCase()}</Badge>
-            {course.isPro ? <Badge className="border-amber-300 text-amber-700 dark:text-amber-300">Pro</Badge> : <Badge>Core</Badge>}
           </div>
           <CardTitle>{course.title}</CardTitle>
           {!compact ? <CardDescription>{course.description}</CardDescription> : null}

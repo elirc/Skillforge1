@@ -16,25 +16,26 @@ Strong answers do not pretend this repo is .NET. They say: "In this repo, the bo
 
 | Skillforge anchor | What it does here | .NET translation | Interview topic |
 | --- | --- | --- | --- |
-| [`src/server/actions.ts:14-29`](../../../src/server/actions.ts#L14-L29) | Completes a lesson, seeds reviews, awards XP | Minimal API/controller calls `ILessonCompletionService` | Thin controllers, service boundaries |
+| [`src/server/actions.ts:23-44`](../../../src/server/actions.ts#L23-L44) | Completes a lesson, seeds reviews, awards XP | Minimal API/controller calls `ILessonCompletionService` | Thin controllers, service boundaries |
 | [`src/server/review.ts:39-91`](../../../src/server/review.ts#L39-L91) | Grades review, updates schedule, writes attempt, awards XP | `IReviewService.GradeAsync(...)` using EF Core transaction | Consistency, authorization, domain logic |
 | [`src/lib/srs/scheduler.ts:32-74`](../../../src/lib/srs/scheduler.ts#L32-L74) | Pure scheduling algorithm | Pure C# domain service/static method | Testable business logic |
-| [`prisma/schema.prisma:124-159`](../../../prisma/schema.prisma#L124-L159) | ReviewState and Attempt schema | EF Core entities with indexes and relationships | Data modeling |
+| [`prisma/schema.prisma:106-141`](../../../prisma/schema.prisma#L106-L141) | ReviewState and Attempt schema | EF Core entities with indexes and relationships | Data modeling |
 | [`src/lib/content-schema.ts:45-90`](../../../src/lib/content-schema.ts#L45-L90) | Runtime content schema | DTOs plus FluentValidation/data annotations | Contract validation |
 | [`src/lib/sandbox/client-runner.ts:9-35`](../../../src/lib/sandbox/client-runner.ts#L9-L35) | Worker timeout for user code | Isolated process/container/background job with timeout | Resource isolation |
-| [`src/app/api/cron/reviews/route.ts:4-19`](../../../src/app/api/cron/reviews/route.ts#L4-L19) | Reminder cron stub | `BackgroundService`, Quartz, Hangfire, or worker service | Jobs, retries, outbox |
-| [`src/server/user.ts:4-22`](../../../src/server/user.ts#L4-L22) | Session user or demo fallback | `ClaimsPrincipal` + user service + dev-only fallback | Auth vs authorization |
+| [`src/server/quests.ts:31-56`](../../../src/server/quests.ts#L31-L56) | Rolls the daily board at read time; there is no scheduler in this repo | `BackgroundService`, Quartz, or Hangfire *if* you decide scheduled work is warranted | Jobs, retries, outbox -- and when not to have them |
+| [`src/server/gamification.ts:61-123`](../../../src/server/gamification.ts#L61-L123) | Single write path for all progress | One application service owning the invariant | Consistency, transaction boundaries |
+| [`src/server/user.ts:8-40`](../../../src/server/user.ts#L8-L40) | One local learner, id `"local"`, upserted on read | `ClaimsPrincipal` + user service | Where identity enters the system |
 
 ## ASP.NET Core Boundary Drill
 
 Skillforge boundary:
 - Client calls `completeLessonAction` from [`src/features/lessons/lesson-player.tsx:30-34`](../../../src/features/lessons/lesson-player.tsx#L30-L34).
-- Server validates input and derives user in [`src/server/actions.ts:10-16`](../../../src/server/actions.ts#L10-L16).
-- Server performs writes in [`src/server/actions.ts:18-24`](../../../src/server/actions.ts#L18-L24).
+- Server validates input and derives the learner in [`src/server/actions.ts:19-25`](../../../src/server/actions.ts#L19-L25).
+- Server performs writes in [`src/server/actions.ts:27-40`](../../../src/server/actions.ts#L27-L40).
 
 .NET translation:
 - HTTP endpoint: parses route/body, gets user id from `ClaimsPrincipal`, returns status/DTO.
-- Application service: enforces plan/lesson authorization, writes completion, seeds review state, awards XP.
+- Application service: verifies the lesson exists, writes completion, seeds review state, awards XP through one write path, and refuses repeat credit.
 - EF Core: enforces unique constraints and transaction.
 
 Illustrative fake code, not from this repo:
@@ -57,13 +58,13 @@ Mid-level talking points:
 - The endpoint should not accept `userId` in the body.
 - The service owns the invariant: completion implies review states exist.
 - Use a transaction or recovery strategy for multi-write operations.
-- Add tests for duplicate completion, unauthorized Pro lesson, and review-state seeding.
+- Add tests for duplicate completion (no repeat credit), review-state seeding, and a lesson id that does not exist.
 
 Senior talking points:
 - Define the idempotency contract.
 - Decide whether rewards are inside the same transaction or eventually consistent.
 - Emit structured logs and metrics for completion count, seeded count, and failures.
-- Roll out Pro enforcement behind a feature flag if existing users may be affected.
+- Say how you would roll the change out when existing progress rows may be affected, and what you would do if you had no migration history to fall back on.
 
 ## EF Core Modeling Drill: ReviewState
 
@@ -113,7 +114,7 @@ Interview answer ladder:
 Skillforge anchor:
 - User-scoped review lookup: [`src/server/review.ts:47-49`](../../../src/server/review.ts#L47-L49)
 - Schedule update: [`src/server/review.ts:51-77`](../../../src/server/review.ts#L51-L77)
-- Attempt write and reward: [`src/server/review.ts:79-90`](../../../src/server/review.ts#L79-L90)
+- Attempt write and reward: [`src/server/review.ts:79-91`](../../../src/server/review.ts#L79-L91)
 
 .NET design prompt:
 Design `GradeReviewAsync(userId, reviewStateId, response, recallScore, duration, ct)`.
@@ -169,8 +170,9 @@ Solid answer:
 
 ## Background Jobs And Outbox
 
-Skillforge starting point:
-- Cron route groups due ReviewStates in [`src/app/api/cron/reviews/route.ts:5-18`](../../../src/app/api/cron/reviews/route.ts#L5-L18).
+Skillforge starting point -- the absence of one:
+- This repo has no cron, no worker, and no queue. Due reviews are counted at read time in [`src/server/feed.ts:150-161`](../../../src/server/feed.ts#L150-L161), and the daily quest board is rolled idempotently on every dashboard load in [`src/server/quests.ts:31-56`](../../../src/server/quests.ts#L31-L56).
+- That is the right call for one learner on one machine. The interview value is being able to say why, and to say what would change the answer. Everything below is the design you would reach for once it does.
 
 .NET translation options:
 - `BackgroundService`: built-in hosted service, good for simple workers.
@@ -194,19 +196,18 @@ Senior additions:
 ## Auth And Authorization
 
 Skillforge anchors:
-- Auth provider config: [`src/lib/auth.ts:7-21`](../../../src/lib/auth.ts#L7-L21)
-- Session user id callback: [`src/lib/auth.ts:25-31`](../../../src/lib/auth.ts#L25-L31)
-- Demo fallback: [`src/server/user.ts:11-21`](../../../src/server/user.ts#L11-L21)
-- IDOR-safe review lookup: [`src/server/review.ts:47-49`](../../../src/server/review.ts#L47-L49)
+- There is no authentication here at all. Identity is the constant `LOCAL_USER_ID = "local"` in [`src/server/user.ts:8`](../../../src/server/user.ts#L8), and [`getCurrentUser()`](../../../src/server/user.ts#L21-L40) upserts that row rather than looking anyone up.
+- Identity is nonetheless *derived server-side and never accepted from the caller* -- the property that matters, and the one worth describing in an interview.
+- IDOR-safe review lookup: [`src/server/review.ts:47-49`](../../../src/server/review.ts#L47-L49). It filters by `userId` even though only one exists, which is what would make a second learner a schema change rather than an audit.
 
 .NET transfer:
 - Authentication: validate who the caller is, usually through cookies/JWT and `ClaimsPrincipal`.
 - Authorization: decide whether that caller can access a specific resource.
-- Policy-based authorization is useful for roles/plans/orgs.
+- Policy-based authorization is useful for roles and tiers.
 - Resource-based authorization is needed when ownership matters, such as `ReviewState.UserId == currentUserId`.
 
 Interview warning:
-Do not say "I added `[Authorize]`, so it is secure." `[Authorize]` proves the user is authenticated. It does not prove they own the review state, lesson, organization, or subscription.
+Do not say "I added `[Authorize]`, so it is secure." `[Authorize]` proves the user is authenticated. It does not prove they own the review state or the lesson they are writing against.
 
 ## Secure Code Execution In .NET
 
@@ -228,12 +229,12 @@ Skillforge anchors:
 **Expected mid-level answer includes:**
 - Validate `lessonId`.
 - Derive `userId` from claims.
-- Verify lesson exists and plan permits access.
+- Verify the lesson exists.
 - Upsert completion.
 - Seed ReviewState idempotently.
 - Award XP/streak.
 - Use transaction or recovery design.
-- Test duplicate completion and unauthorized Pro lesson.
+- Test duplicate completion: the second call must write no XP, no streak change, and no quest progress.
 
 ### Question 2: Explain EF Core indexes for reviews
 **Expected mid-level answer includes:**

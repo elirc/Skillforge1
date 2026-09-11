@@ -37,8 +37,9 @@ Observable behaviors:
 - Teaches others through clear review and RFCs.
 
 Self-assessment:
-- [ ] I can critique guest mode, Pro gating, cron reliability, and sandbox security.
-- [ ] I can design outbox and transaction improvements.
+- [ ] I can critique the single write path for progress, the client-supplied review correctness, the sandbox's code-execution boundary, and the absence of a migration history.
+- [ ] I can design transaction boundaries and say what each one protects.
+- [ ] I can argue for what this codebase should *not* grow, as clearly as for what it should.
 - [ ] I can explain tradeoffs to product and maintainers.
 - [ ] I can reduce risk without creating broad churn.
 

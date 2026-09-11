@@ -5,67 +5,64 @@
 1. The review scheduler is isolated as a pure module in [`src/lib/srs/scheduler.ts:32-74`](../../../src/lib/srs/scheduler.ts#L32-L74), with direct unit tests in [`tests/unit/srs.test.ts:15-44`](../../../tests/unit/srs.test.ts#L15-L44).
 2. Course content has a runtime schema in [`src/lib/content-schema.ts:3-90`](../../../src/lib/content-schema.ts#L3-L90) and a validation script that executes reference solutions in [`scripts/validate-content.ts:14-23`](../../../scripts/validate-content.ts#L14-L23).
 3. User code execution is moved to a worker runner with timeout enforcement in [`src/lib/sandbox/client-runner.ts:9-35`](../../../src/lib/sandbox/client-runner.ts#L9-L35).
-4. ReviewState has the right uniqueness and due queue index in [`prisma/schema.prisma:141-142`](../../../prisma/schema.prisma#L141-L142).
-5. The code separates pure reward math from DB persistence across [`src/lib/gamification.ts:37-79`](../../../src/lib/gamification.ts#L37-L79) and [`src/server/gamification.ts:4-69`](../../../src/server/gamification.ts#L4-L69).
+4. ReviewState has the right uniqueness and due queue index in [`prisma/schema.prisma:118-119`](../../../prisma/schema.prisma#L118-L119).
+5. The code separates pure reward math from DB persistence across [`src/lib/gamification.ts`](../../../src/lib/gamification.ts) and [`src/server/gamification.ts`](../../../src/server/gamification.ts), and funnels every progress write through one function, [`awardActivity`](../../../src/server/gamification.ts#L61-L123).
+6. Scope discipline. No auth, no billing, no tenancy, no Docker, no deploy target. Each of those is a subsystem that would need tests, secrets, and failure handling; none of them serve one learner on one machine.
 
 ## Confirmed Risks
 
 | Risk | Evidence | Impact | Suggested migration |
 | --- | --- | --- | --- |
-| Cron route lacks auth | [`src/app/api/cron/reviews/route.ts:4-19`](../../../src/app/api/cron/reviews/route.ts#L4-L19) | Anyone could trigger due-count query if deployed publicly | Require shared secret/header, add test, document scheduler |
-| Demo user fallback is shared | [`src/server/user.ts:11-21`](../../../src/server/user.ts#L11-L21) | Anonymous users share state | Gate by env; implement per-browser guest id and migration |
-| Pro gating is display-only | [`src/app/courses/[slug]/page.tsx:61-65`](../../../src/app/courses/%5Bslug%5D/page.tsx#L61-L65) | Core users could access Pro lesson routes | Enforce in server queries/actions |
-| Review correctness is client-supplied | [`src/features/review/review-session.tsx:62-66`](../../../src/features/review/review-session.tsx#L62-L66) | Easy reward gaming | Server derives correctness for MCQ/cloze |
+| Review correctness is client-supplied | [`src/features/review/review-session.tsx:59-70`](../../../src/features/review/review-session.tsx#L59-L70) | The learner can grade themselves generously without noticing; the XP ledger stops meaning anything | Server derives correctness for MCQ/cloze inside `gradeReviewItem` |
+| Hot paths are not transactional | [`src/server/review.ts:65-91`](../../../src/server/review.ts#L65-L91), [`src/server/gamification.ts:61-123`](../../../src/server/gamification.ts#L61-L123) | A failure mid-flow leaves an advanced `ReviewState` with no `Attempt`, or quest progress with no XP event | Wrap in `prisma.$transaction`, as [`resetProgressAction`](../../../src/server/actions.ts#L88-L104) already does |
+| XP is read-then-written in places | [`src/server/gamification.ts:41-55`](../../../src/server/gamification.ts#L41-L55) | Concurrent awards from two tabs can lose an increment | Use atomic `increment` consistently, and derive `level` from the returned value |
+| Sandbox escapes are denied by deletion, not by isolation | [`src/lib/sandbox/shared.ts:38-42`](../../../src/lib/sandbox/shared.ts#L38-L42) | Removing globals from the harness is a fence, not a wall; a `new Function` body runs with whatever else the worker scope has | Enumerate the worker's real capability surface and document what the sandbox does *not* claim to stop |
 
 ## Hypotheses To Investigate
 
 | Hypothesis | Evidence | How to verify |
 | --- | --- | --- |
-| Progress XP updates can race | Read-then-update in [`src/server/gamification.ts:5-22`](../../../src/server/gamification.ts#L5-L22) | Concurrent review integration test |
+| Progress XP updates can race | Read-then-update in [`src/server/gamification.ts:41-55`](../../../src/server/gamification.ts#L41-L55) | Concurrent award integration test against a scratch SQLite file |
 | Review update and attempt log should be transactional | Separate writes in [`src/server/review.ts:65-88`](../../../src/server/review.ts#L65-L88) | Fault-injection test or transaction design |
-| Catalog query may over-fetch as courses grow | Nested include in [`src/features/catalog/queries.ts:7-13`](../../../src/features/catalog/queries.ts#L7-L13) | Seed large catalog and profile query/render |
-| Sandbox equality is too naive | JSON stringify comparison in [`src/lib/sandbox/shared.ts:44-45`](../../../src/lib/sandbox/shared.ts#L44-L45) | Add tests for property order, NaN, undefined |
+| Catalog query may over-fetch as courses grow | Nested include in [`src/features/catalog/queries.ts:7-13`](../../../src/features/catalog/queries.ts#L7-L13) | Seed a large catalog and profile query/render |
+| Sandbox equality is too naive | JSON stringify comparison in [`src/lib/sandbox/shared.ts:44-46`](../../../src/lib/sandbox/shared.ts#L44-L46) | Add tests for property order, NaN, undefined |
+| The dashboard feed re-queries more than it needs | [`src/server/feed.ts:134-198`](../../../src/server/feed.ts#L134-L198) fans out to reviews, lessons, and problems per load | Count queries per dashboard render; consider one pass over `ReviewState` |
 
 ## Priority Improvements
 
-1. Production safety guards:
-   - Gate demo fallback behind explicit development env.
-   - Add cron secret.
-   - Enforce Pro access server-side.
-   - Test strategy: unit tests for auth helpers, route handler tests, E2E for Core vs Pro.
-2. Transactional review and reward writes:
+1. Integrity of the XP ledger:
+   - Make every progress mutation atomic and transactional.
+   - Keep `awardActivity` as the only write path; treat any direct `prisma.progress.update` elsewhere as a bug.
+   - Test strategy: unit tests on the pure engine in `src/lib/gamification.ts`, plus a concurrency test on the server path.
+2. Transactional review writes:
    - Use `prisma.$transaction` for ReviewState update + Attempt insert.
-   - Consider atomic XP increment.
-   - Test strategy: integration test with local Postgres.
+   - Test strategy: integration test against a temporary SQLite database file.
 3. Server-derived review correctness:
-   - Load KnowledgeItem payload in `gradeReviewItem`.
+   - Load the KnowledgeItem payload in `gradeReviewItem`.
    - Compare MCQ/cloze answers server-side.
-   - Leave code exercise review as self-recall unless server runner exists.
-4. Real notification outbox:
-   - Add NotificationOutbox table.
-   - Cron writes jobs; worker sends.
-   - Add idempotency key and delivery status.
-5. Observability:
-   - Add structured logs around server actions, cron, and sandbox failures.
-   - Add health check route.
+   - Leave code exercise review as self-recall unless a server runner exists.
+4. Content pipeline hardening:
+   - Duplicate slug and duplicate knowledge-item id checks in `scripts/validate-content.ts`.
+   - Stable content ids so a reseed does not orphan review history.
+5. Observability, sized for a local app:
+   - Structured logs around server actions and sandbox failures.
+   - A visible surface for "what did the seed actually load", since a bad seed is the most common silent failure here.
 
 ## If I Owned This For Three Months
 
 Month 1:
-- Harden auth/authorization boundaries.
-- Add DB-backed integration tests.
-- Convert risky multi-write flows to transactions.
+- Make the XP ledger trustworthy: atomic increments, transactions, one write path.
+- Add DB-backed integration tests over a throwaway SQLite file.
 
 Month 2:
-- Improve content workflow: duplicate slug checks, stable content ids, content versioning.
+- Improve the content workflow: duplicate slug checks, stable content ids, content versioning, and a reseed that preserves review history.
 - Add server-derived correctness and anti-gaming rules.
-- Start real notification outbox.
 
 Month 3:
-- Build Stripe gating for Pro.
-- Add organization authorization.
-- Add performance profiling and query pagination for catalog/reviews.
+- Deepen the sandbox: more languages or a real out-of-process runner, with an explicit threat model.
+- Performance profiling and pagination for the catalog and the review queue.
+- Make the dashboard feed in [`src/server/feed.ts`](../../../src/server/feed.ts) explainable — the learner should be able to ask why an item is ranked first.
 
 ## Drill
 
-Pick one recommendation and write a one-page RFC. Include invariant, migration plan, rollback, tests, and "how we will know it broke."
+Pick one recommendation and write a one-page RFC. Include the invariant, how you would apply the schema change with `prisma db push` (there is no migration history to lean on), rollback, tests, and "how we will know it broke."

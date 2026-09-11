@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { runCodeInWorker } from "@/lib/sandbox/client-runner";
 import type { SandboxResponse, SandboxTest } from "@/lib/sandbox/shared";
 import { recordProblemSubmissionAction } from "@/server/problems";
+import { useRewardStore } from "@/store/reward-store";
 
 export function ProblemRunner({
   problemId,
@@ -29,6 +30,7 @@ export function ProblemRunner({
   const [result, setResult] = useState<SandboxResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const celebrate = useRewardStore((state) => state.celebrate);
 
   useEffect(() => {
     if (!containerRef.current || viewRef.current) return;
@@ -51,12 +53,13 @@ export function ProblemRunner({
       try {
         const response = await runCodeInWorker({ code, functionName, tests });
         setResult(response);
-        await recordProblemSubmissionAction({
+        const summary = await recordProblemSubmissionAction({
           problemId,
           code,
           passed: response.passed,
           durationMs: Date.now() - startedAtRef.current,
         });
+        celebrate(summary);
       } catch (runError) {
         setError(runError instanceof Error ? runError.message : String(runError));
       }

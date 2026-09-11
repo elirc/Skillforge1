@@ -12,11 +12,11 @@ Method:
 **Reproduction:** Complete a lesson, visit `/reviews`, queue is empty.
 **First question:** Is the bug in completion write or review query?
 **Narrowing path:**
-1. Check server action in [`src/server/actions.ts:18-24`](../../../src/server/actions.ts#L18-L24).
+1. Check server action in [`src/server/actions.ts:27-36`](../../../src/server/actions.ts#L27-L36).
 2. Check ReviewState rows seeded by [`src/server/review.ts:17-37`](../../../src/server/review.ts#L17-L37).
 3. Check due query filter in [`src/features/review/queries.ts:8-9`](../../../src/features/review/queries.ts#L8-L9).
-**Useful probes:** Prisma Studio, DB query log, temporary server log.
-**Likely root causes:** wrong lesson id, no KnowledgeItems, dueAt in future, user mismatch.
+**Useful probes:** `npm run db:studio` to open Prisma Studio against `data/skillforge.db`, DB query log, temporary server log.
+**Likely root causes:** wrong lesson id, the lesson has no KnowledgeItems, `dueAt` in the future.
 **Regression test:** integration test for `completeLessonAction`.
 **Senior lesson:** trace durable state first, UI second.
 
@@ -27,8 +27,8 @@ Method:
 
 ## Scenario: Streak Jumps Unexpectedly
 **First question:** Is date gap calculation correct?
-**Narrowing path:** Inspect [`src/lib/gamification.ts:29-60`](../../../src/lib/gamification.ts#L29-L60), reproduce with fixed dates, add unit test.
-**Likely root causes:** timezone, DST, server clock, repeated same-day activity.
+**Narrowing path:** Inspect `applyStreak` in [`src/lib/gamification.ts:124-156`](../../../src/lib/gamification.ts#L124-L156) and the local-day helpers at [`src/lib/gamification.ts:97-110`](../../../src/lib/gamification.ts#L97-L110). Both take dates as arguments, so reproduce with fixed `now` values and add a unit test rather than waiting for midnight.
+**Likely root causes:** timezone or DST boundary, a freeze covering a gap you did not expect (there are two, each covers exactly one missed day, and they are never replenished), repeated same-day activity.
 
 ## Scenario: Course Content Seed Fails
 **First question:** Is JSON invalid or reference solution failing?
@@ -37,11 +37,20 @@ Method:
 
 ## Scenario: Review Grading Gives Wrong Due Date
 **First question:** Is recall score mapped correctly?
-**Narrowing path:** Check UI score buttons [`src/features/review/review-session.tsx:117-129`](../../../src/features/review/review-session.tsx#L117-L129), action schema [`src/server/actions.ts:32-41`](../../../src/server/actions.ts#L32-L41), scheduler tests [`tests/unit/srs.test.ts:15-44`](../../../tests/unit/srs.test.ts#L15-L44).
+**Narrowing path:** Check UI score buttons [`src/features/review/review-session.tsx:117-129`](../../../src/features/review/review-session.tsx#L117-L129), action schema [`src/server/actions.ts:46-52`](../../../src/server/actions.ts#L46-L52), scheduler tests [`tests/unit/srs.test.ts:15-44`](../../../tests/unit/srs.test.ts#L15-L44).
 
-## Scenario: Auth User Looks Like Demo User
-**First question:** Did Auth.js return a session?
-**Narrowing path:** Inspect [`src/server/user.ts:4-22`](../../../src/server/user.ts#L4-L22), provider config [`src/lib/auth.ts:7-21`](../../../src/lib/auth.ts#L7-L21), env vars.
+## Scenario: XP Was Awarded Twice, Or Not At All
+**Reproduction:** Complete the same lesson twice, or re-solve a solved problem, and watch the daily ring.
+**First question:** Which branch did the action take?
+**Narrowing path:** All progress funnels through [`awardActivity`](../../../src/server/gamification.ts#L61-L123), so start there and work outward. The repeat-credit branches are [`src/server/actions.ts:38-40`](../../../src/server/actions.ts#L38-L40) and [`src/server/problems.ts:37-38`](../../../src/server/problems.ts#L37-L38); the ledger itself is the `XpEvent` table, readable in Prisma Studio.
+**Likely root causes:** the "already completed" lookup happened after the upsert rather than before; a bonus paid through `addBonusXp` without a matching `XpEvent`; the daily-XP quest read a stale total.
+**Senior lesson:** when a number is wrong, find the single write path before reading any UI code.
+
+## Scenario: The Learner Profile Reset Itself
+**First question:** Did a stored enum fall back to its default?
+**Narrowing path:** [`getCurrentUser()`](../../../src/server/user.ts#L21-L40) parses `goal` and `experience` with `.catch()` defaults from [`src/lib/enums.ts`](../../../src/lib/enums.ts). An invalid stored string does not throw — it silently becomes `crud-dev` / `beginner`, which then changes the feed and the quest board.
+**Useful probes:** read the raw row in Prisma Studio and compare it against the enum schemas.
+**Likely root causes:** a hand-edited database, a renamed enum value without a data fix, or a `db push --force-reset` that re-created the row with defaults.
 
 ## Debugging Rubric
 

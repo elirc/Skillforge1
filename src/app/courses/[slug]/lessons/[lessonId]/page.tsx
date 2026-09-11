@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { LessonPlayer } from "@/features/lessons/lesson-player";
+import { parseTags } from "@/lib/enums";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/server/user";
 
@@ -15,19 +16,14 @@ export const dynamic = "force-dynamic";
 export default async function LessonPage({ params }: PageProps) {
   const { slug, lessonId } = await params;
   const user = await getCurrentUser();
-  const lesson = await prisma.lesson
-    .findUnique({
-      where: { id: lessonId },
-      include: {
-        knowledgeItems: { orderBy: { createdAt: "asc" } },
-        completions: { where: { userId: user.id } },
-        module: { include: { course: true } },
-      },
-    })
-    .catch((error) => {
-      console.warn("Database unavailable; lesson lookup failed.", error);
-      return null;
-    });
+  const lesson = await prisma.lesson.findUnique({
+    where: { id: lessonId },
+    include: {
+      knowledgeItems: { orderBy: { order: "asc" } },
+      completions: { where: { userId: user.id } },
+      module: { include: { course: true } },
+    },
+  });
 
   if (!lesson || lesson.module.course.slug !== slug) notFound();
 
@@ -50,7 +46,7 @@ export default async function LessonPage({ params }: PageProps) {
           type: item.type,
           prompt: item.prompt,
           payload: item.payload,
-          conceptTags: item.conceptTags,
+          conceptTags: parseTags(item.conceptTags),
         }))}
         completed={lesson.completions.length > 0}
       />

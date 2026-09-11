@@ -1,50 +1,51 @@
 import { prisma } from "@/lib/prisma";
+import { parseTags, type Difficulty } from "@/lib/enums";
 import { getCurrentUser } from "@/server/user";
+
+/** Shape the catalog UI wants: JSON tag columns already decoded to arrays. */
+function decodeCourse<T extends { topicTags: string; outcomes: string; difficulty: string }>(course: T) {
+  return {
+    ...course,
+    topicTags: parseTags(course.topicTags),
+    outcomes: parseTags(course.outcomes),
+    difficulty: course.difficulty as Difficulty,
+  };
+}
 
 export async function getCatalogData() {
   const user = await getCurrentUser();
-  try {
-    const [courses, completions] = await Promise.all([
-      prisma.course.findMany({
-        include: {
-          modules: { include: { lessons: true }, orderBy: { order: "asc" } },
-        },
-        orderBy: { order: "asc" },
-      }),
-      prisma.lessonCompletion.findMany({ where: { userId: user.id }, select: { lessonId: true } }),
-    ]);
 
-    return {
-      courses,
-      completedLessonIds: new Set(completions.map((completion) => completion.lessonId)),
-    };
-  } catch (error) {
-    console.warn("Database unavailable; returning an empty catalog.", error);
-    return { courses: [], completedLessonIds: new Set<string>() };
-  }
+  const [courses, completions] = await Promise.all([
+    prisma.course.findMany({
+      include: { modules: { include: { lessons: true }, orderBy: { order: "asc" } } },
+      orderBy: { order: "asc" },
+    }),
+    prisma.lessonCompletion.findMany({ where: { userId: user.id }, select: { lessonId: true } }),
+  ]);
+
+  return {
+    courses: courses.map(decodeCourse),
+    completedLessonIds: new Set(completions.map((completion) => completion.lessonId)),
+  };
 }
 
 export async function getCourseBySlug(slug: string) {
   const user = await getCurrentUser();
-  try {
-    const course = await prisma.course.findUnique({
-      where: { slug },
-      include: {
-        modules: {
-          include: {
-            lessons: {
-              include: { knowledgeItems: true, completions: { where: { userId: user.id } } },
-              orderBy: { order: "asc" },
-            },
-          },
-          orderBy: { order: "asc" },
-        },
-      },
-    });
 
-    return course;
-  } catch (error) {
-    console.warn("Database unavailable; course lookup failed.", error);
-    return null;
-  }
+  const course = await prisma.course.findUnique({
+    where: { slug },
+    include: {
+      modules: {
+        include: {
+          lessons: {
+            include: { knowledgeItems: true, completions: { where: { userId: user.id } } },
+            orderBy: { order: "asc" },
+          },
+        },
+        orderBy: { order: "asc" },
+      },
+    },
+  });
+
+  return course ? decodeCourse(course) : null;
 }

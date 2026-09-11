@@ -5,7 +5,6 @@
   "language": "csharp",
   "topicTags": ["csharp", "dotnet", "aspnet-core", "ef-core", "async", "interviews", "testing", "observability", "performance", "deployment"],
   "difficulty": "INTERMEDIATE",
-  "isPro": false,
   "order": 4,
   "outcomes": [
     "Explain C# runtime and type-system fundamentals in interview language",

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Lock, PlayCircle } from "lucide-react";
+import { PlayCircle } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,6 @@ interface CoursePageData {
   description: string;
   language: string;
   difficulty: string;
-  isPro: boolean;
   outcomes: string[];
   modules: {
     id: string;
@@ -60,7 +59,6 @@ export default async function CoursePage({ params }: PageProps) {
           <div className="mb-4 flex flex-wrap gap-2">
             <Badge>{course.language}</Badge>
             <Badge>{course.difficulty.toLowerCase()}</Badge>
-            {course.isPro ? <Badge className="border-amber-300 text-amber-700 dark:text-amber-300">Pro</Badge> : <Badge>Core</Badge>}
           </div>
           <h1 className="text-4xl font-semibold tracking-tight">{course.title}</h1>
           <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-400">{course.description}</p>
@@ -78,12 +76,6 @@ export default async function CoursePage({ params }: PageProps) {
           <p className="mt-2 text-sm text-slate-500">
             {completed}/{lessons.length} lessons complete
           </p>
-          {course.isPro ? (
-            <div className="mt-4 flex items-center gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
-              <Lock className="h-4 w-4" />
-              Pro-gated; Stripe is feature-flagged until keys are configured.
-            </div>
-          ) : null}
         </aside>
       </div>
 

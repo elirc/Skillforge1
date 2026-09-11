@@ -58,7 +58,7 @@ If you are preparing for C#/.NET interviews, map these concepts:
 - Next server actions resemble controller/application-service entry points.
 
 Interview drill:
-- Explain why `completeLessonAction` should not trust `lessonId` just because TypeScript says it is a `string` in [`src/server/actions.ts:10-16`](../../../src/server/actions.ts#L10-L16). Then translate the answer to an ASP.NET Core controller receiving a route id.
+- Explain why `completeLessonAction` should not trust `lessonId` just because TypeScript says it is a `string` in [`src/server/actions.ts:19-25`](../../../src/server/actions.ts#L19-L25). Then translate the answer to an ASP.NET Core controller receiving a route id.
 
 ## C#/.NET Transfer Ladder
 
@@ -66,17 +66,18 @@ Use this ladder when converting Skillforge examples into mid-level .NET intervie
 
 | Skillforge concept | .NET equivalent | Interview signal |
 | --- | --- | --- |
-| Server action validates then mutates state in [`src/server/actions.ts:10-29`](../../../src/server/actions.ts#L10-L29) | Minimal API/controller action calling an application service | You separate transport concerns from domain work. |
-| Prisma schema constraints in [`prisma/schema.prisma:124-185`](../../../prisma/schema.prisma#L124-L185) | EF Core model configuration with indexes and unique constraints | You know invariants belong in the database too. |
-| Pure scheduler in [`src/lib/srs/scheduler.ts:32-74`](../../../src/lib/srs/scheduler.ts#L32-L74) | Static/domain service method with deterministic tests | You can isolate business rules from infrastructure. |
+| Server action validates then mutates state in [`src/server/actions.ts:23-43`](../../../src/server/actions.ts#L23-L43) | Minimal API/controller action calling an application service | You separate transport concerns from domain work. |
+| Prisma schema constraints in [`prisma/schema.prisma:101-198`](../../../prisma/schema.prisma#L101-L198) | EF Core model configuration with indexes and unique constraints | You know invariants belong in the database too. |
+| String columns re-typed by Zod in [`src/lib/enums.ts`](../../../src/lib/enums.ts) | EF Core value converters, or a smallint column mapped to a C# `enum` | You know the database's type system and the language's are not the same system. |
+| Pure scheduler in [`src/lib/srs/scheduler.ts`](../../../src/lib/srs/scheduler.ts) | Static/domain service method with deterministic tests | You can isolate business rules from infrastructure. |
 | Worker timeout in [`src/lib/sandbox/client-runner.ts:9-35`](../../../src/lib/sandbox/client-runner.ts#L9-L35) | Background worker/containerized judge with cancellation token and timeout | You protect request threads and user experience. |
-| Cron stub in [`src/app/api/cron/reviews/route.ts:4-19`](../../../src/app/api/cron/reviews/route.ts#L4-L19) | `IHostedService`, Quartz, Hangfire, or hosted worker | You discuss retries, idempotency, and observability. |
+| Caller-driven daily rollover in [`src/server/quests.ts:31-56`](../../../src/server/quests.ts#L31-L56) | `IHostedService`, Quartz, or Hangfire recurring job | You can compare "run it on a schedule" against "make it idempotent and run it on every request", and say when each is right. |
 
 Mid-level answer shape:
 1. Name the boundary.
 2. Name the invariant.
 3. Name where validation happens.
-4. Name where authorization happens.
+4. Name who the actor is and how the code knows.
 5. Name the transaction or consistency concern.
 6. Name the test that proves it.
 
@@ -86,4 +87,4 @@ Senior answer shape:
 3. Separate what is confirmed in code from what is a hypothesis.
 
 Drill:
-- Translate [`gradeReviewItem`](../../../src/server/review.ts#L39-L91) into an ASP.NET Core application service method. Your answer should include `CancellationToken`, an EF Core query scoped by `userId`, a transaction around schedule update + attempt insert, and a note about deriving correctness server-side.
+- Translate [`gradeReviewItem`](../../../src/server/review.ts#L39-L92) into an ASP.NET Core application service method. Your answer should include `CancellationToken`, an EF Core query scoped by `userId`, a transaction around schedule update + attempt insert, and a note about deriving correctness server-side instead of accepting the client's `correct` flag.

@@ -16,16 +16,21 @@ import { useLessonStore } from "@/store/lesson-store";
 export function CodeExercise({ id, payload, onPassed }: { id: string; payload: CodePayload; onPassed: () => void }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
-  const buffer = useLessonStore((state) => state.editorBuffers[id] ?? payload.starterCode);
   const setBuffer = useLessonStore((state) => state.setEditorBuffer);
   const [result, setResult] = useState<SandboxResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  // Create the editor once per exercise. The buffer must NOT be a reactive
+  // dependency: the updateListener writes each keystroke back to the store, so
+  // depending on it tore the EditorView down and rebuilt it on every character
+  // -- the doc was replaced after the first keypress and focus was lost, which
+  // made the editor impossible to type in. Read the stored draft imperatively
+  // instead, so switching exercises still picks up the right document.
   useEffect(() => {
     if (!containerRef.current || viewRef.current) return;
     const state = EditorState.create({
-      doc: buffer,
+      doc: useLessonStore.getState().editorBuffers[id] ?? payload.starterCode,
       extensions: [
         keymap.of(defaultKeymap),
         javascript({ typescript: true }),
@@ -43,14 +48,14 @@ export function CodeExercise({ id, payload, onPassed }: { id: string; payload: C
       viewRef.current?.destroy();
       viewRef.current = null;
     };
-  }, [buffer, id, setBuffer]);
+  }, [id, payload.starterCode, setBuffer]);
 
   function run() {
     setError(null);
     startTransition(async () => {
       try {
         const response = await runCodeInWorker({
-          code: viewRef.current?.state.doc.toString() ?? buffer,
+          code: viewRef.current?.state.doc.toString() ?? payload.starterCode,
           functionName: payload.functionName,
           tests: payload.tests,
         });

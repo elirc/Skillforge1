@@ -62,7 +62,13 @@ export default async function ProblemPage({ params }: PageProps) {
 
           <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
             <h2 className="text-xl font-semibold">Solve</h2>
-            <ProblemRunner problemId={problem.id} starterCode={problem.starterCode} functionName={problem.functionName} tests={tests} />
+            <ProblemRunner
+              problemId={problem.id}
+              starterCode={problem.starterCode}
+              functionName={problem.functionName}
+              tests={tests}
+              language={problem.runtime}
+            />
           </div>
         </section>
 

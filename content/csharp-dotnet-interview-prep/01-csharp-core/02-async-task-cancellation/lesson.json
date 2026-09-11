@@ -30,16 +30,26 @@
         "answer": "When operations are independent and can safely run concurrently",
         "explanation": "Parallel async work is useful for independent reads or external calls, but dependent writes need ordering and consistency."
       },
-      "conceptTags": ["dotnet", "async", "task-when-all"]
+      "conceptTags": [
+        "dotnet",
+        "async",
+        "task-when-all"
+      ]
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the reliability sentence.",
       "payload": {
         "text": "A CancellationToken helps stop abandoned work, but it is not a substitute for ____ when writes may partially succeed.",
-        "blanks": ["idempotency"]
+        "blanks": [
+          "idempotency"
+        ]
       },
-      "conceptTags": ["dotnet", "cancellation", "reliability"]
+      "conceptTags": [
+        "dotnet",
+        "cancellation",
+        "reliability"
+      ]
     },
     {
       "type": "MCQ",
@@ -54,7 +64,21 @@
         "answer": "So abandoned requests can stop unnecessary work and release resources",
         "explanation": "Cancellation helps reduce wasted work after a client disconnect or timeout, but it does not replace transactions or retries."
       },
-      "conceptTags": ["dotnet", "cancellation-token", "resource-management"]
+      "conceptTags": [
+        "dotnet",
+        "cancellation-token",
+        "resource-management"
+      ]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement SumBatchesAsync so independent batches run concurrently with Task.WhenAll.",
+      "exercise": "sum-batches-async",
+      "conceptTags": [
+        "dotnet",
+        "async",
+        "task-when-all"
+      ]
     }
   ]
 }

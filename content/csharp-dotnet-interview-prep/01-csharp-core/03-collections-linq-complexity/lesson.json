@@ -30,16 +30,36 @@
         "answer": "Fast key-based lookup",
         "explanation": "A dictionary trades memory and hashing constraints for efficient key lookup."
       },
-      "conceptTags": ["csharp", "collections", "complexity"]
+      "conceptTags": [
+        "csharp",
+        "collections",
+        "complexity"
+      ]
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the LINQ sentence.",
       "payload": {
         "text": "Many LINQ queries use ____ execution, meaning work may not happen until the query is enumerated.",
-        "blanks": ["deferred"]
+        "blanks": [
+          "deferred"
+        ]
       },
-      "conceptTags": ["csharp", "linq", "deferred-execution"]
+      "conceptTags": [
+        "csharp",
+        "linq",
+        "deferred-execution"
+      ]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement CountDueByTag to group the due review cards by concept tag.",
+      "exercise": "count-due-by-tag",
+      "conceptTags": [
+        "csharp",
+        "linq",
+        "collections"
+      ]
     }
   ]
 }

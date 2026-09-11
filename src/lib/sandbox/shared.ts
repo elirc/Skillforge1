@@ -7,6 +7,33 @@ export const sandboxTestSchema = z.object({
   hidden: z.boolean().default(false),
 });
 
+/**
+ * Which runtime grades an exercise. Anything JavaScript-shaped (including the
+ * React problems) runs in the browser worker; C# needs the .NET host behind an
+ * API route, because it cannot run in the browser at all.
+ */
+export const sandboxLanguageSchema = z.enum(["javascript", "csharp"]);
+export type SandboxLanguage = z.infer<typeof sandboxLanguageSchema>;
+
+export function runtimeForLanguage(language: string | null | undefined): SandboxLanguage {
+  return language === "csharp" ? "csharp" : "javascript";
+}
+
+export interface CompileDiagnostic {
+  id: string;
+  message: string;
+  line: number;
+  column: number;
+}
+
+/** A submission that never ran: it did not compile. Not the same as a failing test. */
+export class SandboxCompileError extends Error {
+  constructor(readonly diagnostics: CompileDiagnostic[]) {
+    super("The submission did not compile.");
+    this.name = "SandboxCompileError";
+  }
+}
+
 export const sandboxRequestSchema = z.object({
   code: z.string(),
   functionName: z.string(),

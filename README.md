@@ -10,6 +10,7 @@ Everything lives on your machine. There is no sign-in, no account, no server to 
 pnpm install          # or: npm install
 cp .env.example .env  # DATABASE_URL points at data/skillforge.db
 npm run db:setup      # generate client, create the SQLite file, seed content
+npm run csharp:build  # optional: builds the C# exercise runner (needs the .NET SDK)
 npm run dev
 ```
 
@@ -25,7 +26,8 @@ Open `http://localhost:3000`. The first visit creates your learner row; `/onboar
 | `npm run db:reset` | Recreate the database from scratch (**erases your progress**). |
 | `npm run db:studio` | Browse the local database in Prisma Studio. |
 | `npm run lint` / `npm run typecheck` | ESLint / strict TypeScript. |
-| `npm test` | Vitest unit tests (gamification, SRS, sandbox). |
+| `npm test` | Vitest unit tests (gamification, SRS, sandbox, C# runner). |
+| `npm run csharp:build` | Build the .NET process that compiles and runs C# exercises. |
 | `npm run test:e2e` | Playwright happy path. Runs against the dev server with a seeded database; not part of CI. |
 | `npm run validate:content` | Assemble course JSON and execute every reference solution. |
 
@@ -103,7 +105,63 @@ content/
 
 Run `npm run validate:content` to assemble every course and problem and execute each reference solution against its tests.
 
+## C# exercises
+
+C# exercises are compiled and executed by a small .NET process in
+`tools/csharp-runner/`, built with `npm run csharp:build` and driven over
+stdin/stdout. It stays warm because Roslyn's first compilation costs about
+twenty seconds of JIT; after that a run takes roughly half a second. The
+browser cannot run C#, so lesson pages post to `/api/sandbox/csharp` instead
+of using the worker; JavaScript exercises are unaffected.
+
+Without the .NET SDK the app still runs — C# exercises simply report that the
+runner is not built, and `validate:content` fails unless you set
+`SKILLFORGE_SKIP_CSHARP=1`.
+
+### Authoring
+
+A C# exercise is a `<key>.starter.cs` / `<key>.solution.cs` pair beside
+`lesson.json`, plus the same `<key>.tests.ts` used by JavaScript exercises —
+the cases are plain JSON either way, and keeping them in TypeScript keeps them
+type-checked. The loader picks the language from the file extension.
+
+The rules the harness imposes:
+
+- Define **exactly one** `public static` method named in `functionName`. Untyped
+  JSON arguments cannot choose between overloads, and `ref`/`out` are rejected.
+- Arguments are deserialized into the declared parameter types, so a record
+  argument is a JSON object keyed by its **C# property names** (`{"ConceptTag": …}`),
+  and `DateTime` is an ISO-8601 string.
+- Return values are compared structurally: object key order does not matter,
+  and `8` matches `8.0`. Return ordered collections — a `HashSet` enumerates
+  unpredictably.
+- `async Task<T>` is awaited and the unwrapped value compared, so async
+  exercises work.
+- `Console.WriteLine` is captured and shown to the learner rather than printed.
+- `System`, `System.Collections.Generic`, `System.Linq`, `System.Threading` and
+  `System.Threading.Tasks` are already imported. Only the BCL is available.
+
+`validate:content` compiles every starter (it must build before a learner sees
+it) and compiles and runs every solution.
+
+A problem's `language` in `problem.json` is only its catalog label. Which
+sandbox grades it is decided by the exercise files and stored separately as
+`runtime` — that is why the C#-themed problems in the problem bank, which are
+authored and answered in TypeScript, still run in the browser.
+
+### A note on trust
+
+`/api/sandbox/csharp` compiles and executes arbitrary C# as the user running the
+app, with no sandbox boundary beyond a two-second execution budget. That is the
+same trust level as the rest of this repo — you already run its code — but it is
+worth stating plainly. The endpoint refuses non-local requests so a web page you
+happen to be visiting cannot post to it. Do not expose this app on a network.
+
 ## Not built yet
 
-- **C# and SQL execution.** The sandbox runs JavaScript/TypeScript only. Real C# grading (a prewarmed `dotnet` scratch project behind a local API route) and real SQL grading (in-browser SQLite with result-set comparison) are the next step; the C# content currently ships as reading plus MCQ/CLOZE items.
-- **The C#/.NET/SQL CRUD curriculum** as executable lessons. `content/csharp-dotnet-interview-prep/` is prose and quizzes today.
+- **SQL execution.** Real SQL grading (in-browser SQLite with result-set
+  comparison) is the next step.
+- **Wider C# coverage.** Three lessons in `content/csharp-dotnet-interview-prep/`
+  now carry runnable exercises; the rest are still reading plus MCQ/CLOZE items.
+  Exercises are BCL-only — NuGet packages such as EF Core or FluentValidation are
+  not available to learner code, so those topics are modelled with plain records.

@@ -103,6 +103,7 @@ async function seedProblems() {
       prompt: problem.prompt,
       explanation: problem.explanation as Prisma.InputJsonValue,
       language: problem.language,
+      runtime: problem.runtime,
       difficulty: problem.difficulty,
       conceptTags: tags(problem.conceptTags),
       order: problem.order,

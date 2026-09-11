@@ -1,15 +1,29 @@
 import { cpus } from "node:os";
 import { loadAllCourses, loadAllProblems } from "./lib/content";
+import { CsharpRunnerHost, isCsharpRunnerBuilt } from "./lib/csharp-runner";
 import { runCodeInNodeWorker } from "../src/lib/sandbox/node-runner";
 import type { SandboxTest } from "../src/lib/sandbox/shared";
 
 interface Exercise {
   referenceSolution: string;
+  starterCode: string;
   functionName: string;
   tests: SandboxTest[];
+  language?: "javascript" | "csharp";
 }
 
-async function checkSolution(label: string, exercise: Exercise): Promise<string | null> {
+interface Check {
+  label: string;
+  exercise: Exercise;
+  /**
+   * Which sandbox grades it. Taken from the exercise files, never from a
+   * problem's catalog `language` -- the C#-themed problems in the problem bank
+   * are authored and answered in TypeScript.
+   */
+  runtime: "javascript" | "csharp";
+}
+
+async function checkJavaScript(label: string, exercise: Exercise): Promise<string | null> {
   let result;
   try {
     result = await runCodeInNodeWorker({
@@ -33,9 +47,41 @@ async function checkSolution(label: string, exercise: Exercise): Promise<string 
 }
 
 /**
- * Each check spawns a Node worker (~1s of cold start on Windows), so running
- * the few hundred exercises serially took ~10 minutes. Run a bounded pool
- * instead -- the checks are independent and CI runs this on every push.
+ * C# exercises get a stricter check than JavaScript ones: the starter must
+ * compile (so a learner never opens a lesson that is red before they type) and
+ * the solution must pass. Compiling authored C# is the only lint it gets.
+ */
+async function checkCsharp(host: CsharpRunnerHost, label: string, exercise: Exercise): Promise<string | null> {
+  try {
+    const starter = await host.run(exercise.starterCode, exercise.functionName, []);
+    if (starter.compileErrors?.length) {
+      const first = starter.compileErrors[0];
+      return `${label} has a starter that does not compile (${first.id} line ${first.line}: ${first.message})`;
+    }
+
+    const solution = await host.run(exercise.referenceSolution, exercise.functionName, exercise.tests);
+    if (solution.compileErrors?.length) {
+      const first = solution.compileErrors[0];
+      return `${label} has a solution that does not compile (${first.id} line ${first.line}: ${first.message})`;
+    }
+    if (solution.passed) return null;
+
+    const failing = solution.results.find((test) => !test.passed);
+    return (
+      `${label} has a failing reference solution` +
+      (failing
+        ? ` (test "${failing.name}": ${failing.error ?? `expected ${JSON.stringify(failing.expected)}, got ${JSON.stringify(failing.actual)}`})`
+        : "")
+    );
+  } catch (error) {
+    return `${label}: ${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+/**
+ * Each JavaScript check spawns a Node worker (~1s of cold start on Windows), so
+ * running the few hundred exercises serially took ~10 minutes. Run a bounded
+ * pool instead -- the checks are independent and CI runs this on every push.
  */
 async function runPool<T>(items: T[], limit: number, run: (item: T) => Promise<string | null>) {
   const failures: string[] = [];
@@ -56,16 +102,18 @@ async function runPool<T>(items: T[], limit: number, run: (item: T) => Promise<s
 async function main() {
   const [courses, problems] = await Promise.all([loadAllCourses(), loadAllProblems()]);
 
-  const checks: { label: string; exercise: Exercise }[] = [];
+  const checks: Check[] = [];
 
   for (const course of courses) {
     for (const courseModule of course.modules) {
       for (const lesson of courseModule.lessons) {
         for (const item of lesson.knowledgeItems) {
           if (item.type !== "CODE") continue;
+          const payload = item.payload as Exercise;
           checks.push({
             label: `${course.slug} / ${lesson.title} / ${item.prompt}`,
-            exercise: item.payload as Exercise,
+            exercise: payload,
+            runtime: payload.language === "csharp" ? "csharp" : "javascript",
           });
         }
       }
@@ -74,11 +122,41 @@ async function main() {
 
   const lessonExercises = checks.length;
   for (const problem of problems) {
-    checks.push({ label: `problem "${problem.slug}"`, exercise: problem });
+    checks.push({
+      label: `problem "${problem.slug}"`,
+      exercise: problem as unknown as Exercise,
+      runtime: problem.runtime === "csharp" ? "csharp" : "javascript",
+    });
   }
 
+  const csharpChecks = checks.filter((check) => check.runtime === "csharp");
+  const jsChecks = checks.filter((check) => check.runtime !== "csharp");
+
   const concurrency = Math.max(2, Math.min(8, cpus().length));
-  const failures = await runPool(checks, concurrency, ({ label, exercise }) => checkSolution(label, exercise));
+  const failures = await runPool(jsChecks, concurrency, ({ label, exercise }) => checkJavaScript(label, exercise));
+
+  // The .NET host is expensive to start and cheap per run, so C# checks share
+  // one process and run in sequence rather than in a pool.
+  if (csharpChecks.length > 0) {
+    if (process.env.SKILLFORGE_SKIP_CSHARP === "1") {
+      console.warn(`Skipping ${csharpChecks.length} C# exercise(s): SKILLFORGE_SKIP_CSHARP=1.`);
+    } else if (!isCsharpRunnerBuilt()) {
+      failures.push(
+        `${csharpChecks.length} C# exercise(s) could not be checked: the runner is not built. ` +
+          "Run `npm run csharp:build`, or set SKILLFORGE_SKIP_CSHARP=1 to skip them.",
+      );
+    } else {
+      const host = new CsharpRunnerHost();
+      try {
+        for (const { label, exercise } of csharpChecks) {
+          const failure = await checkCsharp(host, label, exercise);
+          if (failure) failures.push(failure);
+        }
+      } finally {
+        host.stop();
+      }
+    }
+  }
 
   if (failures.length > 0) {
     for (const failure of failures.sort()) console.error(failure);
@@ -86,7 +164,8 @@ async function main() {
   }
 
   console.log(
-    `Validated ${courses.length} courses (${lessonExercises} lesson exercises) and ${problems.length} standalone problems.`,
+    `Validated ${courses.length} courses (${lessonExercises} lesson exercises, ${csharpChecks.length} of them C#) ` +
+      `and ${problems.length} standalone problems.`,
   );
 }
 

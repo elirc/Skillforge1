@@ -81,18 +81,32 @@ interface ExerciseTestsModule {
   tests: unknown;
 }
 
+/**
+ * An exercise is authored as a starter/solution pair plus a TypeScript tests
+ * module. TypeScript exercises are transpiled for the browser sandbox; C# ones
+ * are handed to the .NET runner verbatim, so their source is read as-is.
+ * The tests module stays TypeScript in both cases -- the cases are plain JSON
+ * values either way, and authoring them in TS keeps them type-checked.
+ */
 async function buildCodePayload(lessonDir: string, key: string) {
+  const isCsharp = await exists(join(lessonDir, `${key}.starter.cs`));
+  if (isCsharp && (await exists(join(lessonDir, `${key}.starter.ts`)))) {
+    throw new Error(`Exercise "${key}" in ${lessonDir} has both a .cs and a .ts starter; pick one language.`);
+  }
+
+  const extension = isCsharp ? "cs" : "ts";
   const [starterSrc, solutionSrc, testsModule] = await Promise.all([
-    readFile(join(lessonDir, `${key}.starter.ts`), "utf8"),
-    readFile(join(lessonDir, `${key}.solution.ts`), "utf8"),
+    readFile(join(lessonDir, `${key}.starter.${extension}`), "utf8"),
+    readFile(join(lessonDir, `${key}.solution.${extension}`), "utf8"),
     import(pathToFileURL(join(lessonDir, `${key}.tests.ts`)).href) as Promise<ExerciseTestsModule>,
   ]);
 
   return {
-    starterCode: transpileToSandbox(starterSrc),
+    starterCode: isCsharp ? starterSrc : transpileToSandbox(starterSrc),
     functionName: testsModule.functionName,
     tests: testsModule.tests,
-    referenceSolution: transpileToSandbox(solutionSrc),
+    referenceSolution: isCsharp ? solutionSrc : transpileToSandbox(solutionSrc),
+    language: isCsharp ? ("csharp" as const) : ("javascript" as const),
   };
 }
 
@@ -197,10 +211,13 @@ export async function loadAllProblems(): Promise<ProblemSeed[]> {
       if (!meta.exercise) {
         throw new Error(`Problem "${problemName}" is missing an "exercise" key.`);
       }
-      const payload = await buildCodePayload(problemDir, meta.exercise);
+      const { language: runtime, ...payload } = await buildCodePayload(problemDir, meta.exercise);
 
       try {
-        return problemSeedSchema.parse({ ...meta, ...payload });
+        // `problem.json`'s `language` is the catalog label and must win: a
+        // C#-themed problem can still be authored and answered in TypeScript.
+        // Which sandbox runs it comes from the exercise files instead.
+        return problemSeedSchema.parse({ ...meta, ...payload, runtime });
       } catch (error) {
         throw new Error(`Problem "${problemName}" failed validation: ${error instanceof Error ? error.message : String(error)}`);
       }

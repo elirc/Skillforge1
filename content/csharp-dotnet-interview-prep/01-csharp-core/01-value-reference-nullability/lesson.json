@@ -30,16 +30,26 @@
         "answer": "The value may intentionally be null",
         "explanation": "Nullable reference type syntax documents that null is allowed and lets the compiler warn when callers forget to handle it."
       },
-      "conceptTags": ["csharp", "nullability", "contracts"]
+      "conceptTags": [
+        "csharp",
+        "nullability",
+        "contracts"
+      ]
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the interview sentence.",
       "payload": {
         "text": "Nullable reference types are a compile-time ____ tool; they do not remove the need for runtime validation at external boundaries.",
-        "blanks": ["contract"]
+        "blanks": [
+          "contract"
+        ]
       },
-      "conceptTags": ["csharp", "nullability", "validation"]
+      "conceptTags": [
+        "csharp",
+        "nullability",
+        "validation"
+      ]
     },
     {
       "type": "MCQ",
@@ -54,7 +64,21 @@
         "answer": "`int` is a value type while `LearnerProfile` is a reference type",
         "explanation": "Value types contain their data directly; variables of class type hold references to objects."
       },
-      "conceptTags": ["csharp", "value-types", "reference-types"]
+      "conceptTags": [
+        "csharp",
+        "value-types",
+        "reference-types"
+      ]
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement HandleOrFallback so a missing GitHub handle falls back to the display name.",
+      "exercise": "handle-or-fallback",
+      "conceptTags": [
+        "csharp",
+        "nullability",
+        "contracts"
+      ]
     }
   ]
 }

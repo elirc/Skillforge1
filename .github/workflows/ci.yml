@@ -18,9 +18,15 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+      # The C# exercises are compiled and executed by validate:content and the
+      # runner unit tests, so the SDK has to be here before either runs.
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
       - run: corepack pnpm install --frozen-lockfile
       - run: mkdir -p data
       - run: corepack pnpm run db:setup
+      - run: corepack pnpm run csharp:build
       - run: corepack pnpm run lint
       - run: corepack pnpm run typecheck
       - run: corepack pnpm run validate:content

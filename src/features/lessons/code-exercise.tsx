@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { javascript } from "@codemirror/lang-javascript";
 import { EditorState } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { defaultKeymap } from "@codemirror/commands";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { Play, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { runCodeInWorker } from "@/lib/sandbox/client-runner";
+import { editorLanguage } from "@/lib/sandbox/editor-language";
+import { runCode } from "@/lib/sandbox/run-code";
 import type { CodePayload } from "@/lib/content-schema";
-import type { SandboxResponse } from "@/lib/sandbox/shared";
+import { SandboxCompileError, runtimeForLanguage, type CompileDiagnostic, type SandboxResponse } from "@/lib/sandbox/shared";
 import { useLessonStore } from "@/store/lesson-store";
 
 export function CodeExercise({ id, payload, onPassed }: { id: string; payload: CodePayload; onPassed: () => void }) {
@@ -19,7 +19,10 @@ export function CodeExercise({ id, payload, onPassed }: { id: string; payload: C
   const setBuffer = useLessonStore((state) => state.setEditorBuffer);
   const [result, setResult] = useState<SandboxResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [compileErrors, setCompileErrors] = useState<CompileDiagnostic[] | null>(null);
+  const [stdout, setStdout] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const isCsharp = runtimeForLanguage(payload.language) === "csharp";
 
   // Create the editor once per exercise. The buffer must NOT be a reactive
   // dependency: the updateListener writes each keystroke back to the store, so
@@ -33,7 +36,7 @@ export function CodeExercise({ id, payload, onPassed }: { id: string; payload: C
       doc: useLessonStore.getState().editorBuffers[id] ?? payload.starterCode,
       extensions: [
         keymap.of(defaultKeymap),
-        javascript({ typescript: true }),
+        editorLanguage(payload.language),
         oneDark,
         EditorView.lineWrapping,
         EditorView.updateListener.of((update) => {
@@ -48,20 +51,33 @@ export function CodeExercise({ id, payload, onPassed }: { id: string; payload: C
       viewRef.current?.destroy();
       viewRef.current = null;
     };
-  }, [id, payload.starterCode, setBuffer]);
+  }, [id, payload.language, payload.starterCode, setBuffer]);
 
   function run() {
     setError(null);
+    setCompileErrors(null);
+    setStdout(null);
     startTransition(async () => {
       try {
-        const response = await runCodeInWorker({
-          code: viewRef.current?.state.doc.toString() ?? payload.starterCode,
-          functionName: payload.functionName,
-          tests: payload.tests,
-        });
-        setResult(response);
-        if (response.passed) onPassed();
+        const outcome = await runCode(
+          {
+            code: viewRef.current?.state.doc.toString() ?? payload.starterCode,
+            functionName: payload.functionName,
+            tests: payload.tests,
+          },
+          payload.language,
+        );
+        setResult(outcome.response);
+        setStdout(outcome.stdout);
+        if (outcome.response.passed) onPassed();
       } catch (runError) {
+        // A submission that never compiled is not a failing test, so it gets
+        // its own panel rather than the generic error banner.
+        if (runError instanceof SandboxCompileError) {
+          setResult(null);
+          setCompileErrors(runError.diagnostics);
+          return;
+        }
         setError(runError instanceof Error ? runError.message : String(runError));
       }
     });
@@ -73,7 +89,7 @@ export function CodeExercise({ id, payload, onPassed }: { id: string; payload: C
       <div className="flex gap-2">
         <Button type="button" onClick={run} disabled={isPending}>
           <Play className="h-4 w-4" />
-          Run
+          {isPending && isCsharp ? "Compiling..." : "Run"}
         </Button>
         <Button
           type="button"
@@ -84,6 +100,8 @@ export function CodeExercise({ id, payload, onPassed }: { id: string; payload: C
             });
             setResult(null);
             setError(null);
+            setCompileErrors(null);
+            setStdout(null);
           }}
         >
           <RotateCcw className="h-4 w-4" />
@@ -91,6 +109,24 @@ export function CodeExercise({ id, payload, onPassed }: { id: string; payload: C
         </Button>
       </div>
       {error ? <p className="rounded-md bg-rose-50 p-3 text-sm text-rose-700 dark:bg-rose-950 dark:text-rose-200">{error}</p> : null}
+      {compileErrors?.length ? (
+        <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-900 dark:bg-amber-950">
+          <strong className="text-amber-900 dark:text-amber-200">Build failed</strong>
+          <ul className="mt-2 space-y-1">
+            {compileErrors.map((diagnostic, index) => (
+              <li key={`${diagnostic.id}-${index}`} className="font-mono text-xs text-amber-900 dark:text-amber-200">
+                {diagnostic.id} &middot; line {diagnostic.line}:{diagnostic.column} &middot; {diagnostic.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {stdout ? (
+        <details className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-800 dark:bg-slate-900">
+          <summary className="cursor-pointer text-slate-600 dark:text-slate-300">Console output</summary>
+          <pre className="mt-2 overflow-x-auto whitespace-pre-wrap text-xs text-slate-700 dark:text-slate-300">{stdout}</pre>
+        </details>
+      ) : null}
       {result ? (
         <div className="space-y-2">
           {result.results
@@ -107,7 +143,9 @@ export function CodeExercise({ id, payload, onPassed }: { id: string; payload: C
                 <strong>{test.passed ? "Pass" : "Fail"}:</strong> {test.name}
                 {!test.passed ? (
                   <span className="block text-xs">
-                    expected {JSON.stringify(test.expected)}, got {JSON.stringify(test.actual)}
+                    {/* The harness explains itself when the code never returned
+                        a value -- an exception, a timeout, a bad signature. */}
+                    {test.error ?? `expected ${JSON.stringify(test.expected)}, got ${JSON.stringify(test.actual)}`}
                   </span>
                 ) : null}
               </div>

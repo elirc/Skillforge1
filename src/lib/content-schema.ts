@@ -45,6 +45,11 @@ const codePayloadSchema = z.object({
   functionName: z.string(),
   tests: z.array(codeTestSchema).min(1),
   referenceSolution: z.string(),
+  /**
+   * Which runtime grades the exercise. Defaults to javascript so every lesson
+   * authored before C# support keeps parsing, including rows already seeded.
+   */
+  language: z.enum(["javascript", "csharp"]).default("javascript"),
 });
 
 export const knowledgeItemSchema = z.discriminatedUnion("type", [
@@ -99,6 +104,7 @@ export const problemSeedSchema = z.object({
   prompt: z.string(),
   explanation: problemExplanationSchema,
   language: z.string().default("javascript"),
+  runtime: z.enum(["javascript", "csharp"]).default("javascript"),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
   conceptTags: z.array(z.string()),
   order: z.number().int().default(0),

@@ -234,7 +234,11 @@ model Problem {
   title             String
   prompt            String
   explanation       Json
+  /// Catalog label shown to the learner ("csharp", "react", "typescript"...).
   language          String              @default("javascript")
+  /// Which sandbox grades it. A C#-themed problem can still be answered in
+  /// TypeScript, so this is derived from the exercise files, not the label.
+  runtime           String              @default("javascript")
   difficulty        String // EASY | MEDIUM | HARD
   conceptTags       String              @default("[]") // JSON string[]
   starterCode       String

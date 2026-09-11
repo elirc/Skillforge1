@@ -49,3 +49,7 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /blob-report/
+
+# dotnet runner build output
+tools/csharp-runner/bin/
+tools/csharp-runner/obj/

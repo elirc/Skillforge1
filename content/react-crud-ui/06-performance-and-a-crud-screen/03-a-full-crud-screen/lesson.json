@@ -1,0 +1,95 @@
+{
+  "title": "Building a Full CRUD Screen",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A typical admin screen combines everything in this course: a list, a detail panel, an edit form, and a delete confirmation. Its **UI state** (which item is selected, which mode the panel is in, the draft being edited, the last notice) changes together and follows rules, which makes it a good fit for `useReducer`. Its **server state** (the items) comes from TanStack Query, and mutations invalidate the list and detail keys."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "type Mode = \"list\" | \"detail\" | \"edit\" | \"create\" | \"confirm-delete\";\n\nfunction ProductsScreen() {\n  const { data: products = [] } = useQuery({ queryKey: [\"products\", \"list\"], queryFn: api.listProducts });\n  const [screen, dispatch] = useReducer(reduce, initialScreen);\n  const selected = products.find((p) => p.id === screen.selectedId) ?? null; // derived, never copied\n\n  return (\n    <div className=\"grid grid-cols-2 gap-4\">\n      <ProductList products={products} onSelect={(id) => dispatch({ type: \"select\", id })} />\n      {screen.mode === \"detail\" && selected && (\n        <ProductDetail product={selected} onEdit={() => dispatch({ type: \"edit\" })}\n          onDelete={() => dispatch({ type: \"delete\" })} />\n      )}\n      {(screen.mode === \"edit\" || screen.mode === \"create\") && (\n        <ProductForm key={screen.selectedId ?? \"new\"} draft={screen.draft}\n          onChange={(title) => dispatch({ type: \"change\", title })}\n          onSave={() => dispatch({ type: \"save\" })} onCancel={() => dispatch({ type: \"cancel\" })} />\n      )}\n      {screen.mode === \"confirm-delete\" && selected && (\n        <ConfirmDialog title={`Delete ${selected.name}?`}\n          onConfirm={() => dispatch({ type: \"confirm\" })} onCancel={() => dispatch({ type: \"cancel\" })} />\n      )}\n    </div>\n  );\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Design rules that keep a CRUD screen predictable:\n\n- store the **selected id**, not a copy of the selected item, and look the item up during render so it is never stale\n- make every mode explicit; an event that does not make sense in the current mode (\"confirm\" while editing) is ignored, so impossible states cannot happen\n- always confirm destructive actions, and say what will be deleted\n- validate the draft before saving and keep the form open with a message if it is invalid\n- show a short notice (\"Saved\", \"Deleted\") and move focus somewhere sensible after the panel changes\n- `key` the form by the item id so switching items never leaks a draft\n\nIn a real app, `save` and `confirm` would call mutations and move to the next mode on success; the reducer then reacts to the mutation's result rather than changing the items itself."
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "A reducer is a pure function, so you can test the whole screen's behaviour without rendering anything, which is exactly what the exercise below does."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why store selectedId in state instead of a copy of the selected product?",
+      "payload": {
+        "choices": [
+          "Objects cannot be stored in useReducer",
+          "It saves memory",
+          "The item is looked up from fresh data on every render, so it never goes stale",
+          "React requires ids in state"
+        ],
+        "answer": "The item is looked up from fresh data on every render, so it never goes stale",
+        "explanation": "A copied object keeps showing old data after a refetch or edit; an id always points at the current version."
+      },
+      "conceptTags": [
+        "react",
+        "crud",
+        "derived-state"
+      ],
+      "id": "sf_2886397745efaa1d1f7ba6e8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "The reducer receives a confirm event while the screen is in edit mode; what should it do?",
+      "payload": {
+        "choices": [
+          "Delete the selected item",
+          "Throw an error",
+          "Ignore it and return the same state",
+          "Switch to confirm-delete"
+        ],
+        "answer": "Ignore it and return the same state",
+        "explanation": "Treating the screen as a state machine means events only apply in modes where they make sense."
+      },
+      "conceptTags": [
+        "react",
+        "crud",
+        "reducers",
+        "state-machines"
+      ],
+      "id": "sf_b401a6e05fd48878d4b572a3"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the hook that manages the screen's UI state with a reducer.",
+      "payload": {
+        "text": "const [screen, dispatch] = ____(reduce, initialScreen);",
+        "blanks": [
+          "useReducer"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "reducers",
+        "crud"
+      ],
+      "id": "sf_458d4fd806e7b38e55a49769"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement the reducer for a list + detail + edit + create + delete-confirm screen, ignoring events that do not fit the current mode.",
+      "exercise": "crud-screen",
+      "conceptTags": [
+        "react",
+        "crud",
+        "reducers",
+        "state-machines"
+      ],
+      "id": "sf_ac85f1eee67c5910e930c952"
+    }
+  ],
+  "id": "sf_89aa7cbcaafd6f355a35a436"
+}

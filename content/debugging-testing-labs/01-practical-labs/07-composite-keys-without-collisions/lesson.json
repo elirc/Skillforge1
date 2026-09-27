@@ -1,0 +1,73 @@
+{
+  "id": "sf_24b1eafbe5bc2dcac900bf6b",
+  "title": "Composite keys without collisions",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Concatenating fields without boundaries loses information. The pairs ab/c and a/bc collapse to the same string even though they are distinct keys. A reversible encoding such as JSON preserves the boundary. A regression should intentionally construct a collision; random examples may never hit one."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export function countPairs(pairs: string[][]): number { return new Set(pairs.map(pair=>pair.join(\"\"))).size; }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[[\"ab\",\"c\"],[\"a\",\"bc\"]]]. The required result is 2. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix countPairs and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Adding a delimiter is still ambiguous if the delimiter can appear inside a field and is not escaped."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_eb1c3fd5aaee1de0be87018b",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "keys",
+        "serialization"
+      ],
+      "payload": {
+        "choices": [
+          "It only repeats a happy-path example",
+          "It accepts whatever the current implementation returns",
+          "It fails on the original implementation and passes on the corrected contract"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Encode the whole tuple with preserved field boundaries."
+      }
+    },
+    {
+      "id": "sf_4060f106bbeb9736ec4e9904",
+      "type": "CODE",
+      "prompt": "Fix countPairs and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "keys",
+        "serialization"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Encode the whole tuple with preserved field boundaries.",
+        "Adding a delimiter is still ambiguous if the delimiter can appear inside a field and is not escaped."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "function countPairs(pairs) { return new Set(pairs.map(pair => JSON.stringify(pair))).size; }\n",
+        "mutants": [
+          "function countPairs(pairs) { return new Set(pairs.map(pair => pair.join(\"\"))).size; }\n"
+        ]
+      },
+      "walkthrough": "Encode the whole tuple with preserved field boundaries.\nAdding a delimiter is still ambiguous if the delimiter can appear inside a field and is not escaped."
+    }
+  ]
+}

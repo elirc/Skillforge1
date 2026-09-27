@@ -1,9 +1,38 @@
 {
   "slug": "typescript-starter",
   "title": "TypeScript Starter",
-  "description": "Add type annotations to small functions, shape data with interfaces and unions, and learn how the compiler guides you.",
+  "description": "Add type annotations to small functions, shape data with interfaces and unions, then build the TypeScript you use in real apps: type guards for unknown API data, generics, utility and mapped types, and a typed CRUD client. Later modules cover classes and access modifiers, enums vs literal unions, declaration merging, and strict null handling.",
   "language": "typescript",
-  "topicTags": ["types", "functions", "interfaces", "unions", "inference", "narrowing", "generics", "readonly", "partial"],
+  "topicTags": [
+    "types",
+    "functions",
+    "interfaces",
+    "unions",
+    "inference",
+    "narrowing",
+    "generics",
+    "readonly",
+    "partial",
+    "type-guards",
+    "unknown",
+    "assertion-functions",
+    "never",
+    "keyof",
+    "utility-types",
+    "mapped-types",
+    "template-literal-types",
+    "satisfies",
+    "dto",
+    "forms",
+    "classes",
+    "access-modifiers",
+    "enums",
+    "literal-types",
+    "declaration-merging",
+    "module-augmentation",
+    "strict-null-checks",
+    "no-unchecked-indexed-access"
+  ],
   "difficulty": "BEGINNER",
   "order": 2,
   "outcomes": [
@@ -12,6 +41,17 @@
     "Model alternatives with union types",
     "Recognize where TypeScript infers types for you",
     "Narrow union values before using type-specific behavior",
-    "Use generics, keyof, readonly arrays, and partial updates for safer APIs"
+    "Use generics, keyof, readonly arrays, and partial updates for safer APIs",
+    "Validate unknown data with type guards and assertion functions, and make switches exhaustive with never",
+    "Write constrained generics and typed helpers with keyof and indexed access types",
+    "Derive types with Pick, Omit, Record, Required, Readonly, mapped types, template literal types, as const, and satisfies",
+    "Type a CRUD client end to end: DTOs, discriminated API results, and field-keyed form errors",
+    "Use access modifiers, readonly, and parameter properties in classes, and know they are compile-time only",
+    "Choose between enums and literal unions derived from as const",
+    "Explain interface declaration merging and augment global and library types",
+    "Handle possibly-undefined values under strictNullChecks and noUncheckedIndexedAccess"
+  ],
+  "prerequisites": [
+    "javascript-foundations"
   ]
 }

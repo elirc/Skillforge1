@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const normalized = label.trim().toLowerCase();"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Normalize according to a declared matching rule at the boundary. Keep display text separately if its original form matters. Applying the same normalization twice should give the same normalized result."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const raw = '  ADA@example.com ';\nconst emailKey = raw.trim().toLowerCase();\n// 'ada@example.com'"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Not every field can be lowercased safely. Passwords and case-sensitive identifiers require different rules."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Write tests for whitespace-only input and repeated normalization.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,37 @@
       "type": "MCQ",
       "prompt": "Which operation removes spaces from the start and end of a string?",
       "payload": {
-        "choices": ["trim()", "slice()", "split()", "padStart()"],
+        "choices": [
+          "slice()",
+          "trim()",
+          "split()",
+          "padStart()"
+        ],
         "answer": "trim()",
         "explanation": "trim removes leading and trailing whitespace."
       },
-      "conceptTags": ["strings", "normalization"]
+      "conceptTags": [
+        "strings",
+        "normalization"
+      ],
+      "id": "sf_29f197db56c19e3d0704585c"
     },
     {
       "type": "CODE",
       "prompt": "Return a normalized handle: trim it, lowercase it, and remove a leading @ if present.",
       "exercise": "normalize-handle",
-      "conceptTags": ["strings", "cleanup"]
+      "conceptTags": [
+        "strings",
+        "cleanup"
+      ],
+      "id": "sf_f7b6e6100a56c9cd8920aeb2",
+      "hints": [
+        "Not every field can be lowercased safely. Passwords and case-sensitive identifiers require different rules.",
+        "Normalize according to a declared matching rule at the boundary. Keep display text separately if its original form matters. Applying the same normalization twice should give the same normalized result."
+      ],
+      "walkthrough": "Normalize according to a declared matching rule at the boundary. Keep display text separately if its original form matters. Applying the same normalization twice should give the same normalized result."
     }
-  ]
+  ],
+  "id": "sf_a85931934fad28567cc7c56c",
+  "estimatedMinutes": 12
 }

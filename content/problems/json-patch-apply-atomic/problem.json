@@ -1,0 +1,14 @@
+{
+  "slug": "json-patch-apply-atomic",
+  "title": "Apply a JSON Patch Atomically",
+  "prompt": "A PATCH endpoint accepts RFC 6902 JSON Patch documents. Implement `applyPatch(doc, ops)` supporting `add`, `remove`, `replace`, `move`, `copy` and `test`. Paths are JSON Pointers: the empty string is the whole document, `/a/0` walks keys and array indexes, and `~1` / `~0` inside a token mean `/` and `~`. Rules: `add` on an array inserts at an index from 0 to length, or appends with `-`; on an object it sets the key; its parent must exist. `remove` and `replace` need the target to exist. `move` and `copy` read `from` (which must exist); `move` into its own child is invalid. `test` passes when the value at `path` deeply equals `value` (object key order does not matter). Array indexes must be plain decimal with no leading zeros. Removing the whole document is not allowed. The patch is all-or-nothing: if any operation fails return `null`, otherwise return the new document. Never mutate the input.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["json", "recursion", "immutability", "api-design"],
+  "order": 50002,
+  "exercise": "json-patch-apply-atomic",
+  "explanation": {
+    "beginner": "Work on a copy of the document (`JSON.parse(JSON.stringify(doc))`) so a failure halfway through never damages the original; if any step fails, return null and throw the copy away. Every operation needs the same helper: turn the path string into a list of tokens (split on '/', then turn '~1' back into '/' and '~0' back into '~', in that order), walk down to the parent of the last token, and act on the parent using the last token as a key or an array index. Once you have 'find parent', 'read value', 'add value' and 'remove value' helpers, move is just read + remove + add, and copy is read + add.",
+    "junior": "The clean trick is to wrap the document in a holder object `{ root: doc }` and prefix every token list with 'root', so replacing or adding at the empty pointer is not a special case. Validate array tokens with `/^(0|[1-9]\\d*)$/`: '01' and '-1' must fail, and '-' is only legal for `add`. Decode `~1` before `~0` (the RFC order) or '~01' decodes wrongly. Check `move` for `path.startsWith(from + '/')` before touching anything. `test` needs a structural deep-equal, not `JSON.stringify`, because key order can differ. Use `hasOwnProperty` rather than truthiness so a stored `0`, `false` or `null` still counts as existing. Each op is O(depth) to resolve plus O(n) for array splices; the up-front clone makes the call O(size of doc) and gives you atomicity for free."
+  }
+}

@@ -11,6 +11,7 @@ import { getXpHistory } from "@/server/gamification";
 import { getNextUp, getTrackProgress, getWeakConcepts } from "@/server/feed";
 import { ensureTodaysQuests } from "@/server/quests";
 import { getCurrentUser } from "@/server/user";
+import { reviewTagHref } from "@/lib/review-filter";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,7 @@ export default async function TodayPage() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-6">
+          <section className="rounded-lg border border-emerald-300 bg-emerald-50 p-5 dark:bg-emerald-950"><h2 className="text-xl font-semibold">A plan for your next {user.dailyMinutes} minutes</h2><p className="mt-2 text-sm">Recall a few ideas, continue your next lesson, and put one concept into practice.</p><Link className={buttonVariants({ className: "mt-4" })} href="/session">Start guided session</Link><Link className="ml-4 text-sm underline" href="/placement">Check your starting point</Link></section>
           <section>
             <h2 className="mb-3 flex items-center gap-2 text-xl font-semibold">
               <Sparkles className="h-5 w-5 text-emerald-500" />
@@ -137,13 +139,18 @@ export default async function TodayPage() {
                 </p>
               ) : null}
               {weak.map((concept) => (
-                <div key={concept.tag}>
+                <Link
+                  key={concept.tag}
+                  href={reviewTagHref(concept.tag)}
+                  title={`Drill due #${concept.tag} cards`}
+                  className="-mx-2 block rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
                   <div className="flex justify-between gap-2 text-sm">
                     <span>#{concept.tag}</span>
                     <span className="text-slate-500">{concept.strength}%</span>
                   </div>
                   <Progress className="mt-1.5" value={concept.strength} />
-                </div>
+                </Link>
               ))}
               {weak.length > 0 ? (
                 <Link href="/reviews" className={buttonVariants({ variant: "secondary", className: "w-full" })}>

@@ -11,7 +11,7 @@
   "order": 30037,
   "exercise": "react-easy-messages-aria-expanded",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Messages Aria Expanded, read the story as a simple input-to-output rule: A React messages disclosure needs an aria-expanded string. Write a helper that returns \"true\" when expanded is true and \"false\" when expanded is false. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react and accessibility. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: messagesAriaExpanded(true) produces \"true\". Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nCompare “returns false string”: input [false] produces \"false\". Explain which rule causes the difference before writing code.",
+    "junior": "Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nTempting mistake: Capitalization, whitespace, and boolean-versus-string output are part of the contract; truthiness alone may combine distinct states.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “returns false string”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

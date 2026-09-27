@@ -1,0 +1,66 @@
+{
+  "id": "sf_6d5c29e35dfc05dc6921bcce",
+  "title": "Loops and accumulators",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An accumulator records a result across iterations. It starts at zero because the sum of no contributions is zero. foreach visits each array element exactly once. The condition decides whether this value contributes; it does not end the loop. Trace the running total after each element before replacing the loop with a library operation."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static int SumPositive(int[] values)\n    {\n        return 0;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[-2,4,3]]. The required result is 7. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Sum only the strictly positive integers in the input array."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Returning from inside the first iteration stops the entire method."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** What invariant describes total after the first k values? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the nonpositive case checks a different boundary.\n\n**Transfer it.** Aggregate received stock adjustments while keeping rejected adjustments separate."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_c04621c26e0f6ae5bd0054f2",
+      "type": "MCQ",
+      "prompt": "Where should the accumulator be initialized?",
+      "conceptTags": [
+        "loops",
+        "arrays",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "Inside every iteration",
+          "Before the loop",
+          "Only after finding the last item"
+        ],
+        "answer": "Before the loop",
+        "explanation": "Initializing inside the loop would discard contributions from earlier elements."
+      }
+    },
+    {
+      "id": "sf_8bd18274a9b9d0ab9291f803",
+      "type": "CODE",
+      "prompt": "Sum only the strictly positive integers in the input array.",
+      "conceptTags": [
+        "loops",
+        "arrays",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Initializing inside the loop would discard contributions from earlier elements.",
+        "Returning from inside the first iteration stops the entire method."
+      ],
+      "walkthrough": "Initializing inside the loop would discard contributions from earlier elements.\nReturning from inside the first iteration stops the entire method."
+    }
+  ]
+}

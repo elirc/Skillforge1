@@ -1,0 +1,111 @@
+{
+  "title": "Default and Keyword Arguments",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Functions are defined with def and a colon, and the body is indented. A function without a return statement returns None. Parameters can have defaults, and callers can pass arguments by name (keyword arguments), which makes calls with several options readable and order-independent."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "def greet(name, greeting=\"Hello\", punctuation=\"!\"):\n    return f\"{greeting}, {name}{punctuation}\"\n\nprint(greet(\"Ada\"))                      # Hello, Ada!\nprint(greet(\"Ada\", punctuation=\"?\"))     # Hello, Ada?\nprint(greet(greeting=\"Hi\", name=\"Lin\"))  # Hi, Lin!"
+    },
+    {
+      "type": "prose",
+      "body": "*args collects extra positional arguments into a tuple (like JavaScript rest parameters) and **kwargs collects extra keyword arguments into a dict. A bare * in the parameter list makes every parameter after it keyword-only."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "def total(*prices, tax=0.0):\n    return sum(prices) * (1 + tax)\n\nprint(total(10, 20))            # 30.0\nprint(total(10, 20, tax=0.5))   # 45.0\n\ndef connect(host, *, timeout=5):  # timeout must be passed by name\n    ..."
+    },
+    {
+      "type": "prose",
+      "body": "The classic Python pitfall: default values are evaluated once, when the def statement runs, not on every call. A mutable default such as [] or {} is therefore shared between calls. Use None as the default and create a fresh object inside."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "def add_item(item, bucket=[]):      # BUG: one shared list\n    bucket.append(item)\n    return bucket\n\nprint(add_item(1))  # [1]\nprint(add_item(2))  # [1, 2]  -- surprise!\n\ndef add_item_fixed(item, bucket=None):\n    if bucket is None:\n        bucket = []\n    bucket.append(item)\n    return bucket"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "JavaScript evaluates default parameters on every call, so this bug does not exist there. It is one of the most common mistakes when moving to Python."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Using the buggy add_item(item, bucket=[]) from the lesson, what does the third call add_item(3) return after add_item(1) and add_item(2)?",
+      "payload": {
+        "choices": [
+          "[3]",
+          "[1, 3]",
+          "[1, 2, 3]",
+          "None"
+        ],
+        "answer": "[1, 2, 3]",
+        "explanation": "The default list is created once when the function is defined, so every call appends to the same list."
+      },
+      "conceptTags": [
+        "functions",
+        "default-arguments"
+      ],
+      "id": "sf_5d34df1f03c12b8a95bf9221"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "def f(a, b=2, c=3): return a + b + c. What is f(1, c=10)?",
+      "payload": {
+        "choices": [
+          "6",
+          "16",
+          "13",
+          "a TypeError"
+        ],
+        "answer": "13",
+        "explanation": "a is 1, b keeps its default 2, and c is passed by name as 10: 1 + 2 + 10 = 13."
+      },
+      "conceptTags": [
+        "functions",
+        "keyword-arguments"
+      ],
+      "id": "sf_2941ec9d209f9623c3e0fa21"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does a Python function return if it has no return statement?",
+      "payload": {
+        "choices": [
+          "None",
+          "undefined",
+          "0",
+          "an empty tuple"
+        ],
+        "answer": "None",
+        "explanation": "Falling off the end of a function returns None, Python's equivalent of JavaScript's undefined here."
+      },
+      "conceptTags": [
+        "functions"
+      ],
+      "id": "sf_1ec34a969d362c5c45469e25"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Fix the pitfall.",
+      "payload": {
+        "text": "Instead of a mutable default like bucket=[], use bucket=____ and create the list inside the function.",
+        "blanks": [
+          "None"
+        ]
+      },
+      "conceptTags": [
+        "functions",
+        "default-arguments"
+      ],
+      "id": "sf_b77d54e71e2068c71ff3ab36"
+    }
+  ],
+  "id": "sf_1cb030ac0e3485ae8d037057"
+}

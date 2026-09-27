@@ -11,7 +11,7 @@
   "order": 59,
   "exercise": "is-sorted-ascending",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Is Sorted Ascending, read the story as a simple input-to-output rule: A data import step needs to confirm values are already sorted. Write a function that returns true when the numbers are in non-decreasing order. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and loops. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: isSortedAscending([1,2,2,4]) produces true. State the comparison rule and tie behavior explicitly, and copy input before any in-place sort when the contract preserves it.\n\nCompare “rejects unsorted arrays”: input [[1,3,2]] produces false. Explain which rule causes the difference before writing code.",
+    "junior": "State the comparison rule and tie behavior explicitly, and copy input before any in-place sort when the contract preserves it.\n\nTempting mistake: A boolean comparator is not a valid three-way numeric comparator. Equal keys also need a predictable tie policy.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “rejects unsorted arrays”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

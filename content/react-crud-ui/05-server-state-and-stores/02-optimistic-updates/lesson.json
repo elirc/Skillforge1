@@ -1,0 +1,93 @@
+{
+  "title": "Optimistic Updates and Rollback",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An **optimistic update** shows the result of a mutation before the server confirms it: the checkbox ticks instantly instead of after a round trip. The price is that you must undo it if the request fails. The standard TanStack Query recipe has three steps:\n\n- **onMutate**: cancel in-flight fetches for the key, snapshot the current cache, write the optimistic value, and return the snapshot as context\n- **onError**: put the snapshot back\n- **onSettled**: invalidate the key so the cache ends up matching the server either way"
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "const toggleTodo = useMutation({\n  mutationFn: (id: number) => api.toggleTodo(id),\n  onMutate: async (id) => {\n    await queryClient.cancelQueries({ queryKey: [\"todos\"] });\n    const previous = queryClient.getQueryData<Todo[]>([\"todos\"]);\n    queryClient.setQueryData<Todo[]>([\"todos\"], (old = []) =>\n      old.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),\n    );\n    return { previous };\n  },\n  onError: (_err, _id, context) => {\n    queryClient.setQueryData([\"todos\"], context?.previous);\n  },\n  onSettled: () => {\n    // Skip while other todo mutations are still running, so their optimistic\n    // changes are not overwritten by a refetch.\n    if (queryClient.isMutating({ mutationKey: [\"todos\"] }) === 1) {\n      return queryClient.invalidateQueries({ queryKey: [\"todos\"] });\n    }\n  },\n  mutationKey: [\"todos\"],\n});"
+    },
+    {
+      "type": "prose",
+      "body": "Concurrent mutations are where this gets subtle. Mutation A snapshots the list, B snapshots the list that already includes A's optimistic change, then A fails and restores its snapshot, which **also removes B's optimistic change** until the final refetch. That is acceptable because the refetch repairs it, and it is why you invalidate once the last mutation settles rather than after each one.\n\nFor updates that only one component needs to display, React 19's `useOptimistic` is a lighter option: it shows an optimistic value while an action is pending and falls back to the real state automatically when the action finishes."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Only go optimistic for changes that almost always succeed and are easy to undo (toggles, renames, reordering). For payments or anything with server-side rules the client cannot predict, show a pending state instead."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "In the TanStack Query optimistic recipe, what should onMutate return?",
+      "payload": {
+        "choices": [
+          "The server's response",
+          "A context with the snapshot needed to roll back",
+          "A new query key",
+          "Nothing; rollback is automatic"
+        ],
+        "answer": "A context with the snapshot needed to roll back",
+        "explanation": "Whatever onMutate returns is passed as context to onError and onSettled; the snapshot is how onError restores the cache."
+      },
+      "conceptTags": [
+        "tanstack-query",
+        "optimistic-updates",
+        "mutations"
+      ],
+      "id": "sf_532214689bcddb4823e27afa"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why call cancelQueries at the start of onMutate?",
+      "payload": {
+        "choices": [
+          "To cancel the mutation itself",
+          "To clear the whole cache",
+          "Because setQueryData requires it",
+          "So an in-flight refetch cannot overwrite the optimistic value"
+        ],
+        "answer": "So an in-flight refetch cannot overwrite the optimistic value",
+        "explanation": "A background refetch that started before the mutation would land with old data and undo the optimistic update."
+      },
+      "conceptTags": [
+        "tanstack-query",
+        "optimistic-updates",
+        "race-conditions"
+      ],
+      "id": "sf_69a970614290a47c41b2504d"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the React 19 hook that shows an optimistic value while an action is pending.",
+      "payload": {
+        "text": "const [optimisticTodos, addOptimistic] = ____(todos, reducer);",
+        "blanks": [
+          "useOptimistic"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "react-19",
+        "optimistic-updates"
+      ],
+      "id": "sf_42a4b2848bbda80079510103"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Simulate optimistic todo mutations with snapshot rollback on failure and a single invalidation after the last pending mutation settles.",
+      "exercise": "run-optimistic",
+      "conceptTags": [
+        "tanstack-query",
+        "optimistic-updates",
+        "mutations"
+      ],
+      "id": "sf_cd2e08145dfb1bfd8ac8112e"
+    }
+  ],
+  "id": "sf_a539d5519671a42deece0332"
+}

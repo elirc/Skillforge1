@@ -1,0 +1,95 @@
+{
+  "title": "Submit States and Server Errors",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A submit button goes through a small state machine: **idle**, **submitting**, then **success** or **error**. Model it explicitly instead of juggling independent booleans such as `isLoading`, `isError`, and `isSuccess`, which can combine into impossible states. The machine also answers the practical questions: disable the button while submitting so a double click does not create two records, ignore a response that arrives when nothing is in flight, and clear old errors when the user tries again."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// React 19: a form action with useActionState\nasync function createProduct(prev: FormState, formData: FormData): Promise<FormState> {\n  const res = await fetch(\"/api/products\", { method: \"POST\", body: formData });\n  if (res.status === 422) return { fieldErrors: (await res.json()).errors, formError: null };\n  if (!res.ok) return { fieldErrors: {}, formError: \"Something went wrong. Try again.\" };\n  return { fieldErrors: {}, formError: null, savedId: (await res.json()).id };\n}\n\nfunction NewProductForm() {\n  const [state, formAction, isPending] = useActionState(createProduct, { fieldErrors: {}, formError: null });\n  return (\n    <form action={formAction}>\n      <input name=\"sku\" aria-invalid={state.fieldErrors.sku ? true : undefined} />\n      {state.fieldErrors.sku && <p>{state.fieldErrors.sku}</p>}\n      {state.formError && <p role=\"alert\">{state.formError}</p>}\n      <button type=\"submit\" disabled={isPending}>{isPending ? \"Saving...\" : \"Save\"}</button>\n    </form>\n  );\n}"
+    },
+    {
+      "type": "prose",
+      "body": "React 19 adds form **actions**. Passing a function to `<form action={fn}>` calls it with the `FormData` on submit, inside a transition. `useActionState(action, initialState)` returns `[state, formAction, isPending]`, and `useFormStatus()` from `react-dom` lets a nested submit button read `pending` without prop drilling. After a successful action, React resets uncontrolled fields in the form.\n\nWhatever tool you use, map server responses deliberately:\n\n- **422** validation errors go next to their fields\n- **409** conflicts and other 4xx errors show the server's message\n- **5xx** and network failures show a generic, retryable message"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`useFormStatus` only reports on a `<form>` that is an **ancestor** of the component calling it. Calling it in the same component that renders the form always reports `pending: false`."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does useActionState return in React 19?",
+      "payload": {
+        "choices": [
+          "[state, formAction, isPending]",
+          "[state, setState]",
+          "{ data, error, isLoading }",
+          "[pending, data, method, action]"
+        ],
+        "answer": "[state, formAction, isPending]",
+        "explanation": "useActionState wraps an action, keeps its last returned state, and tells you whether it is running."
+      },
+      "conceptTags": [
+        "react",
+        "forms",
+        "react-19",
+        "actions"
+      ],
+      "id": "sf_42ea1bb1d43452c6996689ea"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "The server answers a create request with 422 and { errors: { sku: \"taken\" } }; where should the message appear?",
+      "payload": {
+        "choices": [
+          "In a generic toast only",
+          "In the console",
+          "Next to the SKU field",
+          "Nowhere; retry automatically"
+        ],
+        "answer": "Next to the SKU field",
+        "explanation": "422 means the input was understood but invalid. Mapping it onto the field keeps the fix obvious to the user."
+      },
+      "conceptTags": [
+        "react",
+        "forms",
+        "server-errors"
+      ],
+      "id": "sf_5e5052b43c1976c3f8e6ee72"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the import for the hook that reads the parent form's pending state.",
+      "payload": {
+        "text": "import { ____ } from \"react-dom\";",
+        "blanks": [
+          "useFormStatus"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "forms",
+        "react-19"
+      ],
+      "id": "sf_e57f4f2a81b1e99743366aa2"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement the submit state machine for a create form: block double submits, ignore stale responses, and map 422, 4xx, and 5xx failures to field and form errors.",
+      "exercise": "submit-machine",
+      "conceptTags": [
+        "react",
+        "forms",
+        "state-machines",
+        "server-errors"
+      ],
+      "id": "sf_35f3a86e1007005c57e53ae0"
+    }
+  ],
+  "id": "sf_00027f7ed4076e99ea81a47d"
+}

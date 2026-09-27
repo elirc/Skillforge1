@@ -1,6 +1,9 @@
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { dayKey, questsForDay, type ActivityKind, type QuestTemplate } from "@/lib/gamification";
 import { experienceSchema, goalSchema } from "@/lib/enums";
+
+type DbClient = Prisma.TransactionClient | PrismaClient;
 
 export interface QuestView {
   id: string;
@@ -12,8 +15,8 @@ export interface QuestView {
   completed: boolean;
 }
 
-async function templatesFor(userId: string): Promise<QuestTemplate[]> {
-  const user = await prisma.user.findUniqueOrThrow({
+async function templatesFor(userId: string, client: DbClient): Promise<QuestTemplate[]> {
+  const user = await client.user.findUniqueOrThrow({
     where: { id: userId },
     include: { progress: true },
   });
@@ -28,35 +31,41 @@ async function templatesFor(userId: string): Promise<QuestTemplate[]> {
  * Rolls today's quest board. Idempotent: called on every dashboard load and on
  * every XP award, so the board appears the moment the local day flips.
  */
-export async function ensureTodaysQuests(userId: string, now = new Date()): Promise<QuestView[]> {
+export async function ensureTodaysQuests(
+  userId: string,
+  now = new Date(),
+  client: DbClient = prisma,
+): Promise<QuestView[]> {
   const day = dayKey(now);
-  const templates = await templatesFor(userId);
+  const templates = await templatesFor(userId, client);
 
-  await Promise.all(
-    templates.map((template) =>
-      prisma.quest.upsert({
-        where: { userId_day_key: { userId, day, key: template.key } },
-        update: { title: template.title, target: template.target, xpReward: template.xpReward },
-        create: {
-          userId,
-          day,
-          key: template.key,
-          title: template.title,
-          target: template.target,
-          xpReward: template.xpReward,
-        },
-      }),
-    ),
-  );
+  for (const template of templates) {
+    await client.quest.upsert({
+      where: { userId_day_key: { userId, day, key: template.key } },
+      update: { title: template.title, target: template.target, xpReward: template.xpReward },
+      create: {
+        userId,
+        day,
+        key: template.key,
+        title: template.title,
+        target: template.target,
+        xpReward: template.xpReward,
+      },
+    });
+  }
 
   // Quests from other days are history we do not need; keep the table small.
-  await prisma.quest.deleteMany({ where: { userId, day: { lt: dayKey(new Date(now.getTime() - 30 * 86_400_000)) } } });
+  await client.quest.deleteMany({ where: { userId, day: { lt: dayKey(new Date(now.getTime() - 30 * 86_400_000)) } } });
 
-  return listTodaysQuests(userId, now);
+  return listTodaysQuests(userId, now, client);
 }
 
-export async function listTodaysQuests(userId: string, now = new Date()): Promise<QuestView[]> {
-  const quests = await prisma.quest.findMany({
+export async function listTodaysQuests(
+  userId: string,
+  now = new Date(),
+  client: DbClient = prisma,
+): Promise<QuestView[]> {
+  const quests = await client.quest.findMany({
     where: { userId, day: dayKey(now) },
     orderBy: { key: "asc" },
   });
@@ -79,8 +88,8 @@ export interface QuestCompletion {
 }
 
 /** Total XP recorded today, bonuses included — the same number the daily ring shows. */
-async function xpRecordedToday(userId: string, day: string) {
-  const result = await prisma.xpEvent.aggregate({ where: { userId, day }, _sum: { amount: true } });
+async function xpRecordedToday(userId: string, day: string, client: DbClient) {
+  const result = await client.xpEvent.aggregate({ where: { userId, day }, _sum: { amount: true } });
   return result._sum.amount ?? 0;
 }
 
@@ -95,17 +104,22 @@ export async function advanceQuests(
   userId: string,
   kind: ActivityKind,
   now = new Date(),
+  client: DbClient = prisma,
+  onlyXp = false,
 ): Promise<QuestCompletion[]> {
   const day = dayKey(now);
-  const templates = await templatesFor(userId);
+  const templates = await templatesFor(userId, client);
   const completions: QuestCompletion[] = [];
-  const dailyXp = templates.some((template) => template.tracks === "xp") ? await xpRecordedToday(userId, day) : 0;
+  const dailyXp = templates.some((template) => template.tracks === "xp")
+    ? await xpRecordedToday(userId, day, client)
+    : 0;
 
   for (const template of templates) {
+    if (onlyXp && template.tracks !== "xp") continue;
     const tracksThis = template.tracks === "xp" || template.tracks === kind;
     if (!tracksThis) continue;
 
-    const quest = await prisma.quest.findUnique({
+    const quest = await client.quest.findUnique({
       where: { userId_day_key: { userId, day, key: template.key } },
     });
     if (!quest || quest.completedAt) continue;
@@ -116,7 +130,7 @@ export async function advanceQuests(
         : Math.min(quest.target, quest.progress + 1);
     const justCompleted = progress >= quest.target;
 
-    await prisma.quest.update({
+    await client.quest.update({
       where: { id: quest.id },
       data: { progress, completedAt: justCompleted ? now : null },
     });

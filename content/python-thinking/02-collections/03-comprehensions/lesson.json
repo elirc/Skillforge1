@@ -1,0 +1,106 @@
+{
+  "title": "Comprehensions",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A list comprehension builds a list from an iterable in one expression. It replaces most map and filter chains: [expression for item in iterable if condition]. The if part is optional and acts as the filter."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "// JavaScript\nconst squares = nums.filter((n) => n % 2 === 0).map((n) => n * n);"
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "# Python\nnums = [1, 2, 3, 4, 5]\nsquares = [n * n for n in nums if n % 2 == 0]   # [4, 16]\nprint([n * 10 for n in range(3)])               # [0, 10, 20]"
+    },
+    {
+      "type": "prose",
+      "body": "The same syntax works for dicts and sets, and without brackets it becomes a lazy generator expression, useful when feeding functions like sum, any and max."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "words = [\"apple\", \"fig\", \"kiwi\"]\nlengths = {w: len(w) for w in words}    # {'apple': 5, 'fig': 3, 'kiwi': 4}\ninitials = {w[0] for w in words}        # {'a', 'f', 'k'} (order may vary)\ntotal = sum(len(w) for w in words)      # 12, no intermediate list\nhas_long = any(len(w) > 4 for w in words)  # True"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "range(stop) counts from 0 up to but not including stop, and range(start, stop, step) mirrors a classic for loop. range(1, 10, 3) gives 1, 4, 7."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does print([x * 2 for x in range(4) if x != 2]) show?",
+      "payload": {
+        "choices": [
+          "[0, 2, 6]",
+          "[2, 4, 6, 8]",
+          "[0, 2, 4, 6]",
+          "[0, 2, 6, 8]"
+        ],
+        "answer": "[0, 2, 6]",
+        "explanation": "range(4) is 0, 1, 2, 3. Skipping 2 leaves 0, 1, 3, which doubled gives 0, 2, 6."
+      },
+      "conceptTags": [
+        "comprehensions",
+        "range"
+      ],
+      "id": "sf_7a8847d8519f78cd4d211b0e"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does {n: n * n for n in [1, 2, 3]} create?",
+      "payload": {
+        "choices": [
+          "{1: 1, 2: 4, 3: 9}",
+          "[1, 4, 9]",
+          "{1, 4, 9}",
+          "[(1, 1), (2, 4), (3, 9)]"
+        ],
+        "answer": "{1: 1, 2: 4, 3: 9}",
+        "explanation": "A key: value pair inside braces makes a dict comprehension."
+      },
+      "conceptTags": [
+        "comprehensions",
+        "dicts"
+      ],
+      "id": "sf_817795533f33bc00f82ecdcb"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does list(range(1, 10, 3)) return?",
+      "payload": {
+        "choices": [
+          "[1, 4, 7, 10]",
+          "[1, 3, 6, 9]",
+          "[3, 6, 9]",
+          "[1, 4, 7]"
+        ],
+        "answer": "[1, 4, 7]",
+        "explanation": "Start at 1, step by 3, and stop before reaching 10."
+      },
+      "conceptTags": [
+        "range"
+      ],
+      "id": "sf_64eee6bfdc41633ded91edd0"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the comprehension.",
+      "payload": {
+        "text": "[w.upper() for w in words ____ len(w) > 3] keeps only the longer words.",
+        "blanks": [
+          "if"
+        ]
+      },
+      "conceptTags": [
+        "comprehensions"
+      ],
+      "id": "sf_cd2304114e73e473904346f3"
+    }
+  ],
+  "id": "sf_958f551a7a44830054696219"
+}

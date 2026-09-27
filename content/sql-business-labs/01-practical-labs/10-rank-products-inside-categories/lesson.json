@@ -1,0 +1,71 @@
+{
+  "id": "sf_9317fbaa87ab69c44367991d",
+  "title": "Rank products inside categories",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A window function calculates across related rows without collapsing them into a single grouped row. PARTITION BY restarts ranking for each category. DENSE_RANK assigns equal prices the same rank and leaves no gaps after ties. The outer ORDER BY controls presentation independently of the window's ranking order."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Inspect the fixture first, then write your query.\nSELECT * FROM products ORDER BY id;"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"setup\":\"CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);\"}]. The required result is [{\"sku\":\"MUG\",\"category\":\"home\",\"price_rank\":1},{\"sku\":\"BOOK\",\"category\":\"office\",\"price_rank\":1},{\"sku\":\"PEN\",\"category\":\"office\",\"price_rank\":2}]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return sku, category, and descending price_rank within each category using DENSE_RANK."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Adding sku inside the window ORDER BY would break equal-price ties; use it only in the final output ordering."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which boundary case would fail if the main comparison, join, or ordering were changed? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed business data case checks a different boundary.\n\n**Transfer it.** Apply the same contract to the Inventory Desk repository. Keep SQL parameters separate from values and compare results against a hand-calculated fixture."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_217751a9d1478d6a39348cbc",
+      "type": "MCQ",
+      "prompt": "How are equal prices ranked by DENSE_RANK?",
+      "conceptTags": [
+        "sql",
+        "window-functions",
+        "ranking"
+      ],
+      "payload": {
+        "choices": [
+          "They share a rank with no later gap",
+          "They receive arbitrary distinct ranks",
+          "They disappear from the output"
+        ],
+        "answer": "They share a rank with no later gap",
+        "explanation": "Dense ranking preserves ties while retaining every input row."
+      }
+    },
+    {
+      "id": "sf_a07dda621c9a70e3be7bb875",
+      "type": "CODE",
+      "prompt": "Return sku, category, and descending price_rank within each category using DENSE_RANK.",
+      "conceptTags": [
+        "sql",
+        "window-functions",
+        "ranking"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Dense ranking preserves ties while retaining every input row.",
+        "Adding sku inside the window ORDER BY would break equal-price ties; use it only in the final output ordering."
+      ],
+      "walkthrough": "Dense ranking preserves ties while retaining every input row.\nAdding sku inside the window ORDER BY would break equal-price ties; use it only in the final output ordering."
+    }
+  ]
+}

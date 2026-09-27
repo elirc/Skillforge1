@@ -1,0 +1,123 @@
+{
+  "title": "Recursion: Functions That Call Themselves",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A recursive function solves a problem by calling itself on a **smaller** piece of the same problem. Every recursive function needs two parts:\n- a **base case** that answers directly, without calling itself\n- a **recursive case** that makes the problem smaller and calls itself"
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function countdown(n) {\n  if (n === 0) return [\"liftoff\"];    // base case\n  return [n, ...countdown(n - 1)];    // recursive case: smaller n\n}\ncountdown(3); // [3, 2, 1, \"liftoff\"]"
+    },
+    {
+      "type": "prose",
+      "body": "Recursion shines when data is nested inside data of the same shape: folders inside folders, comments with replies, lists inside lists. A loop handles one level; recursion handles **any** number of levels."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "// Flatten a list that may contain lists\nfunction flatten(items) {\n  const out = [];\n  for (const item of items) {\n    if (Array.isArray(item)) out.push(...flatten(item)); // go one level deeper\n    else out.push(item);\n  }\n  return out;\n}\nflatten([1, [2, [3, [4]]]]); // [1, 2, 3, 4]\n\n// How deep is a tree of { children: [...] }?\nfunction depth(node) {\n  if (node.children.length === 0) return 1;\n  return 1 + Math.max(...node.children.map(depth));\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Forget the base case (or never make the problem smaller) and the function calls itself forever until JavaScript throws \"Maximum call stack size exceeded\"."
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Trust the recursion: assume the call on the smaller piece already works, and only think about how to combine its answer with the current item."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The base case stops recursion. Every recursive call must move closer to it under the input contract. Returns then unwind: the innermost zero lets each pending addition finish."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function sumDown(n) {\n  if (n === 0) return 0;\n  return n + sumDown(n - 1);\n}\nsumDown(3); // 3 + 2 + 1 + 0 = 6"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "This version assumes a nonnegative integer. A negative input never reaches the stated base case."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Add an input guard and discuss why a loop is safer for very large n.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is the job of the base case in a recursive function?",
+      "payload": {
+        "choices": [
+          "Call the function with a bigger input",
+          "Return an answer without calling the function again",
+          "Loop over every item",
+          "Catch errors"
+        ],
+        "answer": "Return an answer without calling the function again",
+        "explanation": "The base case stops the chain of calls. Without it the function never finishes."
+      },
+      "conceptTags": [
+        "recursion",
+        "base-case"
+      ],
+      "id": "sf_2bda9aa3bf259e7d60675509"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does `flatten([1, [2, [3]]])` return using the lesson's function?",
+      "payload": {
+        "choices": [
+          "[1, [2, [3]]]",
+          "[1, 2, [3]]",
+          "6",
+          "[1, 2, 3]"
+        ],
+        "answer": "[1, 2, 3]",
+        "explanation": "Each nested array is flattened by a recursive call, however deep it is."
+      },
+      "conceptTags": [
+        "recursion",
+        "arrays"
+      ],
+      "id": "sf_71bc428a6b9e1c6522bebbf3"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the sentence.",
+      "payload": {
+        "text": "Each recursive call must work on a ____ version of the problem.",
+        "blanks": [
+          "smaller"
+        ]
+      },
+      "conceptTags": [
+        "recursion"
+      ],
+      "id": "sf_7a92680777d47eb1d16826ac"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write sumNested(items). Items are numbers or arrays that contain numbers or more arrays, nested to any depth. Return the sum of every number.",
+      "exercise": "sum-nested",
+      "conceptTags": [
+        "recursion",
+        "arrays",
+        "nested-data"
+      ],
+      "id": "sf_22d4d76d510843b147131934",
+      "hints": [
+        "This version assumes a nonnegative integer. A negative input never reaches the stated base case.",
+        "The base case stops recursion. Every recursive call must move closer to it under the input contract. Returns then unwind: the innermost zero lets each pending addition finish."
+      ],
+      "walkthrough": "The base case stops recursion. Every recursive call must move closer to it under the input contract. Returns then unwind: the innermost zero lets each pending addition finish."
+    }
+  ],
+  "id": "sf_f0517f53bfe00b0ce162ff72",
+  "estimatedMinutes": 12
+}

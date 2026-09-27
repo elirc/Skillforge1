@@ -1,0 +1,126 @@
+{
+  "title": "Scope and Closures",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Scope** is where a variable can be seen. A variable declared with `let` or `const` lives inside the nearest `{ }` block. Code inside can see variables from outside, but code outside cannot see in."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const course = \"JS\";          // outer scope\nfunction show() {\n  const lesson = \"Closures\";  // only visible inside show\n  return course + \": \" + lesson;\n}\nshow();          // \"JS: Closures\"\n// lesson;       // ReferenceError: lesson is not defined"
+    },
+    {
+      "type": "prose",
+      "body": "A **closure** is a function that remembers the variables around it, even after the outer function has finished. Each call to the outer function creates a fresh set of variables, so each returned function has its own private memory."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function makeCounter() {\n  let count = 0;              // private: nothing outside can touch it directly\n  return () => {\n    count += 1;\n    return count;\n  };\n}\n\nconst a = makeCounter();\nconst b = makeCounter();\na(); // 1\na(); // 2\nb(); // 1  (b has its own count)"
+    },
+    {
+      "type": "prose",
+      "body": "Closures are everywhere in JavaScript: event handlers remember which button they belong to, `setTimeout` callbacks remember values from when they were created, and helpers like `once` or `debounce` keep private state."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "If you declare the variable **inside** the inner function, a new one is made on every call and nothing is remembered. The shared variable must live in the outer function."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Prefer `let` and `const` over `var`. `var` ignores block scope, which is the source of the classic bug where every loop callback sees the last value of `i`."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The returned function keeps access to the binding from its enclosing call. Calling makeCounter again creates a different count binding, so separate counters do not share state."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function makeCounter() {\n  let count = 0;\n  return () => ++count;\n}\nconst next = makeCounter();\nnext(); // 1\nnext(); // 2"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Moving count outside makeCounter would make every counter share one variable."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Create two counters and alternate calls. Predict both sequences.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does the second call `a()` return in the lesson's makeCounter example?",
+      "payload": {
+        "choices": [
+          "1",
+          "0",
+          "2",
+          "undefined"
+        ],
+        "answer": "2",
+        "explanation": "a closes over one count variable. The first call set it to 1, the second to 2."
+      },
+      "conceptTags": [
+        "closures",
+        "scope"
+      ],
+      "id": "sf_ba33fc66ee1326231b5b9c24"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Two counters come from separate makeCounter() calls. Do they share a count?",
+      "payload": {
+        "choices": [
+          "Yes, all counters share one count",
+          "Only if they are called in order",
+          "Only when count is declared with var",
+          "No, each call creates its own count"
+        ],
+        "answer": "No, each call creates its own count",
+        "explanation": "Every run of makeCounter makes new local variables, and each returned function remembers its own."
+      },
+      "conceptTags": [
+        "closures"
+      ],
+      "id": "sf_a784cecdf72636f388086dcf"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the definition.",
+      "payload": {
+        "text": "A function that remembers variables from the scope where it was created is called a ____.",
+        "blanks": [
+          "closure"
+        ]
+      },
+      "conceptTags": [
+        "closures"
+      ],
+      "id": "sf_b7c23e3a5778bd3a4ce65c27"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Fix makeCounter so increment, decrement, and reset share one private count, then counterHistory(start, actions) records the value after each action (\"inc\", \"dec\", \"reset\"; unknown actions keep the value).",
+      "exercise": "counter-history",
+      "conceptTags": [
+        "closures",
+        "scope",
+        "state"
+      ],
+      "id": "sf_7c9845c21312c81389d71828",
+      "hints": [
+        "Moving count outside makeCounter would make every counter share one variable.",
+        "The returned function keeps access to the binding from its enclosing call. Calling makeCounter again creates a different count binding, so separate counters do not share state."
+      ],
+      "walkthrough": "The returned function keeps access to the binding from its enclosing call. Calling makeCounter again creates a different count binding, so separate counters do not share state."
+    }
+  ],
+  "id": "sf_b6c7923963cb4da07fec1906",
+  "estimatedMinutes": 12
+}

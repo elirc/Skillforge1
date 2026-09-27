@@ -1,0 +1,105 @@
+{
+  "title": "Subqueries vs Joins, EXISTS vs IN",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A subquery is a query inside another query. It can return a single value (a **scalar** subquery), a list (used with `IN`), or just answer yes/no (`EXISTS`). A **correlated** subquery refers to the outer row, so conceptually it runs once per outer row; the optimizer usually rewrites it into a join."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Scalar subquery: each order next to the overall average\nSELECT id, amount, (SELECT AVG(amount) FROM orders) AS avg_amount FROM orders;\n\n-- IN with a list from a subquery\nSELECT name FROM customers\nWHERE id IN (SELECT customer_id FROM orders WHERE status = 'paid');\n\n-- Correlated EXISTS: \"is there at least one matching row?\"\nSELECT c.name FROM customers c\nWHERE EXISTS (SELECT 1 FROM orders o\n              WHERE o.customer_id = c.id AND o.status = 'paid');"
+    },
+    {
+      "type": "prose",
+      "body": "**Join or subquery?** Use a join when you need columns from both tables. Use `EXISTS`/`IN` when you only need to *filter* by the other table. A join to a one-to-many table repeats the parent row once per child (fan-out), so `SELECT c.name FROM customers c JOIN orders o ...` lists a customer with three orders three times, and people \"fix\" it with `DISTINCT`, which hides the mistake. `EXISTS` is a **semi-join**: each customer appears at most once."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Anti-join: customers with no paid orders\nSELECT c.name FROM customers c\nWHERE NOT EXISTS (SELECT 1 FROM orders o\n                  WHERE o.customer_id = c.id AND o.status = 'paid');\n\n-- Same idea with LEFT JOIN ... IS NULL\nSELECT c.name FROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id AND o.status = 'paid'\nWHERE o.id IS NULL;"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`IN` and `EXISTS` behave the same for positive filters. The negations do not: `NOT IN (subquery)` returns **no rows at all** if the subquery yields a single NULL. Prefer `NOT EXISTS` for anti-joins."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Modern optimizers usually produce the same plan for `IN` and `EXISTS`. Pick the one that says what you mean, then check the plan if it is slow."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A customer has 3 paid orders. How many times does `SELECT c.name FROM customers c JOIN orders o ON o.customer_id = c.id` list them?",
+      "payload": {
+        "choices": [
+          "1",
+          "0",
+          "3",
+          "It depends on the index"
+        ],
+        "answer": "3",
+        "explanation": "An inner join produces one row per matching pair. Use EXISTS (a semi-join) if you only want to know whether a match exists."
+      },
+      "conceptTags": [
+        "sql",
+        "joins",
+        "fan-out"
+      ],
+      "id": "sf_924a445930f59e37d2cb9eb1"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "`orders.customer_id` contains one NULL. What does `WHERE id NOT IN (SELECT customer_id FROM orders)` return?",
+      "payload": {
+        "choices": [
+          "Customers without orders",
+          "Every customer",
+          "No rows",
+          "An error"
+        ],
+        "answer": "No rows",
+        "explanation": "`id <> NULL` is UNKNOWN, so the combined NOT IN predicate is never TRUE. NOT EXISTS does not have this problem."
+      },
+      "conceptTags": [
+        "sql",
+        "not-in",
+        "nulls",
+        "exists"
+      ],
+      "id": "sf_55efe1f68ba1b0174603305b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the semi-join.",
+      "payload": {
+        "text": "SELECT name FROM customers c WHERE ____ (SELECT 1 FROM orders o WHERE o.customer_id = c.id);",
+        "blanks": [
+          "EXISTS"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "exists",
+        "subqueries"
+      ],
+      "id": "sf_58daab41c25f9a5d84d5da60"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model the EXISTS and NOT EXISTS queries. Return `{ withPaidOrders, withoutPaidOrders }`, two arrays of customer names sorted by name. A customer is in the first list when at least one of their orders has status 'paid'. Each customer appears once, and orders with a null customerId never match anyone.",
+      "exercise": "exists-split",
+      "conceptTags": [
+        "sql",
+        "exists",
+        "semi-join",
+        "anti-join"
+      ],
+      "id": "sf_785e5d4d77a7db0f51185891"
+    }
+  ],
+  "id": "sf_a5379433d2c490206d970c14"
+}

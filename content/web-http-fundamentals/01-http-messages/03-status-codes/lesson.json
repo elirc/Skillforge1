@@ -1,0 +1,91 @@
+{
+  "title": "Status Codes for CRUD",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "The status code is the first thing a client checks, so pick it precisely. The first digit is the class: **2xx** success, **3xx** go elsewhere or use your cache, **4xx** the client must change something, **5xx** the server failed and a retry might work."
+    },
+    {
+      "type": "prose",
+      "body": "The CRUD set you will use every day:\n- **200 OK**: a read, or an update that returns the resource.\n- **201 Created**: a create; add a `Location` header pointing at the new resource.\n- **204 No Content**: success with no body, typical for DELETE and body-less updates.\n- **400 Bad Request**: malformed or invalid input (ASP.NET Core's default for validation errors; some APIs use **422** for well-formed but invalid data; pick one and be consistent).\n- **401 Unauthorized**: not authenticated (missing or bad credentials). **403 Forbidden**: authenticated, but not allowed.\n- **404 Not Found**, **409 Conflict** (duplicate email, state clash), **412 Precondition Failed** (stale ETag).\n- **500**: a bug. Never return it on purpose for bad input."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "app.MapDelete(\"/products/{id:int}\", async (int id, AppDb db) =>\n{\n    var product = await db.Products.FindAsync(id);\n    if (product is null) return Results.NotFound();       // 404\n    db.Products.Remove(product);\n    await db.SaveChangesAsync();\n    return Results.NoContent();                          // 204\n});"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "401 is misnamed: it really means \"unauthenticated\". Send it with a `WWW-Authenticate` header. Use 403 when you know who the caller is and the answer is still no."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A signed-in user tries to delete another user's invoice they may not touch. Which status fits?",
+      "payload": {
+        "choices": [
+          "403 Forbidden",
+          "401 Unauthorized",
+          "400 Bad Request",
+          "409 Conflict"
+        ],
+        "answer": "403 Forbidden",
+        "explanation": "The server knows who they are (so not 401) and the request is well-formed (so not 400); they simply lack permission."
+      },
+      "conceptTags": [
+        "http",
+        "status-codes",
+        "authorization"
+      ],
+      "id": "sf_9dcf71bc403935b8b5b48333"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Registering with an email that already exists should return what?",
+      "payload": {
+        "choices": [
+          "409 Conflict",
+          "500 Internal Server Error",
+          "404 Not Found",
+          "200 OK"
+        ],
+        "answer": "409 Conflict",
+        "explanation": "The request conflicts with the current state of the resource (a unique email). A 500 would blame the server for a client-side problem."
+      },
+      "conceptTags": [
+        "http",
+        "status-codes"
+      ],
+      "id": "sf_e0091281b3491f7ddde10ff3"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the status code.",
+      "payload": {
+        "text": "A successful DELETE that returns no body usually responds with ____ No Content.",
+        "blanks": [
+          "204"
+        ]
+      },
+      "conceptTags": [
+        "http",
+        "status-codes"
+      ],
+      "id": "sf_06e7a1f0d7de0e99a79a6c9a"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Map a CRUD outcome (operation + result) to the right HTTP status code: 201 for creates, 204 for deletes and body-less updates, and 400/401/403/404/409/412 for failures.",
+      "exercise": "pick-status",
+      "conceptTags": [
+        "http",
+        "status-codes",
+        "crud"
+      ],
+      "id": "sf_0b60b2be00ed134c485f7570"
+    }
+  ],
+  "id": "sf_a53020d9fc74bf612ca5e77e"
+}

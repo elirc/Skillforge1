@@ -1,0 +1,98 @@
+{
+  "title": "Promises and the Event Loop",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "JavaScript runs one piece of code at a time. Asynchronous work is scheduled through queues. When the current synchronous code finishes, the engine first drains the microtask queue (promise .then callbacks and the code after an await), and only then takes the next macrotask (setTimeout callbacks, I/O events)."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "console.log(\"A\");\nsetTimeout(() => console.log(\"B\"), 0);\nPromise.resolve().then(() => console.log(\"C\"));\nconsole.log(\"D\");\n// Output: A, D, C, B"
+    },
+    {
+      "type": "prose",
+      "body": "A promise represents a value that is not ready yet. It is pending, then either fulfilled with a value or rejected with a reason, and it never changes after settling. .then registers what to do next; async/await is syntax on top of the same machinery: `await p` pauses the async function and schedules the rest of it as a microtask once p settles."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "async function load() {\n  console.log(\"1\");\n  await null;          // the rest runs as a microtask\n  console.log(\"3\");\n}\nload();\nconsole.log(\"2\");\n// Output: 1, 2, 3"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "A setTimeout of 0 ms does not mean 'now'. It means 'after the current code and every queued microtask'."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does this print? console.log(1); setTimeout(() => console.log(2)); Promise.resolve().then(() => console.log(3)); console.log(4);",
+      "payload": {
+        "choices": [
+          "1 2 3 4",
+          "1 4 3 2",
+          "1 4 2 3",
+          "1 3 4 2"
+        ],
+        "answer": "1 4 3 2",
+        "explanation": "Synchronous logs run first (1, 4), then microtasks (3), then the timer macrotask (2)."
+      },
+      "conceptTags": [
+        "event-loop",
+        "promises"
+      ],
+      "id": "sf_255b971ce55b1c530dfad4d0"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which of these callbacks is queued as a microtask?",
+      "payload": {
+        "choices": [
+          "a setTimeout callback",
+          "a click handler",
+          "a setInterval callback",
+          "a promise .then callback"
+        ],
+        "answer": "a promise .then callback",
+        "explanation": "Promise reactions go to the microtask queue, which is drained before the next timer or event callback runs."
+      },
+      "conceptTags": [
+        "event-loop",
+        "promises"
+      ],
+      "id": "sf_3e1062d474485f35ac64197a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A promise has already been fulfilled with 5. Its executor then calls reject(new Error()). What state is it in?",
+      "payload": {
+        "choices": [
+          "rejected",
+          "still fulfilled with 5",
+          "pending",
+          "fulfilled with undefined"
+        ],
+        "answer": "still fulfilled with 5",
+        "explanation": "A promise settles only once. Later resolve or reject calls are ignored."
+      },
+      "conceptTags": [
+        "promises"
+      ],
+      "id": "sf_673ff35f4b5db6036622c51d"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Given steps tagged sync, microtask or macrotask in source order, return the labels in the order they would actually be logged.",
+      "exercise": "log-order",
+      "conceptTags": [
+        "event-loop",
+        "promises",
+        "arrays"
+      ],
+      "id": "sf_0be203a574198bd360b0c5db"
+    }
+  ],
+  "id": "sf_1198bde4382cb7da79e17277"
+}

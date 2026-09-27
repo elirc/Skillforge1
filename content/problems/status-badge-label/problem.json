@@ -12,7 +12,7 @@
   "order": 94,
   "exercise": "status-badge-label",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Status Badge Label, read the story as a simple input-to-output rule: A React badge shows friendly text for a loading status. Write a helper that maps \"idle\" to \"Ready\", \"loading\" to \"Loading...\", \"success\" to \"Done\", and \"error\" to \"Needs attention\". Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, rendering and conditionals. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: statusBadgeLabel(\"idle\") produces \"Ready\". Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nCompare “labels loading”: input [\"loading\"] produces \"Loading...\". Explain which rule causes the difference before writing code.",
+    "junior": "Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nTempting mistake: Capitalization, whitespace, and boolean-versus-string output are part of the contract; truthiness alone may combine distinct states.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “labels loading”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

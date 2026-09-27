@@ -1,0 +1,50 @@
+{
+  "id": "sf_bdfc5ea67de97dc1cad939f0",
+  "title": "Resolve a conflict without losing either intent",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Practice a conflict in a disposable branch and verify the combined behavior.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read A temporary copy of README.md before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "git diff --check\ngit status\n# Resolve a deliberately conflicting documentation edit in an isolated copy."
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** No conflict markers remain, both intended facts survive, and the merged instruction still matches a tested command.\n\n**Make a meaningful variation.** Create two branches that edit the same setup sentence differently. Combine the useful information and explain the resolution in the commit. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: The resolution is reasoned from behavior rather than blindly selecting ours or theirs."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** What makes a conflict resolution correct? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_d4ad84798ae11883bee67545",
+      "type": "MCQ",
+      "prompt": "What makes a conflict resolution correct?",
+      "conceptTags": [
+        "git",
+        "conflicts",
+        "collaboration"
+      ],
+      "payload": {
+        "choices": [
+          "It preserves the intended behavior and passes relevant checks",
+          "It always selects the newest timestamp",
+          "It deletes every conflicting paragraph"
+        ],
+        "answer": "It preserves the intended behavior and passes relevant checks",
+        "explanation": "The resolution is reasoned from behavior rather than blindly selecting ours or theirs."
+      }
+    }
+  ]
+}

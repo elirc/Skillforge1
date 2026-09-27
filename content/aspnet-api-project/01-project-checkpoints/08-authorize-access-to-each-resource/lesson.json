@@ -1,0 +1,50 @@
+{
+  "id": "sf_fe7f90dafc6c03f614e043ee",
+  "title": "Authorize access to each resource",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Give each local account an isolated inventory and protect unsafe requests with CSRF verification.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read InventoryDesk.Api/Program.cs; InventoryDesk.Tests/DeskTests.cs before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet test InventoryDesk.Tests --filter Milestone=05"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** Anonymous access gets 401, a different account cannot read or mutate another owner's product, and an authenticated mutation without the CSRF token is rejected.\n\n**Make a meaningful variation.** Add a test that Bob cannot see Alice's audit events. Inspect the database to confirm passwords are hashes rather than plaintext. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: Identity comes from the authenticated cookie, every resource query applies owner scope, and tokens are refreshed after sign-in."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** What does a successful login prove about access to a particular product? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_3c539fbfb96d18879ed75338",
+      "type": "MCQ",
+      "prompt": "What does a successful login prove about access to a particular product?",
+      "conceptTags": [
+        "authentication",
+        "authorization",
+        "security"
+      ],
+      "payload": {
+        "choices": [
+          "Identity only; ownership must still be checked",
+          "Permission to edit every product",
+          "That a hidden button cannot be bypassed"
+        ],
+        "answer": "Identity only; ownership must still be checked",
+        "explanation": "Identity comes from the authenticated cookie, every resource query applies owner scope, and tokens are refreshed after sign-in."
+      }
+    }
+  ]
+}

@@ -22,6 +22,7 @@ model User {
   goal        String    @default("crud-dev") // crud-dev | interview | fundamentals
   experience  String    @default("beginner") // beginner | junior | mid
   focusTags   String    @default("[]") // JSON string[] of concept tags that bias the feed
+  dailyMinutes Int      @default(15)
   onboardedAt DateTime?
 
   reviewStates       ReviewState[]
@@ -47,6 +48,9 @@ model Course {
   difficulty  String // BEGINNER | INTERMEDIATE | ADVANCED
   order       Int
   outcomes    String   @default("[]") // JSON string[]
+  prerequisites String @default("[]")
+  version     String   @default("1")
+  archived    Boolean  @default(false)
   modules     Module[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -56,6 +60,8 @@ model Course {
 
 model Module {
   id        String   @id @default(cuid())
+  contentKey String? @unique
+  archived Boolean @default(false)
   courseId  String
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   title     String
@@ -69,6 +75,10 @@ model Module {
 
 model Lesson {
   id             String             @id @default(cuid())
+  contentKey     String?            @unique
+  archived       Boolean           @default(false)
+  estimatedMinutes Int             @default(10)
+  prerequisites String             @default("[]")
   moduleId       String
   module         Module             @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   title          String
@@ -84,11 +94,12 @@ model Lesson {
 
 model KnowledgeItem {
   id       String @id @default(cuid())
+  contentKey String? @unique
+  archived Boolean @default(false)
   lessonId String
   lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  /// Position within the lesson. Together with `lessonId` this is the stable
-  /// identity the seed upserts against, so re-seeding unchanged content keeps
-  /// the row id -- and therefore the learner's ReviewState -- intact.
+  /// Display position only. Immutable contentKey identifies the authored item
+  /// across reordering, preserving its row ID and learner review history.
   order        Int
   type         String // MCQ | CODE | CLOZE
   prompt       String
@@ -196,6 +207,7 @@ model LessonCompletion {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   lessonId  String
   lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  assisted  Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -246,6 +258,7 @@ model Problem {
   tests             Json
   referenceSolution String
   order             Int                 @default(0)
+  archived          Boolean             @default(false)
   submissions       ProblemSubmission[]
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
@@ -261,10 +274,17 @@ model ProblemSubmission {
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   code       String
   passed     Boolean
+  assisted   Boolean @default(false)
   durationMs Int      @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@index([userId, problemId])
   @@index([problemId, passed])
+}
+
+model AppMetadata {
+  key String @id
+  value String
+  updatedAt DateTime @updatedAt
 }

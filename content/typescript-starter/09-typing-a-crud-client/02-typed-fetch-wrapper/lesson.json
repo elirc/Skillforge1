@@ -1,0 +1,93 @@
+{
+  "title": "A Typed Fetch Wrapper",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "fetch resolves for every HTTP status, including 404 and 500, and response.json() is typed any. A thin wrapper fixes both: it returns a discriminated union describing every outcome, so callers must handle not-found, validation errors, and server failures instead of only the happy path."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "type ApiResult<T> =\n  | { kind: \"ok\"; data: T }\n  | { kind: \"not-found\" }\n  | { kind: \"invalid\"; fieldErrors: Record<string, string> }\n  | { kind: \"error\"; message: string; retryable: boolean };\n\nasync function getTodo(id: number): Promise<ApiResult<Todo>> {\n  const res = await fetch(`/api/todos/${id}`);\n  const body: unknown = await res.json().catch(() => null);\n  return interpretResponse({ status: res.status, body }); // pure, easy to test\n}\n\nconst result = await getTodo(7);\nswitch (result.kind) {\n  case \"ok\": render(result.data); break;\n  case \"not-found\": showEmptyState(); break;\n  case \"invalid\": showErrors(result.fieldErrors); break;\n  case \"error\": if (result.retryable) scheduleRetry(); break;\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Split the wrapper into an impure shell (the fetch call) and a pure core (status plus body in, ApiResult out). The pure core holds every decision and can be unit-tested with plain objects, no mocking of fetch required."
+    },
+    {
+      "type": "prose",
+      "body": "Decide which failures are retryable up front. 429 Too Many Requests and 5xx server errors may succeed later; 4xx client errors such as 404 or 422 will fail the same way every time, so retrying them only adds load."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does await fetch(url) do when the server responds 404?",
+      "payload": {
+        "choices": [
+          "Rejects with an error",
+          "Returns null",
+          "Resolves normally with res.ok === false",
+          "Retries automatically"
+        ],
+        "answer": "Resolves normally with res.ok === false",
+        "explanation": "fetch only rejects on network failures. HTTP error statuses resolve, so you must check res.status or res.ok yourself."
+      },
+      "conceptTags": [
+        "typescript",
+        "fetch",
+        "http"
+      ],
+      "id": "sf_6d38ca4c830f1d3986fcdb24"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which status is it reasonable to retry automatically?",
+      "payload": {
+        "choices": [
+          "404 Not Found",
+          "503 Service Unavailable",
+          "422 Unprocessable Entity",
+          "401 Unauthorized"
+        ],
+        "answer": "503 Service Unavailable",
+        "explanation": "503 is a temporary server condition. The 4xx statuses describe a problem with the request that a retry will not fix."
+      },
+      "conceptTags": [
+        "http",
+        "retries"
+      ],
+      "id": "sf_8cfdb63e377cc4234f5223cc"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the idea.",
+      "payload": {
+        "text": "Keeping the status-to-result mapping in a ____ function lets you test it without mocking fetch.",
+        "blanks": [
+          "pure"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "testing",
+        "pure-functions"
+      ],
+      "id": "sf_fbbdd89f94ab0f7bf448386f"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write the pure core of a typed fetch wrapper: map { status, body } to an ApiResult<Todo> covering ok, not-found, unauthorized, invalid (field errors), and error (with retryable).",
+      "exercise": "interpret-response",
+      "conceptTags": [
+        "typescript",
+        "discriminated-unions",
+        "http",
+        "validation"
+      ],
+      "id": "sf_d7bb6bfd96d8d48ad1d5b1e9"
+    }
+  ],
+  "id": "sf_4377bf195bb9bae68609f5bd"
+}

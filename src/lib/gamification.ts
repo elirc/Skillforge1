@@ -211,7 +211,7 @@ export function questsForDay(goal: Goal, experience: Experience, dailyXpGoal: nu
   ];
 
   if (goal === "crud-dev") {
-    quests.push({ key: "build-something", title: "Finish 2 lessons on the CRUD track", target: 2, xpReward: 25, tracks: "lesson" });
+    quests.push({ key: "build-something", title: "Finish 2 lessons", target: 2, xpReward: 25, tracks: "lesson" });
     quests.push({ key: "hands-on", title: "Pass 1 coding exercise", target: 1, xpReward: 20, tracks: "exercise" });
   } else if (goal === "interview") {
     quests.push({ key: "drill", title: "Pass 3 coding exercises", target: 3, xpReward: 30, tracks: "exercise" });
@@ -235,6 +235,8 @@ export interface AchievementStats {
   reviewReps: number;
   completedLessons: number;
   solvedProblems: number;
+  /** Distinct HARD problems with at least one passing submission. */
+  hardProblemsSolved: number;
   questsCompleted: number;
 }
 
@@ -329,6 +331,96 @@ export const achievementDefinitions: AchievementDefinition[] = [
     tier: "gold",
     xpReward: 50,
     ...counter(10, (s) => s.level),
+  },
+  {
+    key: "hard-mode",
+    name: "Hard Mode",
+    description: "Solve a HARD practice problem.",
+    icon: "🧗",
+    tier: "silver",
+    xpReward: 40,
+    ...counter(1, (s) => s.hardProblemsSolved),
+  },
+  {
+    key: "quarter-shelf",
+    name: "Quarter Shelf",
+    description: "Complete twenty-five lessons.",
+    icon: "📚",
+    tier: "silver",
+    xpReward: 40,
+    ...counter(25, (s) => s.completedLessons),
+  },
+  {
+    key: "problem-grinder",
+    name: "Problem Grinder",
+    description: "Solve twenty-five different practice problems.",
+    icon: "⚙️",
+    tier: "silver",
+    xpReward: 40,
+    ...counter(25, (s) => s.solvedProblems),
+  },
+  {
+    key: "memory-palace",
+    name: "Memory Palace",
+    description: "Review fifty different cards at least once.",
+    icon: "🏛️",
+    tier: "silver",
+    xpReward: 40,
+    ...counter(50, (s) => s.reviewReps),
+  },
+  {
+    key: "month-of-fire",
+    name: "Month of Fire",
+    description: "Hold a thirty-day streak.",
+    icon: "☄️",
+    tier: "gold",
+    xpReward: 100,
+    ...counter(30, (s) => s.streakCurrent),
+  },
+  {
+    key: "century-shelf",
+    name: "Century Shelf",
+    description: "Complete one hundred lessons.",
+    icon: "🗄️",
+    tier: "gold",
+    xpReward: 100,
+    ...counter(100, (s) => s.completedLessons),
+  },
+  {
+    key: "problem-centurion",
+    name: "Problem Centurion",
+    description: "Solve one hundred different practice problems.",
+    icon: "💯",
+    tier: "gold",
+    xpReward: 100,
+    ...counter(100, (s) => s.solvedProblems),
+  },
+  {
+    key: "total-recall",
+    name: "Total Recall",
+    description: "Review two hundred fifty different cards at least once.",
+    icon: "🧬",
+    tier: "gold",
+    xpReward: 100,
+    ...counter(250, (s) => s.reviewReps),
+  },
+  {
+    key: "hard-hitter",
+    name: "Hard Hitter",
+    description: "Solve five HARD practice problems.",
+    icon: "🪨",
+    tier: "gold",
+    xpReward: 80,
+    ...counter(5, (s) => s.hardProblemsSolved),
+  },
+  {
+    key: "level-twenty",
+    name: "Twenty Deep",
+    description: "Reach level 20.",
+    icon: "👑",
+    tier: "gold",
+    xpReward: 120,
+    ...counter(20, (s) => s.level),
   },
 ];
 

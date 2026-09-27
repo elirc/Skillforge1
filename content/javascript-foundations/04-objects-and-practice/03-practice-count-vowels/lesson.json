@@ -9,6 +9,24 @@
       "type": "callout",
       "tone": "info",
       "body": "Hint: \"aeiou\".includes(character) is true when the character is a vowel."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Each character contributes either zero or one. p contributes zero, a one, p zero, e one, r zero. The accumulator represents all matches seen so far, not just the latest character."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "let count = 0;\nfor (const letter of 'paper') {\n  if ('aeiou'.includes(letter)) count += 1;\n}\n// count is 2"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Repeated vowels count repeatedly. A Set of found vowels would count distinct vowel types instead."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** How would uppercase input change the result? Decide where normalization belongs.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,7 +34,19 @@
       "type": "CODE",
       "prompt": "Return the number of vowels in a lowercase word.",
       "exercise": "count-vowels",
-      "conceptTags": ["strings", "arrays", "practice"]
+      "conceptTags": [
+        "strings",
+        "arrays",
+        "practice"
+      ],
+      "id": "sf_d4954c0f3ebb33a8131d77e1",
+      "hints": [
+        "Repeated vowels count repeatedly. A Set of found vowels would count distinct vowel types instead.",
+        "Each character contributes either zero or one. p contributes zero, a one, p zero, e one, r zero. The accumulator represents all matches seen so far, not just the latest character."
+      ],
+      "walkthrough": "Each character contributes either zero or one. p contributes zero, a one, p zero, e one, r zero. The accumulator represents all matches seen so far, not just the latest character."
     }
-  ]
+  ],
+  "id": "sf_972576aa6c911a118cf74fb6",
+  "estimatedMinutes": 12
 }

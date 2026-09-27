@@ -1,0 +1,14 @@
+{
+  "slug": "ts-craft-deep-merge-arrays",
+  "title": "Deep Merge Config with an Array Policy",
+  "prompt": "Layered configuration (defaults, then environment, then user overrides) needs a deep merge. Write `deepMerge(base, override, arrays)` for JSON values. When both values are plain objects, merge them key by key: keys from `base` keep their order and are merged recursively with the override's value, keys only in `override` are appended in their order, and an override value of `null` deletes the key (JSON Merge Patch style). When both values are arrays, apply the policy: `\"replace\"` uses the override array, `\"concat\"` is base items then override items, `\"union\"` is base then override items with duplicates removed (compare items by their JSON text, keep the first occurrence). In every other case (primitives, or an object meeting an array) the override value wins. Do not mutate either input.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["typescript", "recursion", "objects", "arrays", "configuration"],
+  "order": 60003,
+  "exercise": "deep-merge-arrays",
+  "explanation": {
+    "beginner": "Handle the three shapes separately. If both sides are arrays, the policy decides: take the new array, glue the two together, or glue them and skip any item you have already seen (turn each item into text with JSON.stringify and remember the text in a Set). If both sides are plain objects, build a new object: go through the base keys in order; if the override does not mention the key, copy the base value; if the override says null, leave the key out; otherwise call deepMerge again on the two values. Then add the keys that only the override has. For anything else, just return the override. Remember that `typeof null` and `typeof []` are both \"object\", so write a small isObject helper that rules them out.",
+    "junior": "Type the input as a recursive `Json` union and use an `isObject` guard so each branch narrows. The subtle points are the ones libraries disagree on, which is why the policy is explicit: lodash `merge` merges arrays index by index, many config loaders replace them, and some concat. The null-deletes rule follows RFC 7386 (JSON Merge Patch); the consequence is that you cannot set a key to null through a merge, which is the documented trade-off of that RFC. Copy values you return (a JSON round trip is enough for JSON data) so callers mutating the result cannot corrupt the base defaults, a real bug when defaults are a module-level constant. Union dedupe via JSON.stringify is O(n) with a Set but is key-order sensitive for objects; say so in review. Overall O(total size of both inputs)."
+  }
+}

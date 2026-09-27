@@ -1,0 +1,71 @@
+{
+  "id": "sf_37b8e84bf24d667086a22d1f",
+  "title": "Filter aggregate groups with HAVING",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "WHERE filters individual orders before grouping. HAVING filters the completed customer groups after SUM is available. This separation prevents cancelled orders from increasing paid revenue and lets the final threshold apply to the total rather than to each individual order. The boundary case includes a customer reaching exactly one thousand cents."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE customers(id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nCREATE TABLE orders(id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(id), status TEXT NOT NULL, placed_at TEXT NOT NULL, total_cents INTEGER NOT NULL);\nINSERT INTO customers VALUES(1,'Ada'),(2,'Bo'),(3,'Cy');\nINSERT INTO orders VALUES(10,1,'paid','2026-01-01',1200),(11,1,'cancelled','2026-01-02',500),(12,2,'paid','2026-01-03',800),(13,1,'paid','2026-01-04',400);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Inspect the fixture first, then write your query.\nSELECT * FROM customers ORDER BY id;"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"setup\":\"CREATE TABLE customers(id INTEGER PRIMARY KEY, name TEXT NOT NULL);\\nCREATE TABLE orders(id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(id), status TEXT NOT NULL, placed_at TEXT NOT NULL, total_cents INTEGER NOT NULL);\\nINSERT INTO customers VALUES(1,'Ada'),(2,'Bo'),(3,'Cy');\\nINSERT INTO orders VALUES(10,1,'paid','2026-01-01',1200),(11,1,'cancelled','2026-01-02',500),(12,2,'paid','2026-01-03',800),(13,1,'paid','2026-01-04',400);\"}]. The required result is [{\"customer_id\":1,\"revenue_cents\":1600}]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return customer_id and paid revenue_cents for customers totaling at least 1000 cents."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Filtering each order to total_cents >= 1000 discards smaller orders that together meet the threshold."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which boundary case would fail if the main comparison, join, or ordering were changed? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed business data case checks a different boundary.\n\n**Transfer it.** Apply the same contract to the Inventory Desk repository. Keep SQL parameters separate from values and compare results against a hand-calculated fixture."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_f88e4d5799d7c3a37acb0032",
+      "type": "MCQ",
+      "prompt": "Which clause filters the SUM result?",
+      "conceptTags": [
+        "sql",
+        "having",
+        "aggregation"
+      ],
+      "payload": {
+        "choices": [
+          "HAVING",
+          "WHERE before the sum exists",
+          "LIMIT"
+        ],
+        "answer": "HAVING",
+        "explanation": "HAVING evaluates conditions on aggregate groups."
+      }
+    },
+    {
+      "id": "sf_f6ffc28e2cfa307199a5acc3",
+      "type": "CODE",
+      "prompt": "Return customer_id and paid revenue_cents for customers totaling at least 1000 cents.",
+      "conceptTags": [
+        "sql",
+        "having",
+        "aggregation"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "HAVING evaluates conditions on aggregate groups.",
+        "Filtering each order to total_cents >= 1000 discards smaller orders that together meet the threshold."
+      ],
+      "walkthrough": "HAVING evaluates conditions on aggregate groups.\nFiltering each order to total_cents >= 1000 discards smaller orders that together meet the threshold."
+    }
+  ]
+}

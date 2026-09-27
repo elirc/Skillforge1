@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "function isPassing(score) {\n  return score >= 70;\n}\n\nfunction passingLabels(scores) {\n  return scores.filter(isPassing).map((score) => `Score ${score}`);\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The output of clean becomes the input of lower. Small helpers expose each step's contract and can be tested separately; the composed function still needs a test for the whole transformation."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const clean = text => text.trim();\nconst lower = text => text.toLowerCase();\nconst key = text => lower(clean(text));\nkey('  Blue '); // 'blue'"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Composition order matters when one step removes or changes information another step needs."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Find two string operations whose order changes the result.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,39 @@
       "type": "MCQ",
       "prompt": "Why are small pure helpers useful?",
       "payload": {
-        "choices": ["They are easier to test and combine", "They make code run only once", "They remove the need for variables", "They automatically catch errors"],
+        "choices": [
+          "They make code run only once",
+          "They remove the need for variables",
+          "They are easier to test and combine",
+          "They automatically catch errors"
+        ],
         "answer": "They are easier to test and combine",
         "explanation": "Focused helpers make behavior easier to verify and reuse."
       },
-      "conceptTags": ["functions", "composition", "testing"]
+      "conceptTags": [
+        "functions",
+        "composition",
+        "testing"
+      ],
+      "id": "sf_38512edaefa5406ba4a0d860"
     },
     {
       "type": "CODE",
       "prompt": "Return clean, non-empty tags: trim each tag, lowercase it, and remove empty results.",
       "exercise": "clean-tags",
-      "conceptTags": ["arrays", "strings", "composition"]
+      "conceptTags": [
+        "arrays",
+        "strings",
+        "composition"
+      ],
+      "id": "sf_b24fa103878c1246699e448d",
+      "hints": [
+        "Composition order matters when one step removes or changes information another step needs.",
+        "The output of clean becomes the input of lower. Small helpers expose each step's contract and can be tested separately; the composed function still needs a test for the whole transformation."
+      ],
+      "walkthrough": "The output of clean becomes the input of lower. Small helpers expose each step's contract and can be tested separately; the composed function still needs a test for the whole transformation."
     }
-  ]
+  ],
+  "id": "sf_fb7e8152324aab53d78c8031",
+  "estimatedMinutes": 12
 }

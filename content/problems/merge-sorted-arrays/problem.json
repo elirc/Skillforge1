@@ -11,7 +11,7 @@
   "order": 52,
   "exercise": "merge-sorted-arrays",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Merge Sorted Arrays, read the story as a simple input-to-output rule: A reporting tool receives two sorted number lists and needs one sorted list. Write a function that merges both sorted arrays into a new sorted array. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and two-pointers. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: mergeSortedArrays([1,3,5], [2,4]) produces [1,2,3,4,5]. State the comparison rule and tie behavior explicitly, and copy input before any in-place sort when the contract preserves it.\n\nCompare “handles empty left arrays”: input [[],[1,2]] produces [1,2]. Explain which rule causes the difference before writing code.",
+    "junior": "State the comparison rule and tie behavior explicitly, and copy input before any in-place sort when the contract preserves it.\n\nTempting mistake: A boolean comparator is not a valid three-way numeric comparator. Equal keys also need a predictable tie policy.\n\nThe reference uses slice. Trace the intermediate value after each operation; count repeated scans inside callbacks separately when estimating cost.\n\nRegression check: preserve the contract illustrated by “handles empty left arrays”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

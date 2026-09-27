@@ -1,0 +1,29 @@
+{
+  "slug": "sql-foundations",
+  "title": "SQL Foundations",
+  "description": "Read and write the SQL behind every CRUD app: filtering, NULLs, aggregates, joins, writes, schema design, indexes, transactions, injection safety, what EF Core sends to the database, CTEs, pivots, dates and time zones, safe migrations, execution plans, and deadlocks. Runnable exercises model each clause over arrays of rows so you internalize exactly what the query does.",
+  "language": "sql",
+  "topicTags": ["sql", "select", "where", "nulls", "aggregates", "group-by", "joins", "window-functions", "upsert", "constraints", "normalization", "indexes", "transactions", "isolation", "sql-injection", "ef-core", "cte", "recursive-cte", "exists", "case", "pivot", "dates", "time-zones", "like", "collation", "views", "stored-procedures", "migrations", "execution-plans", "deadlocks"],
+  "difficulty": "BEGINNER",
+  "order": 3,
+  "outcomes": [
+    "Write SELECT queries with WHERE, ORDER BY, and stable OFFSET/FETCH paging",
+    "Predict how NULL and three-valued logic change filters, NOT IN, and aggregates",
+    "Summarize data with COUNT, SUM, AVG, GROUP BY, and HAVING",
+    "Choose INNER, LEFT, and self joins and spot row fan-out before it inflates totals",
+    "Use window functions for running totals and rankings without collapsing rows",
+    "Write safe UPDATE, DELETE, and atomic upsert statements",
+    "Design tables with keys, constraints, and junction tables for 1:N and M:N data",
+    "Explain which predicates a composite B-tree index can seek on",
+    "Reason about transactions, isolation levels, and lost updates",
+    "Parameterize every query and recognize the N+1 problem in EF Core",
+    "Write CTEs and recursive CTEs to walk org charts and category trees",
+    "Choose between joins, IN, and EXISTS, and write NULL-safe anti-joins",
+    "Pivot data with CASE expressions and conditional aggregation",
+    "Store instants in UTC, filter with half-open ranges, and bucket by day in the right time zone",
+    "Use string functions, LIKE patterns, and collations without losing index seeks",
+    "Explain when views and stored procedures help, and ship schema changes with expand/contract migrations and batched backfills",
+    "Read an execution plan to find scans, misestimates, and key lookups, and fix them with the right index",
+    "Recognize deadlocks, prevent them with consistent lock ordering, and retry the victim"
+  ]
+}

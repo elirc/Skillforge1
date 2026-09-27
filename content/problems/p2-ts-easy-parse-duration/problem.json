@@ -1,0 +1,14 @@
+{
+  "slug": "p2-ts-easy-parse-duration",
+  "title": "Parse a Human Duration",
+  "prompt": "A reminder form accepts durations like `1h30m`, `45s`, `2d` or `1h 15m 10s`. Write `parseDuration(text)` returning the total number of seconds, or `null` if the text is invalid. Units are `d`, `h`, `m`, `s` (case-insensitive), each with a non-negative integer before it, each used at most once and in that order (largest first). Spaces are allowed around and between parts. At least one part is required; anything else (unknown unit, a bare number, repeated or out-of-order units, leftover text) is invalid.",
+  "language": "typescript",
+  "difficulty": "EASY",
+  "conceptTags": ["typescript", "regex", "parsing", "validation"],
+  "order": 70012,
+  "exercise": "parse-duration",
+  "explanation": {
+    "beginner": "Write one regular expression that describes the whole allowed shape: an optional `number d`, then an optional `number h`, then optional `number m`, then optional `number s`, with optional spaces between them, anchored with `^` and `$` so nothing else may appear. Each number is a capture group. If the text does not match, or none of the groups captured anything, it is invalid. Otherwise add up days x 86400, hours x 3600, minutes x 60 and seconds.",
+    "junior": "Anchoring (`^...$`) is what rejects leftovers such as `10` or `5m later`; the fixed order of optional groups is what rejects `1m1h` and `1h1h` without extra bookkeeping. Use the `i` flag for `1H`, and check that at least one group matched, because an all-optional regex also matches the empty string. Return `number | null` rather than throwing - a form validator wants a value it can test. Complexity is O(n). Beware floating numbers and huge values: `Number('9'.repeat(400))` is Infinity, so a production parser should cap each part. If you need ISO 8601 (`PT1H30M`), that is a different grammar."
+  }
+}

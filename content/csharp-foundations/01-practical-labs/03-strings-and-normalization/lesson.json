@@ -1,0 +1,66 @@
+{
+  "id": "sf_881db76ad5bfa4dfb3821d01",
+  "title": "Strings and normalization",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Strings are immutable: Trim and ToUpperInvariant return new values. Canonical identifiers should follow a documented rule instead of the user's current locale. Here we strip only outer whitespace and use invariant uppercase. Internal spaces remain because removing them would merge identifiers that the contract treats as different."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static string NormalizeSku(string raw)\n    {\n        return raw;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [\" ab-12 \"]. The required result is \"AB-12\". Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Trim outer whitespace and uppercase a SKU using invariant culture."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Display-name normalization and identifier normalization often need different rules."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why must internal whitespace be covered by a test? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the internal separator case checks a different boundary.\n\n**Transfer it.** Normalize a SKU at the API boundary before enforcing a unique database index."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_11ee5b43c5caa2a185b0205d",
+      "type": "MCQ",
+      "prompt": "What happens to raw when Trim is called?",
+      "conceptTags": [
+        "strings",
+        "normalization",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "It stays unchanged; Trim returns a string",
+          "The original string is edited in place",
+          "All internal spaces are removed"
+        ],
+        "answer": "It stays unchanged; Trim returns a string",
+        "explanation": "String transformations return values, so the method must return or assign the transformed value."
+      }
+    },
+    {
+      "id": "sf_4f04d96c0ec6c1539f196079",
+      "type": "CODE",
+      "prompt": "Trim outer whitespace and uppercase a SKU using invariant culture.",
+      "conceptTags": [
+        "strings",
+        "normalization",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "String transformations return values, so the method must return or assign the transformed value.",
+        "Display-name normalization and identifier normalization often need different rules."
+      ],
+      "walkthrough": "String transformations return values, so the method must return or assign the transformed value.\nDisplay-name normalization and identifier normalization often need different rules."
+    }
+  ]
+}

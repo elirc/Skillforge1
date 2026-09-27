@@ -1,0 +1,96 @@
+{
+  "title": "CTEs and Recursive CTEs",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A common table expression (CTE) is a named subquery you declare with `WITH` before the main query. It exists only for that one statement. CTEs do not make queries faster by themselves; they make them **readable**: you build the answer in named steps instead of nesting subqueries three levels deep."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "WITH paid AS (\n  SELECT customer_id, SUM(amount) AS total\n  FROM orders\n  WHERE status = 'paid'\n  GROUP BY customer_id\n)\nSELECT c.name, p.total\nFROM customers c\nJOIN paid p ON p.customer_id = c.id\nWHERE p.total > 500\nORDER BY p.total DESC;"
+    },
+    {
+      "type": "prose",
+      "body": "A **recursive** CTE refers to itself. It has two parts joined by `UNION ALL`:\n- the **anchor** member runs once and produces the starting rows\n- the **recursive** member joins the table to the rows produced by the previous step\nThe engine repeats the recursive member until it returns no new rows. This is how SQL walks hierarchies stored as `parent_id` columns: org charts, category trees, threaded comments."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Everyone under employee 2, with their depth below them\nWITH RECURSIVE chart AS (            -- SQL Server and Oracle omit the RECURSIVE keyword\n  SELECT id, name, manager_id, 0 AS depth\n  FROM employees\n  WHERE id = 2                       -- anchor\n  UNION ALL\n  SELECT e.id, e.name, e.manager_id, c.depth + 1\n  FROM employees e\n  JOIN chart c ON e.manager_id = c.id -- recursive step\n)\nSELECT id, name, depth FROM chart ORDER BY depth, id;\n\n-- Category breadcrumbs: walk UP the tree instead of down\nWITH RECURSIVE path AS (\n  SELECT id, parent_id, name, 0 AS lvl FROM categories WHERE id = @leafId\n  UNION ALL\n  SELECT p.id, p.parent_id, p.name, path.lvl + 1\n  FROM categories p JOIN path ON p.id = path.parent_id\n)\nSELECT name FROM path ORDER BY lvl DESC;   -- Home > Kitchen > Mugs"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Bad data with a cycle (A manages B, B manages A) makes a recursive CTE loop. SQL Server stops after 100 levels with an error (`OPTION (MAXRECURSION n)` changes the limit); PostgreSQL loops until you stop it unless you track visited ids or use `CYCLE`. Protect hierarchies with constraints and keep a depth guard such as `WHERE c.depth < 50`."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "In a recursive CTE, what does the anchor member do?",
+      "payload": {
+        "choices": [
+          "Runs once per level of the tree",
+          "Produces the starting rows and runs once",
+          "Stops the recursion when it returns zero rows",
+          "Sorts the final result"
+        ],
+        "answer": "Produces the starting rows and runs once",
+        "explanation": "The anchor seeds the result. The recursive member is the part that runs repeatedly, joining back to the previous step's rows until it produces nothing new."
+      },
+      "conceptTags": [
+        "sql",
+        "cte",
+        "recursive-cte"
+      ],
+      "id": "sf_b4a01a1221b857e0a0a3f640"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the recursive CTE.",
+      "payload": {
+        "text": "The anchor and recursive members of a recursive CTE are combined with UNION ____.",
+        "blanks": [
+          "ALL"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "recursive-cte"
+      ],
+      "id": "sf_59705d26503e6593c439413f"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why would you rewrite a triple-nested subquery as a chain of CTEs?",
+      "payload": {
+        "choices": [
+          "CTEs are always cached, so they run faster",
+          "Subqueries cannot contain GROUP BY",
+          "Readability: each step gets a name you can reason about and test",
+          "CTEs lock fewer rows"
+        ],
+        "answer": "Readability: each step gets a name you can reason about and test",
+        "explanation": "Most engines inline a CTE like a subquery, so the plan is often identical. The win is clarity. (PostgreSQL before v12 materialized CTEs, which could even be slower.)"
+      },
+      "conceptTags": [
+        "sql",
+        "cte"
+      ],
+      "id": "sf_670790d7e8159f480e2e9d7c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model the recursive org-chart query. Return `{ id, name, depth }` for the root (depth 0) and everyone below it, ordered by depth then id. An unknown root returns []. Never visit an id twice, so a cycle in bad data cannot loop forever.",
+      "exercise": "org-chart",
+      "conceptTags": [
+        "sql",
+        "recursive-cte",
+        "hierarchies"
+      ],
+      "id": "sf_0d1d00c523193eda2680e23e"
+    }
+  ],
+  "id": "sf_c77dcda35ea054059f3d77dc"
+}

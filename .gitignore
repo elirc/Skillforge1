@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+.eslintcache
 
 # next.js
 /.next/
@@ -44,6 +45,10 @@ next-env.d.ts
 # local learner progress (SQLite)
 /data/*.db
 /data/*.db-journal
+/data/backups/
+/public/runtimes/
+/public/downloads/
+projects/inventory-desk/backups/
 
 # playwright
 /test-results/
@@ -53,3 +58,9 @@ next-env.d.ts
 # dotnet runner build output
 tools/csharp-runner/bin/
 tools/csharp-runner/obj/
+projects/**/bin/
+projects/**/obj/
+projects/**/data/
+projects/**/node_modules/
+projects/inventory-desk/InventoryDesk.Api/wwwroot/app.js
+projects/inventory-desk/test-results/

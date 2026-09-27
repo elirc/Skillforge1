@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { regressionSchema } from "@/lib/sandbox/shared";
 
 export const contentBlockSchema = z.discriminatedUnion("type", [
   z.object({
@@ -49,24 +50,31 @@ const codePayloadSchema = z.object({
    * Which runtime grades the exercise. Defaults to javascript so every lesson
    * authored before C# support keeps parsing, including rows already seeded.
    */
-  language: z.enum(["javascript", "csharp"]).default("javascript"),
+  language: z.enum(["javascript", "typescript", "csharp", "sql", "react"]).default("javascript"),
+  hints: z.array(z.string()).optional(),
+  walkthrough: z.string().optional(),
+  regression: regressionSchema.optional(),
+  typeChecks: z.string().optional(),
 });
 
 export const knowledgeItemSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("MCQ"),
+    id: z.string().optional(),
     prompt: z.string(),
     payload: mcqPayloadSchema,
     conceptTags: z.array(z.string()),
   }),
   z.object({
     type: z.literal("CLOZE"),
+    id: z.string().optional(),
     prompt: z.string(),
     payload: clozePayloadSchema,
     conceptTags: z.array(z.string()),
   }),
   z.object({
     type: z.literal("CODE"),
+    id: z.string().optional(),
     prompt: z.string(),
     payload: codePayloadSchema,
     conceptTags: z.array(z.string()),
@@ -82,12 +90,18 @@ export const courseSeedSchema = z.object({
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
   order: z.number().int(),
   outcomes: z.array(z.string()),
+  prerequisites: z.array(z.string()).default([]),
+  version: z.string().default("1"),
   modules: z.array(
     z.object({
+      id: z.string().optional(),
       title: z.string(),
       order: z.number().int(),
       lessons: z.array(
         z.object({
+          id: z.string().optional(),
+          estimatedMinutes: z.number().int().positive().default(10),
+          prerequisites: z.array(z.string()).default([]),
           title: z.string(),
           order: z.number().int(),
           contentBlocks: z.array(contentBlockSchema),
@@ -104,7 +118,7 @@ export const problemSeedSchema = z.object({
   prompt: z.string(),
   explanation: problemExplanationSchema,
   language: z.string().default("javascript"),
-  runtime: z.enum(["javascript", "csharp"]).default("javascript"),
+  runtime: z.enum(["javascript", "typescript", "csharp", "sql", "react"]).default("javascript"),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
   conceptTags: z.array(z.string()),
   order: z.number().int().default(0),

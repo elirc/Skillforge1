@@ -1,0 +1,73 @@
+{
+  "id": "sf_ed1a230ea0ff1793eb715678",
+  "title": "Numeric sort comparator",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "JavaScript's default sort compares string representations. Single-digit fixtures happen to look numeric and let the defect survive. Mix a multi-digit value with a smaller one and check ordering explicitly. Make a copy before sorting so callers keep their original sequence."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export function sortScores(values: number[]): number[] { return [...values].sort(); }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[10,2,1]]. The required result is [1,2,10]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix sortScores and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A test containing only 1, 2, and 3 cannot distinguish numeric and lexical order."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_7ddacf6c1e523132ff246948",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "sorting",
+        "comparators"
+      ],
+      "payload": {
+        "choices": [
+          "It only repeats a happy-path example",
+          "It fails on the original implementation and passes on the corrected contract",
+          "It accepts whatever the current implementation returns"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Supply a numeric comparator that returns a - b."
+      }
+    },
+    {
+      "id": "sf_7c511bbd7364345a32534750",
+      "type": "CODE",
+      "prompt": "Fix sortScores and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "sorting",
+        "comparators"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Supply a numeric comparator that returns a - b.",
+        "A test containing only 1, 2, and 3 cannot distinguish numeric and lexical order."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "function sortScores(values) { return [...values].sort((a, b) => a - b); }\n",
+        "mutants": [
+          "function sortScores(values) { return [...values].sort(); }\n"
+        ]
+      },
+      "walkthrough": "Supply a numeric comparator that returns a - b.\nA test containing only 1, 2, and 3 cannot distinguish numeric and lexical order."
+    }
+  ]
+}

@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const best = [3, 9, 2].reduce((max, value) => (value > max ? value : max));\n// best is 9"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The accumulator is the best candidate seen so far. Each comparison either replaces it with the current word or keeps it. The strict comparison keeps the earlier candidate on equal lengths."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const longest = ['a', 'tree', 'sun'].reduce(\n  (best, word) => word.length > best.length ? word : best, ''\n); // 'tree'"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Changing > to >= changes the tie rule. Tests should state whether the first or last tied item wins."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Add a second four-letter word and predict which one survives.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,7 +34,18 @@
       "type": "CODE",
       "prompt": "Return the highest score in a non-empty array.",
       "exercise": "max-score",
-      "conceptTags": ["arrays", "reduce"]
+      "conceptTags": [
+        "arrays",
+        "reduce"
+      ],
+      "id": "sf_fd0c2095ab663ca531f9a502",
+      "hints": [
+        "Changing > to >= changes the tie rule. Tests should state whether the first or last tied item wins.",
+        "The accumulator is the best candidate seen so far. Each comparison either replaces it with the current word or keeps it. The strict comparison keeps the earlier candidate on equal lengths."
+      ],
+      "walkthrough": "The accumulator is the best candidate seen so far. Each comparison either replaces it with the current word or keeps it. The strict comparison keeps the earlier candidate on equal lengths."
     }
-  ]
+  ],
+  "id": "sf_e5cfd47a68315be65bf306e4",
+  "estimatedMinutes": 12
 }

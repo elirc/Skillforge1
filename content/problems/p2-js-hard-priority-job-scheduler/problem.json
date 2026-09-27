@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-hard-priority-job-scheduler",
+  "title": "Priority Job Scheduler for a Worker Pool",
+  "prompt": "A background-job system has `workers` identical workers (numbered from 0) and a list of jobs `{ id, arrival, duration, priority }` (integers). Simulate it and return one entry `{ id, worker, start, end }` per job, in the order jobs start (ties by worker number). Rules: a job can start once `arrival <= t`. Whenever a worker is free at time `t` (its previous job ended at or before `t`) and jobs are waiting, the lowest-numbered free worker takes the waiting job with the highest `priority`; ties go to the earlier `arrival`, then the smaller `id` (string order). Jobs are never pre-empted. Time jumps straight to the next arrival or job end when nothing can start. `workers` is at least 1.",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": ["heap", "priority-queue", "simulation", "scheduling"],
+  "order": 70009,
+  "exercise": "priority-job-scheduler",
+  "explanation": {
+    "beginner": "Keep three things: the jobs that have not arrived yet (sorted by arrival), a 'waiting room' of jobs that have arrived, and for each worker the time it becomes free. At the current time, move every job that has arrived into the waiting room. Then, for each free worker in number order, give it the most important waiting job. Nothing else can happen until either the next job arrives or a busy worker finishes, so jump the clock straight to the earliest of those. Repeat until every job has been started.",
+    "junior": "The waiting room is a priority queue: implement a binary heap with a comparator `(priority desc, arrival asc, id asc)`, giving O(log n) push/pop and O(n log n) overall instead of re-sorting an array each tick. Event-driven time (jump to `min(nextArrival, nextFreeWorker)`) avoids looping over idle time. Subtle points: a worker finishing at `t` is free for a job arriving at `t` (use `<=`); admit arrivals before assigning so a same-tick high-priority arrival wins; the next event must be strictly in the future, otherwise the loop spins. Starvation is real here - a stream of high-priority jobs can delay low-priority ones forever; production schedulers add ageing (bump priority with wait time)."
+  }
+}

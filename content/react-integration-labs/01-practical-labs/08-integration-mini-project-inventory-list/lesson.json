@@ -1,0 +1,68 @@
+{
+  "id": "sf_191ee993fd45e4e5c5063f24",
+  "title": "Integration mini-project: inventory list",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Combine controlled search, derived rows, immutable updates, and a stock boundary in one component. Each Reserve button applies a functional update to the latest products state. The UI prevents reserving an out-of-stock row, but a real API must enforce that condition atomically as well. The browser tests exercise repeated clicks and filtered views instead of calling a helper directly."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// A small controlled field:\n// const [value, setValue] = useState(\"\");\n// <input value={value} onChange={event => setValue(event.target.value)} />"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"props\":{\"initial\":[{\"sku\":\"BOOK\",\"stock\":2},{\"sku\":\"MUG\",\"stock\":0}]},\"actions\":[{\"type\":\"click\",\"selector\":\"[data-sku=BOOK] button\"}],\"assertions\":[{\"selector\":\"[data-sku=BOOK] span\",\"text\":\"BOOK: 1\"}]}]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Render a Search input and products in li[data-sku]. Each row shows SKU: stock and a Reserve button that decrements positive stock only; filtering must preserve edits."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Mutating a product object in place can leave memoized views and previous snapshots inconsistent."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which assertion proves the user-visible behavior rather than the implementation detail? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the filter retains stock edit case checks a different boundary.\n\n**Transfer it.** Replace the simulated data boundary with the Inventory Desk API while preserving these component contracts."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_346dc7df40a5f8cde4ccdf96",
+      "type": "MCQ",
+      "prompt": "Does a disabled Reserve button prevent server-side overselling by itself?",
+      "conceptTags": [
+        "react",
+        "integration",
+        "inventory",
+        "state"
+      ],
+      "payload": {
+        "choices": [
+          "Yes, no client can send another request",
+          "Yes, React state is shared by every browser",
+          "No, the API must enforce the stock rule atomically"
+        ],
+        "answer": "No, the API must enforce the stock rule atomically",
+        "explanation": "The UI improves interaction; the database boundary protects concurrent business state."
+      }
+    },
+    {
+      "id": "sf_1a72e269886b25af999043fc",
+      "type": "CODE",
+      "prompt": "Render a Search input and products in li[data-sku]. Each row shows SKU: stock and a Reserve button that decrements positive stock only; filtering must preserve edits.",
+      "conceptTags": [
+        "react",
+        "integration",
+        "inventory",
+        "state"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The UI improves interaction; the database boundary protects concurrent business state.",
+        "Mutating a product object in place can leave memoized views and previous snapshots inconsistent."
+      ],
+      "walkthrough": "The UI improves interaction; the database boundary protects concurrent business state.\nMutating a product object in place can leave memoized views and previous snapshots inconsistent."
+    }
+  ]
+}

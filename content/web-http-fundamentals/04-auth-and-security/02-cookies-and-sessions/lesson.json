@@ -1,0 +1,102 @@
+{
+  "title": "Cookies, Sessions, and Tokens",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "After login, the server must recognize the user on every later request. Two common designs:\n- **Server session + cookie**: the server stores session data (in memory, Redis, or a DB) and sends the browser a random session id in a cookie. Logging out or revoking is easy: delete the session row.\n- **Token** (often a JWT) sent in `Authorization: Bearer ...`: the token itself carries the claims, so the server needs no lookup, but revoking before expiry needs extra machinery. Common for mobile apps and service-to-service calls."
+    },
+    {
+      "type": "prose",
+      "body": "A cookie is only a transport; a JWT can live in a cookie too. For a browser app talking to its own backend, a session cookie is usually the simplest safe choice."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "HTTP/1.1 200 OK\nSet-Cookie: __Host-sid=q7Rz9f...; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=3600"
+    },
+    {
+      "type": "prose",
+      "body": "The attributes matter:\n- `HttpOnly`: JavaScript cannot read it, so an XSS bug cannot steal the session.\n- `Secure`: only sent over HTTPS.\n- `SameSite=Lax|Strict|None`: controls cross-site sending (next lessons: CSRF).\n- `Max-Age` / `Expires`: without them it is a session cookie that dies with the browser.\n- The `__Host-` prefix makes the browser require Secure, `Path=/`, and no `Domain`, so a subdomain cannot overwrite it."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)\n    .AddCookie(o =>\n    {\n        o.Cookie.Name = \"__Host-sid\";\n        o.Cookie.HttpOnly = true;\n        o.Cookie.SecurePolicy = CookieSecurePolicy.Always;\n        o.Cookie.SameSite = SameSiteMode.Lax;\n        o.ExpireTimeSpan = TimeSpan.FromHours(1);\n        o.SlidingExpiration = true;\n    });"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Do not store access tokens in localStorage if you can avoid it: any script on the page (including an XSS payload) can read localStorage. An HttpOnly cookie is out of JavaScript's reach."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which cookie attribute stops JavaScript (and XSS payloads) from reading the cookie?",
+      "payload": {
+        "choices": [
+          "HttpOnly",
+          "Secure",
+          "SameSite=Strict",
+          "Path=/"
+        ],
+        "answer": "HttpOnly",
+        "explanation": "HttpOnly hides the cookie from document.cookie. Secure limits it to HTTPS; SameSite controls cross-site sending."
+      },
+      "conceptTags": [
+        "cookies",
+        "security",
+        "xss"
+      ],
+      "id": "sf_0b9a8972a4fd6d3d124099ef"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is a real advantage of server-side sessions over self-contained JWTs?",
+      "payload": {
+        "choices": [
+          "Revoking a login is as simple as deleting the session",
+          "They never need a database or cache",
+          "They work without cookies or headers",
+          "They cannot be stolen"
+        ],
+        "answer": "Revoking a login is as simple as deleting the session",
+        "explanation": "A JWT stays valid until it expires unless you add a deny-list. A server session disappears the moment you delete it."
+      },
+      "conceptTags": [
+        "sessions",
+        "jwt",
+        "auth"
+      ],
+      "id": "sf_db8119d625bf80a3a744c78b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the attribute.",
+      "payload": {
+        "text": "A cookie marked ____ is only sent over HTTPS connections.",
+        "blanks": [
+          "Secure"
+        ]
+      },
+      "conceptTags": [
+        "cookies",
+        "security"
+      ],
+      "id": "sf_2c375e8aa31c038e74d3ab58"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Parse a Set-Cookie header into its name, value, and attributes (case-insensitive) and flag missing HttpOnly, SameSite=None without Secure, and misconfigured __Host- cookies.",
+      "exercise": "parse-set-cookie",
+      "conceptTags": [
+        "cookies",
+        "sessions",
+        "security",
+        "headers"
+      ],
+      "id": "sf_c9b48eb5dc4369bbc62f9afb"
+    }
+  ],
+  "id": "sf_b3190332da331f5417cf372b"
+}

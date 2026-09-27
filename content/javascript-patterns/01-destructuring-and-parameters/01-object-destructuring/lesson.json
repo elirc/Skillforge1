@@ -16,17 +16,32 @@
       "type": "MCQ",
       "prompt": "What does function fullName({ first, last }) do with its argument?",
       "payload": {
-        "choices": ["pulls the first and last properties into local variables", "expects two separate string arguments", "creates a new object", "ignores the argument"],
+        "choices": [
+          "expects two separate string arguments",
+          "creates a new object",
+          "pulls the first and last properties into local variables",
+          "ignores the argument"
+        ],
         "answer": "pulls the first and last properties into local variables",
         "explanation": "Destructuring in the parameter list binds the named properties of the passed object."
       },
-      "conceptTags": ["destructuring", "objects"]
+      "conceptTags": [
+        "destructuring",
+        "objects"
+      ],
+      "id": "sf_44d852528bb9bb676eec779a"
     },
     {
       "type": "CODE",
       "prompt": "Using object destructuring, return the full name as 'first last'.",
       "exercise": "full-name",
-      "conceptTags": ["destructuring", "objects", "strings"]
+      "conceptTags": [
+        "destructuring",
+        "objects",
+        "strings"
+      ],
+      "id": "sf_a511bddae99bbe1617ab3790"
     }
-  ]
+  ],
+  "id": "sf_a97637ee29fafa547bf428b4"
 }

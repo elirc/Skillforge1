@@ -14,22 +14,26 @@ const experiences = Object.keys(experienceLabels) as Experience[];
 export function ProfileSettings({
   defaults,
 }: {
-  defaults: { name: string; goal: Goal; experience: Experience; dailyXpGoal: number; focusTags: string[] };
+  defaults: { name: string; goal: Goal; experience: Experience; dailyXpGoal: number; dailyMinutes?: number; focusTags: string[] };
 }) {
   const router = useRouter();
   const [name, setName] = useState(defaults.name);
   const [goal, setGoal] = useState<Goal>(defaults.goal);
   const [experience, setExperience] = useState<Experience>(defaults.experience);
   const [dailyXpGoal, setDailyXpGoal] = useState(defaults.dailyXpGoal);
+  const [dailyMinutes, setDailyMinutes] = useState(defaults.dailyMinutes ?? 15);
+  const [focusTags, setFocusTags] = useState(defaults.focusTags.join(", "));
   const [status, setStatus] = useState<string | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function save() {
     startTransition(async () => {
-      await saveSettingsAction({ name: name.trim() || "Learner", goal, experience, dailyXpGoal });
+      try {
+      await saveSettingsAction({ name: name.trim() || "Learner", goal, experience, dailyXpGoal, dailyMinutes, focusTags: focusTags.split(",").map(tag => tag.trim()).filter(Boolean) });
       setStatus("Saved.");
       router.refresh();
+      } catch { setStatus("Could not save settings. Check the values and try again."); }
     });
   }
 
@@ -48,6 +52,8 @@ export function ProfileSettings({
         <CardTitle>Settings</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
+        <label className="block text-sm font-medium">Daily minutes<Input className="mt-1.5" type="number" min={5} max={120} step={5} value={dailyMinutes} onChange={e => setDailyMinutes(Number(e.target.value))} /></label>
+        <label className="block text-sm font-medium">Focus concepts (comma separated)<Input className="mt-1.5" value={focusTags} onChange={e => setFocusTags(e.target.value)} /></label>
         <label className="block">
           <span className="text-sm font-medium">Display name</span>
           <Input className="mt-1.5" value={name} maxLength={40} onChange={(event) => setName(event.target.value)} />

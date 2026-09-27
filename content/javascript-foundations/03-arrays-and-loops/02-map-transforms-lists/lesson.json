@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const doubled = [1, 2, 3].map((value) => value * 2);"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** map calls the callback once per element and stores each returned value at the corresponding position. Here 2 becomes 4, 5 becomes 10, and 8 becomes 16. The output has the same number of elements."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const prices = [2, 5, 8];\nconst doubled = prices.map(price => price * 2);\n// [4, 10, 16]; prices remains [2, 5, 8]"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "An arrow body with braces needs an explicit return. Without one, map fills the output with undefined values."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Change the callback to produce a label string. What stays the same about the output shape?\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -17,15 +35,32 @@
       "prompt": "Name the array method.",
       "payload": {
         "text": "____ creates a new array by transforming each item.",
-        "blanks": ["map"]
+        "blanks": [
+          "map"
+        ]
       },
-      "conceptTags": ["arrays", "map"]
+      "conceptTags": [
+        "arrays",
+        "map"
+      ],
+      "id": "sf_b426ed5f46d947a36891413a"
     },
     {
       "type": "CODE",
       "prompt": "Return an array with every XP value doubled.",
       "exercise": "double-xp",
-      "conceptTags": ["arrays", "map"]
+      "conceptTags": [
+        "arrays",
+        "map"
+      ],
+      "id": "sf_a913a120baf95920d9a1bc8b",
+      "hints": [
+        "An arrow body with braces needs an explicit return. Without one, map fills the output with undefined values.",
+        "map calls the callback once per element and stores each returned value at the corresponding position. Here 2 becomes 4, 5 becomes 10, and 8 becomes 16. The output has the same number of elements."
+      ],
+      "walkthrough": "map calls the callback once per element and stores each returned value at the corresponding position. Here 2 becomes 4, 5 becomes 10, and 8 becomes 16. The output has the same number of elements."
     }
-  ]
+  ],
+  "id": "sf_592c478641626bab79c88a7b",
+  "estimatedMinutes": 12
 }

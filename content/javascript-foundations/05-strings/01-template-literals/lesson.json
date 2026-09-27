@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const name = \"Ada\";\nconst greeting = `Hello, ${name}!`; // \"Hello, Ada!\""
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** A template literal uses backticks. Each placeholder evaluates an expression and inserts its string representation. The arithmetic runs before the final text is assembled."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const name = 'Ada';\nconst count = 3;\nconst message = `${name} has ${count + 1} books`;\n// 'Ada has 4 books'"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Single quotes keep ${name} as literal text instead of substituting the value."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Add a second line to the message and predict the exact whitespace.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,37 @@
       "type": "MCQ",
       "prompt": "Which character wraps a template literal?",
       "payload": {
-        "choices": ["a backtick `", "a single quote '", "a double quote \"", "a slash /"],
+        "choices": [
+          "a single quote '",
+          "a double quote \"",
+          "a slash /",
+          "a backtick `"
+        ],
         "answer": "a backtick `",
         "explanation": "Template literals use backticks so they can embed ${expressions}."
       },
-      "conceptTags": ["strings", "template-literals"]
+      "conceptTags": [
+        "strings",
+        "template-literals"
+      ],
+      "id": "sf_e7828c835c38a0f4d21c849e"
     },
     {
       "type": "CODE",
       "prompt": "Return a greeting like 'Hello, Ada!' for the given name.",
       "exercise": "greet",
-      "conceptTags": ["strings", "template-literals"]
+      "conceptTags": [
+        "strings",
+        "template-literals"
+      ],
+      "id": "sf_ff2fa69bd11548abba8ae316",
+      "hints": [
+        "Single quotes keep ${name} as literal text instead of substituting the value.",
+        "A template literal uses backticks. Each placeholder evaluates an expression and inserts its string representation. The arithmetic runs before the final text is assembled."
+      ],
+      "walkthrough": "A template literal uses backticks. Each placeholder evaluates an expression and inserts its string representation. The arithmetic runs before the final text is assembled."
     }
-  ]
+  ],
+  "id": "sf_5ecab228036e152d484e1381",
+  "estimatedMinutes": 12
 }

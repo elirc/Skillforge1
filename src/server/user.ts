@@ -15,6 +15,7 @@ export interface LocalProfile {
   focusTags: string[];
   onboarded: boolean;
   dailyXpGoal: number;
+  dailyMinutes: number;
 }
 
 /** Creates the learner row and its progress row on first run. */
@@ -36,6 +37,7 @@ export async function getCurrentUser(): Promise<LocalProfile> {
     focusTags: parseTags(user.focusTags),
     onboarded: user.onboardedAt !== null,
     dailyXpGoal: progress?.dailyXpGoal ?? 60,
+    dailyMinutes: user.dailyMinutes,
   };
 }
 
@@ -53,6 +55,7 @@ export interface ProfileUpdate {
   experience?: Experience;
   focusTags?: string[];
   dailyXpGoal?: number;
+  dailyMinutes?: number;
   markOnboarded?: boolean;
 }
 
@@ -65,6 +68,7 @@ export async function updateProfile(update: ProfileUpdate) {
       name: update.name,
       goal: update.goal,
       experience: update.experience,
+      dailyMinutes: update.dailyMinutes,
       focusTags: update.focusTags ? serializeTags(update.focusTags) : undefined,
       onboardedAt: update.markOnboarded ? new Date() : undefined,
     },

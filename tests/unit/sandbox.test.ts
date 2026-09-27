@@ -32,7 +32,7 @@ describe("code sandbox", () => {
   // wrapping parentheses -- without the return it silently produced `undefined`
   // (the Run button reported "Cannot read properties of undefined (reading
   // 'passed')"), and without the parentheses ASI turns it into a bare `return`.
-  it("evaluates the harness the way the browser worker does", () => {
+  it("evaluates the harness the way the browser worker does", async () => {
     const source = buildHarnessSource({
       code: "function double(value) { return value * 2; }",
       functionName: "double",
@@ -42,21 +42,21 @@ describe("code sandbox", () => {
       ],
     });
 
-    const response = new Function(`return (${source});`)() as SandboxResponse;
+    const response = await new Function(`return (${source});`)() as SandboxResponse;
 
     expect(response).toBeDefined();
     expect(response.passed).toBe(true);
     expect(response.results).toHaveLength(2);
   });
 
-  it("reports a failing test through the browser harness", () => {
+  it("reports a failing test through the browser harness", async () => {
     const source = buildHarnessSource({
       code: "function double(value) { return value * 3; }",
       functionName: "double",
       tests: [{ name: "doubles four", args: [4], expected: 8, hidden: false }],
     });
 
-    const response = new Function(`return (${source});`)() as SandboxResponse;
+    const response = await new Function(`return (${source});`)() as SandboxResponse;
 
     expect(response.passed).toBe(false);
     expect(response.results[0]).toMatchObject({ passed: false, actual: 12 });

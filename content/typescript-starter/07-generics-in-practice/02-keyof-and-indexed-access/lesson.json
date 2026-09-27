@@ -1,0 +1,89 @@
+{
+  "title": "keyof and Indexed Access Types",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "keyof T is the union of T's property names, and T[K] is the type of the property K. Together they let a generic helper accept a property name as an argument and still know the type of the value it reads. This is how typed table sorting, grouping, and pluck helpers are built."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "type Product = { name: string; price: number; tags: string[] };\n\ntype ProductKey = keyof Product;          // \"name\" | \"price\" | \"tags\"\ntype Price = Product[\"price\"];            // number\n\nfunction pluck<T, K extends keyof T>(items: T[], key: K): T[K][] {\n  return items.map((item) => item[key]);\n}\n\nconst prices = pluck(products, \"price\");   // number[]\nconst names = pluck(products, \"name\");     // string[]\n// pluck(products, \"cost\");                // error: not a key of Product"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Indexed access also works with unions of keys and with number for arrays: Product[\"name\" | \"price\"] is string | number, and Product[\"tags\"][number] is string, the element type of the tags array."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "For type Product = { name: string; price: number }, what is Product[\"price\"]?",
+      "payload": {
+        "choices": [
+          "\"price\"",
+          "string | number",
+          "number",
+          "Product"
+        ],
+        "answer": "number",
+        "explanation": "An indexed access type looks up the type of the named property."
+      },
+      "conceptTags": [
+        "typescript",
+        "indexed-access"
+      ],
+      "id": "sf_b01e304292946003e1107a6c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is the return type of pluck(products, \"name\") given pluck<T, K extends keyof T>(items: T[], key: K): T[K][]?",
+      "payload": {
+        "choices": [
+          "string[]",
+          "unknown[]",
+          "keyof Product[]",
+          "Product[]"
+        ],
+        "answer": "string[]",
+        "explanation": "K is inferred as the literal \"name\", so T[K] is string and the result is string[]."
+      },
+      "conceptTags": [
+        "typescript",
+        "keyof",
+        "generics"
+      ],
+      "id": "sf_8c4194bd76d9a655e3d1ce91"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Get the element type of an array property.",
+      "payload": {
+        "text": "For tags: string[], the element type is written Product[\"tags\"][____].",
+        "blanks": [
+          "number"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "indexed-access",
+        "arrays"
+      ],
+      "id": "sf_99b272db9096b6a270da409a"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write a typed sortBy(items, key, direction): numbers numerically, strings with localeCompare, null or missing values last, stable, and without mutating the input.",
+      "exercise": "sort-by",
+      "conceptTags": [
+        "typescript",
+        "keyof",
+        "indexed-access",
+        "sorting"
+      ],
+      "id": "sf_be8782b51de349b19d74a166"
+    }
+  ],
+  "id": "sf_76523ff7be17258b9278bffa"
+}

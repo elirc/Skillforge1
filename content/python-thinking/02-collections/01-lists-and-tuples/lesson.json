@@ -1,0 +1,101 @@
+{
+  "title": "Lists and Tuples",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A Python list is the closest match to a JavaScript array: ordered, mutable, and able to hold mixed types. append adds to the end (like push), pop removes from the end, and len(items) replaces items.length. Negative indices count from the end, so items[-1] is the last element."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "items = [3, 1, 2]\nitems.append(4)      # [3, 1, 2, 4]\nlast = items.pop()   # 4\nprint(len(items))    # 3\nprint(items[-1])     # 2\nprint(sorted(items)) # [1, 2, 3]  (new list; items.sort() sorts in place)\nprint([1, 2] + [3])  # [1, 2, 3]"
+    },
+    {
+      "type": "prose",
+      "body": "A tuple is an immutable, ordered sequence written with parentheses. Use it for fixed groups such as coordinates or for returning several values from a function. Unpacking works like array destructuring, which makes swapping two variables a one-liner."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "point = (3, 4)\nx, y = point          # unpacking\na, b = 1, 2\na, b = b, a           # swap: a is 2, b is 1\nsingle = (5,)         # the trailing comma makes it a tuple\n# point[0] = 9        # TypeError: tuples cannot be changed"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Assignment never copies. After b = a, both names point at the same list, so b.append(1) changes a too. Copy with a.copy(), list(a) or a[:]."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does this print? a = [1, 2]; b = a; b.append(3); print(a)",
+      "payload": {
+        "choices": [
+          "[1, 2]",
+          "[3]",
+          "an error",
+          "[1, 2, 3]"
+        ],
+        "answer": "[1, 2, 3]",
+        "explanation": "b = a makes both names refer to the same list object, just like with JavaScript arrays."
+      },
+      "conceptTags": [
+        "lists",
+        "references"
+      ],
+      "id": "sf_c21d1caf180bcb2adeba8f37"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is type((5))?",
+      "payload": {
+        "choices": [
+          "tuple",
+          "list",
+          "set",
+          "int"
+        ],
+        "answer": "int",
+        "explanation": "Parentheses alone just group an expression. A one-element tuple needs a trailing comma: (5,)."
+      },
+      "conceptTags": [
+        "tuples"
+      ],
+      "id": "sf_542fbfdb24af54e86b522d1f"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does print([0, 1, 2, 3][-2]) show?",
+      "payload": {
+        "choices": [
+          "2",
+          "1",
+          "3",
+          "an IndexError"
+        ],
+        "answer": "2",
+        "explanation": "Index -1 is the last element (3) and -2 is the one before it (2)."
+      },
+      "conceptTags": [
+        "lists",
+        "indexing"
+      ],
+      "id": "sf_091e0e3076c2d448b74a7b2b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the method.",
+      "payload": {
+        "text": "The Python equivalent of JavaScript's items.push(x) is items.____(x).",
+        "blanks": [
+          "append"
+        ]
+      },
+      "conceptTags": [
+        "lists"
+      ],
+      "id": "sf_a7b72296319277a6f3dc5a90"
+    }
+  ],
+  "id": "sf_ab04c719067ddc8a20717f0f"
+}

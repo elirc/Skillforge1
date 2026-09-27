@@ -9,6 +9,15 @@
       "type": "code-example",
       "language": "csharp",
       "code": "var key = $\"catalog:{userId}\";\nvar catalog = await cache.GetOrCreateAsync(key, async entry =>\n{\n    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);\n    return await catalogService.BuildCatalogAsync(userId, ct);\n});"
+    },
+    {
+      "type": "prose",
+      "body": "Cache-aside is the default pattern: on a read, try the cache; on a miss, load from the database and store the result with a TTL. On a write, update the database first, then delete the cache entry so the next read reloads fresh data. Deleting first opens a race: a concurrent reader can miss, load the old value, and put it back before your write commits. The TTL is the safety net for any invalidation you forget. Decide deliberately whether to cache 'not found'; caching it protects the database but delays visibility of newly created rows."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Watch for a stampede: when a hot key expires, every concurrent request misses at once and hits the database. .NET 9's HybridCache coalesces those misses into one load; with IMemoryCache you need your own lock or a jittered TTL."
     }
   ],
   "knowledgeItems": [
@@ -17,24 +26,80 @@
       "prompt": "What question must you answer before adding a cache?",
       "payload": {
         "choices": [
-          "How and when does cached data become invalid?",
           "Can every value be cached forever?",
           "Can caching replace authorization?",
+          "How and when does cached data become invalid?",
           "Will caching remove the need for tests?"
         ],
         "answer": "How and when does cached data become invalid?",
         "explanation": "Freshness and invalidation rules determine whether a cache is correct."
       },
-      "conceptTags": ["caching", "performance"]
+      "conceptTags": [
+        "caching",
+        "performance"
+      ],
+      "id": "sf_7f876990dea75856b2eccea9"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the caching answer.",
       "payload": {
         "text": "A cache key should include every input that changes the result, such as tenant id, user id, locale, or ____.",
-        "blanks": ["permissions"]
+        "blanks": [
+          "permissions"
+        ]
       },
-      "conceptTags": ["caching", "authorization"]
+      "conceptTags": [
+        "caching",
+        "authorization"
+      ],
+      "id": "sf_3d71d87e59561ce7c11dd6ca"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why delete the cache entry after writing the database rather than before?",
+      "payload": {
+        "choices": [
+          "The cache cannot delete keys while the database is idle",
+          "Deleting after the write makes the TTL longer",
+          "It avoids needing a cache key at all",
+          "Deleting first lets a concurrent reader reload the old value into the cache before the write commits"
+        ],
+        "answer": "Deleting first lets a concurrent reader reload the old value into the cache before the write commits",
+        "explanation": "Write the source of truth, then invalidate. The TTL bounds how long any remaining race can serve stale data."
+      },
+      "conceptTags": [
+        "caching",
+        "consistency"
+      ],
+      "id": "sf_a12ccf5d58f4c6347db6e471"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the caching term.",
+      "payload": {
+        "text": "Many requests missing on the same expired hot key and all hitting the database at once is called a cache ____.",
+        "blanks": [
+          "stampede"
+        ]
+      },
+      "conceptTags": [
+        "caching",
+        "performance"
+      ],
+      "id": "sf_3096754ae18551f1c04e0753"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Simulate a cache-aside cache over a fake clock: hits, misses, TTL expiry, and invalidation on write.",
+      "exercise": "cache-aside",
+      "conceptTags": [
+        "caching",
+        "performance",
+        "consistency"
+      ],
+      "id": "sf_51236e39afc89d83153f7c6d"
     }
-  ]
+  ],
+  "id": "sf_239f33f182595a0db4db3d24"
 }

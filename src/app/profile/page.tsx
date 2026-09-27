@@ -2,12 +2,15 @@ import { BadgeCheck, Flame, Snowflake, Target, Trophy } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { ActivityHeatmap } from "@/features/dashboard/activity-heatmap";
 import { ProfileSettings } from "@/features/profile/profile-settings";
+import { ProgressBackup } from "@/features/profile/progress-backup";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { prisma } from "@/lib/prisma";
 import { experienceLabels, goalLabels } from "@/lib/enums";
 import { getAchievementBoard, getProgressOverview, getXpHistory } from "@/server/gamification";
 import { getCurrentUser } from "@/server/user";
+import { ThemePicker } from "@/components/theme-picker";
+import { ContentUpdates } from "@/features/profile/content-updates";
 
 export const dynamic = "force-dynamic";
 
@@ -103,15 +106,21 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
 
-        <ProfileSettings
-          defaults={{
-            name: user.name,
-            goal: user.goal,
-            experience: user.experience,
-            dailyXpGoal: overview.dailyXpGoal,
-            focusTags: user.focusTags,
-          }}
-        />
+        <div className="space-y-6">
+          <ThemePicker />
+          <ProfileSettings
+            defaults={{
+              name: user.name,
+              goal: user.goal,
+              experience: user.experience,
+              dailyXpGoal: overview.dailyXpGoal,
+              dailyMinutes: user.dailyMinutes,
+              focusTags: user.focusTags,
+            }}
+          />
+          <ProgressBackup />
+          <ContentUpdates />
+        </div>
       </div>
     </SiteShell>
   );

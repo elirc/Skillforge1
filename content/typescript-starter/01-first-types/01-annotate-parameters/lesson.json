@@ -1,18 +1,85 @@
 {
   "title": "Annotate Parameters",
   "contentBlocks": [
-    { "type": "prose", "body": "A parameter annotation tells TypeScript what kind of value a function expects." }
+    {
+      "type": "prose",
+      "body": "A parameter annotation tells TypeScript what kind of value a function expects."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function awardXp(baseXp: number, streakDays: number, isReview: boolean) {\n  // ...\n}\n\nawardXp(20, 3, false);   // ok\n// awardXp(\"20\", 3, false); // error: string is not assignable to number"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Without an annotation, a parameter is implicitly any and strict mode reports an error. Annotating parameters is the first habit to build: it documents the function and lets every caller be checked."
+    }
   ],
   "knowledgeItems": [
     {
       "type": "MCQ",
       "prompt": "Which annotation describes a string parameter?",
       "payload": {
-        "choices": ["name: string", "name = string", "string name", "name -> string"],
+        "choices": [
+          "name = string",
+          "name: string",
+          "string name",
+          "name -> string"
+        ],
         "answer": "name: string",
         "explanation": "TypeScript places the type after a colon."
       },
-      "conceptTags": ["types"]
+      "conceptTags": [
+        "types"
+      ],
+      "id": "sf_20edb72d1b9d11fb055f15b5"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the annotation.",
+      "payload": {
+        "text": "A parameter that is either true or false is annotated as isReview: ____.",
+        "blanks": [
+          "boolean"
+        ]
+      },
+      "conceptTags": [
+        "types",
+        "boolean"
+      ],
+      "id": "sf_c806f0063ad90db87b322997"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "In strict mode, what happens to an unannotated parameter such as function f(x) { }?",
+      "payload": {
+        "choices": [
+          "It is inferred as string",
+          "It is implicitly any, which strict mode reports as an error",
+          "It becomes optional",
+          "It is inferred from the function name"
+        ],
+        "answer": "It is implicitly any, which strict mode reports as an error",
+        "explanation": "TypeScript cannot infer a parameter's type from nothing, so it falls back to any; noImplicitAny (part of strict) turns that into an error."
+      },
+      "conceptTags": [
+        "types",
+        "strict"
+      ],
+      "id": "sf_a8243e070bbcc8048518d427"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Award XP for a lesson: the parameters are already annotated. Add 5 XP per streak day (capped at 10 days), halve the total (rounded down) for reviews, and never go below zero.",
+      "exercise": "award-xp",
+      "conceptTags": [
+        "types",
+        "functions",
+        "numbers"
+      ],
+      "id": "sf_feeeb7d842aacd4c8a88539b"
     }
-  ]
+  ],
+  "id": "sf_7af46b821e99e99079153d92"
 }

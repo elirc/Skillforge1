@@ -1,0 +1,7 @@
+**/bin
+**/obj
+**/data
+node_modules
+backups
+test-results
+playwright-report

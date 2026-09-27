@@ -11,7 +11,7 @@
   "order": 20035,
   "exercise": "ts-easy-account-fallback-name",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Account Fallback Name, read the story as a simple input-to-output rule: A TypeScript card may receive a custom display name for accounts. Write a function that returns displayName when it is present, otherwise returns the fallback name. Work through one small example by hand, then write the steps in TypeScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure TypeScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is typescript and optional-properties. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: accountFallbackName({\"displayName\":\"Custom\",\"fallbackName\":\"Fallback\"}) produces \"Custom\". Identify exactly which values mean absent under the contract, then select the fallback only for those values.\n\nCompare “uses fallback name”: input [{\"fallbackName\":\"Fallback\"}] produces \"Fallback\". Explain which rule causes the difference before writing code.",
+    "junior": "Identify exactly which values mean absent under the contract, then select the fallback only for those values.\n\nTempting mistake: A truthiness check also replaces 0, false, and an empty string. Nullish absence and falsiness are different rules.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “uses fallback name”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

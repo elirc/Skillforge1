@@ -1,0 +1,94 @@
+{
+  "title": "State Is a Snapshot",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "`useState` gives a component memory across renders. Calling the setter does not change the variable you already have: it **queues** a new value and asks React to render again. During one render, `count` is a constant, a snapshot, and every event handler created by that render sees that same snapshot."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "function Counter() {\n  const [count, setCount] = useState(0);\n\n  function addThree() {\n    setCount(count + 1); // queue: replace with 0 + 1\n    setCount(count + 1); // queue: replace with 0 + 1\n    setCount(count + 1); // queue: replace with 0 + 1\n    console.log(count);  // 0, the snapshot\n  } // next render: count === 1\n\n  function reallyAddThree() {\n    setCount((c) => c + 1); // queue: updater\n    setCount((c) => c + 1);\n    setCount((c) => c + 1);\n  } // next render: count === 3\n\n  return <button onClick={reallyAddThree}>{count}</button>;\n}"
+    },
+    {
+      "type": "prose",
+      "body": "On the next render React replays the queue in order, starting from the current state:\n\n- `setCount(5)` replaces whatever came before with 5\n- `setCount(c => c + 1)` receives the result of the previous queued update\n- `setCount(count + 1)` is just a replacement computed from the old snapshot\n\nUse the updater form whenever the next value depends on the previous one and more than one update might be queued: several calls in one handler, or updates from timers and async callbacks that might hold an old snapshot."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Updater functions must be pure. React may call them twice in Strict Mode during development to help you catch side effects inside them."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "count is 0. A click calls setCount(count + 1) three times. What is count on the next render?",
+      "payload": {
+        "choices": [
+          "3",
+          "1",
+          "0",
+          "It depends on timing"
+        ],
+        "answer": "1",
+        "explanation": "All three calls read the same snapshot (0) and queue a replacement with 1."
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "use-state"
+      ],
+      "id": "sf_669f20d96ba4f95617ec3005"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Inside a click handler, you call setName(\"Grace\") and then console.log(name); what is logged?",
+      "payload": {
+        "choices": [
+          "The old name",
+          "\"Grace\"",
+          "undefined",
+          "A promise"
+        ],
+        "answer": "The old name",
+        "explanation": "State is a snapshot for the whole render. The handler keeps seeing the value from the render that created it."
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "use-state"
+      ],
+      "id": "sf_8a2bc832247a3156c2d90744"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the updater form that increments from the latest queued value.",
+      "payload": {
+        "text": "setCount((____) => c + 1);",
+        "blanks": [
+          "c"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "use-state"
+      ],
+      "id": "sf_08600a45c6099a631640ce17"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Replay the setState calls made by one event handler and return what the handler logs and what the next render shows.",
+      "exercise": "run-handler",
+      "conceptTags": [
+        "react",
+        "state",
+        "use-state",
+        "updater-functions"
+      ],
+      "id": "sf_d644e332d3da844b9127c0cf"
+    }
+  ],
+  "id": "sf_1bc983f4eb6972d784b29eab"
+}

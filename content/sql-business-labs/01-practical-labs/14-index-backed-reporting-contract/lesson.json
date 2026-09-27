@@ -1,0 +1,71 @@
+{
+  "id": "sf_02438355d6991f26bac7851c",
+  "title": "Index-backed reporting contract",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An index is an access path, not a change to a report's meaning. Equality predicates on customer and status lead this index, followed by the requested ordering keys. The planner can use that prefix to find a smaller ordered region. Inspect EXPLAIN QUERY PLAN locally and measure realistic data sizes; a tiny fixture verifies correctness, not production performance."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE customers(id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nCREATE TABLE orders(id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(id), status TEXT NOT NULL, placed_at TEXT NOT NULL, total_cents INTEGER NOT NULL);\nINSERT INTO customers VALUES(1,'Ada'),(2,'Bo'),(3,'Cy');\nINSERT INTO orders VALUES(10,1,'paid','2026-01-01',1200),(11,1,'cancelled','2026-01-02',500),(12,2,'paid','2026-01-03',800),(13,1,'paid','2026-01-04',400);\nCREATE INDEX ix_orders_customer_status_date ON orders(customer_id,status,placed_at,id);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "EXPLAIN QUERY PLAN SELECT * FROM orders WHERE customer_id=1 AND status='paid' ORDER BY placed_at,id;"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"setup\":\"CREATE TABLE customers(id INTEGER PRIMARY KEY, name TEXT NOT NULL);\\nCREATE TABLE orders(id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(id), status TEXT NOT NULL, placed_at TEXT NOT NULL, total_cents INTEGER NOT NULL);\\nINSERT INTO customers VALUES(1,'Ada'),(2,'Bo'),(3,'Cy');\\nINSERT INTO orders VALUES(10,1,'paid','2026-01-01',1200),(11,1,'cancelled','2026-01-02',500),(12,2,'paid','2026-01-03',800),(13,1,'paid','2026-01-04',400);\\nCREATE INDEX ix_orders_customer_status_date ON orders(customer_id,status,placed_at,id);\",\"params\":{\"$customer\":1}}]. The required result is [{\"id\":10,\"total_cents\":1200},{\"id\":13,\"total_cents\":400}]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return a customer's paid order id and total_cents in placed_at/id order using $customer."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Do not assert exact planner text as a portable correctness test; plans can change with statistics and SQLite versions."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which boundary case would fail if the main comparison, join, or ordering were changed? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed business data case checks a different boundary.\n\n**Transfer it.** Apply the same contract to the Inventory Desk repository. Keep SQL parameters separate from values and compare results against a hand-calculated fixture."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_27231beb0e04d5a6009022d6",
+      "type": "MCQ",
+      "prompt": "What should stay the same after adding an index?",
+      "conceptTags": [
+        "sql",
+        "indexes",
+        "performance"
+      ],
+      "payload": {
+        "choices": [
+          "The physical storage position of every row",
+          "The query's required result rows and order",
+          "The exact query-plan wording across SQLite releases"
+        ],
+        "answer": "The query's required result rows and order",
+        "explanation": "An optimization must preserve the observable query contract."
+      }
+    },
+    {
+      "id": "sf_3fd3c1ddb8b7c83e94d58526",
+      "type": "CODE",
+      "prompt": "Return a customer's paid order id and total_cents in placed_at/id order using $customer.",
+      "conceptTags": [
+        "sql",
+        "indexes",
+        "performance"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "An optimization must preserve the observable query contract.",
+        "Do not assert exact planner text as a portable correctness test; plans can change with statistics and SQLite versions."
+      ],
+      "walkthrough": "An optimization must preserve the observable query contract.\nDo not assert exact planner text as a portable correctness test; plans can change with statistics and SQLite versions."
+    }
+  ]
+}

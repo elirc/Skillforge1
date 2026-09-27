@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "info",
       "body": "A strong interview answer is not just the fix. It includes how you narrowed the bug, how you prevent regression, and how you would know it broke again."
+    },
+    {
+      "type": "prose",
+      "body": "Turn the checklist into queries. Each step asks one question of one table, and the first question that comes back wrong tells you which layer broke: the completion write, the lesson's content, the review seeder, the user id it used, or the due-date filter. Answering this way shows you can narrow a bug with evidence instead of guessing, and every finding maps to a regression test."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var completed = await db.Completions.AnyAsync(c => c.UserId == userId && c.LessonId == lessonId, ct);\nvar itemIds = await db.KnowledgeItems.Where(k => k.LessonId == lessonId).Select(k => k.Id).ToListAsync(ct);\nvar states = await db.ReviewStates.Where(s => itemIds.Contains(s.KnowledgeItemId)).ToListAsync(ct);\n\n// states exist but none for userId?  -> the seeder used the wrong user id.\n// states exist for userId, none due?  -> check DueAt against the clock the query uses (UTC vs local)."
     }
   ],
   "knowledgeItems": [
@@ -22,24 +31,35 @@
       "prompt": "A reviewer sees a query for `ReviewState` by id only. What is the strongest review comment?",
       "payload": {
         "choices": [
-          "Block: include `UserId` or a resource authorization check to prevent cross-user access",
           "Nit: rename the variable",
+          "Block: include `UserId` or a resource authorization check to prevent cross-user access",
           "Approve because the id is probably random",
           "Ask for a screenshot"
         ],
         "answer": "Block: include `UserId` or a resource authorization check to prevent cross-user access",
         "explanation": "Random-looking ids are not authorization. Resource queries must be scoped."
       },
-      "conceptTags": ["interviews", "code-review", "authorization"]
+      "conceptTags": [
+        "interviews",
+        "code-review",
+        "authorization"
+      ],
+      "id": "sf_36cce4d64c61df350fd1c0a7"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the debugging answer.",
       "payload": {
         "text": "A systematic debugging answer starts by reproducing the issue, then ____ the failing layer before changing code.",
-        "blanks": ["narrowing"]
+        "blanks": [
+          "narrowing"
+        ]
       },
-      "conceptTags": ["interviews", "debugging"]
+      "conceptTags": [
+        "interviews",
+        "debugging"
+      ],
+      "id": "sf_9260fbaa76039408f8bb38d1"
     },
     {
       "type": "MCQ",
@@ -54,7 +74,60 @@
         "answer": "Use an outbox, retries, idempotency, metrics, and a rollback plan",
         "explanation": "Senior answers cover reliability and operations, not only the happy-path implementation."
       },
-      "conceptTags": ["interviews", "system-design", "reliability"]
+      "conceptTags": [
+        "interviews",
+        "system-design",
+        "reliability"
+      ],
+      "id": "sf_3743bd1e721bcce255317b6d"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "The completion row, the knowledge items, and the learner's review rows all exist, but the due queue is empty. What should you check next?",
+      "payload": {
+        "choices": [
+          "How DueAt compares with the time the due query uses, including UTC versus local time",
+          "Whether the course title changed",
+          "Whether the CSS for the review page loaded",
+          "Whether the learner's password is valid"
+        ],
+        "answer": "How DueAt compares with the time the due query uses, including UTC versus local time",
+        "explanation": "Every earlier layer checks out, so the remaining suspect is the due filter itself. Mixed UTC and local timestamps are a classic cause."
+      },
+      "conceptTags": [
+        "interviews",
+        "debugging",
+        "datetime"
+      ],
+      "id": "sf_749905bf22ed09cb53e8e086"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the diagnosis.",
+      "payload": {
+        "text": "If review rows exist for the lesson but under a different user id, the seeder probably read the user id from the request ____ instead of from claims.",
+        "blanks": [
+          "body"
+        ]
+      },
+      "conceptTags": [
+        "interviews",
+        "debugging",
+        "authorization"
+      ],
+      "id": "sf_6d6b092458820a0af4228220"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Diagnose \"I completed a lesson but no reviews appear\" by checking each layer in order and returning the first one that fails.",
+      "exercise": "diagnose-missing-reviews",
+      "conceptTags": [
+        "interviews",
+        "debugging",
+        "system-design"
+      ],
+      "id": "sf_3e88fe1f514e8d007eed18b6"
     }
-  ]
+  ],
+  "id": "sf_4a3f56405ba5614cb14bca48"
 }

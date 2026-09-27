@@ -1,0 +1,66 @@
+{
+  "id": "sf_c832d453b045f377e160da9d",
+  "title": "Grouping business totals",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "GroupBy partitions a sequence by a key before an aggregate is calculated. Each movement contributes its signed delta; shipping reduces stock and receiving increases it. A zero total still has a meaningful group: it tells us that this SKU had activity whose net change was zero. Dropping zero groups would change this reporting contract."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "public sealed record Movement(string Sku, int Delta);\npublic static class Exercise\n{\n    public static Dictionary<string, int> Totals(Movement[] rows)\n    {\n        return new Dictionary<string, int>();\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[{\"Sku\":\"A\",\"Delta\":4},{\"Sku\":\"B\",\"Delta\":2},{\"Sku\":\"A\",\"Delta\":-1}]]. The required result is {\"A\":3,\"B\":2}. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Group movements by case-sensitive SKU and return the sum of signed deltas for every group."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Summing absolute values measures activity volume, not net inventory movement."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** When would a report need both gross activity and net change? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the zero net case checks a different boundary.\n\n**Transfer it.** Compare this aggregation with GROUP BY in the executable SQL labs."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_9fc5218819afa93c430eb910",
+      "type": "MCQ",
+      "prompt": "Should a SKU with movements +1 and -1 appear?",
+      "conceptTags": [
+        "linq",
+        "aggregation",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "No, zero removes the group automatically",
+          "Yes, with total two",
+          "Yes, with total zero"
+        ],
+        "answer": "Yes, with total zero",
+        "explanation": "Net totals preserve signed values and include every observed key."
+      }
+    },
+    {
+      "id": "sf_83465750fa1d2ed4de5d8166",
+      "type": "CODE",
+      "prompt": "Group movements by case-sensitive SKU and return the sum of signed deltas for every group.",
+      "conceptTags": [
+        "linq",
+        "aggregation",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Net totals preserve signed values and include every observed key.",
+        "Summing absolute values measures activity volume, not net inventory movement."
+      ],
+      "walkthrough": "Net totals preserve signed values and include every observed key.\nSumming absolute values measures activity volume, not net inventory movement."
+    }
+  ]
+}

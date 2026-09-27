@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "info",
       "body": "Look for the generated SQL and the actual query plan when performance matters."
+    },
+    {
+      "type": "prose",
+      "body": "Offset pagination (`Skip(page * size).Take(size)`) gets slower the deeper you page, because the database still reads and discards every skipped row, and it is unstable: a row inserted on page 1 shifts everything and a reader sees a duplicate on page 2. Keyset (seek) pagination remembers the last row the client saw and asks for rows after it. It needs a total order, so add a unique tie-breaker such as `Id` after `DueAt`, and an index that matches, `(UserId, DueAt, Id)`, so each page is a single seek."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var page = await db.ReviewStates\n    .AsNoTracking()\n    .Where(x => x.UserId == userId && x.DueAt <= now)\n    .Where(x => after == null\n        || x.DueAt > after.DueAt\n        || (x.DueAt == after.DueAt && x.Id.CompareTo(after.Id) > 0))\n    .OrderBy(x => x.DueAt).ThenBy(x => x.Id)\n    .Take(pageSize + 1) // one extra row tells us whether there is a next page\n    .Select(x => new DueReviewDto(x.Id, x.Prompt, x.DueAt))\n    .ToListAsync(ct);"
     }
   ],
   "knowledgeItems": [
@@ -21,20 +30,83 @@
       "type": "MCQ",
       "prompt": "Which change usually helps read-only EF Core queries?",
       "payload": {
-        "choices": ["Use AsNoTracking when you do not update the entities", "Call ToList before every Where", "Remove all indexes", "Load every column just in case"],
+        "choices": [
+          "Use AsNoTracking when you do not update the entities",
+          "Call ToList before every Where",
+          "Remove all indexes",
+          "Load every column just in case"
+        ],
         "answer": "Use AsNoTracking when you do not update the entities",
         "explanation": "AsNoTracking avoids change-tracking overhead for read-only projections."
       },
-      "conceptTags": ["ef-core", "performance", "queries"]
+      "conceptTags": [
+        "ef-core",
+        "performance",
+        "queries"
+      ],
+      "id": "sf_f99fd7460aa4a0ce78cdf8fe"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the query review.",
       "payload": {
         "text": "Before optimizing a slow query, capture the generated SQL, timing, and query ____.",
-        "blanks": ["plan"]
+        "blanks": [
+          "plan"
+        ]
       },
-      "conceptTags": ["performance", "sql"]
+      "conceptTags": [
+        "performance",
+        "sql"
+      ],
+      "id": "sf_83c195912581b23146fee4ff"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why does OFFSET pagination slow down on deep pages?",
+      "payload": {
+        "choices": [
+          "The database still reads and discards every skipped row",
+          "Indexes stop working after the first page",
+          "EF Core disables AsNoTracking for large offsets",
+          "Each page opens a new database connection"
+        ],
+        "answer": "The database still reads and discards every skipped row",
+        "explanation": "OFFSET 10000 means producing 10,000 rows only to throw them away. Keyset pagination seeks straight to the first row of the next page."
+      },
+      "conceptTags": [
+        "performance",
+        "sql",
+        "pagination"
+      ],
+      "id": "sf_56fdb943d691b7ecd4279590"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the pagination sentence.",
+      "payload": {
+        "text": "Keyset pagination continues from the last row seen instead of skipping a count of rows, which is why it is also called ____ pagination.",
+        "blanks": [
+          "seek"
+        ]
+      },
+      "conceptTags": [
+        "performance",
+        "pagination"
+      ],
+      "id": "sf_b6db8255a3e62b87782360f4"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement keyset pagination over a learner's due reviews, with a tie-breaker and a Next cursor.",
+      "exercise": "keyset-page",
+      "conceptTags": [
+        "performance",
+        "pagination",
+        "queries"
+      ],
+      "id": "sf_36d41c58ffaa6cb259bc09c4"
     }
-  ]
+  ],
+  "id": "sf_83a29490e1593453b43c80b1"
 }

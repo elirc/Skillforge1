@@ -1,0 +1,25 @@
+{
+  "version": "2",
+  "slug": "aspnet-api-project",
+  "title": "Build a Real ASP.NET Core API",
+  "description": "Twelve hands-on milestones in a runnable ASP.NET Core 10 and EF Core SQLite solution: DTOs, migrations, CRUD, validation, queries, authentication, ownership, errors, conflicts and integration tests.",
+  "language": "csharp",
+  "difficulty": "INTERMEDIATE",
+  "order": 10,
+  "prerequisites": [
+    "csharp-foundations",
+    "web-http-fundamentals",
+    "sql-business-labs"
+  ],
+  "topicTags": [
+    "aspnet-core",
+    "ef-core",
+    "api",
+    "testing"
+  ],
+  "outcomes": [
+    "Build real HTTP endpoints backed by SQLite",
+    "Protect ownership and concurrent changes",
+    "Verify behavior with WebApplicationFactory"
+  ]
+}

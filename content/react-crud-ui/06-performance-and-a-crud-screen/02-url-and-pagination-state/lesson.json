@@ -1,0 +1,93 @@
+{
+  "title": "URL State and Pagination",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "The filters, sort order, and page of a list are state that belongs in the **URL**. Then a reload keeps the view, the back button undoes a filter change, and a colleague can open the exact page you are looking at. The component reads the search params, derives its state from them, and navigates to a new URL to change it: the URL is the single source of truth, so there is no `useState` copy to keep in sync."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "\"use client\";\nimport { useRouter, usePathname, useSearchParams } from \"next/navigation\";\n\nfunction ProductListPage({ total }: { total: number }) {\n  const searchParams = useSearchParams();\n  const router = useRouter();\n  const pathname = usePathname();\n  const { state, hasNext, canonical } = parseListParams(searchParams.toString(), total);\n\n  function goTo(patch: Partial<ListState>) {\n    const next = { ...state, ...patch };\n    const { canonical } = parseListParams(toSearch(next), total); // same rules both ways\n    router.push(`${pathname}${canonical}`);\n  }\n\n  const { data } = useQuery({\n    queryKey: [\"products\", \"list\", state],        // the URL state is the query key\n    queryFn: () => api.listProducts(state),\n    placeholderData: keepPreviousData,            // keep the old page while the next loads\n  });\n\n  return <button disabled={!hasNext} onClick={() => goTo({ page: state.page + 1 })}>Next</button>;\n}"
+    },
+    {
+      "type": "prose",
+      "body": "URL parameters are user input, so parse them defensively:\n\n- whitelist enums (`sort`, `dir`) and fall back to defaults for anything else\n- accept only whole positive numbers for `page` and a fixed set of page sizes, so `?pageSize=100000` cannot ask the server for everything\n- clamp `page` to the last page when the total shrinks (after a delete, or with a narrower filter)\n- produce one **canonical** URL per state (fixed parameter order, defaults omitted) so caches and analytics see one key per view\n- when a filter changes, reset `page` to 1\n\nFor very large or frequently changing tables, cursor (keyset) pagination avoids the skipped and repeated rows that offset pagination suffers when rows are inserted."
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Use `router.replace` instead of `router.push` for changes that should not create a history entry for every keystroke, such as a search box, and debounce it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why keep list filters and the current page in the URL instead of useState?",
+      "payload": {
+        "choices": [
+          "Reloads, the back button, and shared links restore the same view",
+          "It makes renders faster",
+          "useState cannot store numbers",
+          "It avoids the need for a query key"
+        ],
+        "answer": "Reloads, the back button, and shared links restore the same view",
+        "explanation": "The URL survives reloads and can be shared or bookmarked; component state does not."
+      },
+      "conceptTags": [
+        "react",
+        "url-state",
+        "pagination"
+      ],
+      "id": "sf_6f26de2a222fc63c6f56de24"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A user on page 5 applies a filter that returns 12 items at 20 per page; what page should the list show?",
+      "payload": {
+        "choices": [
+          "Page 5, empty",
+          "Page 12",
+          "An error page",
+          "Page 1"
+        ],
+        "answer": "Page 1",
+        "explanation": "Changing a filter resets the page, and any page past the end is clamped. Page 5 of a one-page result makes no sense."
+      },
+      "conceptTags": [
+        "react",
+        "url-state",
+        "pagination"
+      ],
+      "id": "sf_5649e69aeb7298d2de22f5ef"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the TanStack Query v5 helper that keeps showing the previous page while the next one loads.",
+      "payload": {
+        "text": "useQuery({ queryKey, queryFn, placeholderData: ____ })",
+        "blanks": [
+          "keepPreviousData"
+        ]
+      },
+      "conceptTags": [
+        "tanstack-query",
+        "pagination"
+      ],
+      "id": "sf_3f9bccfe2f633f4a7de14075"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Parse list search params defensively into state with defaults and clamping, compute pagination flags, and build a canonical query string.",
+      "exercise": "parse-list-params",
+      "conceptTags": [
+        "react",
+        "url-state",
+        "pagination",
+        "validation"
+      ],
+      "id": "sf_676c7f8678972ae986416348"
+    }
+  ],
+  "id": "sf_941affb858467a93c47d9604"
+}

@@ -1,0 +1,95 @@
+{
+  "title": "Debounce as a Timer Model",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Debouncing delays a function until events stop arriving for a while. Each new event cancels the pending timer and starts a new one, so a burst of keystrokes triggers one search request instead of twenty. The classic implementation keeps the timer id in a closure."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function debounce(fn, wait) {\n  let timer = null;\n  return (...args) => {\n    clearTimeout(timer);                         // cancel the pending call\n    timer = setTimeout(() => fn(...args), wait); // start over\n  };\n}\n\nconst search = debounce((q) => console.log(\"search\", q), 300);\nsearch(\"r\"); search(\"re\"); search(\"rea\"); // logs once, 300 ms after \"rea\""
+    },
+    {
+      "type": "prose",
+      "body": "Real timers make debounce hard to test. A useful trick is to model it as data: given the times at which events happened, compute when the debounced function would fire. An event's timer survives only if the next event arrives at or after event time + wait."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "// events at 0, 100, 200 with wait 300:\n//   0   -> cancelled by the event at 100\n//   100 -> cancelled by the event at 200\n//   200 -> nothing follows, fires at 500\ndebounceFires([0, 100, 200], 300); // [500]"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Throttle is the sibling pattern: it runs at most once per interval while events keep coming, instead of waiting for them to stop."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A search box is debounced with wait = 300 ms. The user types at 0, 100 and 250 ms, then stops. When does the search run?",
+      "payload": {
+        "choices": [
+          "300 ms",
+          "0 ms",
+          "550 ms",
+          "three times"
+        ],
+        "answer": "550 ms",
+        "explanation": "Each keystroke restarts the timer. The last one is at 250 ms, so the search runs at 250 + 300 = 550 ms."
+      },
+      "conceptTags": [
+        "debounce",
+        "closures"
+      ],
+      "id": "sf_aa6c63e394d4df7f3ddd6228"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Where does debounce keep the pending timer id?",
+      "payload": {
+        "choices": [
+          "in a variable captured by the returned closure",
+          "in a global variable",
+          "on the event object",
+          "in localStorage"
+        ],
+        "answer": "in a variable captured by the returned closure",
+        "explanation": "The `timer` variable lives in debounce's scope, so each debounced function has its own private timer."
+      },
+      "conceptTags": [
+        "debounce",
+        "closures"
+      ],
+      "id": "sf_041510cd65f74dab9da9dd24"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the sibling pattern.",
+      "payload": {
+        "text": "Unlike debounce, ____ runs a function at most once per interval while events keep arriving.",
+        "blanks": [
+          "throttle"
+        ]
+      },
+      "conceptTags": [
+        "debounce",
+        "rate-limiting"
+      ],
+      "id": "sf_eb24f92ad4ea5b8b5bd09a19"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model a trailing debounce: given sorted event times and a wait, return the times at which the debounced function fires.",
+      "exercise": "debounce-fires",
+      "conceptTags": [
+        "debounce",
+        "timers",
+        "arrays"
+      ],
+      "id": "sf_f373bc2b8cd1102677a533aa"
+    }
+  ],
+  "id": "sf_a1971d8815c578b5223e2250"
+}

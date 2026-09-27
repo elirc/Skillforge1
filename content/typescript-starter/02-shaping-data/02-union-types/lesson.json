@@ -16,20 +16,66 @@
       "type": "MCQ",
       "prompt": "What does the type Plan = \"core\" | \"pro\" allow?",
       "payload": {
-        "choices": ["only the strings \"core\" or \"pro\"", "any string", "only numbers", "any object"],
+        "choices": [
+          "any string",
+          "only numbers",
+          "any object",
+          "only the strings \"core\" or \"pro\""
+        ],
         "answer": "only the strings \"core\" or \"pro\"",
         "explanation": "A string-literal union restricts the value to the listed options."
       },
-      "conceptTags": ["types", "unions"]
+      "conceptTags": [
+        "types",
+        "unions"
+      ],
+      "id": "sf_1bba37c2900cab30d0e1423d"
     },
     {
       "type": "CLOZE",
       "prompt": "Name the symbol.",
       "payload": {
         "text": "A union type separates its alternatives with the ____ symbol.",
-        "blanks": ["|"]
+        "blanks": [
+          "|"
+        ]
       },
-      "conceptTags": ["types", "unions"]
+      "conceptTags": [
+        "types",
+        "unions"
+      ],
+      "id": "sf_c2eb72ab486a067cd8cbb193"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Given type Plan = \"free\" | \"pro\" | \"team\", which call is a compile error?",
+      "payload": {
+        "choices": [
+          "price(\"pro\")",
+          "price(\"team\")",
+          "price(\"free\")",
+          "price(\"enterprise\")"
+        ],
+        "answer": "price(\"enterprise\")",
+        "explanation": "\"enterprise\" is not one of the listed literals, so it is not assignable to Plan."
+      },
+      "conceptTags": [
+        "types",
+        "unions"
+      ],
+      "id": "sf_609cbbb950db08385bfe11e3"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Price a subscription from a Plan union: free is 0, pro is 12 per seat, team is 8 per seat with a 3-seat minimum.",
+      "exercise": "monthly-price",
+      "conceptTags": [
+        "types",
+        "unions",
+        "conditionals"
+      ],
+      "id": "sf_3c8f60ae4484d5d9f10762e3"
     }
-  ]
+  ],
+  "id": "sf_1966f3b1d95defcfdb327c1a"
 }

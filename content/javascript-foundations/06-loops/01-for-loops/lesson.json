@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "let total = 0;\nfor (let i = 1; i <= 3; i++) {\n  total += i;\n}\n// total is 6"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Initialization happens once, the condition runs before each iteration, and the increment runs after the body. i stays below length so every indexed access is valid."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const values = [3, 7, 9];\nlet total = 0;\nfor (let i = 0; i < values.length; i++) total += values[i];\n// total: 0 -> 3 -> 10 -> 19"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Using <= length runs one extra iteration with an undefined value."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Trace i and total for an empty array and a one-element array.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,37 @@
       "type": "MCQ",
       "prompt": "In for (let i = 0; i < n; i++), what does the middle part do?",
       "payload": {
-        "choices": ["decides whether the loop keeps running", "runs once at the very end", "declares the function", "imports the counter"],
+        "choices": [
+          "runs once at the very end",
+          "decides whether the loop keeps running",
+          "declares the function",
+          "imports the counter"
+        ],
         "answer": "decides whether the loop keeps running",
         "explanation": "The middle expression is the condition checked before each pass."
       },
-      "conceptTags": ["loops", "control-flow"]
+      "conceptTags": [
+        "loops",
+        "control-flow"
+      ],
+      "id": "sf_6262349067bf93cad2c8737f"
     },
     {
       "type": "CODE",
       "prompt": "Return the sum of every whole number from 1 to n (0 when n is below 1).",
       "exercise": "sum-to",
-      "conceptTags": ["loops", "math"]
+      "conceptTags": [
+        "loops",
+        "math"
+      ],
+      "id": "sf_a8b974dd204b730d3ae1e97b",
+      "hints": [
+        "Using <= length runs one extra iteration with an undefined value.",
+        "Initialization happens once, the condition runs before each iteration, and the increment runs after the body. i stays below length so every indexed access is valid."
+      ],
+      "walkthrough": "Initialization happens once, the condition runs before each iteration, and the increment runs after the body. i stays below length so every indexed access is valid."
     }
-  ]
+  ],
+  "id": "sf_bc001fec51a7df7b0e32af94",
+  "estimatedMinutes": 12
 }

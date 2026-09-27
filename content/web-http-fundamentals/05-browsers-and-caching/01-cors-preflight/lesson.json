@@ -1,0 +1,101 @@
+{
+  "title": "CORS and Preflight Requests",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Browsers enforce the **same-origin policy**: a script on `https://app.test` may send requests to `https://api.test`, but it may not **read the response** unless the API opts in with CORS headers. An origin is scheme + host + port, so `http://app.test` and `https://app.test` differ."
+    },
+    {
+      "type": "prose",
+      "body": "For requests that are not \"simple\" (methods like PUT or DELETE, JSON bodies, or headers like `Authorization`), the browser first sends a **preflight**: an `OPTIONS` request asking permission. Only if the answer allows the origin, method, and headers does it send the real request."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "OPTIONS /products/42 HTTP/1.1\nOrigin: https://app.test\nAccess-Control-Request-Method: PUT\nAccess-Control-Request-Headers: content-type, authorization\n\nHTTP/1.1 204 No Content\nAccess-Control-Allow-Origin: https://app.test\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE\nAccess-Control-Allow-Headers: content-type, authorization\nAccess-Control-Allow-Credentials: true\nAccess-Control-Max-Age: 600\nVary: Origin"
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddCors(o => o.AddPolicy(\"spa\", p => p\n    .WithOrigins(\"https://app.test\")\n    .WithMethods(\"GET\", \"POST\", \"PUT\", \"DELETE\")\n    .WithHeaders(\"Content-Type\", \"Authorization\")\n    .AllowCredentials()));\napp.UseCors(\"spa\");"
+    },
+    {
+      "type": "prose",
+      "body": "What CORS does **not** do: it does not protect your API from curl, Postman, or other servers, which ignore CORS entirely. It does not stop CSRF form posts (a simple POST is sent before the browser checks anything). It only controls which web pages may read your responses in a browser. Authentication and authorization still do the real protecting."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`Access-Control-Allow-Origin: *` cannot be combined with credentials; browsers reject it. Reflecting whatever `Origin` arrives while allowing credentials is worse: it lets every website read your users' data. Use an explicit allow-list."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does a CORS policy actually protect?",
+      "payload": {
+        "choices": [
+          "Your API from requests made with curl",
+          "Which web pages may read your API's responses in a browser",
+          "Your database from SQL injection",
+          "Your cookies from being sent over HTTP"
+        ],
+        "answer": "Which web pages may read your API's responses in a browser",
+        "explanation": "CORS is a browser-enforced relaxation of the same-origin policy. Non-browser clients ignore it, so it is not an access-control mechanism."
+      },
+      "conceptTags": [
+        "cors",
+        "security"
+      ],
+      "id": "sf_797b7d188f093b2c96e7dabb"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which request triggers a CORS preflight?",
+      "payload": {
+        "choices": [
+          "A same-origin DELETE",
+          "A cross-origin GET with no custom headers",
+          "A cross-origin PUT with Content-Type: application/json",
+          "A top-level link click to another site"
+        ],
+        "answer": "A cross-origin PUT with Content-Type: application/json",
+        "explanation": "Non-simple methods and non-simple headers (including a JSON content type) on a cross-origin fetch require a preflight."
+      },
+      "conceptTags": [
+        "cors",
+        "preflight"
+      ],
+      "id": "sf_c722299e09eba8c2e76f0935"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the HTTP method.",
+      "payload": {
+        "text": "A CORS preflight is sent with the ____ method.",
+        "blanks": [
+          "OPTIONS"
+        ]
+      },
+      "conceptTags": [
+        "cors",
+        "preflight",
+        "http"
+      ],
+      "id": "sf_c45bfa9509a950e257d5aa45"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Answer a CORS preflight: check the origin, method, and requested headers against a policy, refuse * with credentials, and build the Access-Control-* response headers.",
+      "exercise": "preflight-response",
+      "conceptTags": [
+        "cors",
+        "preflight",
+        "headers",
+        "security"
+      ],
+      "id": "sf_e79f616f2ba86431445252e1"
+    }
+  ],
+  "id": "sf_4349c735d54232cc49952b74"
+}

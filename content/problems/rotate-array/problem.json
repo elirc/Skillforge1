@@ -12,7 +12,7 @@
   "order": 23,
   "exercise": "rotate-array",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Rotate an Array, read the story as a simple input-to-output rule: A carousel needs to move the last k items to the front without changing the original list. Write a function that returns a new array rotated to the right by k steps. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays, slicing and immutability. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: rotateArray([1,2,3,4,5], 2) produces [4,5,1,2,3]. Reduce the rotation count modulo the length, then join the two slices in their new order. Handle empty input before taking a remainder.\n\nCompare “wraps large k”: input [[1,2,3],4] produces [3,1,2]. Explain which rule causes the difference before writing code.",
+    "junior": "Reduce the rotation count modulo the length, then join the two slices in their new order. Handle empty input before taking a remainder.\n\nTempting mistake: A count larger than the length still rotates by only its remainder. Empty input must not use modulo zero.\n\nThe reference uses slice. Trace the intermediate value after each operation; count repeated scans inside callbacks separately when estimating cost. Slicing and concatenation copy O(n) elements.\n\nRegression check: preserve the contract illustrated by “wraps large k”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

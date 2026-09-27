@@ -1,0 +1,14 @@
+{
+  "slug": "format-receipt-lines",
+  "title": "Format a Fixed-Width Receipt",
+  "prompt": "A point-of-sale app prints receipts on a printer that fits `width` characters per line (at least 12). For each item `{ name, cents }`, collapse runs of whitespace in the name and wrap it greedily into lines of at most `width` characters, splitting any word longer than `width` into `width`-sized chunks. Format the price as `$` + dollars + `.` + two-digit cents (e.g. `$0.05`, `$1000.00`). Put the price right-aligned on the name's last line when the line, one space and the price fit within `width`; otherwise print the price right-aligned on a line of its own. After all items print `width` dashes, then `TOTAL` with the summed price using the same rule. Return the lines.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["strings", "formatting", "greedy", "money"],
+  "order": 50026,
+  "exercise": "format-receipt-lines",
+  "explanation": {
+    "beginner": "Split the job into three helpers. `formatPrice(cents)` builds the text with integer maths: `Math.floor(cents / 100)` for dollars and `String(cents % 100).padStart(2, '0')` for cents. `wrap(name)` splits the name on whitespace and fills a line word by word, starting a new line when the next word plus a space would not fit; a word that is too long on its own is cut into pieces of exactly `width`. `placePrice(lines, price)` looks at the last wrapped line: if it has room for a space and the price, pad the middle with spaces so the price ends in the last column; otherwise print the price on its own line with `padStart(width)`. Loop over the items with these, then add the dashes and the TOTAL line.",
+    "junior": "Greedy wrapping (fill each line as far as possible) is optimal for minimising line count with a fixed-width font, and it is O(total characters). Keep money in integer cents end to end: `(cents / 100).toFixed(2)` is usually fine, but summing floating dollars is how receipts end up a cent off, so sum cents and format once. Edge cases the tests check: whitespace runs and leading/trailing spaces must not produce empty words (`split(/\\s+/)` after `trim()`); an over-long word flushes the current line before being chunked, and its last chunk can still be joined by the next word; the fit check is `line.length + 1 + price.length <= width`, so a line that fits exactly still gets its price. Returning lines instead of printing keeps the function testable, which is the same reason you would snapshot-test it in a real codebase."
+  }
+}

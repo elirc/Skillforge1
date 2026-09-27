@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const done = { intro: true, arrays: false, loops: true };\nconst count = Object.values(done).filter(Boolean).length;\n// count is 2"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Object.entries returns pairs of own enumerable string keys and values. Destructuring gives each pair meaningful local names. Use keys when only names matter and values when only quantities matter."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const stock = { pen: 3, pad: 2 };\nfor (const [sku, count] of Object.entries(stock)) {\n  console.log(sku, count);\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A for...in loop can include inherited enumerable properties; that is a different contract."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Choose entries, keys, or values for summing quantities versus formatting labels.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,37 @@
       "type": "MCQ",
       "prompt": "Which call returns just the values of an object as an array?",
       "payload": {
-        "choices": ["Object.values(obj)", "Object.keys(obj)", "obj.values", "values(obj)"],
+        "choices": [
+          "Object.keys(obj)",
+          "obj.values",
+          "Object.values(obj)",
+          "values(obj)"
+        ],
         "answer": "Object.values(obj)",
         "explanation": "Object.values returns an array of the object's values."
       },
-      "conceptTags": ["objects", "object-methods"]
+      "conceptTags": [
+        "objects",
+        "object-methods"
+      ],
+      "id": "sf_87da99bbc172f9aedf7b3c1a"
     },
     {
       "type": "CODE",
       "prompt": "Given a record mapping lesson names to a completed flag, return how many are completed (true).",
       "exercise": "count-completed",
-      "conceptTags": ["objects", "object-methods"]
+      "conceptTags": [
+        "objects",
+        "object-methods"
+      ],
+      "id": "sf_d022c58cdc9375d49c69e27a",
+      "hints": [
+        "A for...in loop can include inherited enumerable properties; that is a different contract.",
+        "Object.entries returns pairs of own enumerable string keys and values. Destructuring gives each pair meaningful local names. Use keys when only names matter and values when only quantities matter."
+      ],
+      "walkthrough": "Object.entries returns pairs of own enumerable string keys and values. Destructuring gives each pair meaningful local names. Use keys when only names matter and values when only quantities matter."
     }
-  ]
+  ],
+  "id": "sf_574d986d65204191ddd8b940",
+  "estimatedMinutes": 12
 }

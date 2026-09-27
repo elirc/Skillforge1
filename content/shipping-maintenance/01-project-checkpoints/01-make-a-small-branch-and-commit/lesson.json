@@ -1,0 +1,50 @@
+{
+  "id": "sf_708378a89b620dc896598a38",
+  "title": "Make a small branch and commit",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Create an isolated change with an understandable history.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read README.md and one focused test before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "git switch -c practice/document-checks\ngit diff\ngit status\n# Stage only the reviewed files, then commit with a clear message."
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** The branch contains one purposeful change, no generated databases or secrets, and a commit explaining the resulting behavior.\n\n**Make a meaningful variation.** Clarify one setup instruction and add a test or manual verification that demonstrates why the clarification matters. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: The diff is small enough to review and the commit message states a concrete outcome."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** What should be staged for this change? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_62c6f170c47a8bf686ddca60",
+      "type": "MCQ",
+      "prompt": "What should be staged for this change?",
+      "conceptTags": [
+        "git",
+        "commits",
+        "review"
+      ],
+      "payload": {
+        "choices": [
+          "Every untracked file including databases",
+          "The entire dependency directory",
+          "Only the files that implement and explain the intended change"
+        ],
+        "answer": "Only the files that implement and explain the intended change",
+        "explanation": "The diff is small enough to review and the commit message states a concrete outcome."
+      }
+    }
+  ]
+}

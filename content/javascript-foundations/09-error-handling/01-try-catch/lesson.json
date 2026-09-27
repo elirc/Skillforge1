@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "function readJson(text) {\n  try {\n    return JSON.parse(text);\n  } catch {\n    return {};\n  }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The parser throws when text is malformed. Control jumps into catch, which converts that expected failure into the helper's explicit fallback. Successful parsing returns immediately."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function parseOrNull(text) {\n  try { return JSON.parse(text); }\n  catch { return null; }\n}\nparseOrNull('{bad'); // null"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Catching every error around a large function can hide unrelated programming bugs. Keep the protected boundary small."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Does valid JSON guarantee an object with the properties your app needs? Add a separate shape check.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,38 @@
       "type": "MCQ",
       "prompt": "What runs when code inside a try block throws?",
       "payload": {
-        "choices": ["the catch block", "the try block again", "nothing, the program stops", "the finally block only"],
+        "choices": [
+          "the try block again",
+          "nothing, the program stops",
+          "the finally block only",
+          "the catch block"
+        ],
         "answer": "the catch block",
         "explanation": "A thrown error transfers control to the matching catch block."
       },
-      "conceptTags": ["error-handling", "try-catch"]
+      "conceptTags": [
+        "error-handling",
+        "try-catch"
+      ],
+      "id": "sf_019e97a85eb438ecaf4112cd"
     },
     {
       "type": "CODE",
       "prompt": "Parse the JSON text and return the value; return an empty object {} if the text is not valid JSON.",
       "exercise": "parse-config",
-      "conceptTags": ["error-handling", "try-catch", "json"]
+      "conceptTags": [
+        "error-handling",
+        "try-catch",
+        "json"
+      ],
+      "id": "sf_645c7e1418e16e28fcf3b395",
+      "hints": [
+        "Catching every error around a large function can hide unrelated programming bugs. Keep the protected boundary small.",
+        "The parser throws when text is malformed. Control jumps into catch, which converts that expected failure into the helper's explicit fallback. Successful parsing returns immediately."
+      ],
+      "walkthrough": "The parser throws when text is malformed. Control jumps into catch, which converts that expected failure into the helper's explicit fallback. Successful parsing returns immediately."
     }
-  ]
+  ],
+  "id": "sf_3e9e61a89d40e18d59307dac",
+  "estimatedMinutes": 12
 }

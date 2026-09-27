@@ -1,0 +1,24 @@
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "test.db" at "file:C:/Users/Owner/AppData/Local/Temp/skillforge-completion-LDtJnB/test.db"
+
+SQLite database test.db created at file:C:/Users/Owner/AppData/Local/Temp/skillforge-completion-LDtJnB/test.db
+
+Your database is now in sync with your Prisma schema. Done in 2.22s
+
+
+ RUN  v3.2.6 C:/Users/Owner/Desktop/AstraOrganized2/astra-remaining-improvements/stage/9d3b119f40a0
+
+ ✓ tests/unit/completion.test.ts (5 tests) 23240ms
+   ✓ atomic lesson completion (helper-owned database) > rejects an 'empty' lesson without progress or review writes  1998ms
+   ✓ atomic lesson completion (helper-owned database) > rejects an 'unknown' lesson without progress or review writes  344ms
+   ✓ atomic lesson completion (helper-owned database) > commits completion, deterministic review seeds, XP, and quest progress together  2878ms
+   ✓ atomic lesson completion (helper-owned database) > rolls back real completion and award writes when a late step fails  7532ms
+   ✓ atomic lesson completion (helper-owned database) > makes concurrent/repeated completion one award decision  10180ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  14:55:58
+   Duration  56.87s (transform 12.11s, setup 0ms, collect 18.48s, tests 23.24s, environment 48ms, prepare 7.28s)

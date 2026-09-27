@@ -50,7 +50,8 @@ export default async function ProblemPage({ params }: PageProps) {
         <section className="space-y-6">
           <div>
             <div className="mb-3 flex flex-wrap gap-2">
-              <Badge>{problem.language}</Badge>
+              <Badge>Topic: {problem.language}</Badge>
+              <Badge>You will write: {problem.runtime === "sql" ? "SQLite" : problem.runtime}</Badge>
               <Badge>{problem.difficulty.toLowerCase()}</Badge>
               {problem.conceptTags.slice(0, 4).map((tag) => (
                 <Badge key={tag}>#{tag}</Badge>
@@ -68,6 +69,8 @@ export default async function ProblemPage({ params }: PageProps) {
               functionName={problem.functionName}
               tests={tests}
               language={problem.runtime}
+              referenceSolution={problem.referenceSolution}
+              walkthrough={explanation.junior}
             />
           </div>
         </section>
@@ -75,11 +78,11 @@ export default async function ProblemPage({ params }: PageProps) {
         <aside className="space-y-4">
           <section className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
             <h2 className="font-semibold">Beginner explanation</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">{explanation.beginner}</p>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-400">{explanation.beginner}</p>
           </section>
           <section className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="font-semibold">Junior SWE explanation</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">{explanation.junior}</p>
+            <h2 className="font-semibold">Build independent understanding</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">Predict an output, implement the rule, then try an additional boundary case. Use Show solution for the implementation and its walkthrough; that run will be recorded as assisted practice.</p>
           </section>
         </aside>
       </div>

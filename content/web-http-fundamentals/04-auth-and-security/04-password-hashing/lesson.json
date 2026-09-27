@@ -1,0 +1,97 @@
+{
+  "title": "Storing Passwords Safely",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Never store passwords, and never store them encrypted either (whoever has the key has every password). Store a **one-way hash** made by a deliberately slow password-hashing function: **Argon2id**, **bcrypt**, **scrypt**, or **PBKDF2** with a high iteration count. General-purpose hashes like SHA-256 are far too fast: a GPU can try billions of guesses per second."
+    },
+    {
+      "type": "prose",
+      "body": "Three ingredients:\n- A random per-user **salt**, stored next to the hash, so two users with the same password get different hashes and precomputed tables are useless.\n- A **work factor** (iterations or memory cost), also stored, so you can raise it over the years.\n- A **constant-time comparison**, so response timing does not reveal how many characters matched."
+    },
+    {
+      "type": "code-example",
+      "language": "text",
+      "code": "stored record:  pbkdf2-sha256 $ 600000 $ q7Rz9fT2... $ 3b1f8c...\n                scheme          cost     salt          hash"
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// ASP.NET Core Identity's PasswordHasher does all of this (PBKDF2, salt, versioned format):\nvar hasher = new PasswordHasher<User>();\nuser.PasswordHash = hasher.HashPassword(user, password);\n\nvar result = hasher.VerifyHashedPassword(user, user.PasswordHash, attempt);\nif (result == PasswordVerificationResult.SuccessRehashNeeded)\n    user.PasswordHash = hasher.HashPassword(user, attempt); // upgrade to the current cost"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "\"Rehash on login\" is how you migrate to a stronger cost: you cannot rehash a stored hash, but at login you briefly have the plain password, so verify with the old parameters and store a new hash."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why is SHA-256 alone a poor choice for storing passwords?",
+      "payload": {
+        "choices": [
+          "It is reversible",
+          "It produces different output each time",
+          "It is fast, so attackers can test billions of guesses per second",
+          "It only works on numbers"
+        ],
+        "answer": "It is fast, so attackers can test billions of guesses per second",
+        "explanation": "Password hashes must be slow and tunable. Argon2id, bcrypt, scrypt, and PBKDF2 are designed for that."
+      },
+      "conceptTags": [
+        "passwords",
+        "hashing",
+        "security"
+      ],
+      "id": "sf_a63dca3c5248bc81e94fc53d"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does a per-user salt defend against?",
+      "payload": {
+        "choices": [
+          "SQL injection",
+          "Phishing",
+          "Precomputed tables and spotting users who share a password",
+          "Weak TLS"
+        ],
+        "answer": "Precomputed tables and spotting users who share a password",
+        "explanation": "With unique salts, identical passwords hash differently and an attacker must attack each hash separately."
+      },
+      "conceptTags": [
+        "passwords",
+        "salt"
+      ],
+      "id": "sf_9508a62378b2e596887057a5"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the technique.",
+      "payload": {
+        "text": "Comparing two hashes in ____ time means the check takes as long whether the first or the last character differs.",
+        "blanks": [
+          "constant"
+        ]
+      },
+      "conceptTags": [
+        "passwords",
+        "timing-attacks"
+      ],
+      "id": "sf_e3acde1dddd568d3d5913662"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Verify a password against a stored \"toy1$iterations$salt$hash\" record using a provided toy hash, compare in constant time, and report when the record needs a rehash at the current cost.",
+      "exercise": "verify-password",
+      "conceptTags": [
+        "passwords",
+        "hashing",
+        "salt",
+        "security"
+      ],
+      "id": "sf_20bcb3eff9c3305df28e783a"
+    }
+  ],
+  "id": "sf_a0b15d806661c9de44286b2e"
+}

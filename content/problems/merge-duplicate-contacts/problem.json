@@ -1,0 +1,14 @@
+{
+  "slug": "merge-duplicate-contacts",
+  "title": "Merge Duplicate Contacts",
+  "prompt": "A CRM import produced duplicate contacts. Each contact is `{ id, email, phone }` where `email` and `phone` may be `null` or empty. Normalize before comparing. Email: trim and lowercase, drop anything from `+` up to the `@` in the local part, and for `gmail.com` or `googlemail.com` also remove dots from the local part and treat both domains as `gmail.com`. Phone: keep digits only, drop a leading `1` when there are 11 digits, and ignore phones that do not end up with exactly 10 digits. Two contacts are the same person if they share a normalized email or phone, directly or through a chain of other contacts. Return the groups of ids: ids inside a group in input order, groups ordered by their first contact's input position, and contacts without matches as groups of one.",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": ["union-find", "hashing", "normalization", "data-cleaning"],
+  "order": 50009,
+  "exercise": "merge-duplicate-contacts",
+  "explanation": {
+    "beginner": "Break it into two jobs. First, write small `normalizeEmail` and `normalizePhone` helpers that turn each messy value into a clean key, or null when there is nothing usable. Second, group the contacts. Keep a map from key (like 'email:ada@gmail.com' or 'phone:5551234567') to the first contact that had it. When another contact has the same key, the two belong together. Because A can match B by email and B can match C by phone, you need a way to join whole groups, not just pairs: give every contact a 'leader' pointer, and to join two contacts, point one's leader at the other's. Finally walk the contacts in input order and collect ids under their ultimate leader.",
+    "junior": "Grouping by 'shares any key, transitively' is connected components, and union-find (disjoint set union) solves it in near-linear time: O(n * alpha(n)) with path compression. Prefix keys with their kind ('email:' vs 'phone:') so a weird email can never collide with a phone. Normalization is where real bugs hide: trim before lowercasing, strip the `+tag` before removing gmail dots, and only remove dots for gmail domains because `j.smith@acme.io` and `jsmith@acme.io` can be different people. Missing values must produce no key at all; otherwise every contact with a blank phone merges into one giant group. To output stable groups, iterate contacts in input order and push into a Map keyed by root: Map preserves insertion order, which gives groups ordered by first member for free."
+  }
+}

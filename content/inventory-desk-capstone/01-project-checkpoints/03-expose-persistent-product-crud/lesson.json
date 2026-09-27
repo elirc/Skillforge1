@@ -1,0 +1,50 @@
+{
+  "id": "sf_05b0ac70b84318c65f20a99c",
+  "title": "Expose persistent product CRUD",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Make the API create, read, edit and delete actual rows with a clear resource contract.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read InventoryDesk.Api/Program.cs; InventoryDesk.Api/Domain.cs before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet test InventoryDesk.Tests --filter Milestone=03"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** POST returns 201 and a Location header, GET reads the created values, PUT increments version, DELETE returns 204, and a later GET returns 404.\n\n**Make a meaningful variation.** Add a product description field through an additive migration and a DTO update. Verify old rows receive a safe default. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: HTTP verbs and status codes match the operation; ownership is not accepted from a request body; DTOs avoid exposing internal password or owner data."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** Why return a DTO rather than serializing every entity field? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_7a20a07c81edc05215652626",
+      "type": "MCQ",
+      "prompt": "Why return a DTO rather than serializing every entity field?",
+      "conceptTags": [
+        "aspnet-core",
+        "crud",
+        "dto"
+      ],
+      "payload": {
+        "choices": [
+          "The public contract should expose only intentional fields",
+          "DTOs remove the need for validation",
+          "They make database writes automatically atomic"
+        ],
+        "answer": "The public contract should expose only intentional fields",
+        "explanation": "HTTP verbs and status codes match the operation; ownership is not accepted from a request body; DTOs avoid exposing internal password or owner data."
+      }
+    }
+  ]
+}

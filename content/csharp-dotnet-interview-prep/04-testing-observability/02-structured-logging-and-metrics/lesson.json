@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "warning",
       "body": "Do not log access tokens, passwords, raw authorization headers, or sensitive personal data."
+    },
+    {
+      "type": "prose",
+      "body": "A log call takes a message template, not a finished string. `ILogger` binds the arguments to the `{Placeholders}` by position and stores each one as a property, which is what makes `LessonId = 'l-42'` searchable. String interpolation (`$\"Completed {lessonId}\"`) formats the text before the logger sees it, so the properties are gone. `{@Review}` asks the provider to destructure an object into fields. Anything sensitive must be redacted before it is written, because logs are copied to many places and kept for a long time."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Bad: the logger receives finished text; LessonId is not a property.\nlogger.LogInformation($\"Completed lesson {lessonId} for {userId}\");\n\n// Good: a template with positional placeholders.\nlogger.LogInformation(\"Completed lesson {LessonId} for {UserId}\", lessonId, userId);\n\n// Metrics for trends: a counter and a latency histogram.\nprivate static readonly Meter Meter = new(\"Skillforge.Lessons\");\nprivate static readonly Counter<long> Completions = Meter.CreateCounter<long>(\"lessons.completed\");\nprivate static readonly Histogram<double> Latency = Meter.CreateHistogram<double>(\"lessons.complete.duration\", unit: \"ms\");"
     }
   ],
   "knowledgeItems": [
@@ -30,16 +39,76 @@
         "answer": "Fields like LessonId and UserId remain queryable",
         "explanation": "Structured properties can be searched, aggregated, and correlated by log tooling."
       },
-      "conceptTags": ["observability", "logging"]
+      "conceptTags": [
+        "observability",
+        "logging"
+      ],
+      "id": "sf_33dbea09d89db1903c904344"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the observability answer.",
       "payload": {
         "text": "Use logs for event detail, metrics for trends, and ____ for following one request across services.",
-        "blanks": ["traces"]
+        "blanks": [
+          "traces"
+        ]
       },
-      "conceptTags": ["observability", "tracing"]
+      "conceptTags": [
+        "observability",
+        "tracing"
+      ],
+      "id": "sf_b7afd54157f9c6b997dbf4b7"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is wrong with `logger.LogInformation($\"Completed {lessonId}\")`?",
+      "payload": {
+        "choices": [
+          "Interpolated strings cannot contain braces",
+          "It logs at the wrong level",
+          "It throws when lessonId is null",
+          "The string is formatted before logging, so LessonId is not captured as a queryable property"
+        ],
+        "answer": "The string is formatted before logging, so LessonId is not captured as a queryable property",
+        "explanation": "Pass a template and arguments instead. The logger then records each placeholder as a structured field, and can skip formatting entirely when the level is disabled."
+      },
+      "conceptTags": [
+        "observability",
+        "logging"
+      ],
+      "id": "sf_c373ea2cc748d74d6c45fa54"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which metric instrument fits request latency?",
+      "payload": {
+        "choices": [
+          "Histogram",
+          "Counter",
+          "A log line per request",
+          "An exception"
+        ],
+        "answer": "Histogram",
+        "explanation": "A histogram records a distribution, so you can chart p50, p95 and p99. A counter only tells you how many times something happened."
+      },
+      "conceptTags": [
+        "observability",
+        "metrics"
+      ],
+      "id": "sf_6ee8a4b474203cef5afad271"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Build a structured log event: render a message template, capture positional properties, and redact secrets.",
+      "exercise": "build-log-event",
+      "conceptTags": [
+        "observability",
+        "logging",
+        "security"
+      ],
+      "id": "sf_d85a3d27f0cba70097ef6982"
     }
-  ]
+  ],
+  "id": "sf_d9bb5eea6c141e8012146e72"
 }

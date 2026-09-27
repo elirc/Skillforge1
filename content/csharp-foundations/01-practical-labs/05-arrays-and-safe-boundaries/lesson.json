@@ -1,0 +1,66 @@
+{
+  "id": "sf_b9b9b6eb70a165fd4670a969",
+  "title": "Arrays and safe boundaries",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Array indexing starts at zero, so the final valid index is Length minus one. Empty arrays have no valid index at all. Check the length before accessing an element. A sentinel such as none is a contract choice here; in a larger API you might prefer a nullable result so the sentinel cannot be confused with a real label."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static string LastOrDefault(string[] values)\n    {\n        return \"none\";\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[\"a\",\"b\"]]. The required result is \"b\". Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return the last string, or none for an empty array."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "values[values.Length] is always outside the array."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** What if a real value is the string none? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the single case checks a different boundary.\n\n**Transfer it.** Use an explicit optional result for a stock lookup that may not find a row."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_fa9a7572f8c088c68766325c",
+      "type": "MCQ",
+      "prompt": "What is the last valid index of a nonempty array?",
+      "conceptTags": [
+        "arrays",
+        "boundaries",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "Length - 1",
+          "Length",
+          "Always zero"
+        ],
+        "answer": "Length - 1",
+        "explanation": "Zero-based indexing assigns indices 0 through Length - 1."
+      }
+    },
+    {
+      "id": "sf_8b155aac97bbe95d4e4c4198",
+      "type": "CODE",
+      "prompt": "Return the last string, or none for an empty array.",
+      "conceptTags": [
+        "arrays",
+        "boundaries",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Zero-based indexing assigns indices 0 through Length - 1.",
+        "values[values.Length] is always outside the array."
+      ],
+      "walkthrough": "Zero-based indexing assigns indices 0 through Length - 1.\nvalues[values.Length] is always outside the array."
+    }
+  ]
+}

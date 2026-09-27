@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "function double(value) {\n  return value * 2;\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The caller supplies 4. The parameter n receives it. return passes 12 back to the caller, which stores it in answer. The function can be reused without knowing where its result will be displayed."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function triple(n) {\n  return n * 3;\n}\nconst answer = triple(4); // 12"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "console.log shows a value but does not return that value. A function without return normally produces undefined."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** What changes if return is replaced with console.log? Inspect both the console and answer.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,37 @@
       "type": "MCQ",
       "prompt": "What does return do inside a function?",
       "payload": {
-        "choices": ["sends a value back to the caller", "creates a loop", "declares a variable", "imports a file"],
+        "choices": [
+          "creates a loop",
+          "sends a value back to the caller",
+          "declares a variable",
+          "imports a file"
+        ],
         "answer": "sends a value back to the caller",
         "explanation": "return produces the function result."
       },
-      "conceptTags": ["functions", "return"]
+      "conceptTags": [
+        "functions",
+        "return"
+      ],
+      "id": "sf_edbc4efc2a94cdc6bd434c13"
     },
     {
       "type": "CODE",
       "prompt": "Implement double.",
       "exercise": "double",
-      "conceptTags": ["functions", "return"]
+      "conceptTags": [
+        "functions",
+        "return"
+      ],
+      "id": "sf_aaad3af0f027d26e8a7e9b8c",
+      "hints": [
+        "console.log shows a value but does not return that value. A function without return normally produces undefined.",
+        "The caller supplies 4. The parameter n receives it. return passes 12 back to the caller, which stores it in answer. The function can be reused without knowing where its result will be displayed."
+      ],
+      "walkthrough": "The caller supplies 4. The parameter n receives it. return passes 12 back to the caller, which stores it in answer. The function can be reused without knowing where its result will be displayed."
     }
-  ]
+  ],
+  "id": "sf_0c1fefdcf7d3f6fe4049948e",
+  "estimatedMinutes": 12
 }

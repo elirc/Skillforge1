@@ -9,6 +9,11 @@
       "type": "code-example",
       "language": "typescript",
       "code": "function double(value: number): number {\n  return value * 2;\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Once a function is annotated to return string, every code path must return a string. Forgetting a branch is a compile error instead of an undefined surprise at runtime."
     }
   ],
   "knowledgeItems": [
@@ -16,20 +21,67 @@
       "type": "MCQ",
       "prompt": "Where does the return type go in function double(value: number): number?",
       "payload": {
-        "choices": ["after the parameter list, following a colon", "before the function keyword", "inside the parameter list", "after the function body"],
+        "choices": [
+          "before the function keyword",
+          "after the parameter list, following a colon",
+          "inside the parameter list",
+          "after the function body"
+        ],
         "answer": "after the parameter list, following a colon",
         "explanation": "The return type is written as ): Type, right before the body."
       },
-      "conceptTags": ["types", "return-types"]
+      "conceptTags": [
+        "types",
+        "return-types"
+      ],
+      "id": "sf_9383f42f262b0ad0fe0353e5"
     },
     {
       "type": "CLOZE",
       "prompt": "Name the return type.",
       "payload": {
         "text": "A function that returns true or false should be annotated to return ____.",
-        "blanks": ["boolean"]
+        "blanks": [
+          "boolean"
+        ]
       },
-      "conceptTags": ["types", "return-types", "boolean"]
+      "conceptTags": [
+        "types",
+        "return-types",
+        "boolean"
+      ],
+      "id": "sf_b42af8302dafc3be80949365"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A function annotated ): number has an if branch that falls off the end without returning. What does TypeScript report?",
+      "payload": {
+        "choices": [
+          "Nothing, undefined counts as a number",
+          "A runtime exception",
+          "It changes the return type to any",
+          "Not all code paths return a value / undefined is not assignable to number"
+        ],
+        "answer": "Not all code paths return a value / undefined is not assignable to number",
+        "explanation": "The return type is a promise to callers; the compiler checks every branch keeps it."
+      },
+      "conceptTags": [
+        "types",
+        "return-types"
+      ],
+      "id": "sf_fbe7fd090cff370c7c3d212e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Turn a 0-100 score into a letter grade (A/B/C/D/F), returning \"invalid\" outside that range. Annotate the return type as string.",
+      "exercise": "letter-grade",
+      "conceptTags": [
+        "types",
+        "return-types",
+        "conditionals"
+      ],
+      "id": "sf_e4dc476403c4c6504f8a8587"
     }
-  ]
+  ],
+  "id": "sf_40a659a10996e300909c7fde"
 }

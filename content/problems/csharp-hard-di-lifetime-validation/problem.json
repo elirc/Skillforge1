@@ -1,0 +1,14 @@
+{
+  "slug": "csharp-hard-di-lifetime-validation",
+  "title": "Validate a DI Container at Startup",
+  "prompt": "Reproduce what ASP.NET Core's `ValidateOnBuild` and `ValidateScopes` catch. Each `Registration(Service, Lifetime, Dependencies)` has a lifetime of `\"Singleton\"`, `\"Scoped\"` or `\"Transient\"`; if a service is registered more than once, the last registration wins. Return every problem, sorted ordinally and without duplicates: `\"{S} depends on missing {D}\"` when a dependency is not registered; `\"{S} (Singleton) captures {D} (Scoped)\"` when a singleton reaches a scoped service directly or through a chain of transient services (a chain stops at another singleton, which is checked on its own, or at a scoped service); and `\"{S} is part of a cycle\"` for every service that can reach itself through its dependencies. A valid container returns an empty list.",
+  "language": "csharp",
+  "difficulty": "HARD",
+  "conceptTags": ["csharp", "dependency-injection", "graphs", "aspnet-core", "dfs"],
+  "order": 50016,
+  "exercise": "csharp-hard-di-lifetime-validation",
+  "explanation": {
+    "beginner": "A singleton lives for the whole app; a scoped service (like an EF Core DbContext) lives for one HTTP request. If a singleton holds on to a scoped object, that one DbContext gets reused by every request forever, which causes threading bugs and stale data: this is a 'captive dependency'. First build a dictionary from service name to its (last) registration. Then do three simple checks. Missing: for every dependency, is it in the dictionary? Captive: for every singleton, follow its dependencies; stop at singletons and scoped services, keep following transients, and report any scoped service you hit. Cycle: for every service, follow dependencies and see whether you ever arrive back at the start. Put all messages in a set and sort them at the end.",
+    "junior": "Model the container as a directed graph and run small DFS passes; with a `HashSet<string>` of visited nodes each pass is O(V + E), so the whole validation is O(V * (V + E)), which is trivial at startup. The captive check must traverse through transients because a transient created by a singleton is itself captured, so its scoped dependency is too; it must stop at a singleton because that singleton gets its own report, which avoids blaming everything upstream. For cycles, 'can X reach X' is the simplest correct test and naturally reports only nodes on the cycle, not nodes that merely point into it (Tarjan's SCC gives the same answer in one O(V + E) pass). `ToDictionary` throws on duplicate keys, so build the map with a loop or `GroupBy(...).Last()` to get last-wins semantics. Collect into a `HashSet` and `OrderBy(m => m, StringComparer.Ordinal)` for deterministic output."
+  }
+}

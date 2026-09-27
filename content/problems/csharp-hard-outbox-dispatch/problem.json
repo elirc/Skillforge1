@@ -1,0 +1,14 @@
+{
+  "slug": "csharp-hard-outbox-dispatch",
+  "title": "Simulate a Transactional Outbox Dispatcher",
+  "prompt": "An order service writes integration events to an outbox table and a background dispatcher publishes them. Simulate the dispatcher in whole seconds. Each `OutboxMessage(Id, CreatedAt)` becomes due at `CreatedAt`. On each tick the dispatcher takes up to `batchSize` due messages, oldest `CreatedAt` first and then by `Id` (ordinal), and tries to publish each one. The broker fails exactly the attempts listed in `failingAttempts` as `\"{Id}#{attemptNumber}\"` (attempts count from 1). A success logs `\"t={t} sent {Id}\"`. A failure on the last allowed attempt (`maxAttempts`) logs `\"t={t} dead {Id}\"`; any other failure schedules a retry after an exponential backoff of 2^(attempt - 1) seconds and logs `\"t={t} retry {Id} at {next}\"`. Due messages left over because the batch was full are tried on the next tick. Ticks with nothing due are skipped. Return the log in order.",
+  "language": "csharp",
+  "difficulty": "HARD",
+  "conceptTags": ["csharp", "outbox-pattern", "retries", "simulation", "linq"],
+  "order": 50014,
+  "exercise": "csharp-hard-outbox-dispatch",
+  "explanation": {
+    "beginner": "The outbox pattern saves 'messages to send' in the same database transaction as the business change, so an order is never saved without its event (or the other way round). A separate loop then sends them. For this simulation, give each message a small mutable state: attempts so far and the time it is next allowed to run (starting at CreatedAt). Then loop: pick the current second, collect the messages whose next time has arrived, sort them oldest first, take at most `batchSize`, and try each. Look up `\"{Id}#{attempt}\"` in a HashSet to decide failure. Remove messages that were sent or dead-lettered; push failed ones into the future by 1, 2, 4, 8 seconds.",
+    "junior": "Model pending work as a list of small mutable state objects (a private nested class) and keep the input records immutable. Rather than ticking every second, jump to `Math.Max(lastTick + 1, pending.Min(p => p.NextAttemptAt))`: it skips idle time but still advances by one when a full batch left due work behind, which is the subtle case (jumping to the minimum alone would re-run the same tick forever). Order with `OrderBy(CreatedAt).ThenBy(Id, StringComparer.Ordinal)` so retries do not jump the queue ahead of older messages, matching an `ORDER BY created_at, id` query with `FOR UPDATE SKIP LOCKED`. Backoff is `1 << (attempt - 1)`. `maxAttempts = 1` means the first failure is fatal. Each tick is O(p log p) for p pending messages. In production, add jitter to the backoff and make consumers idempotent, because the outbox guarantees at-least-once delivery, not exactly-once."
+  }
+}

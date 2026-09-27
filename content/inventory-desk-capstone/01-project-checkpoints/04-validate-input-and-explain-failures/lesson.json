@@ -1,0 +1,50 @@
+{
+  "id": "sf_78b93b9b0c9379548d12d99a",
+  "title": "Validate input and explain failures",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Reject invalid changes at the server boundary while preserving all existing data.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read InventoryDesk.Api/Domain.cs; InventoryDesk.Api/Program.cs before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet test InventoryDesk.Tests --filter Milestone=04"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** A request with a blank SKU, blank name, negative price and negative stock returns field-level Problem Details and inserts no product.\n\n**Make a meaningful variation.** Add a SKU character rule and show its server error beside the SKU field. Keep the user's entered values after rejection. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: Validation reports actionable field errors, the UI retains input, and malformed requests cannot partially write records."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** Does client-side validation replace server validation? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_12c3aa48a5725679e3b8aba2",
+      "type": "MCQ",
+      "prompt": "Does client-side validation replace server validation?",
+      "conceptTags": [
+        "validation",
+        "problem-details",
+        "forms"
+      ],
+      "payload": {
+        "choices": [
+          "Yes, required inputs cannot be bypassed",
+          "Only when the button is disabled",
+          "No, every client request must be checked at the server boundary"
+        ],
+        "answer": "No, every client request must be checked at the server boundary",
+        "explanation": "Validation reports actionable field errors, the UI retains input, and malformed requests cannot partially write records."
+      }
+    }
+  ]
+}

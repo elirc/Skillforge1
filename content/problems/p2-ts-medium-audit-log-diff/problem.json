@@ -1,0 +1,14 @@
+{
+  "slug": "p2-ts-medium-audit-log-diff",
+  "title": "Audit Log Entries from a Record Diff",
+  "prompt": "When a record is saved, the audit log stores one human-readable line per changed field. Write `auditLines(before, after, ignore)` for flat objects. Visit keys in the order they appear in `before`, then keys that only exist in `after` (in `after` order); skip keys listed in `ignore`. A key is present if it is an own property whose value is not `undefined` (`null` is present). Format values with `JSON.stringify`. Rules: only in `after` -> `key: set to V`; only in `before` -> `key: cleared (was V)`; both arrays -> compare as sets of values (by their JSON): emit `key: added A, B` for values new in `after` (in `after` order, no repeats) and then `key: removed X` for values gone from `before` (in `before` order), omitting an empty line; otherwise if the JSON differs -> `key: OLD -> NEW`. Unchanged keys produce nothing.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["typescript", "diffing", "audit-log", "sets"],
+  "order": 70013,
+  "exercise": "audit-log-diff",
+  "explanation": {
+    "beginner": "Make a list of keys to look at: all of `before`'s keys, then any new ones from `after`. For each key, decide which of four situations it is: new, removed, both are lists, or both are plain values. For lists, the order of tags usually does not matter to a reader, so treat them like sets: turn each item into text with `JSON.stringify`, put `before`'s items in a Set and check which of `after`'s are missing from it (added), and the other way round (removed). For plain values, compare their JSON text and only write a line when it changed.",
+    "junior": "Comparing via `JSON.stringify` gives value equality for primitives and nested objects in one rule, at the cost of treating `{a,b}` and `{b,a}` as different (canonicalise keys if that matters). Presence must distinguish `undefined` from `null`: `null` is an intentional 'cleared to null' value the auditor wants to see. Deduplicate added/removed values with a Set of seen JSON strings, and keep deterministic ordering (before-order, then after-only keys) so logs and snapshot tests are stable. The ignore list keeps noise such as `updatedAt` and `version` out. Complexity is O(k + total array length). For nested documents you would recurse and emit JSON-pointer paths instead."
+  }
+}

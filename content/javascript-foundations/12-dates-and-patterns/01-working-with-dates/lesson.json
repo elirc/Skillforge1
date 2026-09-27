@@ -1,0 +1,132 @@
+{
+  "title": "Working with Dates",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A JavaScript `Date` stores one moment in time as a single number: the milliseconds since 1 January 1970, UTC. Everything else (the year, the weekday, the hour) is calculated from that number when you ask for it."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const now = new Date();                        // this moment\nconst launch = new Date(\"2026-03-01T09:30:00Z\"); // Z means UTC\nconsole.log(launch.getTime());                 // 1772357400000 (milliseconds)\nconsole.log(launch.toISOString());             // \"2026-03-01T09:30:00.000Z\""
+    },
+    {
+      "type": "prose",
+      "body": "Three classic surprises:\n- **Months start at 0.** `new Date(2026, 0, 15)` is 15 January; month 11 is December.\n- **Local vs UTC.** `getDate()` and `getHours()` use the computer's time zone; `getUTCDate()` and `getUTCHours()` use UTC. The same moment can be a different day in different places.\n- **Dates are objects.** `a === b` compares whether they are the same object, not the same moment. Compare `a.getTime() === b.getTime()` instead."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const a = new Date(\"2026-03-01\");\nconst b = new Date(\"2026-03-01\");\nconsole.log(a === b);                     // false: two different objects\nconsole.log(a.getTime() === b.getTime()); // true: same moment\nconsole.log(a < new Date(\"2026-04-01\"));  // true: < and > compare the numbers"
+    },
+    {
+      "type": "prose",
+      "body": "To count days between two calendar dates, subtract their millisecond values and divide by the milliseconds in a day. A date-only string like `\"2026-03-01\"` is read as midnight **UTC**, so the result is not affected by daylight-saving changes."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const msPerDay = 24 * 60 * 60 * 1000;\nconst days = (Date.parse(\"2026-03-10\") - Date.parse(\"2026-03-01\")) / msPerDay;\nconsole.log(days); // 9\n\n// Friendly formatting for people (uses their locale and zone)\nconsole.log(new Date(\"2026-03-01T09:30:00Z\").toLocaleDateString(\"en-GB\")); // \"01/03/2026\""
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`new Date(\"2026-03-01\")` (date only) is UTC midnight, but `new Date(\"2026-03-01T00:00\")` (date and time, no Z) is **local** midnight. When a bug only happens for some users, check which one you used."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "An invalid date does not throw. `new Date(\"soon\")` is an Invalid Date whose `getTime()` is `NaN`. Check with `Number.isNaN(date.getTime())`. Also, an impossible date such as `\"2026-02-31\"` does not fail at all: it quietly rolls over to 3 March."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** A Date represents an instant. A calendar day depends on a timezone; ISO formatting here deliberately chooses UTC. Local getters can give the previous day for this same instant."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const instant = new Date('2026-01-01T00:30:00Z');\nconst day = instant.toISOString().slice(0, 10);\n// '2026-01-01' in UTC"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Parsing a date without an explicit time-zone contract can turn midnight boundaries into off-by-one-day bugs."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Compare this instant in UTC with a zone seven hours behind UTC.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What date is `new Date(2026, 1, 10)`?",
+      "payload": {
+        "choices": [
+          "10 January 2026",
+          "1 October 2026",
+          "10 February 2026",
+          "2 October 2026"
+        ],
+        "answer": "10 February 2026",
+        "explanation": "Months are zero-based in the Date constructor: 0 is January, so 1 is February. Days are not zero-based."
+      },
+      "conceptTags": [
+        "dates",
+        "date-pitfalls"
+      ],
+      "id": "sf_53994707ff9d5ae8e73482ec"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "How do you check whether two Date objects hold the same moment?",
+      "payload": {
+        "choices": [
+          "a === b",
+          "a == b",
+          "a.toString() === b",
+          "a.getTime() === b.getTime()"
+        ],
+        "answer": "a.getTime() === b.getTime()",
+        "explanation": "=== on objects checks identity (same object). getTime() gives the millisecond number, which you can compare."
+      },
+      "conceptTags": [
+        "dates",
+        "comparison"
+      ],
+      "id": "sf_4beee44c510e5054413afc15"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the method name.",
+      "payload": {
+        "text": "The UTC version of getDate() is get____().",
+        "blanks": [
+          "UTCDate"
+        ]
+      },
+      "conceptTags": [
+        "dates",
+        "utc"
+      ],
+      "id": "sf_93bbfa6d6b4ace6c84dba14e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write daysUntil(from, to). Both are \"YYYY-MM-DD\" strings. Return the number of whole days from `from` to `to` (negative if `to` is earlier), or null if either string is not a valid date in that format.",
+      "exercise": "days-until",
+      "conceptTags": [
+        "dates",
+        "date-math"
+      ],
+      "id": "sf_c1f0e98d95a56919c16b7bc6",
+      "hints": [
+        "Parsing a date without an explicit time-zone contract can turn midnight boundaries into off-by-one-day bugs.",
+        "A Date represents an instant. A calendar day depends on a timezone; ISO formatting here deliberately chooses UTC. Local getters can give the previous day for this same instant."
+      ],
+      "walkthrough": "A Date represents an instant. A calendar day depends on a timezone; ISO formatting here deliberately chooses UTC. Local getters can give the previous day for this same instant."
+    }
+  ],
+  "id": "sf_5df82e502c4370deeb6bcdce",
+  "estimatedMinutes": 12
+}

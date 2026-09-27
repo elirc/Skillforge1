@@ -1,0 +1,68 @@
+{
+  "id": "sf_5d747675b1f6173fd2b9b019",
+  "title": "Classes, constructors, and properties",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A class defines an object with identity and behavior. A constructor establishes its initial state; properties expose controlled access to that state. Here the Product constructor assigns a SKU and starting stock to read-only properties. Every new Product call creates a separate object. Contrast this identity with the value equality supplied by the record from the earlier lesson. Revisit this class before using EF Core entities in the project track."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "public sealed class Product { public string Sku { get; } public int Stock { get; } public Product(string sku, int stock) { Sku = sku; Stock = stock; } }\npublic static class Exercise\n{\n    public static string Describe(string sku, int stock)\n    {\n        return string.Empty;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [\"A\",3]. The required result is \"A:3\". Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Construct a Product from the arguments, then return its SKU and Stock joined by a colon."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A static field is shared by the type; it is not independent state for each product."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why might a private setter protect stock better than a public field? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the zero stock case checks a different boundary.\n\n**Transfer it.** Use an entity constructor to establish a valid initial state, then expose explicit adjustment behavior."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_c02ef141a00045b36bfe4457",
+      "type": "MCQ",
+      "prompt": "When does the Product constructor run?",
+      "conceptTags": [
+        "classes",
+        "constructors",
+        "properties",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "Whenever a property is read",
+          "When new Product creates an instance",
+          "Only at application shutdown"
+        ],
+        "answer": "When new Product creates an instance",
+        "explanation": "The constructor establishes instance state once during creation."
+      }
+    },
+    {
+      "id": "sf_1c37c2fd2e696ed0913b9e2e",
+      "type": "CODE",
+      "prompt": "Construct a Product from the arguments, then return its SKU and Stock joined by a colon.",
+      "conceptTags": [
+        "classes",
+        "constructors",
+        "properties",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The constructor establishes instance state once during creation.",
+        "A static field is shared by the type; it is not independent state for each product."
+      ],
+      "walkthrough": "The constructor establishes instance state once during creation.\nA static field is shared by the type; it is not independent state for each product."
+    }
+  ]
+}

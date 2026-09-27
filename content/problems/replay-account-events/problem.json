@@ -1,0 +1,14 @@
+{
+  "slug": "replay-account-events",
+  "title": "Replay an Event-Sourced Ledger",
+  "prompt": "A wallet service is event-sourced: balances are rebuilt by replaying events `{ seq, account, type, amount }` where `type` is `opened`, `deposited`, `withdrew` or `closed` and `amount` is in cents. Events can arrive out of order and can be delivered more than once. Apply them in `seq` order, ignoring any repeat of a `seq` already seen (the first delivery wins, and a repeat is not a rejection). Reject (skip and record the `seq` of) any event that breaks a rule: opening an account id that was ever opened before; depositing, withdrawing or closing an account that is not currently open; withdrawing more than the balance; closing an account whose balance is not zero. Return `{ balances, rejected }`: balances of currently open accounts with keys sorted alphabetically, and rejected seqs in ascending order.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["event-sourcing", "state-machines", "validation", "maps"],
+  "order": 50025,
+  "exercise": "replay-account-events",
+  "explanation": {
+    "beginner": "Event sourcing stores what happened (deposited 500, withdrew 200) instead of the current balance, and rebuilds the balance by replaying history. Start by making a sorted copy of the events by `seq` and a set of seqs you have already applied, so duplicates can be skipped. Keep a Map from account to `{ open, balance }`. For each event, check its rule with a switch on `type`; if it is allowed, update the account, otherwise push the seq into `rejected`. At the end, copy the open accounts into a plain object with sorted keys.",
+    "junior": "Replays must be deterministic, so order by the sequence number rather than arrival order, and make the projection idempotent by deduplicating on `seq`: message brokers deliver at-least-once, and a duplicate deposit is a real money bug. Validation lives in the projection here, but in a real system it belongs in the command handler before an event is written; events are facts, and a projection normally trusts them. Keep 'ever opened' distinct from 'currently open' so a closed account id cannot be reopened. Money is integer cents to avoid floating-point rounding. Sorting is O(n log n) and each event is O(1) after that. A snapshot (balances at seq N) lets you replay only newer events, which is the standard optimisation once streams get long."
+  }
+}

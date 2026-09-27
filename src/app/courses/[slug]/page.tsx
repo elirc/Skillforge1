@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { PlayCircle } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { getCourseBySlug } from "@/features/catalog/queries";
 
@@ -19,12 +18,14 @@ interface CoursePageData {
   language: string;
   difficulty: string;
   outcomes: string[];
+  prerequisites: string[];
   modules: {
     id: string;
     title: string;
     lessons: {
       id: string;
       title: string;
+      estimatedMinutes: number;
       completions: unknown[];
       knowledgeItems: unknown[];
     }[];
@@ -50,6 +51,7 @@ export default async function CoursePage({ params }: PageProps) {
 
   const lessons = course.modules.flatMap((module) => module.lessons);
   const completed = lessons.filter((lesson) => lesson.completions.length > 0).length;
+  const resume = lessons.find(lesson => lesson.completions.length === 0) ?? lessons[0];
   const progress = lessons.length === 0 ? 0 : Math.round((completed / lessons.length) * 100);
 
   return (
@@ -62,6 +64,9 @@ export default async function CoursePage({ params }: PageProps) {
           </div>
           <h1 className="text-4xl font-semibold tracking-tight">{course.title}</h1>
           <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-400">{course.description}</p>
+          {course.prerequisites.length ? <p className="mt-3 text-sm">Recommended first: {course.prerequisites.map((prerequisite, index) => <span key={prerequisite}>{index > 0 ? ", " : ""}<Link className="text-emerald-600 underline" href={`/courses/${prerequisite}`}>{prerequisite.replaceAll("-", " ")}</Link></span>)}</p> : <p className="mt-3 text-sm text-slate-500">No course prerequisites.</p>}
+          {slug === "web-http-fundamentals" ? <Link className="mt-3 block text-emerald-700 underline dark:text-emerald-300" href="/playground/http">Practice in the HTTP request playground</Link> : null}
+          {slug === "csharp-foundations" ? <Link className="mt-3 block text-emerald-700 underline dark:text-emerald-300" href="/projects">Download the console inventory and CSV importer mini-projects</Link> : null}
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {course.outcomes.map((outcome) => (
               <div key={outcome} className="rounded-lg border border-slate-200 bg-white p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
@@ -72,6 +77,7 @@ export default async function CoursePage({ params }: PageProps) {
         </section>
         <aside className="h-fit rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
           <h2 className="font-semibold">Course progress</h2>
+          {resume ? <Link className="mt-4 block rounded bg-emerald-600 px-4 py-3 text-center font-medium text-white" href={`/courses/${course.slug}/lessons/${resume.id}`}>{completed === lessons.length ? "Revisit course" : completed > 0 ? "Resume learning" : "Start course"}</Link> : null}
           <Progress className="mt-4" value={progress} />
           <p className="mt-2 text-sm text-slate-500">
             {completed}/{lessons.length} lessons complete
@@ -82,11 +88,9 @@ export default async function CoursePage({ params }: PageProps) {
       <section className="mt-8 space-y-4">
         <h2 className="text-2xl font-semibold">Lessons</h2>
         {course.modules.map((module) => (
-          <Card key={module.id}>
-            <CardHeader>
-              <CardTitle>{module.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
+          <details key={module.id} open={!module.lessons.every(lesson => lesson.completions.length > 0)} className="rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+            <summary className="cursor-pointer p-5 text-lg font-semibold">{module.title}{module.lessons.every(lesson => lesson.completions.length > 0) ? " · Complete" : ""}</summary>
+            <div className="space-y-2 px-5 pb-5">
               {module.lessons.map((lesson) => (
                 <Link
                   key={lesson.id}
@@ -98,10 +102,11 @@ export default async function CoursePage({ params }: PageProps) {
                     {lesson.title}
                   </span>
                   <span className="text-sm text-slate-500">{lesson.knowledgeItems.length} review items</span>
+                  <span className="text-sm text-slate-500">{lesson.completions.length ? "✓ Complete" : `${lesson.id === resume?.id ? "Next · " : ""}~${lesson.estimatedMinutes} min`}</span>
                 </Link>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </details>
         ))}
       </section>
     </SiteShell>

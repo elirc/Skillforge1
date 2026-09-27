@@ -1,0 +1,14 @@
+{
+  "slug": "csharp-medium-validation-pipeline",
+  "title": "Validate a Create-Customer Request",
+  "prompt": "Write the validator behind `POST /customers`. Given `CreateCustomer(Name, Email, Age, Country, PostalCode)` (any of them may be null), return a `Dictionary<string, List<string>>` of errors keyed by field name, like ASP.NET Core's `ValidationProblemDetails.Errors`; a valid request returns an empty dictionary. Each field stops at its first failing rule. Name: `\"Name is required.\"` if null or whitespace, else `\"Name must be at most 50 characters.\"` if longer than 50. Email: `\"Email is required.\"` if null or whitespace, else `\"Email is not valid.\"` unless it has no whitespace, exactly one `@` with at least one character before it, and a domain after it containing a `.` that is neither its first nor last character. Age: `\"Age is required.\"` if null, else `\"Age must be between 18 and 120.\"` outside that inclusive range. Country: `\"Country is not supported.\"` unless it is exactly `US`, `CA` or `GB`. PostalCode is only checked when Country is supported: US needs exactly 5 digits, CA needs the form `A1A 1A1` (uppercase letters, digits, one space), GB needs any non-whitespace text; otherwise `\"PostalCode is not valid for {Country}.\"`.",
+  "language": "csharp",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["csharp", "validation", "aspnet-core", "dictionaries", "strings"],
+  "order": 50029,
+  "exercise": "csharp-medium-validation-pipeline",
+  "explanation": {
+    "beginner": "Create an empty dictionary and a tiny helper `Fail(field, message)` that adds the message under that field. Then write one block per field, using `if / else if` so that once a rule fails, the later rules for the same field are skipped (there is no point complaining that a missing name is too long). `string.IsNullOrWhiteSpace` handles null, empty and spaces in one call. For the postal code, first check whether the country was valid, then use a `switch` on the country to pick the right format check. Return the dictionary at the end; if nothing failed it is simply empty.",
+    "junior": "This is the shape FluentValidation gives you (`RuleFor(x => x.Name).Cascade(CascadeMode.Stop).NotEmpty().MaximumLength(50)`, plus a `When(x => supported)` on the postal rule) and the output shape of `ValidationProblemDetails`, which is what a 400 from `[ApiController]` returns. Returning all field errors at once, rather than throwing on the first, lets the form highlight every bad input in one round trip. Dependent rules (postal code on country) must be skipped when their dependency is invalid, otherwise the user sees a confusing double error. Keep format checks explicit and ASCII-aware (`char.IsAsciiDigit`, `char.IsAsciiLetterUpper`); `char.IsDigit` accepts other Unicode digits such as Arabic-Indic numerals. Email validation here is deliberately simple; real systems confirm addresses by sending mail rather than with an ever-growing regex."
+  }
+}

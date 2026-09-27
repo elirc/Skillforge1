@@ -1,0 +1,89 @@
+{
+  "title": "Retry with Exponential Backoff",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Network calls fail transiently. A retry loop tries again after a failure, but hammering a struggling server makes things worse, so each wait grows: base, base x 2, base x 4, and so on. This is exponential backoff. Always cap the number of attempts so a permanent failure eventually surfaces."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));\n\nasync function retry(task, { attempts = 3, baseMs = 100 } = {}) {\n  for (let i = 0; i < attempts; i++) {\n    try {\n      return await task();\n    } catch (error) {\n      if (i === attempts - 1) throw error;   // out of attempts\n      await sleep(baseMs * 2 ** i);          // 100, 200, 400, ...\n    }\n  }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "To test retry logic without real waiting, inject the sleep function or compute the plan as data. Given which attempts succeed, the schedule of waits is fully determined, which is exactly what the exercise asks you to compute."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Production code usually adds random jitter to each wait so that many clients that failed together do not all retry at the same instant."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "With baseMs = 100 and doubling, how long is the wait before the 4th attempt?",
+      "payload": {
+        "choices": [
+          "400 ms",
+          "300 ms",
+          "800 ms",
+          "100 ms"
+        ],
+        "answer": "400 ms",
+        "explanation": "Waits come after attempts 1, 2 and 3: 100, 200, 400. The wait before attempt 4 is 400 ms."
+      },
+      "conceptTags": [
+        "retry",
+        "async-await"
+      ],
+      "id": "sf_1fe764bfbfd11bc0f12a7a4a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "In the retry function, why does the last failure rethrow instead of sleeping?",
+      "payload": {
+        "choices": [
+          "sleep cannot be awaited inside catch",
+          "there are no attempts left, so the caller must learn about the error",
+          "to make the function synchronous",
+          "rethrowing resets the attempt counter"
+        ],
+        "answer": "there are no attempts left, so the caller must learn about the error",
+        "explanation": "Swallowing the final error would make a permanent failure look like success (undefined)."
+      },
+      "conceptTags": [
+        "retry",
+        "error-handling"
+      ],
+      "id": "sf_510b02d1a67a86859fd19291"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the technique.",
+      "payload": {
+        "text": "Adding a small random amount to each backoff wait is called ____.",
+        "blanks": [
+          "jitter"
+        ]
+      },
+      "conceptTags": [
+        "retry"
+      ],
+      "id": "sf_23a6f38f5484df46b37e9c3e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Compute a retry plan: given which attempts succeed, a maximum number of attempts and a base wait, return whether it succeeded, how many attempts ran, and the backoff waits between them.",
+      "exercise": "retry-plan",
+      "conceptTags": [
+        "retry",
+        "async-await",
+        "loops"
+      ],
+      "id": "sf_28626ea586acf8c4471f53f6"
+    }
+  ],
+  "id": "sf_308bee44e37677e7bc076e0f"
+}

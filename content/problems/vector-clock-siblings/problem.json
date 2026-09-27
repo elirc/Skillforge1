@@ -1,0 +1,14 @@
+{
+  "slug": "vector-clock-siblings",
+  "title": "Resolve Vector Clock Siblings",
+  "prompt": "An offline-first notes app syncs edits from several devices. Each stored version is `{ id, clock }` where `clock` maps a replica name to a counter (a missing replica counts as 0). Version A happened before B when every counter in A is less than or equal to B's and the clocks are not equal; then A is obsolete. Write `resolveSiblings(versions)` returning `{ siblings, clock }`: `siblings` are the ids of versions that no other version happened after, in input order, keeping only the first of any versions with equal clocks; `clock` is the pointwise maximum of every version's clock (the context the next write should carry), with keys sorted alphabetically and zero counters omitted.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["distributed-systems", "vector-clocks", "conflict-resolution", "sync"],
+  "order": 50008,
+  "exercise": "vector-clock-siblings",
+  "explanation": {
+    "beginner": "A vector clock is a scoreboard: each device bumps its own counter when it writes. To compare two versions, look at every device name that appears in either clock (treat missing as 0). If one version is at or below the other on every device, and below on at least one, it is simply older and can be thrown away. If each version is ahead on some device, they were written without seeing each other, so both must be kept for the user (or app) to merge. For each version, check it against every other version; keep it if nothing is strictly newer and no earlier kept version has exactly the same clock. The merged clock takes the biggest number seen for each device.",
+    "junior": "Write a `compare(a, b)` returning 'before' | 'after' | 'equal' | 'concurrent' over the union of keys; everything else is built on it. Pairwise dominance is O(n^2 * r) for n versions and r replicas, which is fine because sibling sets are small in practice (Riak and Dynamo-style stores keep them tiny). Edge cases: a key with value 0 must equal a missing key, both in comparison and in output; equal clocks are duplicates, not conflicts, so dedupe by keeping the first; do not use last-write-wins timestamps here, since the whole point is detecting concurrency. Emit the merged clock with sorted keys so it serializes deterministically. The merged clock dominates every sibling, so a client that writes with it supersedes all of them, which is how a merge resolves a conflict."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "version": "2",
+  "prerequisites": [
+    "react-crud-ui"
+  ],
+  "slug": "react-integration-labs",
+  "title": "React Integration Labs: Mounted Components",
+  "description": "Eight real component labs with JSX, state, forms, effects, race conditions, mutation feedback, URL contracts, accessibility and an inventory mini-project.",
+  "language": "react",
+  "difficulty": "INTERMEDIATE",
+  "order": 8,
+  "topicTags": [
+    "react",
+    "frontend",
+    "testing",
+    "crud"
+  ],
+  "outcomes": [
+    "Test mounted components through DOM interactions",
+    "Handle forms and stale asynchronous responses",
+    "Build an accessible inventory view"
+  ]
+}

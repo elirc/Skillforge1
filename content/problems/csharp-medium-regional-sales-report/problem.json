@@ -1,0 +1,14 @@
+{
+  "slug": "csharp-medium-regional-sales-report",
+  "title": "Monthly Sales by Region With LINQ",
+  "prompt": "The finance dashboard needs a monthly revenue report. Given `SaleOrder(Id, Region, PlacedAt, Total, Status)` rows, ignore orders whose `Status` is `\"Cancelled\"` and group the rest by calendar month of `PlacedAt` (formatted `yyyy-MM`) and `Region`. Return `RegionMonthTotal(Month, Region, OrderCount, Revenue)` rows ordered by `Month` ascending, then `Revenue` descending, then `Region` (ordinal). `Total` and `Revenue` are `decimal` so cents add up exactly.",
+  "language": "csharp",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["csharp", "linq", "grouping", "reporting", "decimal"],
+  "order": 50027,
+  "exercise": "csharp-medium-regional-sales-report",
+  "explanation": {
+    "beginner": "LINQ lets you write this as a pipeline that reads like the SQL you would use. `Where` drops cancelled orders. `GroupBy` with an anonymous key `new { Month = ..., o.Region }` puts every order for the same month and region into one bucket. `Select` turns each bucket into a result row: `Count()` for the number of orders and `Sum(o => o.Total)` for revenue. Finally `OrderBy`, `ThenByDescending` and `ThenBy` sort the rows. Build the month string with `$\"{o.PlacedAt.Year:D4}-{o.PlacedAt.Month:D2}\"` so January is `01`, which also makes the strings sort in date order.",
+    "junior": "This maps one-to-one onto `SELECT ... GROUP BY month, region ORDER BY month, SUM(total) DESC, region`, and with EF Core the same query translates to SQL if you group on `PlacedAt.Year` and `PlacedAt.Month` rather than a formatted string (string formatting is not translatable, so format after materialising). Anonymous-type keys get value equality, which is why grouping on them works. Use `decimal` for money: `0.10m + 0.20m == 0.30m`, whereas `double` gives 0.30000000000000004, and one of the tests checks exactly that. The final tie-break on Region with `StringComparer.Ordinal` makes the output deterministic across cultures. Complexity is O(n log n) for the sort; grouping is a single hash pass. Grouping by UTC month versus the user's local month is a real product decision worth calling out."
+  }
+}

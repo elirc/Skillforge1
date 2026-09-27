@@ -1,0 +1,98 @@
+{
+  "title": "INSERT, UPDATE, DELETE, and Rows Affected",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "The C, U, and D of CRUD. INSERT adds rows, UPDATE changes columns on every row its WHERE matches, and DELETE removes every row its WHERE matches. Each statement reports how many rows it affected; in ADO.NET that is the return value of ExecuteNonQuery, and EF Core's ExecuteUpdate/ExecuteDelete return it too. Checking it is how you notice \"updated 0 rows\" (the record was not found) or \"updated 40,000 rows\" (the WHERE was wrong)."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "INSERT INTO accounts (email, status, last_login_at)\nVALUES ('ada@example.com', 'active', '2026-09-01');\n\n-- Read back generated values in the same round trip\nINSERT INTO accounts (email, status) OUTPUT inserted.id VALUES ('bo@example.com', 'active');  -- SQL Server\nINSERT INTO accounts (email, status) VALUES ('bo@example.com', 'active') RETURNING id;          -- PostgreSQL / SQLite\n\nUPDATE accounts\nSET status = 'inactive'\nWHERE status = 'active'\n  AND last_login_at < '2026-01-01';\n\nDELETE FROM sessions WHERE expires_at < SYSUTCDATETIME();"
+    },
+    {
+      "type": "prose",
+      "body": "An UPDATE or DELETE without WHERE touches every row in the table. Before running a risky change by hand, run a SELECT with the same WHERE to see what will change, do the change inside a transaction, check the affected row count, and only then COMMIT. The same NULL rule applies as in SELECT: a row whose last_login_at is NULL is not updated by `last_login_at < '2026-01-01'`."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "TRUNCATE TABLE removes all rows much faster than DELETE because it deallocates pages instead of logging each row. In SQL Server it also resets the IDENTITY seed, fires no DELETE triggers, and is not allowed on a table referenced by a foreign key. It can still be rolled back inside a transaction."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Many apps soft-delete instead: UPDATE ... SET deleted_at = SYSUTCDATETIME(). That keeps history and makes undo easy, but every query must now remember WHERE deleted_at IS NULL (EF Core global query filters help), and unique constraints need to account for deleted rows."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `UPDATE accounts SET status = 'inactive' WHERE status = 'active' AND last_login_at < @cutoff`. Return { rowsAffected, rows } where rows is a new array in the same order with the matching rows copied and changed. Do not mutate the input. Dates are ISO strings, so string comparison works; a NULL last_login_at does not match.",
+      "exercise": "deactivate-stale-accounts",
+      "conceptTags": [
+        "sql",
+        "update",
+        "where",
+        "rows-affected"
+      ],
+      "id": "sf_b589e8998fa7b05527611fd7"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the INSERT statement.",
+      "payload": {
+        "text": "INSERT INTO users (name, email) ____ ('Ada', 'ada@example.com');",
+        "blanks": [
+          "VALUES"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "insert"
+      ],
+      "id": "sf_51643b3cc2699b1415b8d04a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "You must fix 12 misfiled invoices in production by hand. Which approach is safest?",
+      "payload": {
+        "choices": [
+          "Run the UPDATE directly and check the application afterwards",
+          "Run the UPDATE without WHERE, then fix the extra rows",
+          "SELECT with the planned WHERE, then BEGIN TRANSACTION, run the UPDATE, confirm 12 rows affected, then COMMIT",
+          "Delete the invoices and insert corrected copies"
+        ],
+        "answer": "SELECT with the planned WHERE, then BEGIN TRANSACTION, run the UPDATE, confirm 12 rows affected, then COMMIT",
+        "explanation": "Previewing the rows and checking the affected count inside an open transaction means a wrong WHERE clause can still be rolled back."
+      },
+      "conceptTags": [
+        "sql",
+        "update",
+        "transactions"
+      ],
+      "id": "sf_ca988009f1a43b28180f7775"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "An endpoint runs `UPDATE products SET price = @price WHERE id = @id` and ExecuteNonQuery returns 0. What does that most likely mean?",
+      "payload": {
+        "choices": [
+          "The update succeeded",
+          "The transaction deadlocked",
+          "No product has that id, so the API should return 404",
+          "The price column is read-only"
+        ],
+        "answer": "No product has that id, so the API should return 404",
+        "explanation": "Zero rows affected means the WHERE matched nothing. Returning success anyway hides the bug from the caller."
+      },
+      "conceptTags": [
+        "sql",
+        "update",
+        "rows-affected"
+      ],
+      "id": "sf_27192e84fb628cb07679ec83"
+    }
+  ],
+  "id": "sf_47cf9b80a0409809224c98b3"
+}

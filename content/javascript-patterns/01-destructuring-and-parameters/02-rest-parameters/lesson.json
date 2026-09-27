@@ -17,15 +17,26 @@
       "prompt": "Name the syntax.",
       "payload": {
         "text": "Writing function f(...args) collects the arguments into an array using the ____ parameter syntax.",
-        "blanks": ["rest"]
+        "blanks": [
+          "rest"
+        ]
       },
-      "conceptTags": ["rest-parameters", "functions"]
+      "conceptTags": [
+        "rest-parameters",
+        "functions"
+      ],
+      "id": "sf_2a69325f40517e5cc03d5b84"
     },
     {
       "type": "CODE",
       "prompt": "Using a rest parameter, return the sum of all numbers passed in (0 when none are passed).",
       "exercise": "sum-all",
-      "conceptTags": ["rest-parameters", "reduce"]
+      "conceptTags": [
+        "rest-parameters",
+        "reduce"
+      ],
+      "id": "sf_50ff4ab062c8a655ea25e313"
     }
-  ]
+  ],
+  "id": "sf_e85c079ff289f1767eb5a505"
 }

@@ -1,0 +1,97 @@
+{
+  "title": "Receiving Webhooks Safely",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A **webhook** is the reverse of an API call: a provider (payments, email, Git hosting) POSTs an event to a URL you expose, like `POST /webhooks/payments`. Since anyone on the internet can POST to that URL, you must prove each request really came from the provider."
+    },
+    {
+      "type": "prose",
+      "body": "Providers sign each delivery with an **HMAC** (typically HMAC-SHA256) of the raw body using a secret shared only with you, and usually include a timestamp in what they sign. To verify:\n- Read the **raw body bytes**, before any JSON parsing. Re-serializing changes whitespace or key order and breaks the signature.\n- Recompute `HMAC(secret, timestamp + \".\" + body)` and compare to the header in **constant time**.\n- Reject timestamps older than a few minutes, which blocks **replays** of a captured request.\n- Accept several signatures during secret rotation."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "POST /webhooks/payments HTTP/1.1\nContent-Type: application/json\nSignature: t=1700000000,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd\n\n{\"event\":\"order.paid\",\"orderId\":1001}"
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "using var reader = new StreamReader(request.Body);\nvar raw = await reader.ReadToEndAsync();          // raw text, not a bound DTO\nvar mac = HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret),\n                              Encoding.UTF8.GetBytes($\"{timestamp}.{raw}\"));\nvar expected = Convert.ToHexStringLower(mac);\nif (!CryptographicOperations.FixedTimeEquals(\n        Encoding.ASCII.GetBytes(expected), Encoding.ASCII.GetBytes(signature)))\n    return Results.Unauthorized();"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Providers retry deliveries, so the same event can arrive more than once. Store processed event ids and make the handler idempotent. Respond 2xx quickly and do slow work in a background job."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why must a webhook signature be computed over the raw request body?",
+      "payload": {
+        "choices": [
+          "Raw bodies are encrypted",
+          "JSON cannot be hashed",
+          "Parsing and re-serializing JSON can change bytes, so the HMAC would not match",
+          "It makes the response faster"
+        ],
+        "answer": "Parsing and re-serializing JSON can change bytes, so the HMAC would not match",
+        "explanation": "The provider signed exact bytes. Whitespace, key order, or number formatting changes after a parse-and-serialize round trip."
+      },
+      "conceptTags": [
+        "webhooks",
+        "hmac",
+        "security"
+      ],
+      "id": "sf_ac5eb309bd1ab57d9a58249b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does checking the signed timestamp protect against?",
+      "payload": {
+        "choices": [
+          "Guessing the shared secret",
+          "SQL injection",
+          "Replay of a captured, validly signed request",
+          "Clock drift on the client"
+        ],
+        "answer": "Replay of a captured, validly signed request",
+        "explanation": "An attacker who captured a delivery could resend it later. A tolerance window of a few minutes makes old deliveries invalid."
+      },
+      "conceptTags": [
+        "webhooks",
+        "replay-attacks"
+      ],
+      "id": "sf_6de6a52487ac46a0280a227d"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the construction.",
+      "payload": {
+        "text": "Webhook providers usually sign payloads with an ____ that uses a secret shared with the receiver.",
+        "blanks": [
+          "HMAC"
+        ]
+      },
+      "conceptTags": [
+        "webhooks",
+        "hmac"
+      ],
+      "id": "sf_c1953cf05652b7a49e58888d"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Verify a webhook: parse the t=...,v1=... signature header, enforce a 300-second timestamp tolerance, and compare a keyed toy hash of the raw body in constant time.",
+      "exercise": "verify-webhook",
+      "conceptTags": [
+        "webhooks",
+        "hmac",
+        "signatures",
+        "security"
+      ],
+      "id": "sf_2d050db7f22b5752df548cd3"
+    }
+  ],
+  "id": "sf_ac3333272fa2a32d58f462db"
+}

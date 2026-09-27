@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:focus-visible { outline: 3px solid #0d9488; outline-offset: 3px; }
+select option { color: #0f172a; background: #fff; }
 
 :root {
   --background: #fafaf9;

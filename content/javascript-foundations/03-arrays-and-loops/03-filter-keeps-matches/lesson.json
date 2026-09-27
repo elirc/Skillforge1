@@ -4,6 +4,24 @@
     {
       "type": "prose",
       "body": "filter creates a new array containing only items whose callback returns true."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Trace the predicate in order: 0 > 0 is false (drop it); 4 > 0 is true (keep 4); 1 > 0 is true (keep 1); the final zero is dropped. filter keeps the original matching values and their order. map instead stores a transformed result for every input element."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const stock = [0, 4, 1, 0];\nconst available = stock.filter(count => count > 0);\n// [4, 1]; stock remains [0, 4, 1, 0]"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Returning count * 2 from filter does not double the values. That number is only interpreted as truthy or falsy for the keep decision."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Predict both stock.map(count => count > 0) and stock.filter(count => count > 0). Explain why their lengths differ.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -11,17 +29,37 @@
       "type": "MCQ",
       "prompt": "What does filter keep?",
       "payload": {
-        "choices": ["items where the callback returns true", "only the first item", "every item changed to a string", "nothing"],
+        "choices": [
+          "only the first item",
+          "items where the callback returns true",
+          "every item changed to a string",
+          "nothing"
+        ],
         "answer": "items where the callback returns true",
         "explanation": "filter selects matching items without changing the originals."
       },
-      "conceptTags": ["arrays", "filter"]
+      "conceptTags": [
+        "arrays",
+        "filter"
+      ],
+      "id": "sf_11c9b8f2f5a87479bc658ea6"
     },
     {
       "type": "CODE",
       "prompt": "Return only scores that are at least 80.",
       "exercise": "passing-scores",
-      "conceptTags": ["arrays", "filter"]
+      "conceptTags": [
+        "arrays",
+        "filter"
+      ],
+      "id": "sf_37b14f2e3db63b5400f830f6",
+      "hints": [
+        "Returning count * 2 from filter does not double the values. That number is only interpreted as truthy or falsy for the keep decision.",
+        "Trace the predicate in order: 0 > 0 is false (drop it); 4 > 0 is true (keep 4); 1 > 0 is true (keep 1); the final zero is dropped. filter keeps the original matching values and their order. map instead stores a transformed result for every input element."
+      ],
+      "walkthrough": "Trace the predicate in order: 0 > 0 is false (drop it); 4 > 0 is true (keep 4); 1 > 0 is true (keep 1); the final zero is dropped. filter keeps the original matching values and their order. map instead stores a transformed result for every input element."
     }
-  ]
+  ],
+  "id": "sf_b270bfdeb2119d62ea1c3a9a",
+  "estimatedMinutes": 12
 }

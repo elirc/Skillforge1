@@ -1,7 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
+const port = process.env.SKILLFORGE_E2E_PORT ?? "3107";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  workers: 1,
   // The single e2e spec walks four routes (/tracks, a course, a lesson,
   // /reviews) and on a cold dev server each one is a first-time Turbopack
   // compile that can take tens of seconds on this machine. 30s covered none
@@ -17,15 +19,17 @@ export default defineConfig({
     // 127.0.0.1, but the HMR WebSocket handshake always does and gets dropped
     // with no HTTP response; the dev client then full-reloads the page every
     // ~55s, hydration never completes, and no click handler ever attaches.
-    baseURL: "http://localhost:3000",
+    baseURL: `http://localhost:${port}`,
     trace: "on-first-retry",
   },
   webServer: {
-    command: "npm run dev",
+    command: process.env.SKILLFORGE_E2E_PRODUCTION === "1"
+      ? `npm run start -- --port ${port}`
+      : `npm run dev -- --port ${port}`,
     // Readiness probe only (never used by the browser), so the IPv4 literal
     // is fine here and sidesteps any localhost -> ::1 resolution quirks.
-    url: "http://127.0.0.1:3000",
-    reuseExistingServer: true,
+    url: `http://127.0.0.1:${port}`,
+    reuseExistingServer: false,
     // A cold Turbopack start plus first-request compile runs well past two
     // minutes on a slow machine; this is startup budget, not test budget.
     timeout: 300_000,

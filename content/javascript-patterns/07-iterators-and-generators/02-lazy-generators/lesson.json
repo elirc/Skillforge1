@@ -1,0 +1,93 @@
+{
+  "title": "Lazy Pipelines with Generators",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A generator function (function*) returns an iterator for you. Each yield hands out one value and pauses the function until the consumer asks for the next one. Because nothing runs until requested, generators can describe infinite sequences safely."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function* naturals() {\n  let n = 1;\n  while (true) yield n++;   // infinite, but lazy\n}\n\nconst it = naturals();\nit.next(); // { value: 1, done: false }\nit.next(); // { value: 2, done: false }"
+    },
+    {
+      "type": "prose",
+      "body": "Generators compose into lazy pipelines. filter and take below pull values one at a time, so asking for three even numbers only computes six naturals. With arrays you would have to build the whole list first, which is impossible when it is infinite."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function* filter(source, keep) {\n  for (const x of source) if (keep(x)) yield x;\n}\n\nfunction* take(source, count) {\n  if (count <= 0) return;\n  let taken = 0;\n  for (const x of source) {\n    yield x;\n    if (++taken >= count) return; // stop pulling from source\n  }\n}\n\n[...take(filter(naturals(), (n) => n % 2 === 0), 3)]; // [2, 4, 6]"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Spreading an infinite generator ([...naturals()]) never finishes. Always bound it with something like take first."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does calling a generator function (e.g. naturals()) do immediately?",
+      "payload": {
+        "choices": [
+          "runs the body to completion",
+          "returns an iterator without running the body yet",
+          "returns the first yielded value",
+          "throws unless called with new"
+        ],
+        "answer": "returns an iterator without running the body yet",
+        "explanation": "The body only runs up to the next yield each time next() is called."
+      },
+      "conceptTags": [
+        "generators",
+        "iterables"
+      ],
+      "id": "sf_dc000667f91052eaeefc6852"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "function* g() { yield 1; yield 2; } const it = g(); it.next(); it.next(); What does the third it.next() return?",
+      "payload": {
+        "choices": [
+          "{ value: 2, done: true }",
+          "{ value: 1, done: false }",
+          "{ value: undefined, done: true }",
+          "it throws"
+        ],
+        "answer": "{ value: undefined, done: true }",
+        "explanation": "After the last yield the function finishes, so next() reports done with an undefined value."
+      },
+      "conceptTags": [
+        "generators"
+      ],
+      "id": "sf_14493298f662c466f346ac8c"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the keyword.",
+      "payload": {
+        "text": "Inside a generator, ____ produces a value and pauses until the next call to next().",
+        "blanks": [
+          "yield"
+        ]
+      },
+      "conceptTags": [
+        "generators"
+      ],
+      "id": "sf_7ea904bdf86fe0dddd4cba75"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Finish the lazy filter and take generators so firstMultiples returns the first `count` multiples of `divisor` from an infinite sequence.",
+      "exercise": "first-multiples",
+      "conceptTags": [
+        "generators",
+        "iterables",
+        "laziness"
+      ],
+      "id": "sf_1971b1850bee30f9675e1f9e"
+    }
+  ],
+  "id": "sf_bff3615a03d1a58fdb48cca6"
+}

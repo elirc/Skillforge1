@@ -1,0 +1,66 @@
+{
+  "id": "sf_01664013db7c11d68643264d",
+  "title": "Branches and guard clauses",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A guard clause rejects an invalid request before the main rule runs. Read CanReserve as a yes-or-no question: the request must be positive, and the stock must cover it. The order makes the exceptional case obvious. Comparing with <= includes the exact-stock boundary; using < would reject a valid order that consumes the final unit."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static bool CanReserve(int stock, int requested)\n    {\n        return false;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [8,3]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return true only for a positive requested quantity that does not exceed stock."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A negative request must not increase available inventory."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why is zero a separate invalid case? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the oversold case checks a different boundary.\n\n**Transfer it.** Reuse this rule in both CLI and API tests instead of reimplementing it in a controller."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_0edb89b6c784afca44d0919c",
+      "type": "MCQ",
+      "prompt": "Is reserving exactly the available stock valid?",
+      "conceptTags": [
+        "conditions",
+        "validation",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "No, one item must always remain",
+          "Yes, when the quantity is positive",
+          "Only for even quantities"
+        ],
+        "answer": "Yes, when the quantity is positive",
+        "explanation": "The contract includes the boundary with requested <= stock."
+      }
+    },
+    {
+      "id": "sf_69c826c974b9b457391f5cb2",
+      "type": "CODE",
+      "prompt": "Return true only for a positive requested quantity that does not exceed stock.",
+      "conceptTags": [
+        "conditions",
+        "validation",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The contract includes the boundary with requested <= stock.",
+        "A negative request must not increase available inventory."
+      ],
+      "walkthrough": "The contract includes the boundary with requested <= stock.\nA negative request must not increase available inventory."
+    }
+  ]
+}

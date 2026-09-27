@@ -1,0 +1,96 @@
+{
+  "title": "Form Errors Keyed by Field",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A form needs to show each error next to the input it belongs to. Model that as an object keyed by field name, and derive the keys from the form type: Partial<Record<keyof SignupForm, string>>. Each field has at most one message, a missing key means the field is fine, and a typo like errors.emial fails to compile."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "interface SignupForm { email: string; password: string }\ntype FieldErrors<T> = Partial<Record<keyof T, string>>;\n\nfunction validate(form: SignupForm): FieldErrors<SignupForm> {\n  const errors: FieldErrors<SignupForm> = {};\n  if (!form.email.includes(\"@\")) errors.email = \"Enter a valid email\";\n  if (form.password.length < 8) errors.password = \"At least 8 characters\";\n  return errors;\n}\n\nconst errors = validate(form);\nconst canSubmit = Object.keys(errors).length === 0;\n// <input name=\"email\" /> {errors.email && <p>{errors.email}</p>}"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "The same shape works for errors from the server. If your API's 422 response returns { errors: { email: \"already taken\" } }, merge it into the client-side FieldErrors and the form renders both kinds identically."
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Report one message per field (the first rule it breaks), but check every field. Users fix the most obvious problem first, and seeing all broken fields at once saves them round trips."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why use Partial<Record<keyof SignupForm, string>> instead of Record<string, string> for form errors?",
+      "payload": {
+        "choices": [
+          "Only real field names are allowed as keys, so typos fail to compile",
+          "It is faster at runtime",
+          "It lets a field hold several messages",
+          "It makes errors readonly"
+        ],
+        "answer": "Only real field names are allowed as keys, so typos fail to compile",
+        "explanation": "keyof SignupForm limits keys to actual fields; Partial allows fields without errors to be absent."
+      },
+      "conceptTags": [
+        "typescript",
+        "forms",
+        "keyof",
+        "utility-types"
+      ],
+      "id": "sf_d221ed09d67dc9756eff1182"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With errors typed as Partial<Record<keyof Form, string>>, how do you know the form is valid?",
+      "payload": {
+        "choices": [
+          "errors === null",
+          "Object.keys(errors).length === 0",
+          "errors.valid === true",
+          "errors.length === 0"
+        ],
+        "answer": "Object.keys(errors).length === 0",
+        "explanation": "A valid form produces an empty object: no field has a message. Objects have no length property."
+      },
+      "conceptTags": [
+        "typescript",
+        "forms",
+        "validation"
+      ],
+      "id": "sf_dca08a789e23893e4380a510"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the type.",
+      "payload": {
+        "text": "type FieldErrors<T> = Partial<Record<____ T, string>>;",
+        "blanks": [
+          "keyof"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "keyof",
+        "forms"
+      ],
+      "id": "sf_d81277cfcebe3a27025114e7"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Validate a signup form and return errors keyed by field (one message per field, first broken rule wins), or {} when the form is valid.",
+      "exercise": "validate-signup",
+      "conceptTags": [
+        "typescript",
+        "forms",
+        "validation",
+        "keyof"
+      ],
+      "id": "sf_c850c1d7646f26c490289efa"
+    }
+  ],
+  "id": "sf_1be74ea9e66366217b23c4f2"
+}

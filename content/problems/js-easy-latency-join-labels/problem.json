@@ -11,7 +11,7 @@
   "order": 10046,
   "exercise": "js-easy-latency-join-labels",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Latency Join Labels, read the story as a simple input-to-output rule: A latency export receives label parts. Write a function that joins the labels with the provided separator string. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and arrays. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: latencyJoinLabels([\"latency\",\"daily\",\"ready\"], \" / \") produces \"latency / daily / ready\". Project each included record into the requested output shape, keeping the required input order.\n\nCompare “handles one label”: input [[\"solo\"],\", \"] produces \"solo\". Explain which rule causes the difference before writing code.",
+    "junior": "Project each included record into the requested output shape, keeping the required input order.\n\nTempting mistake: A projection is different from filtering: returning a boolean from map gives booleans, while returning a value from filter only makes a keep decision.\n\nThe reference uses join. Trace the intermediate value after each operation; count repeated scans inside callbacks separately when estimating cost.\n\nRegression check: preserve the contract illustrated by “handles one label”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

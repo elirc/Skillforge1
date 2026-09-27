@@ -11,7 +11,7 @@
   "order": 32,
   "exercise": "count-vowels",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Count Vowels, read the story as a simple input-to-output rule: A pronunciation helper wants to know how many vowel sounds are in a word or phrase. Write a function that counts a, e, i, o, and u in the string, ignoring case. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings and loops. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: countVowels(\"education\") produces 5. Normalize case if required, then let each character contribute one when it is a vowel. Repeated vowels contribute repeatedly.\n\nCompare “ignores consonants”: input [\"rhythm\"] produces 0. Explain which rule causes the difference before writing code.",
+    "junior": "Normalize case if required, then let each character contribute one when it is a vowel. Repeated vowels contribute repeatedly.\n\nTempting mistake: Counting distinct vowel types with a Set answers a different question from counting occurrences.\n\nThe reference uses includes. Trace the intermediate value after each operation; count repeated scans inside callbacks separately when estimating cost. A scan takes O(n) time with constant-sized vowel membership storage.\n\nRegression check: preserve the contract illustrated by “ignores consonants”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

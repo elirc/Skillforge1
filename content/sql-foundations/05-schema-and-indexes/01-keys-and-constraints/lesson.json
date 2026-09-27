@@ -1,0 +1,99 @@
+{
+  "title": "Keys and Constraints",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Constraints are rules the database enforces on every write, no matter which app, script, or person does the writing. Validation in your C# code is for friendly error messages; constraints are the guarantee. The core set is PRIMARY KEY (unique and NOT NULL, one per table), FOREIGN KEY (the value must exist in the referenced table), UNIQUE, NOT NULL, CHECK, and DEFAULT."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE teams (\n  id   INT IDENTITY PRIMARY KEY,\n  name NVARCHAR(100) NOT NULL\n);\n\nCREATE TABLE users (\n  id         INT IDENTITY CONSTRAINT PK_users PRIMARY KEY,\n  email      NVARCHAR(256) NOT NULL CONSTRAINT UQ_users_email UNIQUE,\n  age        INT NULL CONSTRAINT CK_users_age CHECK (age >= 0),\n  team_id    INT NULL CONSTRAINT FK_users_team REFERENCES teams(id) ON DELETE SET NULL,\n  created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()\n);"
+    },
+    {
+      "type": "prose",
+      "body": "Two NULL rules surprise people. A CHECK constraint only rejects a row when its condition is FALSE; UNKNOWN passes, so CHECK (age >= 0) happily accepts a NULL age. Add NOT NULL if the value is required. A FOREIGN KEY is likewise not checked when the referencing column is NULL, so a user with team_id NULL is fine even though no team has id NULL."
+    },
+    {
+      "type": "prose",
+      "body": "ON DELETE decides what happens to children when a parent row is deleted: NO ACTION / RESTRICT (the default: the delete fails while children exist), CASCADE (children are deleted too), SET NULL, or SET DEFAULT. Cascades are convenient for owned data like order_items, and dangerous for shared data like customers. Note that SQL Server does not automatically index foreign key columns; add an index on team_id yourself or joins and cascades will scan."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Surrogate keys (an INT IDENTITY or GUID id) never change and keep joins narrow. Natural keys (email, SKU, ISBN) carry business meaning and can change. The common design is a surrogate primary key plus a UNIQUE constraint on the natural key."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model the users table's constraints for a single INSERT. Check in this order and return the name of the first violated constraint, or null if the row is accepted: PK_users (id is NULL or already exists), NN_users_email (email is NULL), UQ_users_email (email already used), CK_users_age (age < 0; NULL passes), FK_users_team (team id not NULL and not in teams).",
+      "exercise": "check-constraints",
+      "conceptTags": [
+        "sql",
+        "constraints",
+        "primary-key",
+        "foreign-key",
+        "check"
+      ],
+      "id": "sf_be6c41e53737c15f7b22c299"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "users has `age INT NULL CHECK (age >= 0)`. What happens on `INSERT INTO users (email, age) VALUES ('x@y.z', NULL)`?",
+      "payload": {
+        "choices": [
+          "It fails the CHECK constraint",
+          "age is set to 0",
+          "It succeeds, because a CHECK only rejects FALSE and NULL >= 0 is UNKNOWN",
+          "It fails because CHECK columns cannot be NULL"
+        ],
+        "answer": "It succeeds, because a CHECK only rejects FALSE and NULL >= 0 is UNKNOWN",
+        "explanation": "WHERE keeps only TRUE, but CHECK rejects only FALSE. Combine CHECK with NOT NULL when the value is mandatory."
+      },
+      "conceptTags": [
+        "sql",
+        "constraints",
+        "check",
+        "nulls"
+      ],
+      "id": "sf_d49395a8d82f3c02050c368d"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the foreign key definition.",
+      "payload": {
+        "text": "ALTER TABLE orders ADD CONSTRAINT FK_orders_customer FOREIGN KEY (customer_id) ____ customers(id);",
+        "blanks": [
+          "REFERENCES"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "foreign-key"
+      ],
+      "id": "sf_fe44f35d22dde5e69b631f4c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which ON DELETE rule fits order_items referencing orders, where items have no meaning without their order?",
+      "payload": {
+        "choices": [
+          "ON DELETE CASCADE",
+          "ON DELETE SET NULL",
+          "ON DELETE NO ACTION",
+          "No foreign key at all"
+        ],
+        "answer": "ON DELETE CASCADE",
+        "explanation": "Order items are owned by the order, so deleting the order should delete its items. For shared parents such as customers, the default NO ACTION protects you from deleting data by accident."
+      },
+      "conceptTags": [
+        "sql",
+        "foreign-key",
+        "cascade"
+      ],
+      "id": "sf_e7562ac0690ba922e6458e2c"
+    }
+  ],
+  "id": "sf_eece3f75ac445af8e7a052e1"
+}

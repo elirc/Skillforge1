@@ -1,0 +1,100 @@
+{
+  "title": "Classes and Dataclasses",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Python classes look familiar, with three differences: the constructor is called __init__, every method takes the instance explicitly as its first parameter (named self by convention, like an explicit this), and you create instances by calling the class without new."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance      # leading underscore: \"internal, please\"\n\n    @property\n    def balance(self):               # read as account.balance, like a JS getter\n        return self._balance\n\n    def deposit(self, amount):\n        if amount <= 0:\n            raise ValueError(\"amount must be positive\")\n        self._balance += amount\n\n    def __repr__(self):              # how the object prints\n        return f\"Account({self.owner!r}, {self._balance})\"\n\nacct = Account(\"Ada\")\nacct.deposit(50)\nprint(acct.balance)  # 50\nprint(acct)          # Account('Ada', 50)"
+    },
+    {
+      "type": "prose",
+      "body": "Python has no truly private fields like JavaScript's #field. A single leading underscore is a convention meaning 'internal'. For classes that mostly hold data, the dataclass decorator writes __init__, __repr__ and __eq__ for you from type-annotated fields."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "from dataclasses import dataclass, field\n\n@dataclass\nclass Point:\n    x: int\n    y: int = 0\n\np = Point(3)\nprint(p)                   # Point(x=3, y=0)\nprint(p == Point(3, 0))    # True -- compared by field values\n\n@dataclass\nclass Cart:\n    items: list = field(default_factory=list)  # fresh list per instance"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "@dataclass(frozen=True) makes instances immutable, so assigning p.x = 5 raises an error. Frozen dataclasses are also hashable and can be dict keys or set members."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why does every method in a Python class take self as its first parameter?",
+      "payload": {
+        "choices": [
+          "it is a reserved keyword that must be written",
+          "it holds the class's static data",
+          "it is only needed in __init__",
+          "it is the instance the method was called on, passed explicitly"
+        ],
+        "answer": "it is the instance the method was called on, passed explicitly",
+        "explanation": "acct.deposit(50) is effectively Account.deposit(acct, 50). self plays the role of JavaScript's implicit this."
+      },
+      "conceptTags": [
+        "classes"
+      ],
+      "id": "sf_98eb8c0e21a40f03a24cf2f6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With @dataclass class Point: x: int; y: int = 0, what does print(Point(1) == Point(1, 0)) show?",
+      "payload": {
+        "choices": [
+          "True",
+          "False",
+          "an error",
+          "None"
+        ],
+        "answer": "True",
+        "explanation": "Dataclasses generate __eq__ that compares field values, so two points with the same fields are equal."
+      },
+      "conceptTags": [
+        "classes",
+        "dataclasses"
+      ],
+      "id": "sf_1e25a19a3c971d43991feff2"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "How do you create an Account instance in Python?",
+      "payload": {
+        "choices": [
+          "new Account(\"Ada\")",
+          "Account(\"Ada\")",
+          "Account.new(\"Ada\")",
+          "Account.__init__(\"Ada\")"
+        ],
+        "answer": "Account(\"Ada\")",
+        "explanation": "Calling the class creates an instance and runs __init__; Python has no new keyword."
+      },
+      "conceptTags": [
+        "classes"
+      ],
+      "id": "sf_d2ffbd11ae69e6d90c9ecc33"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the constructor.",
+      "payload": {
+        "text": "The method Python runs to set up a new instance is called ____.",
+        "blanks": [
+          "__init__"
+        ]
+      },
+      "conceptTags": [
+        "classes"
+      ],
+      "id": "sf_c2f53b783551b8251400d292"
+    }
+  ],
+  "id": "sf_e21acf9b530ba83a3d83cd98"
+}

@@ -21,20 +21,67 @@
       "type": "MCQ",
       "prompt": "What type does TypeScript infer for const total = 0?",
       "payload": {
-        "choices": ["number", "string", "any", "zero"],
+        "choices": [
+          "string",
+          "number",
+          "any",
+          "zero"
+        ],
         "answer": "number",
         "explanation": "The initializer 0 is a number, so total is inferred as number."
       },
-      "conceptTags": ["types", "inference"]
+      "conceptTags": [
+        "types",
+        "inference"
+      ],
+      "id": "sf_605bc0ac4fe68ab1c35ed315"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the idea.",
       "payload": {
         "text": "When a variable's type is figured out from its initial value, TypeScript is using type ____.",
-        "blanks": ["inference"]
+        "blanks": [
+          "inference"
+        ]
       },
-      "conceptTags": ["types", "inference"]
+      "conceptTags": [
+        "types",
+        "inference"
+      ],
+      "id": "sf_c21d315bbddfe8b25077f6cb"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What type does TypeScript infer for let label = \"draft\"?",
+      "payload": {
+        "choices": [
+          "\"draft\"",
+          "any",
+          "string",
+          "unknown"
+        ],
+        "answer": "string",
+        "explanation": "A let can be reassigned, so TypeScript widens the literal to string. A const label = \"draft\" would keep the literal type \"draft\"."
+      },
+      "conceptTags": [
+        "types",
+        "inference",
+        "literal-types"
+      ],
+      "id": "sf_d05a23bd81bbc05b4d524efc"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Return the longest run of consecutive practice days. Let TypeScript infer the types of your local counters.",
+      "exercise": "longest-streak",
+      "conceptTags": [
+        "types",
+        "inference",
+        "loops"
+      ],
+      "id": "sf_72e4ac8a413e166d8ae63369"
     }
-  ]
+  ],
+  "id": "sf_8382ac4eac828943c559c9cd"
 }

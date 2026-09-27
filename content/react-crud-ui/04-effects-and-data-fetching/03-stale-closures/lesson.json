@@ -1,0 +1,96 @@
+{
+  "title": "Stale Closures",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Every render creates new functions, and each one closes over the props and state **of that render**. A function that outlives its render, such as an interval callback, a subscription handler, or a `setTimeout`, keeps seeing the old values. This is a **stale closure**, and the classic example is an interval that never gets past 1."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "function Ticker() {\n  const [count, setCount] = useState(0);\n\n  useEffect(() => {\n    // Bug: this callback closed over count === 0 from the first render.\n    const id = setInterval(() => setCount(count + 1), 1000); // always sets 1\n    return () => clearInterval(id);\n  }, []); // the lint rule would flag the missing `count`\n\n  return <p>{count}</p>;\n}\n\n// Fix 1: an updater does not need to read count at all.\n//   setInterval(() => setCount((c) => c + 1), 1000);  deps: []\n// Fix 2: depend on count. Correct, but it clears and re-creates the interval every tick.\n//   setInterval(() => setCount(count + 1), 1000);     deps: [count]"
+    },
+    {
+      "type": "prose",
+      "body": "Ways out, from most to least common:\n\n- use the **updater form** (`setX(x => ...)`) so the callback never reads the stale value\n- list the value in the **dependencies** so the effect re-subscribes with a fresh closure (correct, sometimes wasteful)\n- keep the latest value in a **ref** (`latest.current = value` in an effect) when a long-lived callback must read it without re-subscribing\n- for a function called from an effect that must see the latest props without being a dependency, React 19.2 adds `useEffectEvent`"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Stale closures also hit event handlers that await. After `await save()`, the `items` variable in the handler is still the snapshot from when the click happened. Use an updater (`setItems(prev => ...)`) for anything that depends on the latest state."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "An interval set up in useEffect(..., []) calls setCount(count + 1) every second; what does the screen show after 5 seconds?",
+      "payload": {
+        "choices": [
+          "5",
+          "0",
+          "It keeps increasing but skips values",
+          "1"
+        ],
+        "answer": "1",
+        "explanation": "The callback closed over count === 0 from the first render, so every tick sets 1, which bails out after the first time."
+      },
+      "conceptTags": [
+        "react",
+        "effects",
+        "closures",
+        "stale-closures"
+      ],
+      "id": "sf_90c96355081f14718d21b24d"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which change fixes the interval without re-creating it on every tick?",
+      "payload": {
+        "choices": [
+          "Adding count to the dependencies",
+          "Using useMemo for count",
+          "setCount(c => c + 1)",
+          "Moving useState inside the effect"
+        ],
+        "answer": "setCount(c => c + 1)",
+        "explanation": "The updater receives the latest state, so the callback no longer needs to read count, and [] stays correct."
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "updater-functions",
+        "stale-closures"
+      ],
+      "id": "sf_779ef495cc8449c4fba7c7b4"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the ref write that keeps the latest callback available to a long-lived subscription.",
+      "payload": {
+        "text": "latestOnMessage.____ = onMessage;",
+        "blanks": [
+          "current"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "refs",
+        "stale-closures"
+      ],
+      "id": "sf_2c3d8bc96a9f011e5c48b9eb"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Simulate an interval counter with different dependency arrays and update styles, and report the final count and how many intervals were created and cleared.",
+      "exercise": "simulate-counter",
+      "conceptTags": [
+        "react",
+        "effects",
+        "closures",
+        "stale-closures"
+      ],
+      "id": "sf_9d5e94c32e294ce5593fd7b5"
+    }
+  ],
+  "id": "sf_433add774ec2d8a01fb5ad5d"
+}

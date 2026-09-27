@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-medium-streak-freezes",
+  "title": "Longest Streak with Streak Freezes",
+  "prompt": "A habit tracker lets learners spend 'streak freezes' to cover missed days. `days` is one boolean per calendar day (`true` = practised). Write `longestStreak(days, freezes)` returning `{ length, start }`: the longest run of consecutive days that contains at most `freezes` missed days, and the index where it starts. On a tie return the earliest start. If no non-empty run qualifies (or `days` is empty), return `{ length: 0, start: 0 }`. Aim for O(n).",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["sliding-window", "two-pointers", "arrays"],
+  "order": 70004,
+  "exercise": "streak-freezes",
+  "explanation": {
+    "beginner": "Picture a window over the calendar with a left and a right edge. Move the right edge forward one day at a time. Each time it passes a missed day, add one to a 'misses in the window' counter. If the counter goes above the number of freezes, slide the left edge forward until the window is allowed again (subtract one whenever the left edge leaves a missed day behind). After each step the window is the longest valid run that ends at the right edge, so compare its size with the best you have seen and remember its start.",
+    "junior": "Classic 'longest subarray with at most k zeros'. Each index enters and leaves the window once, so it is O(n) time and O(1) space, versus O(n^2) for checking every start. Update the best only when `right - left + 1 > best.length` (strictly greater) - that is what keeps the earliest start on ties. With `freezes = 0` and no practised days the window is always shrunk to empty, so the result stays `{ 0, 0 }`; when `freezes` exceeds the number of misses the whole array qualifies. A common bug is using `if` instead of `while` to shrink: it only works because each step adds at most one miss, so prefer `while` for clarity and safety."
+  }
+}

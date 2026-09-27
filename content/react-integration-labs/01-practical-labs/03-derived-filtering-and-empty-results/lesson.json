@@ -1,0 +1,66 @@
+{
+  "id": "sf_fcee835c83680e9921e9326c",
+  "title": "Derived filtering and empty results",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Filtering is a derivation of products and query, so it does not need a second state variable or synchronization effect. Keep the original collection intact and recompute visible items on render. Normalize both sides for a case-insensitive search, trim the query, and give zero matches a visible status message. Stable data IDs serve as list keys even when filtering changes positions."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// A small controlled field:\n// const [value, setValue] = useState(\"\");\n// <input value={value} onChange={event => setValue(event.target.value)} />"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"props\":{\"products\":[{\"id\":1,\"name\":\"Blue Mug\"},{\"id\":2,\"name\":\"Pen\"}]},\"actions\":[{\"type\":\"input\",\"selector\":\"input\",\"value\":\" mug \"}],\"assertions\":[{\"selector\":\"li\",\"count\":1,\"text\":\"Blue Mug\"}]}]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Filter product names with a Search products input and render matching li elements; show No matches in role=status when empty."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Array indices are unstable keys when items are removed or reordered."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which assertion proves the user-visible behavior rather than the implementation detail? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the empty catalog case checks a different boundary.\n\n**Transfer it.** Replace the simulated data boundary with the Inventory Desk API while preserving these component contracts."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_2c9649e346787360c130d51c",
+      "type": "MCQ",
+      "prompt": "Where should the filtered array come from?",
+      "conceptTags": [
+        "react",
+        "derived-state",
+        "filtering"
+      ],
+      "payload": {
+        "choices": [
+          "Mutate the products prop",
+          "Derive it from products and query during rendering",
+          "Store another copy and synchronize it with a timer"
+        ],
+        "answer": "Derive it from products and query during rendering",
+        "explanation": "Derived data avoids competing sources of truth."
+      }
+    },
+    {
+      "id": "sf_f9d25fadadb0f94980e7c030",
+      "type": "CODE",
+      "prompt": "Filter product names with a Search products input and render matching li elements; show No matches in role=status when empty.",
+      "conceptTags": [
+        "react",
+        "derived-state",
+        "filtering"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Derived data avoids competing sources of truth.",
+        "Array indices are unstable keys when items are removed or reordered."
+      ],
+      "walkthrough": "Derived data avoids competing sources of truth.\nArray indices are unstable keys when items are removed or reordered."
+    }
+  ]
+}

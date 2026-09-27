@@ -1,0 +1,14 @@
+{
+  "slug": "p2-ts-hard-knapsack-bundle",
+  "title": "Best Add-on Bundle Within a Budget",
+  "prompt": "A checkout page suggests add-ons that fit the customer's remaining budget. Each add-on is `{ id, price, value }` (non-negative integers; value is a relevance score) and can be picked at most once. Write `bestBundle(addons, budget)` returning `{ value, price, ids }`: the subset with total price <= `budget` and the highest total value; among those, the lowest total price. `ids` are sorted alphabetically. The tests are built so this best bundle is unique. An empty bundle is `{ value: 0, price: 0, ids: [] }`.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["dynamic-programming", "knapsack", "reconstruction", "e-commerce"],
+  "order": 70016,
+  "exercise": "knapsack-bundle",
+  "explanation": {
+    "beginner": "Picking the 'best value per dollar' first does not work: with budget 50 and items (10 -> 60), (20 -> 100), (30 -> 120), the best ratio pick gives 160 but the two bigger items give 220. Instead build a table: row i, column c holds the best bundle using only the first i add-ons with at most c to spend. Each cell has two choices - skip add-on i (copy the cell above) or take it (the cell above at c - price, plus this item) - and keeps the better one (more value, then less money). The bottom-right cell is the answer. Walk back up the table to see which add-ons were taken.",
+    "junior": "0/1 knapsack in O(n * budget) time and space (pseudo-polynomial - fine for budgets in cents up to a few thousand, not for huge budgets). Compare cells by a tuple `(value desc, price asc)` so the secondary rule is part of the DP rather than a post-filter; a zero-value add-on then never gets included because it only raises price. Record a `took[i][c]` flag when taking was strictly better, and reconstruct from `(n, budget)` downwards, subtracting the price when a flag is set - the 1D rolling-array version cannot reconstruct without that extra table. Iterating capacity downwards in the 1D version is what prevents using one item twice (upwards gives the unbounded variant). Ties on both value and price would need a third rule; the spec avoids that deliberately."
+  }
+}

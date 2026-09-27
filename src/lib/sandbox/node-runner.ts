@@ -12,12 +12,12 @@ export function runCodeInNodeWorker(request: SandboxRequest, timeoutMs = 2000, s
     const worker = new Worker(
       `
         const { parentPort } = require("node:worker_threads");
-        try {
-          const response = ${buildHarnessSource(request)};
+        (async () => { try {
+          const response = await ${buildHarnessSource(request)};
           parentPort.postMessage({ ok: true, response });
         } catch (error) {
           parentPort.postMessage({ ok: false, error: error instanceof Error ? error.message : String(error) });
-        }
+        } })();
       `,
       { eval: true },
     );

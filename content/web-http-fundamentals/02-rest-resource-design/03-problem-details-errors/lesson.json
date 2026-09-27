@@ -1,0 +1,97 @@
+{
+  "title": "Problem Details Error Responses",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Clients need errors they can parse. Instead of inventing a new error shape per endpoint, use **Problem Details** (RFC 9457, formerly 7807) with `Content-Type: application/problem+json`. The standard members are `type` (a URI naming the error kind), `title` (a short, fixed summary), `status`, `detail` (this occurrence), and `instance` (the request path). You may add members such as `errors` or `traceId`."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "HTTP/1.1 404 Not Found\nContent-Type: application/problem+json\n\n{\n  \"type\": \"https://example.com/problems/not-found\",\n  \"title\": \"Resource not found\",\n  \"status\": 404,\n  \"detail\": \"Product 42 was not found.\",\n  \"instance\": \"/products/42\"\n}"
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddProblemDetails();   // consistent problem+json for errors\napp.UseExceptionHandler();               // unhandled exceptions -> 500 problem details\napp.UseStatusCodePages();                // bare 404/405 -> problem details\n\n// In an endpoint:\nreturn TypedResults.Problem(\n    title: \"Conflict\", detail: \"Email is already registered.\", statusCode: 409);"
+    },
+    {
+      "type": "prose",
+      "body": "Clients should branch on `type` (or `status`), never on the English text in `title` or `detail`, which you may reword at any time."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A 500 response must not include the exception message or stack trace: they leak table names, file paths, and sometimes connection strings. Log the details server-side with a correlation id and send the client only a generic title plus that id."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which Content-Type identifies an RFC 9457 error body?",
+      "payload": {
+        "choices": [
+          "application/error+json",
+          "text/problem",
+          "application/json-error",
+          "application/problem+json"
+        ],
+        "answer": "application/problem+json",
+        "explanation": "Problem Details uses the application/problem+json media type (and application/problem+xml for XML)."
+      },
+      "conceptTags": [
+        "http",
+        "problem-details",
+        "errors"
+      ],
+      "id": "sf_6ab28d3088e0156827a46034"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What should a client use to decide how to handle a problem details error?",
+      "payload": {
+        "choices": [
+          "The wording of the title",
+          "The type URI and status code",
+          "The detail sentence",
+          "The length of the body"
+        ],
+        "answer": "The type URI and status code",
+        "explanation": "type and status are stable identifiers. title and detail are human-readable text that may change or be localized."
+      },
+      "conceptTags": [
+        "http",
+        "problem-details"
+      ],
+      "id": "sf_f93395e54ae8c3ab3e0959d0"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the member.",
+      "payload": {
+        "text": "In problem details, the ____ member holds the path of the request that failed.",
+        "blanks": [
+          "instance"
+        ]
+      },
+      "conceptTags": [
+        "http",
+        "problem-details"
+      ],
+      "id": "sf_d187b991f9f3e90ad4c89b9d"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Convert application errors (not-found, validation, conflict, unexpected) into problem details bodies with the right type, title, status, and detail, without leaking internal error messages.",
+      "exercise": "to-problem-details",
+      "conceptTags": [
+        "http",
+        "problem-details",
+        "errors",
+        "security"
+      ],
+      "id": "sf_7b6d1962defa4623893a5cbe"
+    }
+  ],
+  "id": "sf_b0956d827bc5670d6c1b9d4d"
+}

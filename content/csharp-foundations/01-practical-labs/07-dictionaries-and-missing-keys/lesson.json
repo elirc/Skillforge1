@@ -1,0 +1,66 @@
+{
+  "id": "sf_b189fef5ca1ce4cf9c574581",
+  "title": "Dictionaries and missing keys",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A dictionary maps a key to a value. Reading with the indexer requires the key to exist, while GetValueOrDefault returns zero for an absent integer count. Each occurrence increments exactly one key. The default string comparer is case-sensitive; choose normalization or a comparer deliberately if your business identifiers ignore case."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static int CountSku(string[] skus, string target)\n    {\n        return 0;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[\"A\",\"B\",\"A\"],\"A\"]. The required result is 2. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Count exact, case-sensitive occurrences of a target SKU using a frequency dictionary."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "The number of distinct keys is different from the count of one key."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Would an ordinal-ignore-case comparer change the last test? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the case sensitive case checks a different boundary.\n\n**Transfer it.** Build a frequency table to detect duplicated lines in an imported purchase order."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_7551a7d3f8c98007a1f21aeb",
+      "type": "MCQ",
+      "prompt": "What is the count of a key never inserted?",
+      "conceptTags": [
+        "dictionaries",
+        "counting",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "One",
+          "Zero under this counting contract",
+          "The total number of keys"
+        ],
+        "answer": "Zero under this counting contract",
+        "explanation": "The neutral starting count is zero; each observed occurrence adds one."
+      }
+    },
+    {
+      "id": "sf_373474f74bb71e5d7af5ad97",
+      "type": "CODE",
+      "prompt": "Count exact, case-sensitive occurrences of a target SKU using a frequency dictionary.",
+      "conceptTags": [
+        "dictionaries",
+        "counting",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The neutral starting count is zero; each observed occurrence adds one.",
+        "The number of distinct keys is different from the count of one key."
+      ],
+      "walkthrough": "The neutral starting count is zero; each observed occurrence adds one.\nThe number of distinct keys is different from the count of one key."
+    }
+  ]
+}

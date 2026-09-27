@@ -1,0 +1,95 @@
+{
+  "title": "DTO Types at the Boundary",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A CRUD screen juggles three shapes of the same thing. The form state holds strings, because that is what inputs give you. The DTO (data transfer object) is what the API sends or accepts: real numbers, arrays, null for missing dates. The domain model is what the rest of your UI works with. Giving each its own type, and one small function to convert between them, stops string-typed data from leaking everywhere."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "// Server shape (GET /todos/:id)\ninterface TodoDto {\n  id: number;\n  title: string;\n  due_date: string | null; // snake_case from the API\n  priority: 1 | 2 | 3;\n}\n\n// Request shape (POST /todos): the server assigns id\ntype CreateTodoDto = Omit<TodoDto, \"id\">;\n\n// Request shape (PATCH /todos/:id): any subset\ntype UpdateTodoDto = Partial<CreateTodoDto>;\n\n// Form state: everything is a string\ntype TodoForm = { [K in keyof CreateTodoDto]: string };"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Derive request types from the response type with Omit and Partial instead of retyping them. When the API adds a field, one edit updates the create and update shapes, and the compiler points at every converter that must handle it."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Empty inputs are the classic bug: Number(\"\") is 0, not missing, and \"\" is not a valid date. Convert empty strings to null (or omit the key) deliberately in the form-to-DTO function."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which type best describes a POST body when the server assigns id?",
+      "payload": {
+        "choices": [
+          "Partial<TodoDto>",
+          "Pick<TodoDto, \"id\">",
+          "TodoDto",
+          "Omit<TodoDto, \"id\">"
+        ],
+        "answer": "Omit<TodoDto, \"id\">",
+        "explanation": "The create request has every field except the server-generated id. Partial would also allow leaving out required fields."
+      },
+      "conceptTags": [
+        "typescript",
+        "dto",
+        "utility-types"
+      ],
+      "id": "sf_f14660928c6f8e79f5dbc6a8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does Number(\"\") return in JavaScript?",
+      "payload": {
+        "choices": [
+          "NaN",
+          "null",
+          "0",
+          "undefined"
+        ],
+        "answer": "0",
+        "explanation": "An empty string converts to 0, which silently turns an empty numeric input into a real value. Check for empty strings before converting."
+      },
+      "conceptTags": [
+        "javascript",
+        "forms",
+        "conversion"
+      ],
+      "id": "sf_065ee48d5b4f143ca89f3854"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the PATCH type.",
+      "payload": {
+        "text": "A PATCH body that may contain any subset of the create fields is typed ____<CreateTodoDto>.",
+        "blanks": [
+          "Partial"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "dto",
+        "partial"
+      ],
+      "id": "sf_8137f9f087f5fc3a93953763"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Convert string-only form state into a CreateTodoDto: trim the title, normalize and dedupe comma-separated tags, turn an empty date into null, and parse priority as 1 | 2 | 3 (default 2).",
+      "exercise": "to-create-todo-dto",
+      "conceptTags": [
+        "typescript",
+        "dto",
+        "forms",
+        "conversion"
+      ],
+      "id": "sf_21ddfeb57aa1565e6ec36f9b"
+    }
+  ],
+  "id": "sf_0e2791bc26707933285e4be2"
+}

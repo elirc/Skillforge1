@@ -1,0 +1,101 @@
+{
+  "title": "ConcurrentDictionary, lock, and Interlocked",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Shared mutable state plus more than one thread gives race conditions. `count++` looks atomic but is read, add, then write; two threads can read the same value and one increment is lost. `Dictionary<TKey, TValue>` is not safe for concurrent writes at all and can corrupt its internal state. A singleton service in ASP.NET Core is shared by every concurrent request, so these bugs show up in web apps, not only in explicitly parallel code."
+    },
+    {
+      "type": "prose",
+      "body": "Pick the lightest tool that makes the operation atomic:"
+    },
+    {
+      "type": "prose",
+      "body": "- `Interlocked.Increment/Add/Exchange/CompareExchange` for a single numeric field or reference. Lock-free and very cheap.\n- `lock (gate) { ... }` for multi-step invariants: check-then-act, or updating two fields together. Keep the body short and never `await` inside it (the compiler forbids it). Use `SemaphoreSlim(1, 1)` with `WaitAsync` for async code.\n- `ConcurrentDictionary`, `ConcurrentQueue`, `ConcurrentBag` for shared collections, using their atomic compound methods."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "private readonly ConcurrentDictionary<string, int> _hits = new();\nprivate long _total;\nprivate readonly object _gate = new();\nprivate string _slowestPath = \"\";\nprivate long _slowestMs;\n\npublic void Record(string path, long elapsedMs)\n{\n    _hits.AddOrUpdate(path, 1, (_, current) => current + 1);  // atomic per key\n    Interlocked.Increment(ref _total);                        // atomic counter\n\n    lock (_gate)                                              // two fields, one invariant\n    {\n        if (elapsedMs > _slowestMs) { _slowestMs = elapsedMs; _slowestPath = path; }\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "A detail interviewers probe: `GetOrAdd(key, factory)` and `AddOrUpdate` can run the factory **more than once** under contention; only one result is stored, but the side effects of the others still happen. For expensive or side-effecting creation, store a `Lazy<T>`: `GetOrAdd(key, k => new Lazy<T>(() => Create(k))).Value`. Also note that `if (!dict.ContainsKey(k)) dict[k] = v;` is still a check-then-act race, even on a ConcurrentDictionary."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A test that passes with a plain Dictionary under Parallel.ForEach proves nothing. Races are timing-dependent, so thread-safety must be argued from the code: every shared write must be atomic or protected."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Several threads run `_count++` on a shared int field. What is the fix with the least overhead?",
+      "payload": {
+        "choices": [
+          "Mark the field volatile",
+          "Wrap it in Task.Run",
+          "Use a ConcurrentBag<int>",
+          "Interlocked.Increment(ref _count)"
+        ],
+        "answer": "Interlocked.Increment(ref _count)",
+        "explanation": "Interlocked performs the read-add-write as one atomic CPU operation. volatile only affects visibility and ordering; it does not make ++ atomic."
+      },
+      "conceptTags": [
+        "concurrency",
+        "interlocked",
+        "csharp"
+      ],
+      "id": "sf_b9dffafd8d2c3c0df788764c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is surprising about the value factory passed to ConcurrentDictionary.GetOrAdd?",
+      "payload": {
+        "choices": [
+          "It can run more than once for the same key when threads race, although only one value is stored",
+          "It always runs while a global lock is held",
+          "It runs on a background thread",
+          "It is never called if the key is a string"
+        ],
+        "answer": "It can run more than once for the same key when threads race, although only one value is stored",
+        "explanation": "The dictionary does not lock around your delegate. Wrap expensive or side-effecting creation in Lazy<T> so it runs once."
+      },
+      "conceptTags": [
+        "concurrency",
+        "concurrent-collections"
+      ],
+      "id": "sf_24a5b57f7e4ba0706a40d665"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the rule.",
+      "payload": {
+        "text": "You cannot use `await` inside a `lock` block; for async code use a ____ with WaitAsync instead.",
+        "blanks": [
+          "SemaphoreSlim"
+        ]
+      },
+      "conceptTags": [
+        "concurrency",
+        "async",
+        "locks"
+      ],
+      "id": "sf_76bb03f8b499790b44e779c6"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Count request paths in parallel with ConcurrentDictionary.AddOrUpdate, Interlocked.Increment, and a lock for a compare-then-write maximum.",
+      "exercise": "parallel-hit-counter",
+      "conceptTags": [
+        "concurrency",
+        "concurrent-collections",
+        "interlocked",
+        "locks"
+      ],
+      "id": "sf_794162fb9d6d08ce2985071a"
+    }
+  ],
+  "id": "sf_f3ff44315fdc37b3b0dcba02"
+}

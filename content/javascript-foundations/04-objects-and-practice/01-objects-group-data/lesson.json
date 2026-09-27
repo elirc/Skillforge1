@@ -14,6 +14,24 @@
       "type": "callout",
       "tone": "info",
       "body": "Use dot access for fixed keys you write by hand, and bracket access (learner[\"streak\"]) when the key lives in a variable."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** An object groups named values. Dot access uses a literal property name; bracket access can use a name calculated at runtime. Property order is not a substitute for an explicit data contract."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const book = { title: 'Loops', pages: 120 };\nconsole.log(book.title); // 'Loops'\nconsole.log(book['pages']); // 120"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A missing property returns undefined. A typo such as book.page does not read book.pages."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Store 'title' in a variable and use it to read the matching property.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -21,26 +39,51 @@
       "type": "MCQ",
       "prompt": "How do you read the streak value from const learner = { name, streak }?",
       "payload": {
-        "choices": ["learner.streak", "learner->streak", "streak(learner)", "learner:streak"],
+        "choices": [
+          "learner->streak",
+          "streak(learner)",
+          "learner:streak",
+          "learner.streak"
+        ],
         "answer": "learner.streak",
         "explanation": "Dot access reads a property by its key name."
       },
-      "conceptTags": ["objects", "property-access"]
+      "conceptTags": [
+        "objects",
+        "property-access"
+      ],
+      "id": "sf_b99f76af23f358553ae7ee93"
     },
     {
       "type": "CLOZE",
       "prompt": "Name the access style.",
       "payload": {
         "text": "Reading learner.streak uses ____ access.",
-        "blanks": ["dot"]
+        "blanks": [
+          "dot"
+        ]
       },
-      "conceptTags": ["objects"]
+      "conceptTags": [
+        "objects"
+      ],
+      "id": "sf_d5bc8a9fb5dcb48e89193a53"
     },
     {
       "type": "CODE",
       "prompt": "Return the streak value from a learner object.",
       "exercise": "get-streak",
-      "conceptTags": ["objects", "property-access"]
+      "conceptTags": [
+        "objects",
+        "property-access"
+      ],
+      "id": "sf_402358818348e689229f131b",
+      "hints": [
+        "A missing property returns undefined. A typo such as book.page does not read book.pages.",
+        "An object groups named values. Dot access uses a literal property name; bracket access can use a name calculated at runtime. Property order is not a substitute for an explicit data contract."
+      ],
+      "walkthrough": "An object groups named values. Dot access uses a literal property name; bracket access can use a name calculated at runtime. Property order is not a substitute for an explicit data contract."
     }
-  ]
+  ],
+  "id": "sf_ae2edeccd65dd33951760fd0",
+  "estimatedMinutes": 12
 }

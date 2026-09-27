@@ -1,0 +1,50 @@
+{
+  "id": "sf_fa1af3db23a6791d3e8aebf5",
+  "title": "Query, sort and paginate safely",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Make a filtered inventory view reloadable and shareable within the local app.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read ui/main.jsx; InventoryDesk.Api/Program.cs before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet test InventoryDesk.Tests --filter Milestone=07\nnpm run test:e2e"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** Filtering updates the total count, page two contains the correct ordered row, ties use id as a stable secondary key, and the UI URL preserves search/sort/page.\n\n**Make a meaningful variation.** Add a browser test that reloads a filtered URL and sees the same results. Add a secondary sort test with equal prices. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: Server inputs are bounded, ordering is deterministic, and changing a filter resets an out-of-range page."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** Why must sorting include a tie-breaker? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_a4ba8c11be8fe1ff129a9feb",
+      "type": "MCQ",
+      "prompt": "Why must sorting include a tie-breaker?",
+      "conceptTags": [
+        "pagination",
+        "url-state",
+        "querying"
+      ],
+      "payload": {
+        "choices": [
+          "To make every field unique",
+          "Equal primary sort values still need a stable order",
+          "To hide matching rows from later pages"
+        ],
+        "answer": "Equal primary sort values still need a stable order",
+        "explanation": "Server inputs are bounded, ordering is deterministic, and changing a filter resets an out-of-range page."
+      }
+    }
+  ]
+}

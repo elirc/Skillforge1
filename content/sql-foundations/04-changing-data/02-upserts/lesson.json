@@ -1,0 +1,99 @@
+{
+  "title": "Upserts: Insert or Update Atomically",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An upsert inserts a row if its key is new and updates the existing row if the key already exists. The naive version is two statements: SELECT to check, then INSERT or UPDATE. Under concurrency that is a race: two requests both see \"not found\" and both INSERT, giving you duplicate rows or a unique-key violation. The fix has two parts: a UNIQUE constraint (or primary key) on the natural key, and a single atomic statement."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- PostgreSQL and SQLite: needs a UNIQUE constraint or PK on sku\nINSERT INTO inventory (sku, qty)\nVALUES ('MUG-01', 5)\nON CONFLICT (sku) DO UPDATE\n  SET qty = inventory.qty + excluded.qty;   -- excluded = the row we tried to insert\n\n-- MySQL\nINSERT INTO inventory (sku, qty) VALUES ('MUG-01', 5)\nON DUPLICATE KEY UPDATE qty = qty + VALUES(qty);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- SQL Server: UPDATE first, INSERT if nothing matched, holding the key range lock\nBEGIN TRANSACTION;\nUPDATE inventory WITH (UPDLOCK, SERIALIZABLE)\n   SET qty = qty + @qty\n WHERE sku = @sku;\nIF @@ROWCOUNT = 0\n  INSERT INTO inventory (sku, qty) VALUES (@sku, @qty);\nCOMMIT;"
+    },
+    {
+      "type": "prose",
+      "body": "SQL Server also has MERGE, which can express an upsert in one statement, but MERGE on its own is not race-free: two sessions can still both decide to insert unless you add WITH (HOLDLOCK). Many teams prefer the explicit UPDATE-then-INSERT pattern above. EF Core has no built-in upsert; use raw SQL (or a library) when you need one, or catch the unique-violation exception and retry as an update."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Idempotent writes are what upserts are for: webhook handlers, sync jobs, and message consumers can receive the same event twice. An upsert keyed on the event id (or ON CONFLICT DO NOTHING) makes the second delivery harmless."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `INSERT INTO inventory (sku, qty) VALUES (@sku, @qty) ON CONFLICT (sku) DO UPDATE SET qty = inventory.qty + excluded.qty`, run once per incoming row, in order. Existing rows keep their position; inserted rows are appended. Return { rows, inserted, updated } without mutating the input.",
+      "exercise": "upsert-inventory",
+      "conceptTags": [
+        "sql",
+        "upsert",
+        "on-conflict",
+        "idempotency"
+      ],
+      "id": "sf_ff11ae5dafec25a60fce20e1"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "An API does `SELECT COUNT(*) FROM tags WHERE name = @name` and INSERTs when the count is 0. Under load, duplicate tags appear. What is the correct fix?",
+      "payload": {
+        "choices": [
+          "Add an index on name without making it unique",
+          "Run the SELECT twice before inserting",
+          "Add a UNIQUE constraint on name and use an atomic upsert (or catch the unique violation)",
+          "Cache the tag list in memory"
+        ],
+        "answer": "Add a UNIQUE constraint on name and use an atomic upsert (or catch the unique violation)",
+        "explanation": "Check-then-insert is a race: both requests can pass the check before either inserts. Only the database can enforce uniqueness across concurrent sessions."
+      },
+      "conceptTags": [
+        "sql",
+        "upsert",
+        "concurrency",
+        "constraints"
+      ],
+      "id": "sf_3d753afa9f39a093ce9fae75"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the PostgreSQL upsert.",
+      "payload": {
+        "text": "INSERT INTO inventory (sku, qty) VALUES ('MUG-01', 5) ON CONFLICT (sku) DO ____ SET qty = excluded.qty;",
+        "blanks": [
+          "UPDATE"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "upsert",
+        "on-conflict"
+      ],
+      "id": "sf_508f1b492ba54fd69cd4eec3"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "In `ON CONFLICT (sku) DO UPDATE SET qty = inventory.qty + excluded.qty`, what is `excluded`?",
+      "payload": {
+        "choices": [
+          "The existing row already in the table",
+          "A table of rows deleted by the statement",
+          "A reserved word for NULL",
+          "The row that was proposed for insertion but conflicted"
+        ],
+        "answer": "The row that was proposed for insertion but conflicted",
+        "explanation": "excluded holds the values you tried to insert; the table name (inventory) refers to the existing row. SQL Server's MERGE uses a source alias for the same idea."
+      },
+      "conceptTags": [
+        "sql",
+        "upsert"
+      ],
+      "id": "sf_95ddb5ade72975c514541e95"
+    }
+  ],
+  "id": "sf_c9f19c69de56aef1fd541d91"
+}

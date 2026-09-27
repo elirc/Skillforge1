@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const groups = {};\nfor (const item of items) {\n  const key = item.status;\n  groups[key] = groups[key] ?? [];\n  groups[key].push(item);\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Each key owns a separate bucket. A record is appended to the bucket matching its team; existing records in other buckets remain untouched. One pass groups all rows."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const rows = [{team:'a',n:1},{team:'b',n:2},{team:'a',n:3}];\nconst groups = new Map();\nfor (const row of rows) {\n  if (!groups.has(row.team)) groups.set(row.team, []);\n  groups.get(row.team).push(row);\n}\n// a has rows 1 and 3; b has row 2"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Reusing one shared array for every key mixes unrelated groups."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** What should empty input produce? Which order should records within a group keep?\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -17,15 +35,34 @@
       "prompt": "Complete the grouping idea.",
       "payload": {
         "text": "A grouping object maps each key to an ____ of matching records.",
-        "blanks": ["array"]
+        "blanks": [
+          "array"
+        ]
       },
-      "conceptTags": ["objects", "arrays", "grouping"]
+      "conceptTags": [
+        "objects",
+        "arrays",
+        "grouping"
+      ],
+      "id": "sf_a24aae135bafdfeee3e07132"
     },
     {
       "type": "CODE",
       "prompt": "Group lessons by their status and return an object of arrays.",
       "exercise": "group-by-status",
-      "conceptTags": ["objects", "arrays", "grouping"]
+      "conceptTags": [
+        "objects",
+        "arrays",
+        "grouping"
+      ],
+      "id": "sf_b1c13b9a1f2d5aa753f8f1da",
+      "hints": [
+        "Reusing one shared array for every key mixes unrelated groups.",
+        "Each key owns a separate bucket. A record is appended to the bucket matching its team; existing records in other buckets remain untouched. One pass groups all rows."
+      ],
+      "walkthrough": "Each key owns a separate bucket. A record is appended to the bucket matching its team; existing records in other buckets remain untouched. One pass groups all rows."
     }
-  ]
+  ],
+  "id": "sf_431b925a3d2a260985282b2c",
+  "estimatedMinutes": 12
 }

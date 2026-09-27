@@ -3,11 +3,12 @@ import { parseTags, type Difficulty } from "@/lib/enums";
 import { getCurrentUser } from "@/server/user";
 
 /** Shape the catalog UI wants: JSON tag columns already decoded to arrays. */
-function decodeCourse<T extends { topicTags: string; outcomes: string; difficulty: string }>(course: T) {
+function decodeCourse<T extends { topicTags: string; outcomes: string; prerequisites: string; difficulty: string }>(course: T) {
   return {
     ...course,
     topicTags: parseTags(course.topicTags),
     outcomes: parseTags(course.outcomes),
+    prerequisites: parseTags(course.prerequisites),
     difficulty: course.difficulty as Difficulty,
   };
 }
@@ -17,7 +18,8 @@ export async function getCatalogData() {
 
   const [courses, completions] = await Promise.all([
     prisma.course.findMany({
-      include: { modules: { include: { lessons: true }, orderBy: { order: "asc" } } },
+      where: { archived: false },
+      include: { modules: { where: { archived: false }, include: { lessons: { where: { archived: false }, orderBy: { order: "asc" } } }, orderBy: { order: "asc" } } },
       orderBy: { order: "asc" },
     }),
     prisma.lessonCompletion.findMany({ where: { userId: user.id }, select: { lessonId: true } }),
@@ -33,12 +35,14 @@ export async function getCourseBySlug(slug: string) {
   const user = await getCurrentUser();
 
   const course = await prisma.course.findUnique({
-    where: { slug },
+    where: { slug, archived: false },
     include: {
       modules: {
+        where: { archived: false },
         include: {
           lessons: {
-            include: { knowledgeItems: true, completions: { where: { userId: user.id } } },
+            where: { archived: false },
+            include: { knowledgeItems: { where: { archived: false } }, completions: { where: { userId: user.id } } },
             orderBy: { order: "asc" },
           },
         },

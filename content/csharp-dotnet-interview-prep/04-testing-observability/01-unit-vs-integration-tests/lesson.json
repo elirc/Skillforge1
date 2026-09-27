@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "info",
       "body": "In interviews, name the behavior under test, the layer you are testing, and the tradeoff in speed versus confidence."
+    },
+    {
+      "type": "prose",
+      "body": "Pick the cheapest test that can still fail for the right reason. Pure rules get unit tests. Anything that depends on time, randomness or a third-party API gets a unit test with a fake: inject `TimeProvider` rather than calling `DateTime.UtcNow`, and fake the email provider you do not own. Anything that depends on wiring you do own (routing, DI, auth policies, EF Core mappings, the real database) needs an integration test through `WebApplicationFactory`, ideally against the same database engine you run in production. Browser journeys are the few, slow end-to-end tests at the top of the pyramid."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public sealed class StreakService(TimeProvider time)\n{\n    public bool IsBroken(DateOnly lastActive) =>\n        DateOnly.FromDateTime(time.GetUtcNow().UtcDateTime) > lastActive.AddDays(1);\n}\n\n[Fact]\npublic void Streak_breaks_after_a_missed_day()\n{\n    var time = new FakeTimeProvider(new DateTimeOffset(2026, 6, 16, 9, 0, 0, TimeSpan.Zero));\n    var service = new StreakService(time);\n\n    Assert.True(service.IsBroken(new DateOnly(2026, 6, 14)));\n}"
     }
   ],
   "knowledgeItems": [
@@ -22,24 +31,83 @@
       "prompt": "Which behavior is best covered by an integration test?",
       "payload": {
         "choices": [
-          "A POST endpoint writes completion and review rows through EF Core",
           "A pure method clamps a score between 0 and 100",
           "A string helper trims whitespace",
+          "A POST endpoint writes completion and review rows through EF Core",
           "A simple arithmetic helper adds two values"
         ],
         "answer": "A POST endpoint writes completion and review rows through EF Core",
         "explanation": "That behavior crosses HTTP, auth, DI, EF Core, and persistence boundaries."
       },
-      "conceptTags": ["testing", "integration-tests", "ef-core"]
+      "conceptTags": [
+        "testing",
+        "integration-tests",
+        "ef-core"
+      ],
+      "id": "sf_20c29d8642c53b0311a3231c"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the testing answer.",
       "payload": {
         "text": "Use unit tests for isolated business rules and ____ tests for behavior that depends on real framework wiring or persistence.",
-        "blanks": ["integration"]
+        "blanks": [
+          "integration"
+        ]
       },
-      "conceptTags": ["testing", "interviews"]
+      "conceptTags": [
+        "testing",
+        "interviews"
+      ],
+      "id": "sf_86b2b328396fe4a0e393a173"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why is EF Core's InMemory provider a weak choice for integration tests?",
+      "payload": {
+        "choices": [
+          "It is slower than a real database server",
+          "It cannot be used with dependency injection",
+          "It only supports asynchronous queries",
+          "It does not enforce relational constraints or translate queries to SQL, so tests can pass against behavior the real database rejects"
+        ],
+        "answer": "It does not enforce relational constraints or translate queries to SQL, so tests can pass against behavior the real database rejects",
+        "explanation": "Unique indexes, foreign keys, transactions and SQL translation errors are exactly what integration tests should catch. Use SQLite or a containerized copy of your real engine instead."
+      },
+      "conceptTags": [
+        "testing",
+        "integration-tests",
+        "ef-core"
+      ],
+      "id": "sf_c0c476df9a06c5958f379acb"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the testability sentence.",
+      "payload": {
+        "text": ".NET 8 added the ____ abstraction so time-dependent code can be tested with a fake clock.",
+        "blanks": [
+          "TimeProvider"
+        ]
+      },
+      "conceptTags": [
+        "testing",
+        "dotnet",
+        "fakes"
+      ],
+      "id": "sf_174181288824b007098d3083"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Plan a test suite: assign each behavior the cheapest layer that can prove it, then order the plan like a test pyramid.",
+      "exercise": "plan-test-layers",
+      "conceptTags": [
+        "testing",
+        "integration-tests",
+        "interviews"
+      ],
+      "id": "sf_8cf50bd2ad65b4a86a50d6a1"
     }
-  ]
+  ],
+  "id": "sf_f9461152d224dff26ac33194"
 }

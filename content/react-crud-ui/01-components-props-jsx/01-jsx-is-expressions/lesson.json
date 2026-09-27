@@ -1,0 +1,102 @@
+{
+  "title": "Components Return JSX",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A React component is a function that takes **props** and returns a description of UI. JSX is only syntax for building that description: `<h1 className=\"title\">Hi {name}</h1>` compiles to a function call that produces a plain object like `{ type: \"h1\", props: { className: \"title\", children: [\"Hi \", name] } }`. React compares these objects between renders and updates the DOM to match.\n\nBecause JSX is an expression, anything you can compute in JavaScript can go inside `{}`: variables, function calls, ternaries, and arrays from `.map()`. Statements such as `if` and `for` cannot go inside JSX; compute the value above the `return` instead."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "type ProductCardProps = { name: string; price: number; stock: number };\n\nexport function ProductCard({ name, price, stock }: ProductCardProps) {\n  const label = stock === 0 ? \"Sold out\" : `${stock} left`;\n  return (\n    <article className=\"card\">\n      <h2>{name}</h2>\n      <p>{price.toFixed(2)} USD</p>\n      <p>{label}</p>\n    </article>\n  );\n}"
+    },
+    {
+      "type": "prose",
+      "body": "What renders, child by child:\n\n- strings and numbers render as text, and **0 is a number**, so it renders\n- `null`, `undefined`, `true`, and `false` render nothing\n- arrays render each element in order (this is how `.map()` output works)\n- strings are never parsed as HTML; `\"<b>hi</b>\"` shows the angle brackets, which is also why JSX output is safe from injection by default"
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// Bug: when count is 0 the page shows a stray \"0\".\n{count && <Badge count={count} />}\n\n// Fix: make the condition a real boolean.\n{count > 0 && <Badge count={count} />}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`{items.length && <List items={items} />}` is the classic version of this bug. `0 && anything` evaluates to `0`, and React renders numbers. Compare explicitly (`items.length > 0`) or use a ternary that returns `null`."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Component names must start with a capital letter. `<productCard />` is treated as an unknown HTML tag, while `<ProductCard />` calls your function."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does {count && <Badge />} render when count is 0?",
+      "payload": {
+        "choices": [
+          "Nothing",
+          "The Badge",
+          "The text 0",
+          "It throws an error"
+        ],
+        "answer": "The text 0",
+        "explanation": "0 && x evaluates to 0, and React renders numbers as text. Use count > 0 && <Badge /> instead."
+      },
+      "conceptTags": [
+        "react",
+        "jsx",
+        "conditional-rendering"
+      ],
+      "id": "sf_d19cfe08a7031bcf286c9566"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which of these renders nothing when used as a JSX child?",
+      "payload": {
+        "choices": [
+          "0",
+          "false",
+          "\" \"",
+          "NaN"
+        ],
+        "answer": "false",
+        "explanation": "null, undefined, true and false render nothing. 0 and NaN are numbers and render as text; a string with a space renders a space."
+      },
+      "conceptTags": [
+        "react",
+        "jsx"
+      ],
+      "id": "sf_80c437ad48963c1e79139cec"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the JSX so the badge only renders when there are unread messages.",
+      "payload": {
+        "text": "{unread ____ 0 && <Badge count={unread} />}",
+        "blanks": [
+          ">"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "jsx",
+        "conditional-rendering"
+      ],
+      "id": "sf_3ab1a838601898a3a9ce4762"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model a JSX tree as data and return the text React would render, including the rules for null, booleans, and 0.",
+      "exercise": "render-to-text",
+      "conceptTags": [
+        "react",
+        "jsx",
+        "conditional-rendering"
+      ],
+      "id": "sf_88a8121ab40ea9980248f671"
+    }
+  ],
+  "id": "sf_bf407b605e6ab15848803c28"
+}

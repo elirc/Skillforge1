@@ -1,0 +1,14 @@
+{
+  "slug": "p2-ts-hard-route-matcher",
+  "title": "Match URL Paths to Route Patterns",
+  "prompt": "Write the core of a client-side router: `matchRoute(routes, path)` returns `{ route, params }` for the best matching pattern, or `null`. Split paths and patterns on `/`, ignoring empty segments (so `/users/` equals `/users` and `/` has no segments). A pattern segment is static text (must equal the path segment), `:name` (captures one segment as `params.name`, URI-decoded), or `*` (only as the last segment; captures one or more remaining segments joined by `/` as `params['*']`). Without `*`, the segment counts must match. When several patterns match, the most specific wins, compared segment by segment from the left: static beats `:param` beats `*`. If two patterns are equally specific, the one listed first wins.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["typescript", "routing", "strings", "ranking", "backtracking"],
+  "order": 70018,
+  "exercise": "route-matcher",
+  "explanation": {
+    "beginner": "Try every pattern against the path. Walk both segment lists together: a static segment must be equal, a `:name` segment matches anything and records the value, and a `*` swallows everything that is left (at least one segment). While walking, write down a 'specificity code' for each segment: 0 for static, 1 for param, 2 for wildcard. Among the patterns that matched, pick the one whose code list is smallest when compared left to right, like sorting words in a dictionary. That is why `/users/me` beats `/users/:id` for `/users/me`, and why `/users/:id` beats `/:section/settings` for `/users/settings` - the first segment decides.",
+    "junior": "Scoring each candidate with a rank vector and taking the lexicographic minimum gives the same result as a radix-tree router that tries static children first and backtracks to param and wildcard children - but it is simpler to write and obviously correct. Backtracking matters: `/users/me/delete` must fall back from the static `me` branch to `:id` when `/users/me/edit` fails later. It is O(routes * segments) per lookup; a trie makes it O(segments) for large route tables. Decode params with `decodeURIComponent` (inside try/catch for malformed escapes) but match on raw segments, otherwise `%2F` would create a fake separator. Stable tie-breaking by declaration order keeps behaviour predictable when two patterns are equivalent."
+  }
+}

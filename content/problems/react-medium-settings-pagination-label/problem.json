@@ -11,7 +11,7 @@
   "order": 31010,
   "exercise": "react-medium-settings-pagination-label",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Settings Pagination Label, read the story as a simple input-to-output rule: A React settings list footer shows the visible item range. Write a helper that returns \"start-end of total\" for 1-based pages, or \"0-0 of 0\" when total is 0. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react and derived-state. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: settingsPaginationLabel(1, 10, 25) produces \"1-10 of 25\". Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nCompare “labels partial page”: input [3,10,25] produces \"21-25 of 25\". Explain which rule causes the difference before writing code.",
+    "junior": "Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nTempting mistake: Capitalization, whitespace, and boolean-versus-string output are part of the contract; truthiness alone may combine distinct states.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “labels partial page”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

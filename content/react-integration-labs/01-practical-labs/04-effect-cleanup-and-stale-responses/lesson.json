@@ -1,0 +1,68 @@
+{
+  "id": "sf_6e9f828431f5747bd2b82ecf",
+  "title": "Effect cleanup and stale responses",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A component can begin loading one record and switch to another before the first request finishes. An effect's cleanup marks its work obsolete so an old response cannot overwrite the new selection. This lab models network timing with deterministic timers: product A is slower than product B. The mounted test clicks A then B and waits for both timers to prove that B remains visible."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// A small controlled field:\n// const [value, setValue] = useState(\"\");\n// <input value={value} onChange={event => setValue(event.target.value)} />"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"props\":{},\"actions\":[],\"assertions\":[{\"selector\":\"[role=status]\",\"text\":\"Choose a product\"}]}]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Render A and B buttons and a role=status label. Show Loading during a request and only the latest selected product after its delay."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Omitting dependencies hides stale closures instead of fixing their lifecycle."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which assertion proves the user-visible behavior rather than the implementation detail? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the slower old response cannot win case checks a different boundary.\n\n**Transfer it.** Replace the simulated data boundary with the Inventory Desk API while preserving these component contracts."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_5422568ca2cb3eabcedc05f4",
+      "type": "MCQ",
+      "prompt": "What should effect cleanup do when the selection changes?",
+      "conceptTags": [
+        "react",
+        "effects",
+        "async",
+        "race-conditions"
+      ],
+      "payload": {
+        "choices": [
+          "Force the older response to win",
+          "Remove selected from the dependency list",
+          "Prevent obsolete work from updating the current view"
+        ],
+        "answer": "Prevent obsolete work from updating the current view",
+        "explanation": "Each effect instance owns work for one selection; cleanup ends that ownership."
+      }
+    },
+    {
+      "id": "sf_48c6b750abe6f49e61b7993f",
+      "type": "CODE",
+      "prompt": "Render A and B buttons and a role=status label. Show Loading during a request and only the latest selected product after its delay.",
+      "conceptTags": [
+        "react",
+        "effects",
+        "async",
+        "race-conditions"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Each effect instance owns work for one selection; cleanup ends that ownership.",
+        "Omitting dependencies hides stale closures instead of fixing their lifecycle."
+      ],
+      "walkthrough": "Each effect instance owns work for one selection; cleanup ends that ownership.\nOmitting dependencies hides stale closures instead of fixing their lifecycle."
+    }
+  ]
+}

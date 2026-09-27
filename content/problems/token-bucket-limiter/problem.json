@@ -1,0 +1,14 @@
+{
+  "slug": "token-bucket-limiter",
+  "title": "Token Bucket Rate Limiter",
+  "prompt": "A public API limits each key with a token bucket. The bucket holds at most `capacity` tokens and starts full at time 0. It refills continuously at `refillPerSecond` tokens per second (an integer), never above `capacity`. `requests` is a list of `{ t, cost }` with `t` in milliseconds, in non-decreasing order. A request is allowed when the bucket holds at least `cost` tokens, and then those tokens are removed; a rejected request removes nothing. Return an array of booleans, one per request. Refill must be exact: a bucket that is refilled 1/10 of a token ten times holds exactly one token.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["rate-limiting", "simulation", "floating-point", "api-design"],
+  "order": 50018,
+  "exercise": "token-bucket-limiter",
+  "explanation": {
+    "beginner": "You never need a timer. Remember two things: how many tokens are in the bucket and the time you last updated it. When a request arrives, first top the bucket up for the time that has passed (elapsed seconds times the refill rate, but never above capacity), move the 'last updated' time to now, and then check whether there are enough tokens for this request's cost. If yes, subtract and allow; if no, reject without subtracting. The catch: 0.1 + 0.1 + ... ten times is 0.9999999999999999 in JavaScript, not 1, so count in thousandths of a token instead. Refilling for `ms` milliseconds at `rate` per second adds exactly `ms * rate` thousandths, which is always a whole number.",
+    "junior": "This is the lazy-refill token bucket used by most API gateways: O(1) per request, O(1) memory per key, and it allows bursts up to `capacity` while enforcing the long-run rate. Store tokens as an integer number of milli-tokens: `tokens = Math.min(capacity * 1000, tokens + (t - last) * rate)`; compare against `cost * 1000`. Integer arithmetic removes floating-point drift, which the hidden test exposes with ten 100 ms refills. Update `last` on every request, allowed or not, since the refill has been banked. A cost larger than capacity can never succeed, and that falls out naturally. In a distributed setting the same state lives in Redis and the update must be atomic (a Lua script), otherwise two gateways can both spend the last token."
+  }
+}

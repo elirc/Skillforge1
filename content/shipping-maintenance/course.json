@@ -1,0 +1,24 @@
+{
+  "version": "2",
+  "slug": "shipping-maintenance",
+  "title": "Ship and Maintain an App",
+  "description": "Eight observable operations labs: Git branches, conflicts, review, CI, containers, configuration, health and a verified database restore.",
+  "language": "web",
+  "difficulty": "INTERMEDIATE",
+  "order": 11,
+  "prerequisites": [
+    "aspnet-api-project"
+  ],
+  "topicTags": [
+    "deployment",
+    "git",
+    "ci",
+    "observability",
+    "backup"
+  ],
+  "outcomes": [
+    "Review and verify a focused change",
+    "Run checks and a container from a clean checkout",
+    "Prove a backup with a restore drill"
+  ]
+}

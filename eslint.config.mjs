@@ -12,11 +12,17 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "public/runtimes/**",
+    "projects/**/bin/**",
+    "projects/**/obj/**",
+    "projects/**/node_modules/**",
+    "projects/inventory-desk/InventoryDesk.Api/wwwroot/app.js",
+    "projects/**/test-results/**",
   ]),
   {
     // Exercise starter stubs are intentionally incomplete: unused params and
     // empty bodies are the point, since the learner fills them in.
-    files: ["content/**/*.starter.ts"],
+    files: ["content/**/*.starter.ts", "content/**/*.starter.tsx"],
     rules: {
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-empty-function": "off",

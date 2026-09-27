@@ -1,0 +1,14 @@
+{
+  "slug": "ts-craft-discriminated-reducer",
+  "title": "Shopping Cart Reducer over a Discriminated Union",
+  "prompt": "Replay a list of cart actions from an empty cart and return the final state `{ items, couponCode, subtotalCents, discountCents, totalCents }` (items are `{ sku, name, unitCents, qty }`). Actions, discriminated by `type`: `add` (`qty` defaults to 1; if the sku is already in the cart, increase its qty and keep the original name and price; otherwise append a new line), `remove` (drop the line; unknown skus are ignored), `setQty` (set the qty; 0 or less removes the line), `applyCoupon` (trim and uppercase the code; only `SAVE10` and `FLAT5` exist, unknown codes are ignored and keep the current coupon), `removeCoupon`, and `clear` (no items, no coupon). Any other `type` leaves the state unchanged. After every action recompute: `subtotalCents` is the sum of unitCents * qty; `SAVE10` gives `Math.floor(subtotal / 10)` off; `FLAT5` gives 500 off only when the subtotal is at least 2000 (the coupon stays attached even when it does not apply yet); `totalCents` is subtotal minus discount, never below 0.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["typescript", "reducers", "discriminated-unions", "immutability", "state"],
+  "order": 60008,
+  "exercise": "discriminated-reducer",
+  "explanation": {
+    "beginner": "A reducer is a function `(state, action) => newState`. Write one that switches on `action.type`, and inside each case TypeScript knows exactly which fields that action has (an `add` has `unitCents`, a `remove` does not). Instead of changing the old state, build new arrays with `map` and `filter` and return a new object. Totals are derived data: rather than adjusting them in every case, write one helper that takes the items and the coupon and computes subtotal, discount, and total from scratch, and call it at the end of each case. Finally, `actions.reduce(reducer, emptyCart)` replays the whole list. The `default` branch returns the state unchanged so an action you do not recognise cannot break the cart.",
+    "junior": "Keep derived values derived: recomputing totals from items in one `withTotals` function removes a whole class of bugs where one case forgets to update the discount (the FLAT5 threshold test catches exactly that). Storing the coupon separately from whether it currently applies mirrors real checkouts, where the discount appears once the cart qualifies. Return the same `state` reference for no-ops (unknown coupon, unknown action) so React's `useReducer` can bail out of a re-render. In app code the `default` would call an `assertNever` helper to get a compile error for unhandled action types; at a network boundary (actions replayed from storage or another client version) a runtime no-op is the safer fallback. Money is integer cents throughout to avoid floating-point rounding. Each action is O(n) in cart lines."
+  }
+}

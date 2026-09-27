@@ -1,0 +1,103 @@
+{
+  "title": "Dates, Times, and Time-Zone Pitfalls",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Rules that prevent most date bugs:\n- **Store instants in UTC** (`datetime2` with a UTC convention, `timestamptz` in PostgreSQL, or `datetimeoffset`). Convert to local time only for display.\n- Store **dates without times** (birthdays, due dates) as `date`, not as midnight in some zone.\n- Filter ranges with a **half-open interval**: `>= start AND < next_start`. Never `BETWEEN` for timestamps."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- All of March, including 23:59:59.9999999 on the 31st\nSELECT * FROM payments\nWHERE created_at >= '2026-03-01' AND created_at < '2026-04-01';\n\n-- BUG: misses everything after midnight on March 31\nSELECT * FROM payments\nWHERE created_at BETWEEN '2026-03-01' AND '2026-03-31';\n\n-- BUG: a function on the column prevents an index seek\nSELECT * FROM payments WHERE YEAR(created_at) = 2026;"
+    },
+    {
+      "type": "prose",
+      "body": "Bucketing by day means \"which calendar day?\", and that depends on the time zone. A payment at 21:00 in New York on March 1 is 02:00 UTC on March 2. If the column holds UTC, `CAST(created_at AS date)` gives the **UTC** day. For a report in the user's zone, convert first, then truncate."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Daily totals by UTC day\nSELECT CAST(created_at AS date) AS day, SUM(amount_cents) AS total_cents\nFROM payments GROUP BY CAST(created_at AS date) ORDER BY day;\n\n-- Daily totals by New York day (SQL Server)\nSELECT CAST(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time' AS date) AS ny_day,\n       SUM(amount_cents)\nFROM payments\nGROUP BY CAST(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time' AS date);\n\n-- PostgreSQL\nSELECT date_trunc('day', created_at AT TIME ZONE 'America/New_York') AS ny_day, SUM(amount_cents)\nFROM payments GROUP BY 1 ORDER BY 1;"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Daylight saving time makes some local days 23 or 25 hours long, and some local times happen twice or never. Never compute \"tomorrow\" by adding 24 hours to a local time; do calendar math in a named zone (IANA ids like `America/New_York`), not with a fixed offset like -05:00."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "`GETDATE()` / `NOW()` return the server's clock and possibly its local zone. Use `SYSUTCDATETIME()` (SQL Server) or `now()` with `timestamptz` (PostgreSQL) so moving servers does not shift your data."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which filter reliably returns every row from March 2026 in a timestamp column?",
+      "payload": {
+        "choices": [
+          "created_at BETWEEN '2026-03-01' AND '2026-03-31'",
+          "MONTH(created_at) = 3",
+          "created_at LIKE '2026-03%'",
+          "created_at >= '2026-03-01' AND created_at < '2026-04-01'"
+        ],
+        "answer": "created_at >= '2026-03-01' AND created_at < '2026-04-01'",
+        "explanation": "A half-open range includes every instant of March 31 and can seek an index. BETWEEN stops at midnight on the 31st; MONTH() ignores the year and blocks index seeks; LIKE on a timestamp forces a string conversion."
+      },
+      "conceptTags": [
+        "sql",
+        "dates",
+        "ranges"
+      ],
+      "id": "sf_eb2ad2ea080478338d9ed281"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A UTC column holds 2026-03-02 02:00. Which calendar day is it in New York (UTC-5 in winter)?",
+      "payload": {
+        "choices": [
+          "March 2",
+          "March 1",
+          "March 3",
+          "It depends on the server's time zone"
+        ],
+        "answer": "March 1",
+        "explanation": "02:00 UTC minus 5 hours is 21:00 the previous evening, March 1. Bucketing by UTC day and by local day can disagree near midnight."
+      },
+      "conceptTags": [
+        "sql",
+        "time-zones"
+      ],
+      "id": "sf_417628d1a9fa781a4c7ccfdb"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the rule of thumb.",
+      "payload": {
+        "text": "Store instants in ____ and convert to local time only when displaying them.",
+        "blanks": [
+          "UTC"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "time-zones",
+        "utc"
+      ],
+      "id": "sf_61136b972664c5369330298c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model the UTC daily-totals query. Parse each `at` timestamp (it may carry an offset), convert it to UTC, and group by the UTC date `YYYY-MM-DD`. Return `{ day, totalCents, payments }` sorted by day. Skip timestamps that do not parse.",
+      "exercise": "daily-totals-utc",
+      "conceptTags": [
+        "sql",
+        "dates",
+        "time-zones",
+        "group-by"
+      ],
+      "id": "sf_677f2f7d67d2b49e12eb9f91"
+    }
+  ],
+  "id": "sf_9ad29a5c144b18707f13dc0b"
+}

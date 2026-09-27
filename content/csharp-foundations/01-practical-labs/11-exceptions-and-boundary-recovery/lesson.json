@@ -1,0 +1,68 @@
+{
+  "id": "sf_514547b44928f85804d0df30",
+  "title": "Exceptions and boundary recovery",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Some APIs report failures by throwing exceptions. Catch the specific failures that this boundary knows how to translate, and let unrelated defects remain visible. int.Parse distinguishes malformed text from a numeric value outside the integer range. For ordinary form validation TryParse is simpler; this lab teaches recovery when an existing throwing API is part of the contract. A finally block, or a using declaration for IDisposable resources, handles cleanup even when control exits exceptionally."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static string ReadQuantity(string text)\n    {\n        return \"invalid-format\";\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [\"12\"]. The required result is \"ok:12\". Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Parse the integer and return ok followed by a colon and its value; translate FormatException and OverflowException into the specified messages."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "catch (Exception) with an empty body can silently turn a defect into incorrect success."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which layer should turn an infrastructure failure into an HTTP Problem Details response? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the overflow case checks a different boundary.\n\n**Transfer it.** Keep domain validation separate from unexpected failures in the companion API."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_3a4854d2f2d749b4519c869a",
+      "type": "MCQ",
+      "prompt": "Why catch the two specific exception types?",
+      "conceptTags": [
+        "exceptions",
+        "errors",
+        "testing",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "To hide every unexpected programming error",
+          "They represent failures this boundary can translate",
+          "To prevent all exceptions anywhere in the app"
+        ],
+        "answer": "They represent failures this boundary can translate",
+        "explanation": "Recovery should match the failures the caller can actually handle."
+      }
+    },
+    {
+      "id": "sf_5fa3ced51387f275bdfaea21",
+      "type": "CODE",
+      "prompt": "Parse the integer and return ok followed by a colon and its value; translate FormatException and OverflowException into the specified messages.",
+      "conceptTags": [
+        "exceptions",
+        "errors",
+        "testing",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Recovery should match the failures the caller can actually handle.",
+        "catch (Exception) with an empty body can silently turn a defect into incorrect success."
+      ],
+      "walkthrough": "Recovery should match the failures the caller can actually handle.\ncatch (Exception) with an empty body can silently turn a defect into incorrect success."
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "title": "Updating Objects and Arrays in State",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Treat state as **read-only**. React detects changes by reference: if you mutate an object and pass the same object back to the setter, `Object.is(old, next)` is true and React skips the render. Mutation also corrupts anything that kept the old value, such as an undo history or the previous props a memoized child compares against.\n\nThe fix is to create a new object or array for every level you change, and reuse (share) everything you did not change."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// Object: copy, then override\nsetProduct({ ...product, price: 99 });\n\n// Nested object: copy every level on the path\nsetProfile({ ...profile, address: { ...profile.address, city: \"Paris\" } });\n\n// Arrays: return new arrays\nsetTags([...tags, \"sale\"]);                          // add\nsetTags(tags.filter((t) => t !== \"sale\"));           // remove\nsetItems(items.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i))); // update one"
+    },
+    {
+      "type": "prose",
+      "body": "Array methods fall into two groups:\n\n- **return new arrays** (safe): `map`, `filter`, `slice`, `concat`, spread, and the newer `toSorted`, `toReversed`, `toSpliced`, `with`\n- **mutate in place** (avoid on state): `push`, `pop`, `splice`, `sort`, `reverse`, and assigning `arr[i] = x`\n\nFor deeply nested state, consider flattening it (normalising by id) so each update touches fewer levels. Libraries such as Immer let you write mutating-looking code that produces immutable copies, but the rule underneath is the same."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`const next = state; next.items.push(item); setState(next);` does nothing visible: `next` is the same object, so React sees no change. It is one of the most common \"my UI does not update\" bugs."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why does items.push(newItem); setItems(items); not re-render?",
+      "payload": {
+        "choices": [
+          "push is asynchronous",
+          "It passes the same array reference, so Object.is sees no change",
+          "setItems only accepts functions",
+          "Arrays cannot be stored in state"
+        ],
+        "answer": "It passes the same array reference, so Object.is sees no change",
+        "explanation": "React compares by reference. Mutating and passing back the same array looks like no change."
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "immutability"
+      ],
+      "id": "sf_8534be4c621574411329da8f"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which call returns a new sorted array without mutating the original?",
+      "payload": {
+        "choices": [
+          "items.sort(compare)",
+          "items.reverse()",
+          "items.toSorted(compare)",
+          "items.splice(0)"
+        ],
+        "answer": "items.toSorted(compare)",
+        "explanation": "toSorted (ES2023) returns a new array. sort and reverse mutate in place; splice mutates and returns the removed items."
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "immutability",
+        "arrays"
+      ],
+      "id": "sf_8295e2c930782cf9e0831805"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the immutable update that changes one nested field.",
+      "payload": {
+        "text": "setProfile({ ...profile, address: { ____profile.address, city } });",
+        "blanks": [
+          "..."
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "immutability"
+      ],
+      "id": "sf_010b55c27734a603056e4802"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Fix a mutating state updater so it returns new objects and arrays along each edited path and leaves the original state untouched.",
+      "exercise": "apply-edits",
+      "conceptTags": [
+        "react",
+        "state",
+        "immutability"
+      ],
+      "id": "sf_d169db321d60b6f55228614c"
+    }
+  ],
+  "id": "sf_b817c57d280831c08f4af61e"
+}

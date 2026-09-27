@@ -1,0 +1,73 @@
+{
+  "id": "sf_8c6a4c74ecb4ab5634a44533",
+  "title": "Await every mapped operation",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Mapping an async callback creates an array of promises. Awaiting the array itself does not await its entries. Promise.all turns that array into one promise of values and preserves input ordering. This defect can be hidden by tests that only assert array length or by a harness that never awaits the function's result; this runner awaits real asynchronous execution."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export async function doubleAll(values: number[]): Promise<number[]> { return values.map(async value=>value*2) as unknown as number[]; }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[2,3]]. The required result is [4,6]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix doubleAll and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "An empty array passes both implementations, so it cannot be your only regression."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_b0a59d03a6a9618a0b6f5d88",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "async",
+        "promises"
+      ],
+      "payload": {
+        "choices": [
+          "It only repeats a happy-path example",
+          "It fails on the original implementation and passes on the corrected contract",
+          "It accepts whatever the current implementation returns"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Combine the mapped promises with Promise.all."
+      }
+    },
+    {
+      "id": "sf_db205b76935f1d80cacc97a3",
+      "type": "CODE",
+      "prompt": "Fix doubleAll and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "async",
+        "promises"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Combine the mapped promises with Promise.all.",
+        "An empty array passes both implementations, so it cannot be your only regression."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "async function doubleAll(values) { return await Promise.all(values.map(async (value) => value * 2)); }\n",
+        "mutants": [
+          "async function doubleAll(values) { return values.map(async (value) => value * 2); }\n"
+        ]
+      },
+      "walkthrough": "Combine the mapped promises with Promise.all.\nAn empty array passes both implementations, so it cannot be your only regression."
+    }
+  ]
+}

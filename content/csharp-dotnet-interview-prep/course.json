@@ -1,9 +1,36 @@
 {
   "slug": "csharp-dotnet-interview-prep",
   "title": "C# and .NET Interview Prep",
-  "description": "Practice mid-level C# and .NET interview concepts through code-reading drills, architecture scenarios, and review prompts.",
+  "description": "Practice mid-level C# and .NET interview concepts through runnable C# exercises, code-reading drills, architecture scenarios, and review prompts: a CRUD API built end to end, then modern C# language depth, LINQ, error handling and resilience, and background concurrency.",
   "language": "csharp",
-  "topicTags": ["csharp", "dotnet", "aspnet-core", "ef-core", "async", "interviews", "testing", "observability", "performance", "deployment"],
+  "topicTags": [
+    "csharp",
+    "dotnet",
+    "aspnet-core",
+    "ef-core",
+    "async",
+    "interviews",
+    "testing",
+    "observability",
+    "performance",
+    "deployment",
+    "crud",
+    "rest-api",
+    "concurrency",
+    "caching",
+    "configuration",
+    "records",
+    "pattern-matching",
+    "nullable-reference-types",
+    "generics",
+    "linq",
+    "collections",
+    "exceptions",
+    "resilience",
+    "idisposable",
+    "channels",
+    "hosted-services"
+  ],
   "difficulty": "INTERMEDIATE",
   "order": 4,
   "outcomes": [
@@ -12,6 +39,15 @@
     "Reason about EF Core indexes, migrations, transactions, and outbox patterns",
     "Practice mid-level debugging, code review, and system design answers",
     "Choose unit, integration, and end-to-end tests for .NET service behavior",
-    "Discuss production readiness through logging, metrics, performance, caching, and secrets"
+    "Discuss production readiness through logging, metrics, performance, caching, and secrets",
+    "Build a CRUD API end to end: DTOs and validation, paging and sorting, optimistic concurrency with ETags, and idempotent POST",
+    "Implement and test each concept as a runnable C# exercise, not just describe it",
+    "Use records, with-expressions, pattern matching, nullable reference types, and constrained generics idiomatically",
+    "Reason about deferred execution, joins and grouping, collection choice, and IEnumerable vs IQueryable",
+    "Design error handling with result types, custom exceptions, deterministic disposal, and retry and timeout policies",
+    "Write thread-safe background code with concurrent collections, Interlocked, Channels, and hosted services, and explain why async void is dangerous"
+  ],
+  "prerequisites": [
+    "csharp-foundations"
   ]
 }

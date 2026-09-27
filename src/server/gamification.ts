@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, type PrismaClient } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   achievementDefinitions,
@@ -12,6 +12,8 @@ import {
   type ActivityKind,
 } from "@/lib/gamification";
 import { advanceQuests, ensureTodaysQuests, type QuestCompletion } from "@/server/quests";
+
+type DbClient = Prisma.TransactionClient | PrismaClient;
 
 export interface UnlockedAchievement {
   key: string;
@@ -38,17 +40,24 @@ export interface AwardSummary {
   dailyXpGoal: number;
 }
 
-async function addBonusXp(userId: string, amount: number, kind: ActivityKind, detail: string, now: Date) {
+async function addBonusXp(
+  userId: string,
+  amount: number,
+  kind: ActivityKind,
+  detail: string,
+  now: Date,
+  client: DbClient,
+) {
   if (amount <= 0) return 0;
-  const progress = await prisma.progress.update({
+  const progress = await client.progress.update({
     where: { userId },
     data: { xp: { increment: amount } },
   });
-  await prisma.progress.update({
+  await client.progress.update({
     where: { userId },
     data: { level: levelForXp(progress.xp) },
   });
-  await prisma.xpEvent.create({
+  await client.xpEvent.create({
     data: { userId, kind, amount, day: dayKey(now), detail },
   });
   return amount;
@@ -63,8 +72,9 @@ export async function awardActivity(
   kind: ActivityKind,
   correct = true,
   now = new Date(),
+  client: DbClient = prisma,
 ): Promise<AwardSummary> {
-  const current = await prisma.progress.upsert({
+  const current = await client.progress.upsert({
     where: { userId },
     update: {},
     create: { userId },
@@ -72,7 +82,7 @@ export async function awardActivity(
 
   const next = applyActivityProgress(current, kind, now, correct);
 
-  await prisma.progress.update({
+  await client.progress.update({
     where: { userId },
     data: {
       xp: next.xp,
@@ -84,26 +94,49 @@ export async function awardActivity(
     },
   });
 
-  await prisma.xpEvent.create({
+  await client.xpEvent.create({
     data: { userId, kind, amount: next.xpEarned, day: dayKey(now), detail: null },
   });
 
-  await ensureTodaysQuests(userId, now);
-  const questsCompleted = await advanceQuests(userId, kind, now);
+  await ensureTodaysQuests(userId, now, client);
+  const questsCompleted = await advanceQuests(userId, kind, now, client);
 
   let bonusXp = 0;
   for (const quest of questsCompleted) {
-    bonusXp += await addBonusXp(userId, quest.xpReward, "quest", quest.key, now);
+    bonusXp += await addBonusXp(userId, quest.xpReward, "quest", quest.key, now, client);
   }
 
-  const achievements = await unlockAvailableAchievements(userId);
+  const achievements = await unlockAvailableAchievements(userId, client);
   for (const achievement of achievements) {
-    bonusXp += await addBonusXp(userId, achievement.xpReward, "achievement", achievement.key, now);
+    bonusXp += await addBonusXp(
+      userId,
+      achievement.xpReward,
+      "achievement",
+      achievement.key,
+      now,
+      client,
+    );
+  }
+
+  // Bonuses can cross today's goal. Reconcile XP quests without incrementing
+  // activity counts a second time. completedAt makes this payout idempotent.
+  for (let pass = 0; pass <= achievementDefinitions.length + 1; pass++) {
+    const bonusQuests = await advanceQuests(userId, kind, now, client, true);
+    for (const quest of bonusQuests) {
+      bonusXp += await addBonusXp(userId, quest.xpReward, "quest", quest.key, now, client);
+      questsCompleted.push(quest);
+    }
+    const bonusAchievements = await unlockAvailableAchievements(userId, client);
+    for (const achievement of bonusAchievements) {
+      bonusXp += await addBonusXp(userId, achievement.xpReward, "achievement", achievement.key, now, client);
+      achievements.push(achievement);
+    }
+    if (!bonusQuests.length && !bonusAchievements.length) break;
   }
 
   const [finalProgress, dailyXp] = await Promise.all([
-    prisma.progress.findUniqueOrThrow({ where: { userId } }),
-    sumXpForDay(userId, now),
+    client.progress.findUniqueOrThrow({ where: { userId } }),
+    sumXpForDay(userId, now, client),
   ]);
 
   return {
@@ -127,10 +160,14 @@ export async function awardActivity(
  * repeating an activity that has already paid out. It deliberately does not
  * enter the award pipeline, so a repeat cannot move XP, streaks or quests.
  */
-export async function noAwardSummary(userId: string, now = new Date()): Promise<AwardSummary> {
+export async function noAwardSummary(
+  userId: string,
+  now = new Date(),
+  client: DbClient = prisma,
+): Promise<AwardSummary> {
   const [progress, dailyXp] = await Promise.all([
-    prisma.progress.upsert({ where: { userId }, update: {}, create: { userId } }),
-    sumXpForDay(userId, now),
+    client.progress.upsert({ where: { userId }, update: {}, create: { userId } }),
+    sumXpForDay(userId, now, client),
   ]);
 
   return {
@@ -149,24 +186,35 @@ export async function noAwardSummary(userId: string, now = new Date()): Promise<
   };
 }
 
-export async function sumXpForDay(userId: string, now = new Date()) {
-  const result = await prisma.xpEvent.aggregate({
+export async function sumXpForDay(userId: string, now = new Date(), client: DbClient = prisma) {
+  const result = await client.xpEvent.aggregate({
     where: { userId, day: dayKey(now) },
     _sum: { amount: true },
   });
   return result._sum.amount ?? 0;
 }
 
-export async function collectAchievementStats(userId: string): Promise<AchievementStats> {
-  const [progress, reviewReps, completedLessons, solvedProblems, questsCompleted] = await Promise.all([
-    prisma.progress.findUniqueOrThrow({ where: { userId } }),
-    prisma.reviewState.count({ where: { userId, reps: { gte: 1 } } }),
-    prisma.lessonCompletion.count({ where: { userId } }),
-    prisma.problemSubmission
-      .findMany({ where: { userId, passed: true }, select: { problemId: true }, distinct: ["problemId"] })
-      .then((rows) => rows.length),
-    prisma.quest.count({ where: { userId, completedAt: { not: null } } }),
-  ]);
+export async function collectAchievementStats(
+  userId: string,
+  client: DbClient = prisma,
+): Promise<AchievementStats> {
+  const [progress, reviewReps, completedLessons, solvedProblems, hardProblemsSolved, questsCompleted] =
+    await Promise.all([
+      client.progress.findUniqueOrThrow({ where: { userId } }),
+      client.reviewState.count({ where: { userId, reps: { gte: 1 } } }),
+      client.lessonCompletion.count({ where: { userId } }),
+      client.problemSubmission
+        .findMany({ where: { userId, passed: true }, select: { problemId: true }, distinct: ["problemId"] })
+        .then((rows) => rows.length),
+      client.problemSubmission
+        .findMany({
+          where: { userId, passed: true, problem: { difficulty: "HARD" } },
+          select: { problemId: true },
+          distinct: ["problemId"],
+        })
+        .then((rows) => rows.length),
+      client.quest.count({ where: { userId, completedAt: { not: null } } }),
+    ]);
 
   return {
     xp: progress.xp,
@@ -175,19 +223,23 @@ export async function collectAchievementStats(userId: string): Promise<Achieveme
     reviewReps,
     completedLessons,
     solvedProblems,
+    hardProblemsSolved,
     questsCompleted,
   };
 }
 
 /** Returns only the achievements unlocked by this call, so the caller can toast them. */
-export async function unlockAvailableAchievements(userId: string): Promise<UnlockedAchievement[]> {
-  const stats = await collectAchievementStats(userId);
+export async function unlockAvailableAchievements(
+  userId: string,
+  client: DbClient = prisma,
+): Promise<UnlockedAchievement[]> {
+  const stats = await collectAchievementStats(userId, client);
   const keys = earnedAchievementKeys(stats);
   if (keys.length === 0) return [];
 
   const [achievements, alreadyEarned] = await Promise.all([
-    prisma.achievement.findMany({ where: { key: { in: keys } } }),
-    prisma.userAchievement.findMany({
+    client.achievement.findMany({ where: { key: { in: keys } } }),
+    client.userAchievement.findMany({
       where: { userId, achievement: { key: { in: keys } } },
       select: { achievementId: true },
     }),
@@ -203,7 +255,7 @@ export async function unlockAvailableAchievements(userId: string): Promise<Unloc
   const won = await Promise.all(
     fresh.map(async (achievement) => {
       try {
-        await prisma.userAchievement.create({ data: { userId, achievementId: achievement.id } });
+        await client.userAchievement.create({ data: { userId, achievementId: achievement.id } });
         return achievement;
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return null;

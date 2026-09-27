@@ -1,0 +1,50 @@
+{
+  "id": "sf_815351ea700f7fb6e3c18a34",
+  "title": "Use Problem Details and correlated logs",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Make successful stock actions observable and safe to retry after an uncertain network result.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read InventoryDesk.Api/Program.cs; InventoryDesk.Api/Domain.cs before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet test InventoryDesk.Tests --filter Milestone=09"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** Repeating the exact request/key returns the original response without changing stock twice or adding a second audit event; a reused key with different input returns 409.\n\n**Make a meaningful variation.** Include a request correlation ID in each audit entry and show it in the UI history. Preserve it across an idempotent retry. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: Stock, receipt, and audit commit together; logs avoid passwords and cookie tokens; retry identity describes one operation."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** When should a retry reuse an idempotency key? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_68e0c9c45c859dfcab485dd7",
+      "type": "MCQ",
+      "prompt": "When should a retry reuse an idempotency key?",
+      "conceptTags": [
+        "idempotency",
+        "audit",
+        "observability"
+      ],
+      "payload": {
+        "choices": [
+          "For every future unrelated action",
+          "When repeating the same operation after an uncertain result",
+          "Only after changing the request body"
+        ],
+        "answer": "When repeating the same operation after an uncertain result",
+        "explanation": "Stock, receipt, and audit commit together; logs avoid passwords and cookie tokens; retry identity describes one operation."
+      }
+    }
+  ]
+}

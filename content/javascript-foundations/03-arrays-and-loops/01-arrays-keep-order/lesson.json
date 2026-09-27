@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const tags = [\"variables\", \"functions\"];\nconst firstTag = tags[0];"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The array holds three values in order. Indices start at zero, so the final valid index is 2, one less than the length. An empty array has no first or last element."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const names = ['Ada', 'Lin', 'Sam'];\nconsole.log(names[0]); // 'Ada'\nconsole.log(names[names.length - 1]); // 'Sam'"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Reading names[names.length] produces undefined. Length counts elements; it is not the final index."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Predict the length and final valid index after one more name is appended.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,35 @@
       "type": "MCQ",
       "prompt": "What index reads the first item in a JavaScript array?",
       "payload": {
-        "choices": ["0", "1", "-1", "first"],
+        "choices": [
+          "1",
+          "-1",
+          "0",
+          "first"
+        ],
         "answer": "0",
         "explanation": "JavaScript arrays are zero-indexed."
       },
-      "conceptTags": ["arrays"]
+      "conceptTags": [
+        "arrays"
+      ],
+      "id": "sf_c291bbd3c459955c495bc13a"
     },
     {
       "type": "CODE",
       "prompt": "Return the first tag from an array.",
       "exercise": "first-tag",
-      "conceptTags": ["arrays"]
+      "conceptTags": [
+        "arrays"
+      ],
+      "id": "sf_f478d1b79426e74721a52ebf",
+      "hints": [
+        "Reading names[names.length] produces undefined. Length counts elements; it is not the final index.",
+        "The array holds three values in order. Indices start at zero, so the final valid index is 2, one less than the length. An empty array has no first or last element."
+      ],
+      "walkthrough": "The array holds three values in order. Indices start at zero, so the final valid index is 2, one less than the length. An empty array has no first or last element."
     }
-  ]
+  ],
+  "id": "sf_9508377dcef63d6319b7be36",
+  "estimatedMinutes": 12
 }

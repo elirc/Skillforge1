@@ -1,0 +1,103 @@
+{
+  "title": "Window Functions: Running Totals and Rankings",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "GROUP BY collapses rows. Window functions compute across related rows without collapsing them: every input row stays in the result and gains a computed column. The OVER clause defines the window: PARTITION BY splits rows into independent groups, ORDER BY sets the order inside each partition, and an optional frame (ROWS BETWEEN ...) says which rows around the current one to include."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT id, customer_id, amount,\n       SUM(amount) OVER (PARTITION BY customer_id\n                         ORDER BY paid_at, id\n                         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total,\n       ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY paid_at, id)   AS payment_number\nFROM payments\nORDER BY customer_id, paid_at, id;"
+    },
+    {
+      "type": "prose",
+      "body": "Ranking functions differ only in how they treat ties. For scores 100, 90, 90, 80: ROW_NUMBER gives 1, 2, 3, 4 (ties broken arbitrarily unless ORDER BY is unique); RANK gives 1, 2, 2, 4 (gaps after ties); DENSE_RANK gives 1, 2, 2, 3 (no gaps). LAG(x) and LEAD(x) read the previous or next row's value, which makes \"change since last month\" queries easy."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Latest order per customer: a classic interview question\nWITH ranked AS (\n  SELECT o.*, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC, id DESC) AS rn\n  FROM orders o\n)\nSELECT * FROM ranked WHERE rn = 1;"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "If you write ORDER BY in OVER() without a frame, the default frame is RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW. RANGE includes every peer row with the same ORDER BY value, so two payments with the same paid_at get the same running total. Spell out ROWS (and make the ORDER BY unique) when you want a row-by-row running sum."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Window functions are evaluated after WHERE, GROUP BY, and HAVING, so you cannot filter on them in the same query's WHERE. Wrap the query in a CTE and filter outside, as in the latest-order example."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model the first query in the lesson. Sort by customerId, then paidAt (ISO strings compare correctly as text), then id. Within each customer, runningTotal is the cumulative SUM(amount) using ROWS framing and paymentNumber is ROW_NUMBER() starting at 1. Return objects with keys id, customerId, runningTotal, paymentNumber (in that order).",
+      "exercise": "running-totals",
+      "conceptTags": [
+        "sql",
+        "window-functions",
+        "running-total",
+        "row-number"
+      ],
+      "id": "sf_03e26920304e4b654a6f0dc6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Scores are 100, 90, 90, 80. What does RANK() OVER (ORDER BY score DESC) return?",
+      "payload": {
+        "choices": [
+          "1, 2, 2, 3",
+          "1, 2, 3, 4",
+          "1, 1, 2, 3",
+          "1, 2, 2, 4"
+        ],
+        "answer": "1, 2, 2, 4",
+        "explanation": "RANK gives ties the same rank and then skips ahead by the number of tied rows. DENSE_RANK would give 1, 2, 2, 3; ROW_NUMBER would give 1, 2, 3, 4."
+      },
+      "conceptTags": [
+        "sql",
+        "window-functions",
+        "ranking"
+      ],
+      "id": "sf_02807410ab310aa0f9c6e292"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the window function syntax.",
+      "payload": {
+        "text": "SELECT id, SUM(amount) ____ (PARTITION BY customer_id ORDER BY paid_at) AS running_total FROM payments;",
+        "blanks": [
+          "OVER"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "window-functions"
+      ],
+      "id": "sf_9beb5a65d87c97a7c2806876"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "How does `SELECT customer_id, SUM(amount) OVER (PARTITION BY customer_id) FROM payments` differ from `SELECT customer_id, SUM(amount) FROM payments GROUP BY customer_id`?",
+      "payload": {
+        "choices": [
+          "They return identical results",
+          "The window version returns every payment row, each carrying its customer's total; GROUP BY returns one row per customer",
+          "The window version returns one row per customer; GROUP BY returns every row",
+          "PARTITION BY requires an ORDER BY or it errors"
+        ],
+        "answer": "The window version returns every payment row, each carrying its customer's total; GROUP BY returns one row per customer",
+        "explanation": "Window functions add a column without collapsing rows. Without ORDER BY in OVER(), the frame is the whole partition, so each row gets the full per-customer total."
+      },
+      "conceptTags": [
+        "sql",
+        "window-functions",
+        "group-by"
+      ],
+      "id": "sf_d3ce5d7ecd4eb7db7faf5d1d"
+    }
+  ],
+  "id": "sf_60c9f39ff225bfa76ae2a713"
+}

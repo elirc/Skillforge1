@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "success",
       "body": "Mid-level interview answer: a thin endpoint is not enough. You must also say what invariant the service protects and how it is tested."
+    },
+    {
+      "type": "prose",
+      "body": "Split the work by what each layer can know. The endpoint knows HTTP: route values, claims, status codes. The service knows the use case: which lesson exists, whether it was already completed, and which review rows must be seeded. The service should return an outcome such as `NotFound` or `AlreadyCompleted`, not an `IResult`, so a background job or a unit test can call it without faking HTTP. Translating that outcome into 404 or 200 is the endpoint's only decision."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public enum CompletionOutcome { Completed, AlreadyCompleted, LessonNotFound }\n\napp.MapPost(\"/lessons/{lessonId}/complete\", async (\n    string lessonId, ClaimsPrincipal user, ILessonCompletionService service, CancellationToken ct) =>\n{\n    var outcome = await service.CompleteLessonAsync(user.RequireUserId(), lessonId, ct);\n\n    return outcome switch\n    {\n        CompletionOutcome.LessonNotFound => Results.NotFound(),\n        // Completing twice is not an error: the operation is idempotent.\n        _ => Results.Ok(new { outcome = outcome.ToString() }),\n    };\n});"
     }
   ],
   "knowledgeItems": [
@@ -30,16 +39,27 @@
         "answer": "The authenticated user's id",
         "explanation": "The user id should come from authenticated claims/session state, not from client-supplied data."
       },
-      "conceptTags": ["aspnet-core", "authorization", "service-boundaries"]
+      "conceptTags": [
+        "aspnet-core",
+        "authorization",
+        "service-boundaries"
+      ],
+      "id": "sf_8e2603c8aca21c8c61d95e9a"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the boundary sentence.",
       "payload": {
         "text": "A controller or minimal API endpoint should stay thin; the application ____ should own the use-case workflow.",
-        "blanks": ["service"]
+        "blanks": [
+          "service"
+        ]
       },
-      "conceptTags": ["aspnet-core", "application-service"]
+      "conceptTags": [
+        "aspnet-core",
+        "application-service"
+      ],
+      "id": "sf_19447693cd93c72df61ffcd2"
     },
     {
       "type": "MCQ",
@@ -54,7 +74,60 @@
         "answer": "A successful completion creates or preserves review state for the lesson's concepts",
         "explanation": "The service owns durable product behavior, not presentation details."
       },
-      "conceptTags": ["aspnet-core", "invariants", "domain-logic"]
+      "conceptTags": [
+        "aspnet-core",
+        "invariants",
+        "domain-logic"
+      ],
+      "id": "sf_5a5a5c459866687b13f8f23c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why should `CompleteLessonAsync` return an outcome such as `AlreadyCompleted` instead of an `IResult` like `Results.Ok()`?",
+      "payload": {
+        "choices": [
+          "Returning `IResult` from a service does not compile",
+          "Enums serialize faster than JSON responses",
+          "It lets the service skip authorization checks",
+          "It keeps the use case independent of HTTP, so jobs and tests can call it directly"
+        ],
+        "answer": "It keeps the use case independent of HTTP, so jobs and tests can call it directly",
+        "explanation": "Status codes are a transport concern. A service that returns domain outcomes can be reused from a queue consumer, a CLI or a unit test, and the endpoint stays a thin translation layer."
+      },
+      "conceptTags": [
+        "aspnet-core",
+        "service-boundaries",
+        "application-service"
+      ],
+      "id": "sf_8f00900bf1b002244dcbee9c"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the idempotency sentence.",
+      "payload": {
+        "text": "Completing a lesson that is already complete should succeed without seeding reviews again; the operation is ____.",
+        "blanks": [
+          "idempotent"
+        ]
+      },
+      "conceptTags": [
+        "aspnet-core",
+        "idempotency",
+        "invariants"
+      ],
+      "id": "sf_a9a8e76190162421e960f610"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement the endpoint and service for POST /lessons/{id}/complete: authenticate from claims, validate the route value, and let the service own the seeding invariant.",
+      "exercise": "complete-lesson-endpoint",
+      "conceptTags": [
+        "aspnet-core",
+        "service-boundaries",
+        "invariants"
+      ],
+      "id": "sf_f12e0ebd060aa2e4c729ac4a"
     }
-  ]
+  ],
+  "id": "sf_75922432f9bff53aa3b1b24a"
 }

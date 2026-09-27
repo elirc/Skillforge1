@@ -1,0 +1,26 @@
+{
+  "version": "2",
+  "slug": "inventory-desk-capstone",
+  "title": "Inventory Desk Capstone",
+  "description": "Twelve connected project checkpoints spanning C# rules, SQLite, a real ASP.NET Core/EF Core API, React screens, concurrency, tests, containers and verified recovery.",
+  "language": "csharp",
+  "difficulty": "INTERMEDIATE",
+  "order": 12,
+  "prerequisites": [
+    "csharp-foundations",
+    "sql-business-labs",
+    "react-crud-ui"
+  ],
+  "topicTags": [
+    "capstone",
+    "csharp",
+    "sql",
+    "react",
+    "crud"
+  ],
+  "outcomes": [
+    "Build and explain a complete inventory application",
+    "Prove ownership and concurrency behavior",
+    "Demonstrate tests, deployment and recovery"
+  ]
+}

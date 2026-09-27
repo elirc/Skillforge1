@@ -1,0 +1,117 @@
+{
+  "title": "Strategies and Dependency Injection with Functions",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "The strategy pattern replaces a growing if/else or switch with a lookup table of interchangeable functions that share one signature. Adding a new behaviour means adding an entry, not editing a branchy function that already works. In JavaScript you need no classes or interfaces for this: an object of functions is the strategy table."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "// Before: every new shipping method edits this function.\nfunction shippingCost(method, subtotal) {\n  if (method === \"standard\") return subtotal >= 50 ? 0 : 4.99;\n  else if (method === \"express\") return 12.5;\n  else if (method === \"pickup\") return 0;\n  throw new Error(\"unknown method\");\n}\n\n// After: one table, one lookup.\nconst shippingStrategies = {\n  standard: (subtotal) => (subtotal >= 50 ? 0 : 4.99),\n  express: () => 12.5,\n  pickup: () => 0,\n};\n\nfunction shippingCostFor(method, subtotal) {\n  const strategy = shippingStrategies[method];\n  if (!strategy) throw new Error(`unknown shipping method: ${method}`);\n  return strategy(subtotal);\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Dependency injection is the same idea applied to collaborators. Instead of a function reaching out to a global (the clock, the database, fetch, Math.random), it receives what it needs as parameters. A factory function takes the dependencies once and returns the configured function. Tests then pass fakes, and production passes the real thing."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function createCheckout({ shipping, discounts, now = () => new Date() }) {\n  return function checkout(order) {\n    const subtotal = order.items.reduce((sum, i) => sum + i.price * i.qty, 0);\n    const discount = order.coupon ? discounts[order.coupon](subtotal) : 0;\n    return {\n      subtotal,\n      discount,\n      shipping: shipping[order.shipping](subtotal - discount),\n      placedAt: now().toISOString(),\n    };\n  };\n}\n\n// production\nconst checkout = createCheckout({ shipping: shippingStrategies, discounts: realDiscounts });\n// test: deterministic clock, one simple discount\nconst testCheckout = createCheckout({\n  shipping: { flat: () => 5 },\n  discounts: { HALF: (s) => s / 2 },\n  now: () => new Date(\"2026-01-01T00:00:00Z\"),\n});"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "A useful smell test: if a function is hard to test because it calls Date.now(), fetch, or a module-level singleton, inject that dependency as a parameter with a sensible default."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Look up strategies with a guard. shippingStrategies[\"toString\"] finds Object.prototype.toString, so user-supplied keys should be checked with Object.hasOwn(table, key) or the table built with a Map."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is the main benefit of a strategy table over a long if/else chain?",
+      "payload": {
+        "choices": [
+          "it always runs faster",
+          "new behaviours are added as entries without editing working code",
+          "it removes the need for tests",
+          "it makes every strategy asynchronous"
+        ],
+        "answer": "new behaviours are added as entries without editing working code",
+        "explanation": "Each strategy is small and separate; the dispatcher never changes when a new one is added."
+      },
+      "conceptTags": [
+        "strategy-pattern"
+      ],
+      "id": "sf_ad65bfb7bc4c87ec09e41ba5"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why does createCheckout take now as a parameter instead of calling new Date() inside?",
+      "payload": {
+        "choices": [
+          "because new Date() is not allowed in closures",
+          "so tests can pass a fixed clock and get deterministic output",
+          "to make checkout run faster",
+          "because Date is only available in browsers"
+        ],
+        "answer": "so tests can pass a fixed clock and get deterministic output",
+        "explanation": "Injecting the clock is dependency injection: the caller decides which implementation to use."
+      },
+      "conceptTags": [
+        "dependency-injection",
+        "testing"
+      ],
+      "id": "sf_1ed1a84226e9b8fe5d6b4f50"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "const s = { a: () => 1 }; what is typeof s[\"toString\"]?",
+      "payload": {
+        "choices": [
+          "\"undefined\"",
+          "\"function\"",
+          "\"object\"",
+          "\"string\""
+        ],
+        "answer": "\"function\"",
+        "explanation": "Plain objects inherit toString from Object.prototype, so an unguarded lookup can find it. Guard with Object.hasOwn."
+      },
+      "conceptTags": [
+        "strategy-pattern",
+        "objects"
+      ],
+      "id": "sf_5790d7c16131dd4a03af54e5"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the pattern.",
+      "payload": {
+        "text": "Passing a function its collaborators as parameters instead of importing globals is called dependency ____.",
+        "blanks": [
+          "injection"
+        ]
+      },
+      "conceptTags": [
+        "dependency-injection"
+      ],
+      "id": "sf_4a8903bd7fc208a87137ffbb"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Replace the branchy checkout with shipping and discount strategy tables injected into a factory.",
+      "exercise": "checkout-totals",
+      "conceptTags": [
+        "strategy-pattern",
+        "dependency-injection",
+        "higher-order-functions"
+      ],
+      "id": "sf_96d13a3bd49fe208a0d6888c"
+    }
+  ],
+  "id": "sf_fab880eb03dce5987bce1e39"
+}

@@ -9,6 +9,24 @@
       "type": "callout",
       "tone": "info",
       "body": "Hint: Math.max(low, value) lifts values up to a floor; Math.min(high, ...) caps them at a ceiling."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The inner maximum establishes the lower bound. The outer minimum then establishes the upper bound. A value already inside the interval survives both operations unchanged."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function clampTemperature(value) {\n  return Math.min(30, Math.max(10, value));\n}\n// 5 -> 10, 20 -> 20, 40 -> 30"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Checking only the upper bound leaves negative or too-small inputs untouched."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Trace the intermediate result for 5 and 40, then write boundary cases at 10 and 30.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,7 +34,19 @@
       "type": "CODE",
       "prompt": "Clamp a score so the result is never below 0 or above 100.",
       "exercise": "clamp-score",
-      "conceptTags": ["numbers", "math", "practice"]
+      "conceptTags": [
+        "numbers",
+        "math",
+        "practice"
+      ],
+      "id": "sf_194349ef86734d98506ef9f9",
+      "hints": [
+        "Checking only the upper bound leaves negative or too-small inputs untouched.",
+        "The inner maximum establishes the lower bound. The outer minimum then establishes the upper bound. A value already inside the interval survives both operations unchanged."
+      ],
+      "walkthrough": "The inner maximum establishes the lower bound. The outer minimum then establishes the upper bound. A value already inside the interval survives both operations unchanged."
     }
-  ]
+  ],
+  "id": "sf_8b54e60d066baa75a5201d3a",
+  "estimatedMinutes": 12
 }

@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "warning",
       "body": "`[Authorize]` proves the caller is signed in. It does not prove they own a ReviewState, organization, lesson completion, or subscription."
+    },
+    {
+      "type": "prose",
+      "body": "The order of checks is part of the contract. Authentication middleware runs first and produces 401 when there is no valid identity. Authorization policies (`RequireAuthorization(\"Learner\")`) run next and produce 403 when the caller is known but not allowed. Then the request body is validated, and a `ValidationProblemDetails` response reports every invalid field at once so the client can fix them in one round trip. Only then does the handler load the resource, scoped to the caller. If the row belongs to someone else, answer 404 rather than 403: a 403 confirms that the id exists."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddAuthorization(options =>\n    options.AddPolicy(\"Learner\", policy => policy.RequireRole(\"learner\")));\n\napp.MapPost(\"/reviews/{id}/grade\", async (string id, GradeRequest request, ClaimsPrincipal user, AppDbContext db, CancellationToken ct) =>\n{\n    var errors = GradeRequestValidator.Validate(request);          // 400\n    if (errors.Count > 0) return Results.ValidationProblem(errors);\n\n    var state = await db.ReviewStates                                // 404, not 403\n        .SingleOrDefaultAsync(x => x.Id == id && x.UserId == user.RequireUserId(), ct);\n    if (state is null) return Results.NotFound();\n\n    // ... grade it\n    return Results.Ok();\n})\n.RequireAuthorization(\"Learner\");                                   // 401 / 403"
     }
   ],
   "knowledgeItems": [
@@ -22,24 +31,35 @@
       "prompt": "What is the main security reason to query by both `reviewStateId` and `userId`?",
       "payload": {
         "choices": [
-          "To prevent a user from accessing another user's review state",
           "To make the query slower",
+          "To prevent a user from accessing another user's review state",
           "To avoid using indexes",
           "To skip validation"
         ],
         "answer": "To prevent a user from accessing another user's review state",
         "explanation": "This is a resource-authorization check that prevents an IDOR-style bug."
       },
-      "conceptTags": ["aspnet-core", "authorization", "idor"]
+      "conceptTags": [
+        "aspnet-core",
+        "authorization",
+        "idor"
+      ],
+      "id": "sf_c61c682405936b1f2ae35d0e"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the security sentence.",
       "payload": {
         "text": "Authentication identifies the caller; ____ decides whether that caller can access a specific resource.",
-        "blanks": ["authorization"]
+        "blanks": [
+          "authorization"
+        ]
       },
-      "conceptTags": ["security", "authorization"]
+      "conceptTags": [
+        "security",
+        "authorization"
+      ],
+      "id": "sf_0d4ae45664bd2305ea86ce93"
     },
     {
       "type": "MCQ",
@@ -54,7 +74,64 @@
         "answer": "At the transport boundary before domain logic uses the data",
         "explanation": "Validate external input before it reaches domain logic or persistence."
       },
-      "conceptTags": ["aspnet-core", "validation", "contracts"]
+      "conceptTags": [
+        "aspnet-core",
+        "validation",
+        "contracts"
+      ],
+      "id": "sf_bfc6105afa4658a1b7ea5c60"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A signed-in user who lacks the `learner` role calls an endpoint protected by the `Learner` policy. What should they get?",
+      "payload": {
+        "choices": [
+          "401 Unauthorized",
+          "403 Forbidden",
+          "400 Bad Request",
+          "404 Not Found"
+        ],
+        "answer": "403 Forbidden",
+        "explanation": "401 means the caller is not authenticated. This caller is authenticated but fails the policy, which is 403."
+      },
+      "conceptTags": [
+        "aspnet-core",
+        "authorization",
+        "http-status"
+      ],
+      "id": "sf_15630934f808cf4d2e191e9b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why return 404 instead of 403 when a user asks for a review state that belongs to someone else?",
+      "payload": {
+        "choices": [
+          "404 responses are cached by browsers, which reduces load",
+          "A 403 confirms the id exists, which lets attackers probe for other users' records",
+          "ASP.NET Core cannot return 403 from a handler",
+          "403 is reserved for validation errors"
+        ],
+        "answer": "A 403 confirms the id exists, which lets attackers probe for other users' records",
+        "explanation": "Scoping the query by owner and answering 404 treats another user's row exactly like a missing row, so nothing leaks."
+      },
+      "conceptTags": [
+        "security",
+        "authorization",
+        "idor"
+      ],
+      "id": "sf_5d8eacc68dc29fa2c999b03c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Evaluate a grade-review request in pipeline order: 401, then the role policy (403), then validation (400 with every error), then resource ownership (404).",
+      "exercise": "grade-review-policy",
+      "conceptTags": [
+        "aspnet-core",
+        "authorization",
+        "validation"
+      ],
+      "id": "sf_9b2108be453c7349f2de7b8c"
     }
-  ]
+  ],
+  "id": "sf_9e67ad1c2c5eaa182451d4a4"
 }

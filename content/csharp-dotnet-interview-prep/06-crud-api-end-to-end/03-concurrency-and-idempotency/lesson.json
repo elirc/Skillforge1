@@ -1,0 +1,113 @@
+{
+  "title": "Optimistic Concurrency, ETags, and Idempotent POST",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Two people open the same product, both edit it, both press Save. Without protection the second save silently overwrites the first: a lost update. Optimistic concurrency detects this instead of locking. Every row carries a version (a SQL Server `rowversion`, or a counter you bump), and an update only succeeds if the version is still the one the client read. In HTTP the version travels as an ETag: GET returns `ETag: \"3\"`, the client sends `If-Match: \"3\"` with its PUT, and the server answers 412 Precondition Failed if the row has moved on. A PUT with no `If-Match` at all can be refused with 428 Precondition Required."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public sealed class Product\n{\n    public string Id { get; set; } = \"\";\n    public string Name { get; set; } = \"\";\n    [Timestamp] public byte[] RowVersion { get; set; } = [];   // EF Core concurrency token\n}\n\napp.MapPut(\"/products/{id}\", async (string id, UpdateProductRequest request, HttpRequest http, AppDbContext db, CancellationToken ct) =>\n{\n    if (!http.Headers.TryGetValue(\"If-Match\", out var ifMatch)) return Results.StatusCode(428);\n\n    var product = await db.Products.FindAsync([id], ct);\n    if (product is null) return Results.NotFound();\n\n    // Tell EF which version the client saw; SaveChanges adds \"WHERE RowVersion = @original\".\n    db.Entry(product).Property(p => p.RowVersion).OriginalValue = ETags.Parse(ifMatch!);\n    product.Name = request.Name.Trim();\n\n    try { await db.SaveChangesAsync(ct); }\n    catch (DbUpdateConcurrencyException) { return Results.StatusCode(412); }\n\n    http.HttpContext.Response.Headers.ETag = ETags.Format(product.RowVersion);\n    return Results.Ok(product.ToDto());\n});"
+    },
+    {
+      "type": "prose",
+      "body": "POST has the opposite problem. A client times out, retries, and creates the order twice. GET, PUT and DELETE are idempotent by definition; POST is not. The fix is an `Idempotency-Key` header: the client generates a unique key per logical operation and reuses it on every retry. The server stores the key with a hash of the request and the response it produced. A repeat with the same key and the same body gets the original response replayed, and creates nothing. The same key with a different body is a client bug, so reject it with 422."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var key = http.Headers[\"Idempotency-Key\"].ToString();\nvar saved = await db.IdempotencyRecords.FindAsync([key], ct);\nif (saved is not null)\n{\n    return saved.RequestHash == Hash(request)\n        ? Results.Json(saved.ResponseBody, statusCode: saved.StatusCode)   // replay, create nothing\n        : Results.UnprocessableEntity();                                   // key reused for a different request\n}\n\nvar order = Order.Create(request);\ndb.Orders.Add(order);\ndb.IdempotencyRecords.Add(new IdempotencyRecord(key, Hash(request), 201, order.ToDto()));\nawait db.SaveChangesAsync(ct);   // one transaction: the order and its key commit together"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Interview signal: name the failure first (lost update, duplicate create), then the mechanism (version check, idempotency key), then where the guarantee really lives: the conditional UPDATE and the unique key committed in the same transaction as the write."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Two clients read a product at ETag \"v1\". Client A saves with If-Match \"v1\" and succeeds. Client B then saves with If-Match \"v1\". What should B get?",
+      "payload": {
+        "choices": [
+          "412 Precondition Failed, so B can refetch and reapply its change",
+          "200 OK, overwriting A's change",
+          "409 Conflict with A's change merged in automatically",
+          "428 Precondition Required"
+        ],
+        "answer": "412 Precondition Failed, so B can refetch and reapply its change",
+        "explanation": "B's precondition names a version that is no longer current. Rejecting it prevents a lost update. 428 is for a request that sends no If-Match at all."
+      },
+      "conceptTags": [
+        "concurrency",
+        "etags",
+        "rest-api"
+      ],
+      "id": "sf_b85e7cb64088a300c5cd3c74"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A client retries a POST with the same Idempotency-Key and the same body after a timeout. What should the server do?",
+      "payload": {
+        "choices": [
+          "Create a second resource, because it is a new request",
+          "Return 409 Conflict",
+          "Return the response it stored for the first attempt without creating anything",
+          "Return 412 Precondition Failed"
+        ],
+        "answer": "Return the response it stored for the first attempt without creating anything",
+        "explanation": "The key identifies one logical operation. Replaying the stored response makes the retry safe, and the client cannot tell whether its first attempt got through."
+      },
+      "conceptTags": [
+        "idempotency",
+        "rest-api",
+        "reliability"
+      ],
+      "id": "sf_200029be754f1dcda8ec6472"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the concurrency term.",
+      "payload": {
+        "text": "Detecting conflicting edits with a version check at save time, instead of locking the row while a user edits it, is called ____ concurrency.",
+        "blanks": [
+          "optimistic"
+        ]
+      },
+      "conceptTags": [
+        "concurrency",
+        "ef-core"
+      ],
+      "id": "sf_a0dc671ff1ebb33dae29f425"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the HTTP header.",
+      "payload": {
+        "text": "A client sends the ETag it last read in the ____ header so the server can reject a stale update.",
+        "blanks": [
+          "If-Match"
+        ]
+      },
+      "conceptTags": [
+        "etags",
+        "rest-api"
+      ],
+      "id": "sf_a2174c8c14c51f0f05dd5e4e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Process a sequence of requests against a notes API: versioned ETags with If-Match on PUT (428/412), and idempotent POST with replayed responses.",
+      "exercise": "etag-idempotency",
+      "conceptTags": [
+        "concurrency",
+        "etags",
+        "idempotency",
+        "crud"
+      ],
+      "id": "sf_bdb33bab23db89599c1d99b5"
+    }
+  ],
+  "id": "sf_d2bcc725a8e75a6686600626"
+}

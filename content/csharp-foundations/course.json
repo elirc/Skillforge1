@@ -1,0 +1,21 @@
+{
+  "version": "2",
+  "prerequisites": [],
+  "slug": "csharp-foundations",
+  "title": "C# Foundations: Build Small, Correct Programs",
+  "description": "A beginner path through real C# types, control flow, collections, nullable values, LINQ and async methods, ending with invoice and inventory mini-projects.",
+  "language": "csharp",
+  "difficulty": "BEGINNER",
+  "order": 0,
+  "topicTags": [
+    "csharp",
+    "dotnet",
+    "foundations",
+    "crud"
+  ],
+  "outcomes": [
+    "Write and run typed C# methods",
+    "Handle boundaries and missing input",
+    "Build two tested domain mini-projects"
+  ]
+}

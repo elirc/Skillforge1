@@ -1,0 +1,68 @@
+{
+  "id": "sf_0a30f3a8209d6c11e1606fba",
+  "title": "Mini-project: invoice summary",
+  "estimatedMinutes": 25,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Combine typed records, collection aggregation, and decimal arithmetic into a small invoice domain operation. The rule is explicit: sum line totals first, apply ten percent tax to the subtotal, round that tax to two decimal places away from zero, then add it to the subtotal. Different jurisdictions can require different rules; this exercise implements this stated contract rather than assuming a universal tax policy."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "public sealed record Line(decimal UnitPrice, int Quantity);\npublic sealed record Invoice(decimal Subtotal, decimal Tax, decimal Total);\npublic static class Exercise\n{\n    public static Invoice BuildInvoice(Line[] lines)\n    {\n        return new Invoice(0m, 0m, 0m);\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[{\"UnitPrice\":2.5,\"Quantity\":2},{\"UnitPrice\":10,\"Quantity\":1}]]. The required result is {\"Subtotal\":15,\"Tax\":1.5,\"Total\":16.5}. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Build an Invoice with Subtotal, Tax, and Total using the stated ten-percent rounding rule."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Rounding each line separately can produce a different total. Put the rule in one tested method."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which test distinguishes midpoint rounding modes? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the round midpoint case checks a different boundary.\n\n**Transfer it.** Expose this pure function behind an API without moving the arithmetic into the UI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_5615545ae06b83371bf86f69",
+      "type": "MCQ",
+      "prompt": "At what point is tax rounded in this contract?",
+      "conceptTags": [
+        "projects",
+        "decimal",
+        "testing",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "On each unit before multiplying quantity",
+          "Only after converting to int",
+          "Once, after calculating tax on the subtotal"
+        ],
+        "answer": "Once, after calculating tax on the subtotal",
+        "explanation": "A single subtotal-level rounding step follows the written invoice contract."
+      }
+    },
+    {
+      "id": "sf_c4f2686579936fe698755b16",
+      "type": "CODE",
+      "prompt": "Build an Invoice with Subtotal, Tax, and Total using the stated ten-percent rounding rule.",
+      "conceptTags": [
+        "projects",
+        "decimal",
+        "testing",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "A single subtotal-level rounding step follows the written invoice contract.",
+        "Rounding each line separately can produce a different total. Put the rule in one tested method."
+      ],
+      "walkthrough": "A single subtotal-level rounding step follows the written invoice contract.\nRounding each line separately can produce a different total. Put the rule in one tested method."
+    }
+  ]
+}

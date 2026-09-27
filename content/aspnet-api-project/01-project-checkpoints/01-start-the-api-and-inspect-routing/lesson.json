@@ -1,0 +1,50 @@
+{
+  "id": "sf_8fefa9ccd696d96be28c7408",
+  "title": "Start the API and inspect routing",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Start the real ASP.NET Core host and observe routing before adding a domain endpoint.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read InventoryDesk.Api/Program.cs; InventoryDesk.Api/InventoryDesk.Api.csproj before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet run --project InventoryDesk.Api\n# In a second terminal:\ncurl http://127.0.0.1:5080/health/live"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** The host listens on loopback, /health/live returns 200 JSON, and an unknown API route is distinguishable from a valid response.\n\n**Make a meaningful variation.** Add a read-only /api/version route with an explicit response DTO and an HTTP test. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: The final image runs as a nonroot user, runtime data is outside the image, and a successful process start is not confused with readiness."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** Which layer decides the response status and route contract? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_a11d159c2b7f6e48b1aae891",
+      "type": "MCQ",
+      "prompt": "Which layer decides the response status and route contract?",
+      "conceptTags": [
+        "aspnet-core",
+        "routing",
+        "http"
+      ],
+      "payload": {
+        "choices": [
+          "The CSS stylesheet",
+          "The HTTP endpoint boundary",
+          "The database file name"
+        ],
+        "answer": "The HTTP endpoint boundary",
+        "explanation": "The final image runs as a nonroot user, runtime data is outside the image, and a successful process start is not confused with readiness."
+      }
+    }
+  ]
+}

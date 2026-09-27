@@ -1,0 +1,124 @@
+{
+  "title": "Reading and Writing Files with with",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "open() returns a file object. The with statement (a context manager) guarantees the file is closed when the block ends, even if an exception is raised inside it. It is Python's equivalent of try/finally around a resource, and it is how you should open files almost every time."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "with open(\"notes.txt\", \"w\", encoding=\"utf-8\") as f:\n    f.write(\"first line\\n\")\n    f.write(\"second line\\n\")\n# f is closed here, even if write had raised\n\nwith open(\"notes.txt\", encoding=\"utf-8\") as f:   # default mode is \"r\"\n    for line in f:                              # iterate lazily, line by line\n        print(line.rstrip(\"\\n\"))"
+    },
+    {
+      "type": "prose",
+      "body": "The mode string says what you want: \"r\" read (default), \"w\" write and truncate, \"a\" append, \"x\" create but fail if the file exists. Add \"b\" for bytes (\"rb\", \"wb\"). f.read() returns the whole file as one string, f.readlines() returns a list of lines, and iterating over the file yields lines one at a time without loading everything into memory. Each line keeps its trailing newline."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "import json\nfrom pathlib import Path\n\npath = Path(\"data\") / \"todos.json\"        # / joins path segments\npath.parent.mkdir(exist_ok=True)\n\npath.write_text(json.dumps([{\"title\": \"ship\"}]), encoding=\"utf-8\")\ntodos = json.loads(path.read_text(encoding=\"utf-8\"))\nprint(todos[0][\"title\"])           # ship\nprint(path.exists(), path.suffix)  # True .json"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "pathlib.Path is the modern way to handle paths: it joins with /, knows the name, stem, suffix and parent, and has read_text/write_text shortcuts for small files."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Always pass encoding=\"utf-8\" for text files. Without it Python uses the platform default, which on Windows may not be UTF-8, so the same code can read a file differently on different machines."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is the main benefit of with open(...) as f compared with f = open(...)?",
+      "payload": {
+        "choices": [
+          "the file is closed automatically, even if an exception occurs",
+          "the file is read faster",
+          "the file is opened read-only",
+          "the file is locked against other processes"
+        ],
+        "answer": "the file is closed automatically, even if an exception occurs",
+        "explanation": "with calls the file's cleanup when the block exits for any reason."
+      },
+      "conceptTags": [
+        "file-io",
+        "context-managers"
+      ],
+      "id": "sf_69524453efb981e721fd218d"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which mode opens a file for writing and erases its existing contents?",
+      "payload": {
+        "choices": [
+          "\"a\"",
+          "\"r\"",
+          "\"w\"",
+          "\"x\""
+        ],
+        "answer": "\"w\"",
+        "explanation": "\"w\" truncates; \"a\" appends to the end; \"x\" fails if the file already exists."
+      },
+      "conceptTags": [
+        "file-io"
+      ],
+      "id": "sf_cb97868251c7d6e44b722b57"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A file contains the two lines a and b. What does len(f.readlines()) return?",
+      "payload": {
+        "choices": [
+          "1",
+          "4",
+          "3",
+          "2"
+        ],
+        "answer": "2",
+        "explanation": "readlines returns one string per line: [\"a\\n\", \"b\\n\"]."
+      },
+      "conceptTags": [
+        "file-io"
+      ],
+      "id": "sf_e4c0f92ad235175e134d7056"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Iterating with for line in f: -- what does each line include?",
+      "payload": {
+        "choices": [
+          "the text with the newline removed",
+          "a list of words",
+          "the text plus its trailing newline character",
+          "a bytes object"
+        ],
+        "answer": "the text plus its trailing newline character",
+        "explanation": "Lines keep their newline; call line.rstrip(\"\\n\") or line.strip() to remove it."
+      },
+      "conceptTags": [
+        "file-io"
+      ],
+      "id": "sf_a6c7a837cf770d9f7c799330"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Join paths with pathlib.",
+      "payload": {
+        "text": "With from pathlib import Path, the expression Path(\"data\") ____ \"todos.json\" builds the path data/todos.json.",
+        "blanks": [
+          "/"
+        ]
+      },
+      "conceptTags": [
+        "file-io",
+        "pathlib"
+      ],
+      "id": "sf_331bce8407c823c40bd38f2e"
+    }
+  ],
+  "id": "sf_f1f6f7ef19139d30f3efec98"
+}

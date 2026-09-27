@@ -1,0 +1,98 @@
+{
+  "title": "CSRF and SameSite Cookies",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Cross-Site Request Forgery**: you are signed in to `bank.test`, then visit `evil.test`, which contains a hidden form that POSTs to `bank.test/transfers`. The browser used to attach your bank cookie automatically, so the bank saw a genuine, authenticated request that you never intended."
+    },
+    {
+      "type": "code-example",
+      "language": "html",
+      "code": "<!-- on evil.test -->\n<form action=\"https://bank.test/transfers\" method=\"POST\">\n  <input name=\"to\" value=\"attacker\"><input name=\"amount\" value=\"5000\">\n</form>\n<script>document.forms[0].submit()</script>"
+    },
+    {
+      "type": "prose",
+      "body": "Defenses, in layers:\n- **SameSite cookies**. `Lax` (the default in modern browsers) sends the cookie cross-site only on top-level GET navigations, which kills the hidden-form POST. `Strict` never sends it cross-site. `None` always does (and requires `Secure`).\n- **Anti-forgery tokens** for cookie-authenticated forms: a random value the server puts in the page and checks on every unsafe request; `evil.test` cannot read it.\n- **Never change state on GET**, because Lax still allows cross-site GET navigations.\n- Checking the `Origin` header on unsafe requests is a cheap extra layer."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddAntiforgery(o => o.HeaderName = \"X-CSRF-TOKEN\");\napp.UseAntiforgery();   // Razor forms and [ValidateAntiForgeryToken] check it on POST/PUT/DELETE"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "CSRF is a cookie problem. An API that only accepts `Authorization: Bearer` tokens from JavaScript is not exposed to CSRF, because browsers never attach that header automatically; it is exposed to XSS stealing the token instead."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "With SameSite=Lax, when does a cross-site request carry the cookie?",
+      "payload": {
+        "choices": [
+          "On every cross-site request",
+          "Only on top-level navigations with safe methods like GET",
+          "Never",
+          "Only on cross-site POST form submissions"
+        ],
+        "answer": "Only on top-level navigations with safe methods like GET",
+        "explanation": "Lax allows following a link from another site (so you stay signed in) but blocks cookies on cross-site POSTs, fetches, and iframes."
+      },
+      "conceptTags": [
+        "csrf",
+        "samesite",
+        "cookies"
+      ],
+      "id": "sf_9e724f25c7f25517dd4b1da5"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why does an API authenticated only by an Authorization: Bearer header not need CSRF tokens?",
+      "payload": {
+        "choices": [
+          "Bearer tokens are encrypted",
+          "CORS blocks all POST requests",
+          "Browsers never add that header automatically to cross-site requests",
+          "Bearer tokens expire quickly"
+        ],
+        "answer": "Browsers never add that header automatically to cross-site requests",
+        "explanation": "CSRF abuses credentials the browser attaches on its own, which means cookies. A bearer header must be added by the page's own script."
+      },
+      "conceptTags": [
+        "csrf",
+        "auth",
+        "jwt"
+      ],
+      "id": "sf_1c118950582191c4a4d8f9fe"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the SameSite value.",
+      "payload": {
+        "text": "A cookie with SameSite=____ is sent on every cross-site request and must also be marked Secure.",
+        "blanks": [
+          "None"
+        ]
+      },
+      "conceptTags": [
+        "samesite",
+        "cookies"
+      ],
+      "id": "sf_7607ee666275965e65bb0509"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model the browser's rule for attaching a cookie: Secure over http, SameSite=None without Secure, same-site requests, and the Strict/Lax/None cross-site cases.",
+      "exercise": "should-send-cookie",
+      "conceptTags": [
+        "csrf",
+        "samesite",
+        "cookies",
+        "security"
+      ],
+      "id": "sf_eff7545f425fd574c208dd11"
+    }
+  ],
+  "id": "sf_2773c02f5d5fa3b844abaaa4"
+}

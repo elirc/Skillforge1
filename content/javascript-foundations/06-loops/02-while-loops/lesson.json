@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "let n = 1234;\nlet digits = 0;\nwhile (n > 0) {\n  digits++;\n  n = Math.floor(n / 10);\n}\n// digits is 4"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** A while loop repeats while its condition is true. remaining changes 7, 4, 1, -2; the final condition is false. Identify the value that moves toward termination before writing the loop."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "let remaining = 7;\nlet batches = 0;\nwhile (remaining > 0) {\n  remaining -= 3;\n  batches += 1;\n}\n// batches is 3"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "If the body never changes what the condition depends on, the loop may never finish."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Predict the result for remaining = 0 and for an exact multiple of 3.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -17,15 +35,31 @@
       "prompt": "Avoid this loop hazard.",
       "payload": {
         "text": "A while loop runs forever if its condition never becomes ____.",
-        "blanks": ["false"]
+        "blanks": [
+          "false"
+        ]
       },
-      "conceptTags": ["loops"]
+      "conceptTags": [
+        "loops"
+      ],
+      "id": "sf_44d5fdc184cc30b386502330"
     },
     {
       "type": "CODE",
       "prompt": "Return the sum of the digits of a non-negative whole number (sumDigits(123) is 6).",
       "exercise": "sum-digits",
-      "conceptTags": ["loops", "math"]
+      "conceptTags": [
+        "loops",
+        "math"
+      ],
+      "id": "sf_4b03184cb4ed43c4ff13a54e",
+      "hints": [
+        "If the body never changes what the condition depends on, the loop may never finish.",
+        "A while loop repeats while its condition is true. remaining changes 7, 4, 1, -2; the final condition is false. Identify the value that moves toward termination before writing the loop."
+      ],
+      "walkthrough": "A while loop repeats while its condition is true. remaining changes 7, 4, 1, -2; the final condition is false. Identify the value that moves toward termination before writing the loop."
     }
-  ]
+  ],
+  "id": "sf_769d7562df2c8ae45b74a9a1",
+  "estimatedMinutes": 12
 }

@@ -1,0 +1,139 @@
+{
+  "title": "Pipelines with pipe and compose",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "When data flows through several small transformations, nesting the calls reads inside out: slugify(lower(trim(title))). pipe turns that into a left-to-right list of steps, and compose is the same thing read right to left, as in mathematics. Both are one-line reduce calls over an array of functions."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const pipe = (...fns) => (input) => fns.reduce((value, fn) => fn(value), input);\nconst compose = (...fns) => (input) => fns.reduceRight((value, fn) => fn(value), input);\n\nconst trim = (s) => s.trim();\nconst lower = (s) => s.toLowerCase();\nconst slug = (s) => s.replace(/[^a-z0-9]+/g, \"-\").replace(/^-|-$/g, \"\");\n\nconst toSlug = pipe(trim, lower, slug);        // trim first, slug last\nconst same = compose(slug, lower, trim);       // identical behaviour\n\ntoSlug(\"  Hello, World!  \");  // \"hello-world\""
+    },
+    {
+      "type": "prose",
+      "body": "Every step takes one value and returns one value. Steps that need configuration are written as functions that return a step, so the configuration is fixed when the pipeline is built and the data is supplied later. This is partial application, and it is what keeps pipelines composable."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const truncate = (max) => (s) => s.slice(0, max);\nconst prefix = (text) => (s) => text + s;\n\nconst toId = pipe(trim, lower, slug, truncate(11), prefix(\"post-\"));\ntoId(\"  A Very Long Blog Post Title \");  // \"post-a-very-long\"\n\n// pipe() with no steps is the identity function:\npipe()(\"unchanged\");  // \"unchanged\""
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Array methods already chain left to right (list.filter(...).map(...)). pipe brings the same readability to functions that are not methods, and lets you name and reuse a whole pipeline."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Order matters. pipe(lower, slug) and compose(lower, slug) run the same two steps in opposite orders; with steps that do not commute, they give different results."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "With pipe as defined in the lesson, what does pipe(x => x + 1, x => x * 2)(3) return?",
+      "payload": {
+        "choices": [
+          "7",
+          "6",
+          "5",
+          "8"
+        ],
+        "answer": "8",
+        "explanation": "pipe runs left to right: 3 + 1 = 4, then 4 * 2 = 8."
+      },
+      "conceptTags": [
+        "composition",
+        "pipe"
+      ],
+      "id": "sf_7834daa940efa4191d051f4a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With compose as defined in the lesson, what does compose(x => x + 1, x => x * 2)(3) return?",
+      "payload": {
+        "choices": [
+          "8",
+          "6",
+          "9",
+          "7"
+        ],
+        "answer": "7",
+        "explanation": "compose runs right to left: 3 * 2 = 6, then 6 + 1 = 7."
+      },
+      "conceptTags": [
+        "composition",
+        "compose"
+      ],
+      "id": "sf_a2f5b4f66c9b51d81b39c5d8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does pipe()(\"hi\") return, with no steps?",
+      "payload": {
+        "choices": [
+          "undefined",
+          "an empty string",
+          "it throws TypeError",
+          "\"hi\""
+        ],
+        "answer": "\"hi\"",
+        "explanation": "reduce over an empty array returns the initial value, so an empty pipe is the identity function."
+      },
+      "conceptTags": [
+        "composition",
+        "pipe"
+      ],
+      "id": "sf_5f53074cb4974594629423d8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why is truncate written as (max) => (s) => s.slice(0, max)?",
+      "payload": {
+        "choices": [
+          "so truncate(12) is a one-argument step that fits in a pipeline",
+          "because slice needs two closures",
+          "to make it run lazily",
+          "so it can be called with new"
+        ],
+        "answer": "so truncate(12) is a one-argument step that fits in a pipeline",
+        "explanation": "Fixing the configuration first leaves a function of one value, which is what pipe expects."
+      },
+      "conceptTags": [
+        "composition",
+        "partial-application"
+      ],
+      "id": "sf_c3b5bd7c81cd1a2341379e3c"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Implement pipe.",
+      "payload": {
+        "text": "const pipe = (...fns) => (input) => fns.____((value, fn) => fn(value), input);",
+        "blanks": [
+          "reduce"
+        ]
+      },
+      "conceptTags": [
+        "composition",
+        "pipe"
+      ],
+      "id": "sf_fbd8d2ad625ace3ddcd44bba"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Fix pipe so steps run left to right, then build text pipelines from named steps and report unknown steps as result objects.",
+      "exercise": "run-pipeline",
+      "conceptTags": [
+        "composition",
+        "pipe",
+        "higher-order-functions",
+        "result-objects"
+      ],
+      "id": "sf_3f0b629db985f01bc94080c4"
+    }
+  ],
+  "id": "sf_fc7653c546ae3d7e18aa7245"
+}

@@ -12,7 +12,7 @@
   "order": 48,
   "exercise": "tally-votes",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Tally Votes, read the story as a simple input-to-output rule: A poll receives one candidate name per vote. Write a function that returns an object where each candidate name maps to the number of votes they received. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays, objects and counting. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: tallyVotes([\"Ada\",\"Grace\",\"Ada\"]) produces {\"Ada\":2,\"Grace\":1}. Use a key-specific bucket or count so each occurrence changes only its own group.\n\nCompare “handles no votes”: input [[]] produces {}. Explain which rule causes the difference before writing code.",
+    "junior": "Use a key-specific bucket or count so each occurrence changes only its own group.\n\nTempting mistake: Reinitializing an existing group erases earlier contributions. Distinct-key counts differ from total occurrences.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “handles no votes”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

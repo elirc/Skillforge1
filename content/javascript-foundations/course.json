@@ -3,7 +3,7 @@
   "title": "JavaScript Foundations",
   "description": "Build durable JavaScript basics through tiny lessons, recall prompts, and real code checks.",
   "language": "javascript",
-  "topicTags": ["variables", "functions", "arrays", "objects", "strings", "loops", "reduce", "control-flow", "error-handling", "sets", "maps", "sorting", "data-cleaning"],
+  "topicTags": ["variables", "functions", "arrays", "objects", "strings", "loops", "reduce", "control-flow", "error-handling", "sets", "maps", "sorting", "data-cleaning", "dates", "regex", "recursion", "json", "searching", "comparators", "numbers", "money", "closures", "scope", "capstone"],
   "difficulty": "BEGINNER",
   "order": 1,
   "outcomes": [
@@ -15,6 +15,14 @@
     "Read and update plain objects immutably",
     "Handle invalid input with guards and try/catch",
     "Use Set and Map for uniqueness and counting",
-    "Clean, group, and sort records without mutating inputs"
+    "Clean, group, and sort records without mutating inputs",
+    "Compare and count days with Date without time-zone surprises",
+    "Validate and extract text with simple regular expressions",
+    "Solve nested-data problems with recursion",
+    "Parse API JSON safely with try/catch, optional chaining, and defaults",
+    "Search with find/some/every and sort with comparators",
+    "Handle money in integer cents and check for NaN correctly",
+    "Explain scope and use closures to keep private state",
+    "Combine everything into tested todo-list logic"
   ]
 }

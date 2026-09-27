@@ -1,0 +1,92 @@
+{
+  "title": "User-Defined Type Guards",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "typeof and in narrow simple cases, but real data often arrives as unknown: a parsed JSON body, a message from another window, a value read from localStorage. A user-defined type guard is a function that checks a value at runtime and returns value is User. When it returns true, TypeScript narrows the argument to User in the calling code."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "interface User {\n  id: string;\n  name: string;\n}\n\nfunction isUser(value: unknown): value is User {\n  if (typeof value !== \"object\" || value === null) return false;\n  const record = value as Record<string, unknown>;\n  return typeof record.id === \"string\" && typeof record.name === \"string\";\n}\n\nconst data: unknown = JSON.parse(body);\nif (isUser(data)) {\n  console.log(data.name); // data is User here\n}\n\nconst users = rows.filter(isUser); // User[]"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "The compiler trusts your guard completely. If isUser returns true for something that is not really a User, the types lie. Check every field you rely on, and remember that typeof null is \"object\" and arrays are objects too."
+    },
+    {
+      "type": "prose",
+      "body": "Guards compose well with array methods: values.filter(isUser) has the type User[] because filter has an overload that accepts a type predicate. A plain boolean callback would leave you with unknown[]."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What return type makes a function a user-defined type guard for User?",
+      "payload": {
+        "choices": [
+          "value is User",
+          "boolean",
+          "User | false",
+          "asserts User"
+        ],
+        "answer": "value is User",
+        "explanation": "A type predicate of the form paramName is Type tells the compiler what a true result proves about that parameter."
+      },
+      "conceptTags": [
+        "typescript",
+        "type-guards",
+        "narrowing"
+      ],
+      "id": "sf_dcbface7a210d0a9633d3080"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why does a guard need value !== null after typeof value === \"object\"?",
+      "payload": {
+        "choices": [
+          "Because typeof null is \"object\"",
+          "Because null is a string",
+          "Because objects are never null in TypeScript",
+          "It does not; the typeof check already excludes null"
+        ],
+        "answer": "Because typeof null is \"object\"",
+        "explanation": "A long-standing JavaScript quirk: typeof null returns \"object\", so reading a property after only the typeof check could crash."
+      },
+      "conceptTags": [
+        "typescript",
+        "type-guards",
+        "javascript-quirks"
+      ],
+      "id": "sf_e0916393ed00f4745d7ad01b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the type for values you have not checked yet.",
+      "payload": {
+        "text": "Prefer the type ____ over any for untrusted input, because it forces you to narrow before use.",
+        "blanks": [
+          "unknown"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "unknown"
+      ],
+      "id": "sf_c9598d759281d98a4749ac2b"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write the isUser type guard so filterUsers keeps only well-formed users (non-empty string id, string name, whole-number age of 0 or more).",
+      "exercise": "filter-users",
+      "conceptTags": [
+        "typescript",
+        "type-guards",
+        "validation"
+      ],
+      "id": "sf_2f5d2a884ab7ae6e048a5162"
+    }
+  ],
+  "id": "sf_017c259faf6433097274bc97"
+}

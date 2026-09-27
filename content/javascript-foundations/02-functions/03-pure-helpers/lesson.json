@@ -4,6 +4,24 @@
     {
       "type": "prose",
       "body": "A pure helper returns the same output for the same input and avoids changing outside state. Pure helpers are easier to test and review."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Every value affecting this calculation is an input. The function returns a result without changing an external total or reading the current time. The same inputs therefore make a repeatable test."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function addTax(price, rate) {\n  return price * (1 + rate);\n}\naddTax(20, 0.1); // 22"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Reading a changing global value makes the same call behave differently. Mutating an input object also affects the caller."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** List the inputs a discount helper needs so it does not depend on global settings.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -11,11 +29,22 @@
       "type": "MCQ",
       "prompt": "Why are pure helper functions easier to test?",
       "payload": {
-        "choices": ["same input gives the same output", "they always run in the browser", "they hide every error", "they require no parameters"],
+        "choices": [
+          "they always run in the browser",
+          "same input gives the same output",
+          "they hide every error",
+          "they require no parameters"
+        ],
         "answer": "same input gives the same output",
         "explanation": "Predictability makes assertions straightforward."
       },
-      "conceptTags": ["functions", "testing"]
+      "conceptTags": [
+        "functions",
+        "testing"
+      ],
+      "id": "sf_3686649a91bc292b450933b7"
     }
-  ]
+  ],
+  "id": "sf_9feedd75421eb8fc06a2c583",
+  "estimatedMinutes": 12
 }

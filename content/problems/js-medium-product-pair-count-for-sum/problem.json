@@ -11,7 +11,7 @@
   "order": 11012,
   "exercise": "js-medium-product-pair-count-for-sum",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Product Pair Count For Sum, read the story as a simple input-to-output rule: A product puzzle counts how many earlier values can pair with the current value to reach a target. Write a function that returns the number of index pairs whose values add to target. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and maps. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: productPairCountForSum([1,2,3,4], 5) produces 2. Choose the numeric contribution of each record, then combine those contributions using the contract’s initial value.\n\nCompare “counts duplicate pairs”: input [[2,2,2],4] produces 3. Explain which rule causes the difference before writing code.",
+    "junior": "Choose the numeric contribution of each record, then combine those contributions using the contract’s initial value.\n\nTempting mistake: A count of records is not a sum of their values. Test empty input and a zero-valued record separately.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “counts duplicate pairs”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

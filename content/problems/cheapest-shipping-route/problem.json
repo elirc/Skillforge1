@@ -1,0 +1,14 @@
+{
+  "slug": "cheapest-shipping-route",
+  "title": "Cheapest Shipping Route",
+  "prompt": "A logistics dashboard needs the cheapest way to move stock between warehouses. `lanes` is a list of one-way lanes `[from, to, cost]` with non-negative costs. `closed` lists warehouses that are shut today and cannot be used at all (not even as the start or destination). Return `{ cost, path }` for the cheapest route from `start` to `goal`, where `path` lists every warehouse visited including both ends, or `null` if the goal cannot be reached. Going from a warehouse to itself costs 0. The tests only use graphs with a single cheapest route.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["graphs", "dijkstra", "shortest-path", "priority-queue"],
+  "order": 50004,
+  "exercise": "cheapest-shipping-route",
+  "explanation": {
+    "beginner": "Keep a table of 'best known cost to reach each warehouse', starting with 0 for the start and nothing for the rest, and a note of which warehouse you came from. Repeatedly pick the unfinished warehouse with the smallest known cost, mark it finished, and look at every lane leaving it: if going through it makes a neighbour cheaper than before, record the new cost and remember where you came from. Once the goal is finished, its cost is final; walk the 'came from' notes backwards from the goal to the start and reverse them to get the path. Skip any lane that touches a closed warehouse.",
+    "junior": "This is Dijkstra's algorithm, correct because costs are non-negative: the first time a node is popped with the minimum tentative distance, no later path can beat it. Build an adjacency list first (O(E)), ignoring lanes into or out of closed nodes, and return early with null if start or goal is closed. A linear-scan 'pick minimum' gives O(V^2 + E), fine for dozens of warehouses; a binary min-heap with lazy deletion (push duplicates, skip stale entries whose cost exceeds `dist`) gives O((V + E) log V). Edge cases: start === goal returns cost 0 with a one-element path; a lane with cost 0 is legal; parallel lanes between the same pair must keep the cheaper one naturally through relaxation; unreachable goals must return null rather than Infinity. Do not use BFS: fewest hops is not cheapest."
+  }
+}

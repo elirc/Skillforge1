@@ -1,0 +1,98 @@
+{
+  "title": "Transactions and ACID",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A transaction groups statements so they succeed or fail as one unit. The guarantees are ACID: Atomicity (all of it happens or none of it does), Consistency (constraints hold before and after), Isolation (concurrent transactions do not see each other's half-finished work, to a degree set by the isolation level), and Durability (once COMMIT returns, the change survives a crash, because it is in the write-ahead log)."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SET XACT_ABORT ON;   -- SQL Server: any runtime error rolls back the whole transaction\nBEGIN TRANSACTION;\n  UPDATE accounts SET balance = balance - 100 WHERE id = @from;\n  UPDATE accounts SET balance = balance + 100 WHERE id = @to;\n  -- CHECK (balance >= 0) on accounts rejects an overdraft\nCOMMIT TRANSACTION;"
+    },
+    {
+      "type": "prose",
+      "body": "Without XACT_ABORT, SQL Server aborts only the failing statement for many errors (such as a constraint violation) and keeps going, so the first UPDATE could commit without the second. Use SET XACT_ABORT ON, or TRY...CATCH with ROLLBACK, in any hand-written T-SQL transaction."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// EF Core: one SaveChanges call is already a transaction.\n// Use an explicit transaction when several SaveChanges or raw SQL calls must commit together.\nawait using var tx = await db.Database.BeginTransactionAsync(ct);\n\nvar from = await db.Accounts.SingleAsync(a => a.Id == fromId, ct);\nvar to = await db.Accounts.SingleAsync(a => a.Id == toId, ct);\nfrom.Balance -= amount;\nto.Balance += amount;\nawait db.SaveChangesAsync(ct);\n\nawait tx.CommitAsync(ct);   // disposing without Commit rolls back"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Keep transactions short. Locks are held until COMMIT, so never wait on an HTTP call, a message queue, or user input inside one. Do the slow work first, then open the transaction, write, and commit."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `SET XACT_ABORT ON; BEGIN TRAN; <one UPDATE pair per transfer>; COMMIT`. Apply transfers in order to a copy of the balances. If a transfer names an account that does not exist, or would make a balance negative (CHECK balance >= 0), roll back everything and return { committed: false, balances: <the original balances> }. Otherwise return { committed: true, balances: <new balances> }. Keep the balances object's key order.",
+      "exercise": "run-transaction",
+      "conceptTags": [
+        "sql",
+        "transactions",
+        "atomicity",
+        "rollback"
+      ],
+      "id": "sf_a2d1e7026cea6026ce0b462b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which ACID property guarantees that a transfer never debits one account without crediting the other?",
+      "payload": {
+        "choices": [
+          "Atomicity",
+          "Consistency",
+          "Isolation",
+          "Durability"
+        ],
+        "answer": "Atomicity",
+        "explanation": "Atomicity means all statements in the transaction take effect or none do. Consistency is about constraints holding; isolation is about concurrent transactions; durability is about surviving crashes after commit."
+      },
+      "conceptTags": [
+        "sql",
+        "transactions",
+        "acid"
+      ],
+      "id": "sf_6b77fe7f8ee55d0c917d5565"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Finish the transaction so its changes become permanent.",
+      "payload": {
+        "text": "BEGIN TRANSACTION; UPDATE stock SET qty = qty - 1 WHERE sku = 'A1'; INSERT INTO sales (sku) VALUES ('A1'); ____ TRANSACTION;",
+        "blanks": [
+          "COMMIT"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "transactions"
+      ],
+      "id": "sf_bf4154875a854a20872d6631"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "In EF Core, you call SaveChangesAsync once after adding an order and its three items. Do you need an explicit transaction?",
+      "payload": {
+        "choices": [
+          "Yes. Each INSERT commits separately without one",
+          "No. A single SaveChanges already wraps all its INSERTs in one transaction",
+          "Yes. EF Core never uses transactions by default",
+          "Only when the database is SQLite"
+        ],
+        "answer": "No. A single SaveChanges already wraps all its INSERTs in one transaction",
+        "explanation": "EF Core runs each SaveChanges in a transaction when the provider supports it. You need BeginTransaction when several SaveChanges calls, or raw SQL plus SaveChanges, must succeed or fail together."
+      },
+      "conceptTags": [
+        "sql",
+        "transactions",
+        "ef-core"
+      ],
+      "id": "sf_6462e713c95c3d4659fdff30"
+    }
+  ],
+  "id": "sf_01a94848c5b98d0ce62f3e8b"
+}

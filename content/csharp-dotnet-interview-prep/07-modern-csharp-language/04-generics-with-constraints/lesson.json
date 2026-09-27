@@ -1,0 +1,99 @@
+{
+  "title": "Generics with Constraints",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Generics let one implementation work over many types while staying type-safe: a `Repository<Product>` returns `Product`, not `object`, and value types are not boxed. Unlike Java, .NET generics are **reified**: the runtime knows `T`, so `typeof(T)` and `new T()` work and `List<int>` stores raw ints."
+    },
+    {
+      "type": "prose",
+      "body": "Inside a generic method you can only use members every possible `T` has. **Constraints** narrow `T` so more members become available and the compiler rejects type arguments that would not work:"
+    },
+    {
+      "type": "prose",
+      "body": "- `where T : class` / `where T : struct`: reference or non-nullable value type (so `T?` and `null` mean something)\n- `where T : IEntity`: T implements an interface, so `item.Id` compiles\n- `where T : new()`: T has a public parameterless constructor\n- `where T : notnull`, `where T : unmanaged`, and `where T : BaseClass`\n- `where TKey : IComparable<TKey>`: T can be compared, so `a.CompareTo(b)` compiles"
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public interface IEntity { string Id { get; } }\n\npublic sealed class Repository<T> where T : class, IEntity\n{\n    private readonly Dictionary<string, T> _items = new();\n    public void Upsert(T item) => _items[item.Id] = item;          // IEntity gives us Id\n    public T? Find(string id) => _items.GetValueOrDefault(id);     // class makes T? mean \"or null\"\n}\n\npublic static T Max<T>(IEnumerable<T> items) where T : IComparable<T>\n{\n    using var e = items.GetEnumerator();\n    if (!e.MoveNext()) throw new InvalidOperationException(\"empty\");\n    var best = e.Current;\n    while (e.MoveNext())\n        if (e.Current.CompareTo(best) > 0) best = e.Current;\n    return best;\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Two follow-ups interviewers like. **Variance**: `IEnumerable<out T>` is covariant, so an `IEnumerable<string>` can be used as an `IEnumerable<object>`, while `List<T>` is invariant because you could add the wrong type to it. **Static abstract interface members** (C# 11, generic math) let you constrain on operators: `where T : INumber<T>` allows `T.Zero` and `a + b`."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Add a constraint only when the method body needs it. Every constraint is a requirement on callers, and an unnecessary `where T : class` blocks value types for no reason."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which constraint lets a generic method call `a.CompareTo(b)` on two values of type T?",
+      "payload": {
+        "choices": [
+          "where T : IComparable<T>",
+          "where T : class",
+          "where T : new()",
+          "where T : struct"
+        ],
+        "answer": "where T : IComparable<T>",
+        "explanation": "The interface constraint guarantees every T implements CompareTo. class/struct only say what kind of type T is, and new() only guarantees a constructor."
+      },
+      "conceptTags": [
+        "generics",
+        "csharp"
+      ],
+      "id": "sf_3fd0c13d515a37f3d026ca6c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why can an `IEnumerable<string>` be passed where an `IEnumerable<object>` is expected, but a `List<string>` cannot be passed as a `List<object>`?",
+      "payload": {
+        "choices": [
+          "List<T> is a class and classes never support generics variance, but interfaces always do",
+          "string is sealed",
+          "IEnumerable<out T> is covariant because it only returns T; List<T> is invariant because it also accepts T",
+          "The compiler boxes strings in IEnumerable"
+        ],
+        "answer": "IEnumerable<out T> is covariant because it only returns T; List<T> is invariant because it also accepts T",
+        "explanation": "If List<string> were a List<object> you could Add an int to it. Output-only interfaces are marked `out` and can safely be covariant; classes cannot declare variance at all."
+      },
+      "conceptTags": [
+        "generics",
+        "variance",
+        "csharp"
+      ],
+      "id": "sf_c3cfb40f12822759f3812615"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the constraint.",
+      "payload": {
+        "text": "`where T : ____, IEntity` restricts T to reference types that implement IEntity.",
+        "blanks": [
+          "class"
+        ]
+      },
+      "conceptTags": [
+        "generics",
+        "csharp"
+      ],
+      "id": "sf_e05ef2b505d6dc307693ee9c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement a constrained generic repository and a generic MinBy helper, then use them for two entity types.",
+      "exercise": "generic-repository",
+      "conceptTags": [
+        "generics",
+        "constraints",
+        "csharp"
+      ],
+      "id": "sf_1d8ff1325f75001b0f03297b"
+    }
+  ],
+  "id": "sf_fb67c8055f7e581b978c02a7"
+}

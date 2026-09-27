@@ -1,0 +1,128 @@
+{
+  "title": "Regular Expressions Basics",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A regular expression (regex) is a small pattern for matching text. You write it between slashes: `/cat/` matches the letters c, a, t in a row. Regexes are great for checking a simple format or pulling pieces out of text."
+    },
+    {
+      "type": "prose",
+      "body": "A few building blocks go a long way:\n- `\\d` a digit, `\\w` a letter, digit, or underscore, `\\s` a space\n- `+` one or more of the thing before it, `*` zero or more, `?` optional, `{3}` exactly three\n- `^` start of the text, `$` end of the text\n- `[abc]` any one of a, b, c; `[a-z]` any lowercase letter\n- flags after the last slash: `g` find all matches, `i` ignore case"
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "// test: does it match? (true / false)\n/^\\d{5}$/.test(\"90210\");      // true: exactly five digits\n/^\\d{5}$/.test(\"9021\");       // false\n/hello/i.test(\"HeLLo world\");  // true: i ignores case\n\n// match: what matched?\n\"Order 42 and 7\".match(/\\d+/g);     // [\"42\", \"7\"]\n\"no numbers\".match(/\\d+/g);         // null (not an empty array!)\n\n// replace: swap matches for something else\n\"a  b   c\".replace(/\\s+/g, \" \");   // \"a b c\""
+    },
+    {
+      "type": "prose",
+      "body": "Always anchor validation patterns with `^` and `$`. Without them, `/\\d{5}/` happily matches the five digits inside `\"abc123456\"`."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const isUsername = (s) => /^[a-z][a-z0-9_]{2,15}$/i.test(s);\nisUsername(\"ada_99\");  // true\nisUsername(\"9lives\");  // false: must start with a letter\nisUsername(\"ab\");      // false: too short"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`match` with the `g` flag returns `null` when nothing matches. Write `text.match(/.../g) ?? []` before looping over the result."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Keep regexes for simple formats. Real email or URL validation is famously hard; use a small pattern to catch typos and let the server do the final check."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The anchors require the whole string to match. The first class permits two lowercase letters, then a literal hyphen, then three digits. The rule validates this exact format, not every possible business identifier."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const code = 'ab-123';\nconst valid = /^[a-z]{2}-[0-9]{3}$/.test(code);\n// true"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Without anchors, a valid-looking substring inside an invalid string may pass."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Predict results for 'xxab-123yy', 'AB-123', and 'ab-12'.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which regex checks that the whole string is exactly four digits?",
+      "payload": {
+        "choices": [
+          "/\\d{4}/",
+          "/^\\d+$/",
+          "/^\\d{4}$/",
+          "/[0-9]{4}/g"
+        ],
+        "answer": "/^\\d{4}$/",
+        "explanation": "^ and $ anchor the pattern to the start and end, so nothing else can surround the four digits."
+      },
+      "conceptTags": [
+        "regex",
+        "validation"
+      ],
+      "id": "sf_71c3084a1522d176799311cd"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does `\"a1b22\".match(/\\d+/g)` return?",
+      "payload": {
+        "choices": [
+          "[\"1\", \"22\"]",
+          "[\"1\", \"2\", \"2\"]",
+          "\"122\"",
+          "true"
+        ],
+        "answer": "[\"1\", \"22\"]",
+        "explanation": "\\d+ grabs as many digits in a row as it can, and g collects every match."
+      },
+      "conceptTags": [
+        "regex",
+        "match"
+      ],
+      "id": "sf_962e0f3263f47689fbb42449"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the flag.",
+      "payload": {
+        "text": "Add the ____ flag to a regex to ignore upper and lower case.",
+        "blanks": [
+          "i"
+        ]
+      },
+      "conceptTags": [
+        "regex",
+        "flags"
+      ],
+      "id": "sf_c3164435b011e62a80515847"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write extractHashtags(text). A hashtag is # followed by one or more letters, digits, or underscores. Return each tag once, lowercased and without the #, in the order they first appear.",
+      "exercise": "extract-hashtags",
+      "conceptTags": [
+        "regex",
+        "strings",
+        "match"
+      ],
+      "id": "sf_04f99f20ca32d6d2d2a78b43",
+      "hints": [
+        "Without anchors, a valid-looking substring inside an invalid string may pass.",
+        "The anchors require the whole string to match. The first class permits two lowercase letters, then a literal hyphen, then three digits. The rule validates this exact format, not every possible business identifier."
+      ],
+      "walkthrough": "The anchors require the whole string to match. The first class permits two lowercase letters, then a literal hyphen, then three digits. The rule validates this exact format, not every possible business identifier."
+    }
+  ],
+  "id": "sf_1c61a145dcbaba3a961baa8e",
+  "estimatedMinutes": 12
+}

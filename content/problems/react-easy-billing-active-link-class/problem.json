@@ -11,7 +11,7 @@
   "order": 30048,
   "exercise": "react-easy-billing-active-link-class",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Billing Active Link Class, read the story as a simple input-to-output rule: A React billing nav link needs active styling. Write a helper that returns \"link active\" when href exactly matches currentPath and \"link\" otherwise. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react and routing. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: billingActiveLinkClass(\"/home\", \"/home\") produces \"link active\". Evaluate the selection rule for every record and preserve the qualifying values in the required order.\n\nCompare “leaves other links inactive”: input [\"/settings\",\"/home\"] produces \"link\". Explain which rule causes the difference before writing code.",
+    "junior": "Evaluate the selection rule for every record and preserve the qualifying values in the required order.\n\nTempting mistake: Selecting a display position after a list changes can identify the wrong item. Use the domain key when matching two collections.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “leaves other links inactive”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

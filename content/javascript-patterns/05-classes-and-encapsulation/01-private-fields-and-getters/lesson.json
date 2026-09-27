@@ -1,0 +1,90 @@
+{
+  "title": "Private Fields and Getters",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A class bundles state with the methods that change it. Fields whose names start with # are truly private: code outside the class body cannot read or write them, and trying is a syntax error. Expose state through a getter to make it read-only from outside, and route every change through methods that enforce the rules (the invariants)."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "class Account {\n  #balance = 0;\n\n  get balance() {           // read with account.balance (no parentheses)\n    return this.#balance;\n  }\n\n  deposit(amount) {\n    if (amount <= 0) throw new Error(\"amount must be positive\");\n    this.#balance += amount;\n  }\n}\n\nconst account = new Account();\naccount.deposit(50);\naccount.balance;       // 50\naccount.balance = 999; // no setter: ignored, or a TypeError in strict mode\n// account.#balance    // SyntaxError outside the class"
+    },
+    {
+      "type": "prose",
+      "body": "Before # fields existed, JavaScript code used a leading underscore (this._balance) as a convention. It is only a hint; anyone can still change it. Closures (as in makeCounter) are the other way to get real privacy."
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Throwing from a method when a rule is broken keeps the object valid: a failed withdraw leaves the balance exactly as it was."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What happens if code outside the class runs `account.#balance`?",
+      "payload": {
+        "choices": [
+          "it returns the balance",
+          "it returns undefined",
+          "a SyntaxError",
+          "it creates a new public field"
+        ],
+        "answer": "a SyntaxError",
+        "explanation": "Private names are checked when the code is parsed; they can only be referenced inside the class body."
+      },
+      "conceptTags": [
+        "classes",
+        "encapsulation"
+      ],
+      "id": "sf_b8920871ee67aa70e4637245"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A class has `get total() { ... }` and no setter. How do you read it?",
+      "payload": {
+        "choices": [
+          "obj.total()",
+          "obj.getTotal()",
+          "obj.#total",
+          "obj.total"
+        ],
+        "answer": "obj.total",
+        "explanation": "Getters are read like properties, without parentheses."
+      },
+      "conceptTags": [
+        "classes",
+        "getters"
+      ],
+      "id": "sf_4a3179d1a23dd385cbf24eaa"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the syntax.",
+      "payload": {
+        "text": "Inside a class, a field declared as ____count = 0 is private to the class body.",
+        "blanks": [
+          "#"
+        ]
+      },
+      "conceptTags": [
+        "classes",
+        "encapsulation"
+      ],
+      "id": "sf_4e52c155e899bb706c344ff4"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Harden the Account class with a private #balance, a read-only getter and validation, then return the balance after each operation or the error message if it was rejected.",
+      "exercise": "account-log",
+      "conceptTags": [
+        "classes",
+        "encapsulation",
+        "error-handling"
+      ],
+      "id": "sf_d1f490fd9cf05d81aabb7ad5"
+    }
+  ],
+  "id": "sf_4fb388d7eaa79e060ad6e20b"
+}

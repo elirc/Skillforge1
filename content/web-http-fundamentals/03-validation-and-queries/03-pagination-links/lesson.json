@@ -1,0 +1,94 @@
+{
+  "title": "Pagination Metadata and Links",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A paged response should tell the client how to get the rest without making it build URLs. Two common places for that metadata: an envelope in the body (`{ items, page, pageSize, totalCount }`) or headers. The standard header is `Link` (RFC 8288), with `rel` values `first`, `prev`, `next`, and `last`."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "HTTP/1.1 200 OK\nContent-Type: application/json\nX-Total-Count: 95\nLink: </products?page=1&pageSize=20>; rel=\"first\", </products?page=1&pageSize=20>; rel=\"prev\", </products?page=3&pageSize=20>; rel=\"next\", </products?page=5&pageSize=20>; rel=\"last\"\n\n[ ...20 products... ]"
+    },
+    {
+      "type": "prose",
+      "body": "Offset paging (`page`, `pageSize`) is simple and supports jumping to page 7, but it gets slower on deep pages (the database still walks the skipped rows) and can repeat or skip items when rows are inserted meanwhile. **Cursor** (keyset) paging returns an opaque `next` token such as the last seen `(createdAt, id)`; it is fast and stable but only moves forward and backward."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "const res = await fetch(\"/products?page=1&pageSize=20\");\nconst next = res.headers.get(\"Link\")?.match(/<([^>]+)>;\\s*rel=\"next\"/)?.[1];\n// follow `next` until it is missing"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Keep existing filters in every link. A `next` link that drops `status=active` silently changes the result set on page 2."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "With 95 items and pageSize 20, how many pages are there?",
+      "payload": {
+        "choices": [
+          "4",
+          "4.75",
+          "5",
+          "6"
+        ],
+        "answer": "5",
+        "explanation": "ceil(95 / 20) = 5: four full pages and a last page of 15."
+      },
+      "conceptTags": [
+        "pagination"
+      ],
+      "id": "sf_7297c82e2cd8faf2ffee6bcf"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which is a real drawback of offset paging on a fast-changing table?",
+      "payload": {
+        "choices": [
+          "Inserts between requests can make items repeat or be skipped",
+          "It cannot sort",
+          "It requires HTTP/2",
+          "It only works with GET /products"
+        ],
+        "answer": "Inserts between requests can make items repeat or be skipped",
+        "explanation": "Offsets count rows at query time; a new row shifts everything after it. Cursor paging avoids that by continuing from the last seen key."
+      },
+      "conceptTags": [
+        "pagination",
+        "cursor"
+      ],
+      "id": "sf_2f700f605e9ebf455ef237c4"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the Link relation.",
+      "payload": {
+        "text": "The link to the following page uses rel=\"____\".",
+        "blanks": [
+          "next"
+        ]
+      },
+      "conceptTags": [
+        "pagination",
+        "headers"
+      ],
+      "id": "sf_9a4a53b257f9b6d0712e6b5c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Build a Link header with first/prev/next/last URLs for an offset-paged list, keeping existing query parameters.",
+      "exercise": "build-page-links",
+      "conceptTags": [
+        "pagination",
+        "headers",
+        "rest"
+      ],
+      "id": "sf_c21930463a2a2a9114ad23e1"
+    }
+  ],
+  "id": "sf_6a25309f62e84a11d49e761b"
+}

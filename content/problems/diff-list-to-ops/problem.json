@@ -1,0 +1,14 @@
+{
+  "slug": "diff-list-to-ops",
+  "title": "Diff Two Lists Into Save Operations",
+  "prompt": "An editable grid sends only what changed when the user clicks Save. Given the rows loaded from the server (`before`) and the rows in the grid (`after`), each `{ id, ...fields }` with unique ids and the same field names, return the operations to send: first `{ op: 'delete', id }` for rows that disappeared (in `before` order), then `{ op: 'update', id, changes }` for rows whose fields differ, where `changes` holds only the changed fields with their new values (in `after` order, fields in the row's key order), then `{ op: 'insert', item }` for new rows (in `after` order). Reordering rows is not a change.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["diffing", "maps", "crud", "objects"],
+  "order": 50019,
+  "exercise": "diff-list-to-ops",
+  "explanation": {
+    "beginner": "Comparing every row with every other row works but gets slow, so index both lists by id first: `new Map(before.map(r => [r.id, r]))`. Then three simple loops. Walk `before`: any id missing from the after-map is a delete. Walk `after`: an id missing from the before-map is an insert; otherwise compare each field with `!==` and collect the ones that differ into a `changes` object, and if there is at least one, emit an update. Collect deletes, updates and inserts in separate arrays and join them at the end, so the output order matches the prompt no matter where rows sit in the lists.",
+    "junior": "Indexing by id makes the diff O(n + m) instead of O(n * m). Sending only changed fields keeps PATCH payloads small and reduces write conflicts, which pairs well with optimistic concurrency. Ordering deletes before inserts matters for real databases: if a user deletes 'SKU-1' and adds a new row that reuses a unique column value, inserting first would violate the unique index. Use strict comparison, not truthiness, or a change from `1` to `0` or `true` to `false` is missed. Iterate `Object.keys(row)` of the after-row so `changes` has a stable key order (the test harness compares serialized JSON). Position is deliberately ignored; if order mattered you would add a `position` field or compute a longest-increasing-subsequence of moves, as React's reconciler and list-diff libraries do."
+  }
+}

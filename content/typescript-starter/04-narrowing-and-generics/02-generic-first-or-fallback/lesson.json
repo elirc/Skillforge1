@@ -17,15 +17,47 @@
       "prompt": "Complete the generic idea.",
       "payload": {
         "text": "A type parameter like ____ lets the function remember the caller's value type.",
-        "blanks": ["T"]
+        "blanks": [
+          "T"
+        ]
       },
-      "conceptTags": ["typescript", "generics"]
+      "conceptTags": [
+        "typescript",
+        "generics"
+      ],
+      "id": "sf_068e64eb6acba4c2dd437161"
     },
     {
       "type": "CODE",
       "prompt": "Return the first item, or the fallback when the array is empty.",
       "exercise": "first-or-fallback",
-      "conceptTags": ["typescript", "generics", "arrays"]
+      "conceptTags": [
+        "typescript",
+        "generics",
+        "arrays"
+      ],
+      "id": "sf_55bba8867121ead207b95f26"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does firstOrFallback([\"a\", \"b\"], \"none\") return as its type?",
+      "payload": {
+        "choices": [
+          "any",
+          "unknown",
+          "T",
+          "string"
+        ],
+        "answer": "string",
+        "explanation": "TypeScript infers T = string from the arguments, so the return type T becomes string."
+      },
+      "conceptTags": [
+        "typescript",
+        "generics",
+        "inference"
+      ],
+      "id": "sf_e1221cf5d0bc2f787cee1ee4"
     }
-  ]
+  ],
+  "id": "sf_6e672225b8bd5845a0f5736d"
 }

@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "info",
       "body": "Rule of thumb: EF Core DbContext is usually scoped per request. Do not inject a scoped DbContext into a singleton service."
+    },
+    {
+      "type": "prose",
+      "body": "The bug to name in an interview is the captive dependency: a longer-lived service holding a shorter-lived one. A singleton that takes a scoped `DbContext` keeps the first request's context forever, sharing it across threads and requests. It can also happen indirectly: a singleton that depends on a transient that depends on a scoped service captures that scoped service too, because the transient lives as long as whatever holds it. In Development, ASP.NET Core's scope validation throws when the root provider resolves a scoped service; `ValidateOnBuild` surfaces many of these at startup instead of on first request."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// A singleton hosted service must not inject AppDbContext directly.\npublic sealed class ReminderWorker(IServiceScopeFactory scopes) : BackgroundService\n{\n    protected override async Task ExecuteAsync(CancellationToken ct)\n    {\n        while (!ct.IsCancellationRequested)\n        {\n            await using var scope = scopes.CreateAsyncScope();\n            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();\n            await SendDueRemindersAsync(db, ct);\n            await Task.Delay(TimeSpan.FromMinutes(1), ct);\n        }\n    }\n}"
     }
   ],
   "knowledgeItems": [
@@ -21,20 +30,37 @@
       "type": "MCQ",
       "prompt": "Which lifetime is usually appropriate for an EF Core DbContext in a web app?",
       "payload": {
-        "choices": ["Scoped", "Singleton", "Static global", "Browser local"],
+        "choices": [
+          "Scoped",
+          "Singleton",
+          "Static global",
+          "Browser local"
+        ],
         "answer": "Scoped",
         "explanation": "A scoped DbContext acts as a unit of work for a request or operation."
       },
-      "conceptTags": ["dotnet", "dependency-injection", "ef-core"]
+      "conceptTags": [
+        "dotnet",
+        "dependency-injection",
+        "ef-core"
+      ],
+      "id": "sf_736d9224f981ece11b32fffc"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the DI warning.",
       "payload": {
         "text": "Do not inject a scoped DbContext into a ____ service.",
-        "blanks": ["singleton"]
+        "blanks": [
+          "singleton"
+        ]
       },
-      "conceptTags": ["dotnet", "dependency-injection", "lifetimes"]
+      "conceptTags": [
+        "dotnet",
+        "dependency-injection",
+        "lifetimes"
+      ],
+      "id": "sf_4e1b9bf89833cb164a3e6173"
     },
     {
       "type": "MCQ",
@@ -49,7 +75,60 @@
         "answer": "A stateless system clock abstraction",
         "explanation": "Singleton services should be thread-safe and not depend on request-scoped state."
       },
-      "conceptTags": ["dotnet", "dependency-injection", "singleton"]
+      "conceptTags": [
+        "dotnet",
+        "dependency-injection",
+        "singleton"
+      ],
+      "id": "sf_07a05024b6d838f0fddd74b7"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "`CatalogCache` (singleton) depends on `TemplateRenderer` (transient), which depends on `AppDbContext` (scoped). What is the problem?",
+      "payload": {
+        "choices": [
+          "Nothing: a transient in between makes the chain safe",
+          "The transient is recreated on every call, so the DbContext is too",
+          "The DbContext is captured for the singleton's whole lifetime, through the transient",
+          "Singletons cannot depend on transient services at all"
+        ],
+        "answer": "The DbContext is captured for the singleton's whole lifetime, through the transient",
+        "explanation": "A transient lives as long as the object that holds it. Held by a singleton, it becomes effectively a singleton, and so does the scoped service it captured."
+      },
+      "conceptTags": [
+        "dotnet",
+        "dependency-injection",
+        "lifetimes"
+      ],
+      "id": "sf_f10861570b89b16cbfb4ff74"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the background-service rule.",
+      "payload": {
+        "text": "A singleton BackgroundService that needs a DbContext should inject ____ and create a new scope for each unit of work.",
+        "blanks": [
+          "IServiceScopeFactory"
+        ]
+      },
+      "conceptTags": [
+        "dotnet",
+        "dependency-injection",
+        "background-services"
+      ],
+      "id": "sf_f3fdd631da99fe97bab25b4c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model ASP.NET Core scope validation: walk each singleton's dependency graph and report every path that captures a scoped service.",
+      "exercise": "find-captive-dependencies",
+      "conceptTags": [
+        "dotnet",
+        "dependency-injection",
+        "lifetimes"
+      ],
+      "id": "sf_59839fe89491ce6f89e28d93"
     }
-  ]
+  ],
+  "id": "sf_3ecaf84a84020d711437abdf"
 }

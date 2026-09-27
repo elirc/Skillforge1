@@ -1,0 +1,98 @@
+{
+  "title": "IEnumerable vs IQueryable",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "The same LINQ syntax runs in two very different ways. On an `IEnumerable<T>`, operators take **delegates** (`Func<T, bool>`) and run as C# code over objects already in memory. On an `IQueryable<T>`, operators take **expression trees** (`Expression<Func<T, bool>>`): data structures describing the code, which a provider such as EF Core translates into SQL and runs in the database."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "IQueryable<Order> query = db.Orders;              // nothing sent yet\n\nvar page = await query\n    .Where(o => o.Status == \"paid\")               // becomes WHERE\n    .OrderByDescending(o => o.Total)              // becomes ORDER BY\n    .Take(20)                                     // becomes LIMIT / TOP\n    .ToListAsync();                               // one SQL query, 20 rows\n\n// Switching to IEnumerable too early moves the work to the web server:\nvar slow = db.Orders.AsEnumerable()               // SELECT * FROM Orders\n    .Where(o => o.Status == \"paid\")               // filtered in memory\n    .Take(20)\n    .ToList();"
+    },
+    {
+      "type": "prose",
+      "body": "What counts as translatable is provider-specific: comparisons, arithmetic, many string methods, and navigation properties usually work, but a call to your own C# method does not. Since EF Core 3.0 an untranslatable expression in the final query **throws** rather than silently pulling the table into memory. When you truly need in-memory logic, filter as much as possible in SQL first, then call `AsEnumerable()` explicitly so the switch is visible in review."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "static bool IsBigSpender(Order o) => o.Total > 1000m;\n\n// Throws InvalidOperationException: \"could not be translated\".\n// db.Orders.Where(o => IsBigSpender(o)).ToList();\n\nvar big = db.Orders\n    .Where(o => o.Status == \"paid\")               // SQL narrows the rows first\n    .AsEnumerable()                               // explicit hand-off to memory\n    .Where(IsBigSpender)\n    .ToList();"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "A method that returns `IQueryable<T>` lets callers keep composing SQL; one that returns `IEnumerable<T>` quietly ends translation at that point. Returning a materialized `IReadOnlyList<T>` from a repository makes that boundary explicit."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does IQueryable<T>.Where take as its predicate argument?",
+      "payload": {
+        "choices": [
+          "A compiled Func<T, bool> delegate",
+          "A SQL string",
+          "An IComparer<T>",
+          "An Expression<Func<T, bool>> that a provider can translate"
+        ],
+        "answer": "An Expression<Func<T, bool>> that a provider can translate",
+        "explanation": "Queryable operators accept expression trees so providers like EF Core can inspect the lambda and turn it into SQL. Enumerable operators take compiled delegates."
+      },
+      "conceptTags": [
+        "linq",
+        "iqueryable",
+        "ef-core"
+      ],
+      "id": "sf_0499c41bd82ec2195cff833b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "`db.Orders.AsEnumerable().Where(o => o.Status == \"paid\").Take(10)` runs against a 1M-row table. Roughly how many rows leave the database?",
+      "payload": {
+        "choices": [
+          "10 rows",
+          "Only the paid rows",
+          "None, because it throws",
+          "All 1M rows"
+        ],
+        "answer": "All 1M rows",
+        "explanation": "AsEnumerable ends SQL translation, so the query is SELECT * FROM Orders and the filter and Take run in memory."
+      },
+      "conceptTags": [
+        "linq",
+        "iqueryable",
+        "performance"
+      ],
+      "id": "sf_1d1d8930ac5e54ceed281ebd"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the sentence.",
+      "payload": {
+        "text": "Calling ____() on a query explicitly switches the rest of the chain from SQL to in-memory LINQ to Objects.",
+        "blanks": [
+          "AsEnumerable"
+        ]
+      },
+      "conceptTags": [
+        "linq",
+        "iqueryable"
+      ],
+      "id": "sf_2ac202e735f2be99cfb6812c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model which steps of a query chain run as SQL and which run in memory, how many rows cross the wire, and when translation fails.",
+      "exercise": "query-plan",
+      "conceptTags": [
+        "linq",
+        "iqueryable",
+        "ef-core",
+        "performance"
+      ],
+      "id": "sf_940ce1f9861f3b9059e12d82"
+    }
+  ],
+  "id": "sf_e324f3018d2af24d13049959"
+}

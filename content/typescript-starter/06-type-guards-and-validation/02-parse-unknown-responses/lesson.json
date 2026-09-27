@@ -1,0 +1,98 @@
+{
+  "title": "Parse Unknown API Responses",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "await response.json() returns any, and writing const product: Product = await response.json() only silences the compiler: nothing checks the server actually sent a Product. Treat every response body as unknown and parse it into your own type at the edge of the app. After that one function, the rest of your code can trust the types."
+    },
+    {
+      "type": "prose",
+      "body": "An assertion function is a handy tool for this. Its return type is asserts condition (or asserts value is T). If the function returns normally, TypeScript narrows as if you had written an if; if the check fails, it throws. That keeps a long validation readable as a straight list of checks."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function check(condition: unknown, message: string): asserts condition {\n  if (!condition) throw new Error(message);\n}\n\nfunction parseUser(body: unknown): { id: number; name: string } {\n  check(typeof body === \"object\" && body !== null, \"body is not an object\");\n  const { id, name } = body as Record<string, unknown>;\n  check(typeof id === \"number\", \"id must be a number\");\n  check(typeof name === \"string\", \"name must be a string\");\n  return { id, name }; // both narrowed by the assertions above\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Parse, do not just validate: return a new object in your own shape (trimmed strings, cents instead of floating dollars, defaults for missing optional fields). The rest of the app then never sees the raw wire format."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A type assertion like body as Product is not a check. It tells the compiler to believe you, and it is the most common way wrong data slips past TypeScript."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does const user = (await res.json()) as User guarantee at runtime?",
+      "payload": {
+        "choices": [
+          "That every User field is present",
+          "Nothing; it only changes the compile-time type",
+          "That the response status was 200",
+          "That extra fields are removed"
+        ],
+        "answer": "Nothing; it only changes the compile-time type",
+        "explanation": "as is erased during compilation. Only runtime checks (a guard, a parser, a schema library) can confirm the shape."
+      },
+      "conceptTags": [
+        "typescript",
+        "unknown",
+        "validation"
+      ],
+      "id": "sf_b05e76fd64c6d8be6346cd4e"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the assertion function signature.",
+      "payload": {
+        "text": "function check(condition: unknown, message: string): ____ condition",
+        "blanks": [
+          "asserts"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "assertion-functions"
+      ],
+      "id": "sf_985c7661106c0c7a90ae28d9"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What happens after check(typeof id === \"number\", \"bad id\") returns normally?",
+      "payload": {
+        "choices": [
+          "Nothing changes; id is still unknown",
+          "id is converted to a number",
+          "The function returns early",
+          "id is narrowed to number for the rest of the scope"
+        ],
+        "answer": "id is narrowed to number for the rest of the scope",
+        "explanation": "An asserts condition function narrows just like an if statement that throws on the false branch."
+      },
+      "conceptTags": [
+        "typescript",
+        "assertion-functions",
+        "narrowing"
+      ],
+      "id": "sf_b432aa8df97ee0b26001f5fa"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Parse an unknown API body into a Product result: check id, title, price, and tags in order, report the first error, and convert price in dollars to priceCents.",
+      "exercise": "parse-product",
+      "conceptTags": [
+        "typescript",
+        "unknown",
+        "assertion-functions",
+        "validation"
+      ],
+      "id": "sf_0db2a8cb97f779b55f4f35e2"
+    }
+  ],
+  "id": "sf_cc6c2ebfc22d3ef13f1923af"
+}

@@ -1,0 +1,120 @@
+{
+  "title": "Capstone: Todo List Logic",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Time to combine everything: objects, arrays, loops, guard clauses, `map`, `filter`, and immutable updates. You will write the logic behind a todo app with no screen at all: a function that takes a list of commands and returns the final state. Keeping logic separate from the screen makes it easy to test."
+    },
+    {
+      "type": "prose",
+      "body": "The plan, in small steps:\n- start with an empty list and `nextId = 1`\n- loop over the commands and handle one `type` at a time\n- **add**: trim the text, skip it if blank, push a new todo, then increase `nextId`\n- **toggle** and **rename**: `map` over todos and replace only the matching id\n- **remove** and **clearDone**: `filter` todos out\n- at the end, count the todos that are not done"
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "let todos = [];\nlet nextId = 1;\n\n// add (immutable: build a new array instead of changing the old one)\ntodos = [...todos, { id: nextId, text: \"Read lesson\", done: false }];\nnextId += 1;\n\n// toggle id 1\ntodos = todos.map((t) => (t.id === 1 ? { ...t, done: !t.done } : t));\n\n// remove id 1\ntodos = todos.filter((t) => t.id !== 1);\n\nconst remaining = todos.filter((t) => !t.done).length;"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Never reuse ids. If todo 2 is removed and a new todo also got id 2, an old \"toggle 2\" command would hit the wrong item. A counter that only goes up avoids that."
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "This command-in, state-out shape is exactly how reducers work in React and Redux. You are learning the core idea behind real app state management."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Use stable IDs to identify records, pure transformations to produce the next list, and explicit contracts for add, update, and remove. The changed record is copied; unchanged records can safely retain their identity."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const before = [{id:'a',done:false},{id:'b',done:true}];\nconst after = before.map(todo =>\n  todo.id === 'a' ? {...todo, done:true} : todo\n);"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Using a display position as an ID can update the wrong record after filtering or sorting."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Write a sequence test: add two records, filter the view, update one by ID, then delete the other.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which array method fits \"mark todo 3 as done, keep everything else the same\"?",
+      "payload": {
+        "choices": [
+          "map",
+          "filter",
+          "find",
+          "some"
+        ],
+        "answer": "map",
+        "explanation": "map returns a new array of the same length, so you can replace just the matching todo with an updated copy."
+      },
+      "conceptTags": [
+        "arrays",
+        "immutability"
+      ],
+      "id": "sf_54f82709af938845a2585945"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why not use `todos.length + 1` as the next id?",
+      "payload": {
+        "choices": [
+          "length is always 0",
+          "It is slower than a counter",
+          "Ids must be strings",
+          "After a remove, a new todo could get an id that is already in use"
+        ],
+        "answer": "After a remove, a new todo could get an id that is already in use",
+        "explanation": "With todos 1 and 2, removing 1 leaves length 1, so the next id would be 2 again, a duplicate."
+      },
+      "conceptTags": [
+        "state",
+        "ids"
+      ],
+      "id": "sf_b8ede8a8dd10515bb1988787"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the removal.",
+      "payload": {
+        "text": "todos = todos.____((t) => t.id !== idToRemove);",
+        "blanks": [
+          "filter"
+        ]
+      },
+      "conceptTags": [
+        "arrays",
+        "filter"
+      ],
+      "id": "sf_749ad7051668f6d8eee130df"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write runTodos(commands). Commands are { type: \"add\", text }, { type: \"toggle\", id }, { type: \"rename\", id, text }, { type: \"remove\", id }, and { type: \"clearDone\" }. Ids start at 1 and are never reused. Trim text and ignore blank adds or renames. Unknown ids and types do nothing. Return { todos, remaining }.",
+      "exercise": "run-todos",
+      "conceptTags": [
+        "arrays",
+        "objects",
+        "immutability",
+        "state"
+      ],
+      "id": "sf_759342df431f111ab343a2fd",
+      "hints": [
+        "Using a display position as an ID can update the wrong record after filtering or sorting.",
+        "Use stable IDs to identify records, pure transformations to produce the next list, and explicit contracts for add, update, and remove. The changed record is copied; unchanged records can safely retain their identity."
+      ],
+      "walkthrough": "Use stable IDs to identify records, pure transformations to produce the next list, and explicit contracts for add, update, and remove. The changed record is copied; unchanged records can safely retain their identity."
+    }
+  ],
+  "id": "sf_8b232d6022de49a20e4324dc",
+  "estimatedMinutes": 12
+}

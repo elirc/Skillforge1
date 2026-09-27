@@ -17,15 +17,26 @@
       "prompt": "Complete the safe-increment pattern.",
       "payload": {
         "text": "counts[word] = (counts[word] ?? 0) + ____ adds one, treating a missing key as 0.",
-        "blanks": ["1"]
+        "blanks": [
+          "1"
+        ]
       },
-      "conceptTags": ["objects", "counting"]
+      "conceptTags": [
+        "objects",
+        "counting"
+      ],
+      "id": "sf_66e7c008d72c16412c6fb620"
     },
     {
       "type": "CODE",
       "prompt": "Return an object mapping each word to how many times it appears in the list.",
       "exercise": "tally",
-      "conceptTags": ["objects", "counting"]
+      "conceptTags": [
+        "objects",
+        "counting"
+      ],
+      "id": "sf_c68d62c0165cbf2df3daeb5a"
     }
-  ]
+  ],
+  "id": "sf_8a3efc938bdd123af4876ffb"
 }

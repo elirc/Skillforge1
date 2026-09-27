@@ -1,0 +1,103 @@
+{
+  "title": "Strings and f-strings",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Python strings can use single or double quotes; they mean the same thing. Triple quotes (\"\"\" or ''') allow multi-line text. The equivalent of a JavaScript template literal is an f-string: put f before the opening quote and write expressions inside {braces}. A format spec after a colon controls output, such as :.2f for two decimals."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "name = \"Ada\"\nprice = 3.5\nprint(f\"Hi {name}, you owe ${price:.2f}\")  # Hi Ada, you owe $3.50\nprint(f\"{name.upper()} has {len(name)} letters\")\ncount = 3\nprint(f\"{count=}\")  # count=3  (handy for debugging)"
+    },
+    {
+      "type": "prose",
+      "body": "Python never converts numbers to strings implicitly: \"5\" + 5 raises a TypeError rather than producing \"55\". Convert explicitly with str(5) or int(\"5\"). Strings are indexed and sliced like lists, and negative indices count from the end."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "word = \"python\"\nprint(word[0], word[-1])  # p n\nprint(word[1:4])          # yth  (start included, end excluded)\nprint(\"-\" * 5)            # -----\nprint(\", \".join([\"a\", \"b\", \"c\"]))  # a, b, c"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "join is a method on the separator string, not on the list: \", \".join(items), the reverse of JavaScript's items.join(\", \")."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does print(\"5\" + 5) do in Python?",
+      "payload": {
+        "choices": [
+          "prints 55",
+          "prints 10",
+          "prints 5 5",
+          "raises a TypeError"
+        ],
+        "answer": "raises a TypeError",
+        "explanation": "Python does not coerce between str and int. Use str(5) or int(\"5\") explicitly."
+      },
+      "conceptTags": [
+        "strings",
+        "types"
+      ],
+      "id": "sf_3b82d67db27c7cb725d07984"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does print(\"python\"[1:4]) print?",
+      "payload": {
+        "choices": [
+          "pyt",
+          "yth",
+          "ytho",
+          "ython"
+        ],
+        "answer": "yth",
+        "explanation": "A slice includes the start index (1, 'y') and stops before the end index (4, 'o')."
+      },
+      "conceptTags": [
+        "strings",
+        "slicing"
+      ],
+      "id": "sf_871fa15b4a074dcf2713d707"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With total = 2.5, what does print(f\"{total:.2f}\") print?",
+      "payload": {
+        "choices": [
+          "2.5",
+          "2.50",
+          "{total:.2f}",
+          "2"
+        ],
+        "answer": "2.50",
+        "explanation": "The format spec .2f always shows exactly two decimal places."
+      },
+      "conceptTags": [
+        "strings",
+        "f-strings"
+      ],
+      "id": "sf_e88c70fe35184401b7ffde24"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the f-string.",
+      "payload": {
+        "text": "To embed a variable in a string write ____\"Hello {name}\".",
+        "blanks": [
+          "f"
+        ]
+      },
+      "conceptTags": [
+        "strings",
+        "f-strings"
+      ],
+      "id": "sf_3d6dc968a05bf900118b3128"
+    }
+  ],
+  "id": "sf_b65c93ee44a621df31e55d5c"
+}

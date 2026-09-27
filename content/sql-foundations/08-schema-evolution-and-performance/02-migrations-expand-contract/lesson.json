@@ -1,0 +1,104 @@
+{
+  "title": "Migrations in Practice: Expand and Contract",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "During a deploy, old and new versions of your app run at the same time, against the same database. A safe migration therefore keeps the schema compatible with **both** versions. The pattern is **expand, migrate, contract**:\n- **Expand:** add things (a nullable column, a new table) that old code simply ignores\n- **Migrate:** deploy code that writes both old and new shapes, then backfill existing rows\n- **Contract:** once nothing reads the old shape, add constraints and drop what is obsolete"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Goal: users.display_name NOT NULL\n\n-- 1. Expand: nullable, so old code's INSERTs keep working\nALTER TABLE users ADD display_name nvarchar(100) NULL;\n\n-- 2. Deploy code that writes display_name on every insert/update.\n-- 3. Backfill old rows in small batches\nUPDATE TOP (1000) users SET display_name = full_name\nWHERE display_name IS NULL;          -- repeat until 0 rows affected\n\n-- 4. Contract: enforce it once no NULLs remain\nALTER TABLE users ALTER COLUMN display_name nvarchar(100) NOT NULL;"
+    },
+    {
+      "type": "prose",
+      "body": "Why not `ADD display_name ... NOT NULL DEFAULT ''` in one step? On many engines that is fast, but the default is a lie your code must then special-case. And a single `UPDATE users SET ...` over millions of rows holds locks for a long time, bloats the transaction log, and cannot be paused. Batches keyed by `id` keep each transaction short and let the job resume where it stopped."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Keyset batching: resumable and index-friendly\nUPDATE users SET display_name = full_name\nWHERE id IN (SELECT TOP (1000) id FROM users\n             WHERE id > @lastId AND display_name IS NULL\n             ORDER BY id);"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Renaming or dropping a column in one migration breaks the old version still serving traffic. Rename = add new column, dual-write, backfill, switch reads, and only then drop the old column in a later deploy."
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "EF Core tip: generate the migration, then **read the SQL** (`dotnet ef migrations script`). Split risky steps into separate migrations that ship with separate deploys."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is the safe first step to add a required column to a large, busy table?",
+      "payload": {
+        "choices": [
+          "Add it NOT NULL and deploy the code afterwards",
+          "Drop and recreate the table with the new column",
+          "Rename the table so old code stops using it",
+          "Add it as NULL-able, then backfill and add NOT NULL later"
+        ],
+        "answer": "Add it as NULL-able, then backfill and add NOT NULL later",
+        "explanation": "A nullable column is invisible to old code. The constraint comes last, once every row has a value."
+      },
+      "conceptTags": [
+        "sql",
+        "migrations",
+        "expand-contract"
+      ],
+      "id": "sf_b60f2c055e43d07702d0f41e"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the pattern name.",
+      "payload": {
+        "text": "Zero-downtime schema changes follow expand, migrate, and ____.",
+        "blanks": [
+          "contract"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "migrations"
+      ],
+      "id": "sf_8aed5bb013e962983a535c94"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why backfill in batches of about 1000 rows instead of one UPDATE?",
+      "payload": {
+        "choices": [
+          "Short transactions hold locks briefly and the job can resume after a failure",
+          "UPDATE cannot change more than 1000 rows",
+          "Batches make the column NOT NULL automatically",
+          "Indexes are only used for small updates"
+        ],
+        "answer": "Short transactions hold locks briefly and the job can resume after a failure",
+        "explanation": "One huge UPDATE blocks other writers, fills the log, and rolls back everything if it fails at 99%."
+      },
+      "conceptTags": [
+        "sql",
+        "migrations",
+        "backfill",
+        "locking"
+      ],
+      "id": "sf_b4689320c0f8970f15807d6e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model the keyset backfill. Collect ids whose displayName is null (an empty string is a value), sort them ascending, and chunk them into batches of batchSize. Return `{ batches, rows, readyForNotNull }`: rows sorted by id with null displayNames set to fullName (copies, no mutation), and readyForNotNull true once no row has a null.",
+      "exercise": "backfill-batches",
+      "conceptTags": [
+        "sql",
+        "migrations",
+        "backfill",
+        "keyset"
+      ],
+      "id": "sf_db24c6a08659a88a38d1740b"
+    }
+  ],
+  "id": "sf_8468e8fa38e612681c63e081"
+}

@@ -1,0 +1,14 @@
+{
+  "slug": "autocomplete-top-k",
+  "title": "Autocomplete Top Suggestions",
+  "prompt": "A search box suggests popular past searches. `history` is a list of `{ term, count }`; terms are compared case-insensitively (store them lowercase), and repeated terms add their counts together. For each prefix in `queries`, trim it and lowercase it, then return up to `k` stored terms that start with it, most popular first and alphabetically for ties. An empty prefix suggests nothing. Return one array of suggestions per query. Build a trie so each query only looks at matching terms.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["trie", "strings", "sorting", "search"],
+  "order": 50020,
+  "exercise": "autocomplete-top-k",
+  "explanation": {
+    "beginner": "A trie is a tree where each step down is one letter. Inserting 'redux' creates (or reuses) the nodes r, re, red, redu, redux and marks the last one with its count. To answer the prefix 're', walk down r then e; every term that starts with 're' lives somewhere below that node, so collect them with a simple recursive walk that builds up the word as it goes. Then sort the matches by count (highest first), break ties alphabetically, and keep the first k. Normalize everything to lowercase before inserting and before searching, and add to the existing count when the same term appears twice.",
+    "junior": "Building the trie is O(total characters). A query costs O(p) to reach the prefix node plus O(m log m) to sort its m matches; for a large vocabulary, cache the top-k list on every node during insertion so a query becomes O(p + k), which is how production typeahead works (usually precomputed offline). Children as a `Map<string, Node>` avoids prototype keys and keeps insertion order. Details the tests check: counts for 'React Hooks' and 'react hooks' merge; a term that is itself a prefix of another term ('java' vs 'javascript') must be returned when it is terminal, so check the terminal flag on the prefix node itself, not only on descendants; the comparator must be `b.count - a.count || a.term.localeCompare(b.term)`; an empty or whitespace prefix should not dump the whole vocabulary."
+  }
+}

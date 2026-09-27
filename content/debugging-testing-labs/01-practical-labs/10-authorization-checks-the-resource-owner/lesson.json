@@ -1,0 +1,73 @@
+{
+  "id": "sf_84df67981b39c07c895bf37b",
+  "title": "Authorization checks the resource owner",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Authentication proves who is making a request. Authorization asks whether that caller may act on this particular resource. The faulty function accepts every signed-in user. The regression must include a signed-in nonowner, since anonymous and owner-only tests would both pass and leave the access-control bug uncovered."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export function canEdit(actor: string | null, owner: string): boolean { return actor !== null; }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [\"alice\",\"bob\"]. The required result is false. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix canEdit and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A hidden Edit button cannot replace a server-side ownership check."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_cc4f42c8748d59a02c5ddc84",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "authorization",
+        "security"
+      ],
+      "payload": {
+        "choices": [
+          "It only repeats a happy-path example",
+          "It accepts whatever the current implementation returns",
+          "It fails on the original implementation and passes on the corrected contract"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Require an authenticated actor whose identity matches the resource owner."
+      }
+    },
+    {
+      "id": "sf_1444a38832a3f20f9e768e29",
+      "type": "CODE",
+      "prompt": "Fix canEdit and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "authorization",
+        "security"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Require an authenticated actor whose identity matches the resource owner.",
+        "A hidden Edit button cannot replace a server-side ownership check."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "function canEdit(actor, owner) { return actor !== null && actor === owner; }\n",
+        "mutants": [
+          "function canEdit(actor, owner) { return actor !== null; }\n"
+        ]
+      },
+      "walkthrough": "Require an authenticated actor whose identity matches the resource owner.\nA hidden Edit button cannot replace a server-side ownership check."
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "sf_b2e2c627efbda9e0345a1244",
+  "title": "Atomic stock decrement",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A read-then-write sequence can race: two callers both see enough stock and then overwrite each other. Put the stock check and decrement in one UPDATE predicate. The database evaluates the condition and change as one statement. The affected-row count tells the caller whether the reservation succeeded; this lab verifies the resulting stock directly."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Inspect the fixture first, then write your query.\nSELECT * FROM products ORDER BY id;"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"setup\":\"CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);\",\"params\":{\"$sku\":\"BOOK\",\"$quantity\":3},\"verify\":\"SELECT sku,stock FROM products WHERE sku='BOOK';\"}]. The required result is [{\"sku\":\"BOOK\",\"stock\":2}]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Decrement the named SKU only for a positive quantity with sufficient stock; otherwise leave it unchanged."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A later unconditional UPDATE can undo this guarantee even if the earlier check was correct."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which boundary case would fail if the main comparison, join, or ordering were changed? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed business data case checks a different boundary.\n\n**Transfer it.** Apply the same contract to the Inventory Desk repository. Keep SQL parameters separate from values and compare results against a hand-calculated fixture."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_c41a8f5c6949e8cfc9ac98a8",
+      "type": "MCQ",
+      "prompt": "Where must the sufficient-stock condition be enforced?",
+      "conceptTags": [
+        "sql",
+        "transactions",
+        "concurrency"
+      ],
+      "payload": {
+        "choices": [
+          "Only in an earlier SELECT",
+          "Inside the atomic UPDATE predicate",
+          "Only in the disabled state of a UI button"
+        ],
+        "answer": "Inside the atomic UPDATE predicate",
+        "explanation": "The condition must be evaluated against the value being changed."
+      }
+    },
+    {
+      "id": "sf_9c5bc40077c87a682dd9fe1c",
+      "type": "CODE",
+      "prompt": "Decrement the named SKU only for a positive quantity with sufficient stock; otherwise leave it unchanged.",
+      "conceptTags": [
+        "sql",
+        "transactions",
+        "concurrency"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The condition must be evaluated against the value being changed.",
+        "A later unconditional UPDATE can undo this guarantee even if the earlier check was correct."
+      ],
+      "walkthrough": "The condition must be evaluated against the value being changed.\nA later unconditional UPDATE can undo this guarantee even if the earlier check was correct."
+    }
+  ]
+}

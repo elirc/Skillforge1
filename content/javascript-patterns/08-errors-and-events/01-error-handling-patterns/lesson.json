@@ -1,0 +1,128 @@
+{
+  "title": "Error Handling Patterns",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Throwing new Error(\"something failed\") tells a caller that something went wrong but not what kind of problem it was. Callers end up matching on message strings, which break as soon as someone rewords a message. A custom error class gives each failure a type you can check with instanceof, plus structured fields such as the field name that failed validation."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "class ValidationError extends Error {\n  constructor(message, field) {\n    super(message);\n    this.name = \"ValidationError\";   // shows up in stack traces and logs\n    this.field = field;\n  }\n}\n\nfunction parseAge(input) {\n  const age = Number(input);\n  if (!Number.isInteger(age) || age < 0) {\n    throw new ValidationError(\"age must be a whole number\", \"age\");\n  }\n  return age;\n}\n\ntry {\n  parseAge(\"abc\");\n} catch (error) {\n  if (error instanceof ValidationError) {\n    console.log(error.field, error.message); // age age must be a whole number\n  } else {\n    throw error;                              // not ours: let it propagate\n  }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "When you catch a low-level error and throw a more meaningful one, do not throw away the original. The cause option (ES2022) keeps it attached, so logs show the whole chain: what the program was trying to do and what actually broke underneath."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "async function loadSettings(path) {\n  try {\n    return JSON.parse(await readFile(path, \"utf8\"));\n  } catch (error) {\n    throw new Error(`could not load settings from ${path}`, { cause: error });\n  }\n}\n\n// later, in a top-level handler:\n// error.message        -> \"could not load settings from app.json\"\n// error.cause.message  -> \"Unexpected token } in JSON at position 42\""
+    },
+    {
+      "type": "prose",
+      "body": "Exceptions are best for unexpected failures. For outcomes a caller must handle, such as validation of user input, many codebases return a result object instead: { ok: true, value } or { ok: false, error }. The caller cannot forget the failure case, because it has to check ok before it can reach the value, and batch processing can keep going past one bad row."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function tryParseAge(input) {\n  try {\n    return { ok: true, value: parseAge(input) };\n  } catch (error) {\n    if (error instanceof ValidationError) {\n      return { ok: false, error: { field: error.field, message: error.message } };\n    }\n    throw error;   // a bug, not bad input: still an exception\n  }\n}\n\nconst results = [\"42\", \"-1\"].map(tryParseAge);\n// [{ ok: true, value: 42 }, { ok: false, error: { field: \"age\", message: \"...\" } }]"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "catch (error) {} with an empty body swallows every error, including your own bugs. Catch narrowly: check the type, handle what you expect, and rethrow the rest."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Set this.name in custom errors. Without it the error prints as a generic Error, and loggers that group by name cannot tell your failures apart."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why check error instanceof ValidationError instead of matching error.message?",
+      "payload": {
+        "choices": [
+          "the type survives message rewording and can carry extra fields",
+          "instanceof is faster than string comparison",
+          "messages are not available in catch blocks",
+          "instanceof also catches syntax errors"
+        ],
+        "answer": "the type survives message rewording and can carry extra fields",
+        "explanation": "Messages are for humans and change; types and fields are a contract for code."
+      },
+      "conceptTags": [
+        "errors",
+        "custom-errors"
+      ],
+      "id": "sf_dfde6024ff2f7f18fd3e3c51"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does new Error(\"save failed\", { cause: err }) add compared with new Error(\"save failed\")?",
+      "payload": {
+        "choices": [
+          "an automatic retry",
+          "a longer message that includes err.message",
+          "an error.cause property pointing at the original error",
+          "nothing; the option is ignored"
+        ],
+        "answer": "an error.cause property pointing at the original error",
+        "explanation": "cause keeps the underlying error attached so the full chain can be logged."
+      },
+      "conceptTags": [
+        "errors",
+        "error-cause"
+      ],
+      "id": "sf_8cf5badbfc0d9cee5926b01b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "In the lesson's tryParseAge, what happens when parseAge throws a TypeError?",
+      "payload": {
+        "choices": [
+          "it becomes { ok: false, ... }",
+          "it is silently ignored",
+          "it is rethrown",
+          "it becomes { ok: true, value: undefined }"
+        ],
+        "answer": "it is rethrown",
+        "explanation": "Only expected ValidationErrors become results; anything else is a bug and keeps propagating."
+      },
+      "conceptTags": [
+        "errors",
+        "result-objects"
+      ],
+      "id": "sf_44c2f5a711f1edbe5a6ab41b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the error type.",
+      "payload": {
+        "text": "In a custom error constructor, setting this.____ = \"ValidationError\" makes logs and stack traces show the right type.",
+        "blanks": [
+          "name"
+        ]
+      },
+      "conceptTags": [
+        "errors",
+        "custom-errors"
+      ],
+      "id": "sf_1630ed521fbffd874dd7b9ec"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Import rows with a ValidationError class and result objects, so one bad row no longer aborts the whole batch.",
+      "exercise": "import-rows",
+      "conceptTags": [
+        "errors",
+        "custom-errors",
+        "result-objects"
+      ],
+      "id": "sf_21f731d6b90af0e7ee28d6d1"
+    }
+  ],
+  "id": "sf_ad07bdf9ccee2420e5a68328"
+}

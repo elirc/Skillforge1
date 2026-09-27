@@ -1,0 +1,66 @@
+{
+  "id": "sf_c858d0a698655244b3005ed6",
+  "title": "Nullable values and absence",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A nullable annotation documents that absence is allowed. Before calling a method on a possibly missing string, narrow it with an appropriate check. IsNullOrWhiteSpace treats null, an empty string, and whitespace-only input as absent for this display rule. That is broader than a null-coalescing operator, which handles null only."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static string DisplayName(string? name)\n    {\n        return \"Guest\";\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [\" Ada \"]. The required result is \"Ada\". Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return a trimmed nonblank name or Guest for null, empty, or whitespace input."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "The null-forgiving operator silences a warning but does not prevent a null reference at runtime."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which values count as missing for a database column versus a form field? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the blank case checks a different boundary.\n\n**Transfer it.** Map optional API fields explicitly instead of scattering null-forgiving operators."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_8777411e4f705fd2872c9f3b",
+      "type": "MCQ",
+      "prompt": "Does name ?? Guest replace a whitespace-only name?",
+      "conceptTags": [
+        "nullability",
+        "validation",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "No, it replaces only null",
+          "Yes, all blank input is replaced",
+          "It removes leading spaces"
+        ],
+        "answer": "No, it replaces only null",
+        "explanation": "Null coalescing and whitespace validation implement different contracts."
+      }
+    },
+    {
+      "id": "sf_9e56ad7cf4c397d2498728c7",
+      "type": "CODE",
+      "prompt": "Return a trimmed nonblank name or Guest for null, empty, or whitespace input.",
+      "conceptTags": [
+        "nullability",
+        "validation",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Null coalescing and whitespace validation implement different contracts.",
+        "The null-forgiving operator silences a warning but does not prevent a null reference at runtime."
+      ],
+      "walkthrough": "Null coalescing and whitespace validation implement different contracts.\nThe null-forgiving operator silences a warning but does not prevent a null reference at runtime."
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "title": "Modules, Imports, and __name__",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Every .py file is a module. Importing it runs the file once, top to bottom, and gives you an object whose attributes are the file's top-level names. A directory of modules is a package. This is close to JavaScript ES modules, with one big difference: Python has no export keyword. Every top-level name is importable; a leading underscore only signals 'internal, please don't'."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "# pricing.py\nTAX_RATE = 0.2\n\ndef with_tax(amount):\n    return round(amount * (1 + TAX_RATE), 2)\n\ndef _internal_helper():      # importable, but the underscore says \"private\"\n    ...\n\n# app.py\nimport pricing                       # whole module, use pricing.with_tax\nfrom pricing import with_tax         # one name, like import { withTax }\nfrom pricing import with_tax as wt   # renamed, like import { withTax as wt }\nimport json, os.path                 # standard-library modules\n\nprint(pricing.with_tax(10))  # 12.0\nprint(wt(5))                 # 6.0"
+    },
+    {
+      "type": "prose",
+      "body": "Python caches imported modules in sys.modules, so a second import of the same module does not run its code again. Imports are resolved against sys.path, which starts with the directory of the script you ran, then the standard library, then installed packages. Naming your own file json.py or random.py shadows the standard-library module of the same name, a classic source of confusing errors."
+    },
+    {
+      "type": "prose",
+      "body": "Because importing runs the file, a module needs a way to tell 'I was run directly' from 'I was imported'. Python sets the module-level variable __name__ to the string \"__main__\" for the file you ran, and to the module's own name (such as \"pricing\") when it is imported."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "# greet.py\ndef greet(name):\n    return f\"Hello, {name}!\"\n\nprint(\"loading greet, __name__ =\", __name__)\n\nif __name__ == \"__main__\":\n    # runs for: python greet.py\n    # skipped for: import greet\n    print(greet(\"world\"))"
+    },
+    {
+      "type": "code-example",
+      "language": "bash",
+      "code": "$ python greet.py\nloading greet, __name__ = __main__\nHello, world!\n\n$ python -c \"import greet\"\nloading greet, __name__ = greet"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Put script behaviour (parsing arguments, printing, starting a server) inside the if __name__ == \"__main__\": block, or in a main() function called from it. Then tests and other modules can import your functions without side effects. python -m package.module runs a module as a script with the same rule."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "from module import * copies every public name into your namespace. It hides where names come from and can silently overwrite your own; avoid it outside the interactive prompt."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "When greet.py from the lesson is imported with import greet, what is __name__ inside greet.py?",
+      "payload": {
+        "choices": [
+          "\"__main__\"",
+          "None",
+          "\"greet\"",
+          "\"greet.py\""
+        ],
+        "answer": "\"greet\"",
+        "explanation": "An imported module's __name__ is its module name. Only the file you run directly gets \"__main__\"."
+      },
+      "conceptTags": [
+        "modules",
+        "imports"
+      ],
+      "id": "sf_aab4691e2190dfa36afb13c8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Module m.py contains print(\"hi\") at top level. A program runs import m twice. How many times is hi printed?",
+      "payload": {
+        "choices": [
+          "twice",
+          "never",
+          "once",
+          "it raises ImportError"
+        ],
+        "answer": "once",
+        "explanation": "The first import runs the file and caches the module in sys.modules; the second import reuses the cached module."
+      },
+      "conceptTags": [
+        "modules",
+        "imports"
+      ],
+      "id": "sf_1b976d578c9da9f950a2f76a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which import makes with_tax available as a bare name, like import { withTax } in JavaScript?",
+      "payload": {
+        "choices": [
+          "import pricing.with_tax",
+          "import with_tax from pricing",
+          "require(\"pricing\").with_tax",
+          "from pricing import with_tax"
+        ],
+        "answer": "from pricing import with_tax",
+        "explanation": "from X import name binds that one name directly. import pricing binds only the module, so you would call pricing.with_tax."
+      },
+      "conceptTags": [
+        "imports"
+      ],
+      "id": "sf_6af875a906a1aed206e30c1d"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "You create a file named random.py in your project and then import random elsewhere in the project. What usually happens?",
+      "payload": {
+        "choices": [
+          "Python always picks the standard-library module",
+          "Python raises a naming-conflict error",
+          "both modules are merged",
+          "your file shadows the standard-library random module"
+        ],
+        "answer": "your file shadows the standard-library random module",
+        "explanation": "The script's own directory comes first on sys.path, so your random.py is found before the standard library's."
+      },
+      "conceptTags": [
+        "modules",
+        "imports"
+      ],
+      "id": "sf_21f17040331737b1e445db10"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the guard.",
+      "payload": {
+        "text": "Code inside if __name__ == \"____\": runs only when the file is executed directly.",
+        "blanks": [
+          "__main__"
+        ]
+      },
+      "conceptTags": [
+        "modules"
+      ],
+      "id": "sf_cf8c7186a71b550584f90053"
+    }
+  ],
+  "id": "sf_03b6a9121965288382e1ada4"
+}

@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-hard-warehouse-robot-path",
+  "title": "Warehouse Robot Path Through Pallets",
+  "prompt": "A warehouse robot moves on a grid given as an array of equal-length strings: `S` start, `E` exit, `.` floor, `#` pallet. Each move goes one cell up, down, left or right and costs one step. The robot may push through at most `k` pallets in total (entering a `#` cell uses one of them). Write `shortestPath(grid, k)` returning the minimum number of steps from `S` to `E`, or `-1` if it cannot get there.",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": ["bfs", "graphs", "grids", "state-space-search"],
+  "order": 70010,
+  "exercise": "warehouse-robot-path",
+  "explanation": {
+    "beginner": "Breadth-first search explores the grid in rings: first every cell 1 step away, then every cell 2 steps away, and so on, so the first time you reach the exit you have the shortest route. The twist is the pallets. Being at a cell having already used 1 pallet is a different situation from being there having used 0, because the second robot can still break through more later. So each queue entry is (row, column, pallets used, steps), and you remember 'visited' for the combination of cell and pallets used, not just the cell.",
+    "junior": "State-space BFS over (r, c, used): at most R*C*(k+1) states, each with 4 edges, so O(R*C*k) time and space. A plain visited-per-cell set is the classic bug - it discards a path that arrived later but with more budget left, and can return -1 or a longer path. An optimisation is to keep `bestUsed[r][c]` and only enqueue when you arrive with fewer pallets used than any earlier visit (same BFS layer order keeps steps optimal). If `k >= R + C - 3` the Manhattan distance is always achievable, which is a cheap early exit on big grids. Dijkstra is unnecessary because every edge costs 1; the pallet count is a resource constraint, not a weight."
+  }
+}

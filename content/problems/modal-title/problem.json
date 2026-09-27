@@ -12,7 +12,7 @@
   "order": 90,
   "exercise": "modal-title",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Modal Title, read the story as a simple input-to-output rule: A React modal can create or edit an item. Write a helper that returns \"Create item\" when mode is \"create\" and \"Edit item\" when mode is \"edit\". Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, props and conditionals. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: modalTitle(\"create\") produces \"Create item\". Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nCompare “labels edit mode”: input [\"edit\"] produces \"Edit item\". Explain which rule causes the difference before writing code.",
+    "junior": "Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nTempting mistake: Capitalization, whitespace, and boolean-versus-string output are part of the contract; truthiness alone may combine distinct states.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “labels edit mode”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

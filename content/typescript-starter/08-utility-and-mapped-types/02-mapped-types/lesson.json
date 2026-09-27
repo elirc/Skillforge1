@@ -1,0 +1,92 @@
+{
+  "title": "Mapped Types",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Partial, Required, and Readonly are not magic: they are mapped types, written with the [K in keyof T] syntax that loops over the keys of T. You can write your own to derive form state, error maps, or feature flags from a single source type, so adding a field in one place updates all of them."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "// How the built-ins are defined:\ntype MyPartial<T> = { [K in keyof T]?: T[K] };\ntype MyReadonly<T> = { readonly [K in keyof T]: T[K] };\n\n// Your own:\ntype Flags<T> = { [K in keyof T]: boolean };\ntype FieldErrors<T> = { [K in keyof T]?: string };\n\ninterface ProfileForm { name: string; bio: string; age: number }\n\ntype Touched = Flags<ProfileForm>;       // { name: boolean; bio: boolean; age: boolean }\ntype Errors = FieldErrors<ProfileForm>;  // { name?: string; bio?: string; age?: string }"
+    },
+    {
+      "type": "prose",
+      "body": "Modifiers can be added or removed: ? makes a key optional, -? removes optionality (that is how Required works), readonly and -readonly do the same for readonly. You can also rename keys with as and template literal types, for example { [K in keyof T as `set${Capitalize<string & K>}`]: (value: T[K]) => void } builds setter names."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "When you build a mapped-type object at runtime with a loop, TypeScript cannot follow the loop, so you usually start from {} as Flags<T> and assign key by key. Keep that cast local to one small helper."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does { [K in keyof T]?: T[K] } produce?",
+      "payload": {
+        "choices": [
+          "An array of T's keys",
+          "T with every property required",
+          "T with every property optional (Partial<T>)",
+          "A union of T's values"
+        ],
+        "answer": "T with every property optional (Partial<T>)",
+        "explanation": "It maps each key K of T to the same value type T[K], adding the ? modifier. That is exactly how Partial is defined."
+      },
+      "conceptTags": [
+        "typescript",
+        "mapped-types"
+      ],
+      "id": "sf_37d8a7535ad7d8fb5193a931"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the mapped type.",
+      "payload": {
+        "text": "type Flags<T> = { [K ____ keyof T]: boolean };",
+        "blanks": [
+          "in"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "mapped-types"
+      ],
+      "id": "sf_2dd490b8dfd0e70df13ef41a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which modifier inside a mapped type removes optionality, as Required<T> does?",
+      "payload": {
+        "choices": [
+          "!",
+          "+readonly",
+          "-?",
+          "?"
+        ],
+        "answer": "-?",
+        "explanation": "Required<T> is { [K in keyof T]-?: T[K] }. The minus removes the modifier."
+      },
+      "conceptTags": [
+        "typescript",
+        "mapped-types",
+        "utility-types"
+      ],
+      "id": "sf_52161688b53200075b1e429d"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Compare a form's original and edited values: return a Flags<T> map of which keys changed and a Partial<T> patch with only the changed values.",
+      "exercise": "dirty-state",
+      "conceptTags": [
+        "typescript",
+        "mapped-types",
+        "partial",
+        "forms"
+      ],
+      "id": "sf_6b51abc03a4dafcea66a015f"
+    }
+  ],
+  "id": "sf_12987c79331c15a6380a8451"
+}

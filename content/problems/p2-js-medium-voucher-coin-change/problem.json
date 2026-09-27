@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-medium-voucher-coin-change",
+  "title": "Fewest Gift Vouchers for an Exact Refund",
+  "prompt": "Support refunds a customer in gift vouchers and wants to issue as few as possible. Vouchers come in the given `denominations` (unlimited supply, any order, positive integers). Write `fewestVouchers(denominations, amount)` returning `{ count, vouchers }` - the minimum number of vouchers that add up to exactly `amount`, listed largest first. When several minimal breakdowns exist, prefer the one with the largest first voucher, then the largest second, and so on. Return `null` if the amount cannot be made exactly. An amount of `0` is `{ count: 0, vouchers: [] }`.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["dynamic-programming", "coin-change", "greedy-vs-dp"],
+  "order": 70007,
+  "exercise": "voucher-coin-change",
+  "explanation": {
+    "beginner": "The obvious idea - always take the biggest voucher that fits - fails: with vouchers 1, 3 and 4, greedy pays 6 as 4+1+1 (three vouchers) but 3+3 uses two. Instead, build a table `best[a]` = fewest vouchers for amount `a`, starting from `best[0] = 0`. For every amount from 1 up, try each voucher `d` that fits: `best[a - d] + 1` is a candidate, keep the smallest. Then walk back from the target: pick the largest voucher `d` where `best[a - d]` is exactly one less than `best[a]`, subtract it, and repeat. That both rebuilds the answer and gives the largest-first tie-break.",
+    "junior": "Bottom-up unbounded coin change: O(amount * k) time, O(amount) space, with `Infinity` marking unreachable amounts (return `null` when `best[amount]` is still Infinity - 43 with 6/9/20 is the classic). Reconstruction by scanning denominations in descending order and taking the first `d` with `best[a-d] === best[a] - 1` yields the lexicographically largest optimal multiset, and the sequence is automatically non-increasing (a larger later pick would have been available first). Deduplicate and sort denominations once. Greedy is only optimal for 'canonical' systems like 1/5/10/25; say that in an interview before reaching for DP. For huge amounts with small denominations, BFS over remainders or bounding by lcm helps."
+  }
+}

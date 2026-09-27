@@ -1,0 +1,99 @@
+{
+  "title": "Self Joins and Join Fan-Out",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A self join joins a table to itself. It is how you read hierarchies stored as a parent pointer, like employees.manager_id referencing employees.id. Give the table two aliases so each side has its own name, and use a LEFT JOIN so the top of the hierarchy (manager_id NULL) is not lost."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT e.name AS employee,\n       m.name AS manager      -- NULL for the CEO\nFROM employees e\nLEFT JOIN employees m ON m.id = e.manager_id\nORDER BY e.id;"
+    },
+    {
+      "type": "prose",
+      "body": "Join cardinality is the most common source of wrong numbers in reports. Joining a parent to one child table multiplies each parent row by its number of children, which is expected. Joining the same parent to two independent child tables multiplies them by each other: an order with 3 items and 2 payments becomes 3 x 2 = 6 rows, so SUM(p.amount) counts every payment three times."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Wrong: payments are repeated once per item, so paid is inflated\nSELECT o.id, SUM(i.qty * i.price) AS item_total, SUM(p.amount) AS paid\nFROM orders o\nJOIN order_items i ON i.order_id = o.id\nJOIN payments    p ON p.order_id = o.id\nGROUP BY o.id;\n\n-- Right: aggregate each child table to one row per order first, then join\nWITH items AS (\n  SELECT order_id, SUM(qty * price) AS item_total FROM order_items GROUP BY order_id\n), paid AS (\n  SELECT order_id, SUM(amount) AS paid FROM payments GROUP BY order_id\n)\nSELECT o.id, i.item_total, COALESCE(p.paid, 0) AS paid\nFROM orders o\nJOIN items i     ON i.order_id = o.id\nLEFT JOIN paid p ON p.order_id = o.id;"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Before writing a join, ask \"for one row on the left, how many rows can match on the right?\" If the answer is \"many\" for two different joins in the same query, pre-aggregate at least one of them."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `SELECT e.name AS employee, m.name AS manager FROM employees e LEFT JOIN employees m ON m.id = e.manager_id ORDER BY e.id`. Return objects with keys employee and manager (in that order); manager is null when there is no match.",
+      "exercise": "employees-with-managers",
+      "conceptTags": [
+        "sql",
+        "joins",
+        "self-join",
+        "left-join"
+      ],
+      "id": "sf_8a51c1d4ffa7336fd5855a51"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Order 42 has 3 order_items rows and 2 payments of 50 each. What does `SUM(p.amount)` report for it in `orders JOIN order_items JOIN payments ... GROUP BY o.id`?",
+      "payload": {
+        "choices": [
+          "300",
+          "100",
+          "150",
+          "600"
+        ],
+        "answer": "300",
+        "explanation": "The joins produce 3 x 2 = 6 rows for order 42, and each payment appears 3 times: 3 x (50 + 50) = 300. Aggregate payments per order before joining."
+      },
+      "conceptTags": [
+        "sql",
+        "joins",
+        "cardinality",
+        "fan-out"
+      ],
+      "id": "sf_2f7e809e24d897e6c592e4da"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "What must a self join give each copy of the table?",
+      "payload": {
+        "text": "A self join needs two different table ____ such as e and m, so each column reference is unambiguous.",
+        "blanks": [
+          "aliases"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "self-join"
+      ],
+      "id": "sf_f14e3151efadf8ad8dcf2dbe"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why does the employee-manager query use LEFT JOIN instead of INNER JOIN?",
+      "payload": {
+        "choices": [
+          "Because INNER JOIN cannot join a table to itself",
+          "So employees without a manager (manager_id NULL) still appear",
+          "LEFT JOIN is always faster",
+          "To remove duplicate managers"
+        ],
+        "answer": "So employees without a manager (manager_id NULL) still appear",
+        "explanation": "With an INNER JOIN, the CEO's NULL manager_id matches nothing and the CEO disappears from the result."
+      },
+      "conceptTags": [
+        "sql",
+        "self-join",
+        "left-join"
+      ],
+      "id": "sf_1f2b8c866d6b466175c5a39a"
+    }
+  ],
+  "id": "sf_0f54bd0bbb8f27554cd2027c"
+}

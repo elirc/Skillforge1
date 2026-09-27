@@ -1,0 +1,50 @@
+{
+  "id": "sf_8144eec4972c3107369d683f",
+  "title": "Demonstrate, back up and restore",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Produce a portfolio demonstration and prove that a backup can restore the business state.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read README.md; scripts/database.mjs; CHECKPOINTS.md before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "npm run backup\n# Stop the server before the restore drill.\nnpm run restore -- backups/your-backup.db --server-stopped"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** Restore a copy into a separate working directory, sign in, and compare products, stock, users and audit history with the source. Keep the original database intact.\n\n**Make a meaningful variation.** Write a five-minute demo script showing a successful workflow, a validation failure, an edit conflict, an idempotent retry and a restore verification. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: The README contains setup, test and recovery commands; backup location and retention are documented; the demo explains tradeoffs honestly."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** What proves that a backup is useful? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_b7c9088a61701ad762c89d1b",
+      "type": "MCQ",
+      "prompt": "What proves that a backup is useful?",
+      "conceptTags": [
+        "backup",
+        "restore",
+        "documentation"
+      ],
+      "payload": {
+        "choices": [
+          "A successful verified restore into a separate environment",
+          "The file name includes a date",
+          "The copy command returned without checking the restored data"
+        ],
+        "answer": "A successful verified restore into a separate environment",
+        "explanation": "The README contains setup, test and recovery commands; backup location and retention are documented; the demo explains tradeoffs honestly."
+      }
+    }
+  ]
+}

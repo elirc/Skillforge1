@@ -1,0 +1,92 @@
+{
+  "title": "Template Literal Types, as const, and satisfies",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Three small tools let one list of values drive both runtime code and types. as const freezes an array or object literal so TypeScript keeps its exact literal types. typeof LIST[number] turns that array into a union. Template literal types combine unions into string patterns such as \"order.created\"."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "const ROLES = [\"viewer\", \"editor\", \"admin\"] as const;\ntype Role = (typeof ROLES)[number];           // \"viewer\" | \"editor\" | \"admin\"\n\ntype Entity = \"user\" | \"order\";\ntype Action = \"created\" | \"deleted\";\ntype EventName = `${Entity}.${Action}`;\n// \"user.created\" | \"user.deleted\" | \"order.created\" | \"order.deleted\"\n\nconst ROLE_LABELS = {\n  viewer: \"Can view\",\n  editor: \"Can edit\",\n  admin: \"Full access\",\n} satisfies Record<Role, string>;  // error if a role is missing or misspelled"
+    },
+    {
+      "type": "prose",
+      "body": "satisfies checks a value against a type without changing the value's inferred type. With const labels: Record<Role, string> = { ... } you get the check but lose the literal keys and values. With satisfies you keep them, and the compiler still reports a missing or extra key."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Without as const, [\"viewer\", \"editor\"] is inferred as string[], and typeof ROLES[number] is just string. The whole trick depends on as const."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is typeof COLORS[number] for const COLORS = [\"red\", \"blue\"] as const?",
+      "payload": {
+        "choices": [
+          "string",
+          "string[]",
+          "\"red\" | \"blue\"",
+          "readonly string[]"
+        ],
+        "answer": "\"red\" | \"blue\"",
+        "explanation": "as const makes the array a readonly tuple of literals, so indexing it with number gives the union of its elements."
+      },
+      "conceptTags": [
+        "typescript",
+        "as-const",
+        "literal-types"
+      ],
+      "id": "sf_149863388e9859806190f9f6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does satisfies Record<Role, string> add compared with a plain object literal?",
+      "payload": {
+        "choices": [
+          "A runtime validation",
+          "It widens every value to string",
+          "A check that every Role key is present, while keeping the literal's own inferred type",
+          "It makes the object readonly"
+        ],
+        "answer": "A check that every Role key is present, while keeping the literal's own inferred type",
+        "explanation": "satisfies is compile-time only and does not widen; a type annotation would check too but replace the inferred type."
+      },
+      "conceptTags": [
+        "typescript",
+        "satisfies"
+      ],
+      "id": "sf_584218f00950c9741bfeb4f5"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the assertion.",
+      "payload": {
+        "text": "To keep the literal types of const STATUSES = [\"draft\", \"live\"], add ____ after the array.",
+        "blanks": [
+          "as const"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "as-const"
+      ],
+      "id": "sf_58368a1c579216a4b804e93e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Parse raw queue event names like \"order.created\" into { name, entity, action, label } using as const lists, or return null for anything that is not a known event.",
+      "exercise": "parse-event-name",
+      "conceptTags": [
+        "typescript",
+        "template-literal-types",
+        "as-const",
+        "satisfies"
+      ],
+      "id": "sf_455bde16a6099712b16e4119"
+    }
+  ],
+  "id": "sf_009527c7e2d5ae7054cca24e"
+}

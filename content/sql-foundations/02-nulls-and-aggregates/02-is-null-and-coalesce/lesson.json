@@ -1,0 +1,92 @@
+{
+  "title": "IS NULL, COALESCE, and NULL Arithmetic",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Test for missing values with `IS NULL` and `IS NOT NULL`; they are the only comparisons that return TRUE or FALSE for NULL. NULL also spreads through expressions: `10 + NULL`, `'Hi ' + NULL` (SQL Server string concatenation), and `NULL * 0` are all NULL."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT id,\n       COALESCE(nickname, first_name, 'Anonymous') AS display_name,\n       price * COALESCE(discount_rate, 0)          AS discount\nFROM users\nWHERE deleted_at IS NULL      -- not soft-deleted\nORDER BY id;"
+    },
+    {
+      "type": "prose",
+      "body": "COALESCE(a, b, c, ...) returns the first argument that is not NULL, or NULL if all of them are. It is standard SQL and works everywhere. SQL Server also has ISNULL(a, b), which takes exactly two arguments and returns the data type of the first argument, which can silently truncate: ISNULL(CAST(NULL AS varchar(2)), 'hello') returns 'he'. NULLIF(a, b) goes the other way: it returns NULL when a = b, which is handy for avoiding division by zero with `total / NULLIF(count, 0)`."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "An empty string is not NULL (except in Oracle, which treats '' as NULL). COALESCE(nickname, first_name) returns '' when nickname is '', so decide whether blank input should be stored as NULL and normalize it on the way in."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `SELECT id, COALESCE(nickname, first_name, 'Anonymous') AS display_name FROM users WHERE deleted_at IS NULL ORDER BY id`. Return objects with keys id and displayName (in that order). Remember that an empty string is a value, not NULL.",
+      "exercise": "display-names",
+      "conceptTags": [
+        "sql",
+        "nulls",
+        "coalesce",
+        "is-null"
+      ],
+      "id": "sf_9c0bf8288155cd68002719f2"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does `SELECT 100 + NULL` return?",
+      "payload": {
+        "choices": [
+          "NULL",
+          "100",
+          "0",
+          "An error"
+        ],
+        "answer": "NULL",
+        "explanation": "Arithmetic with an unknown operand gives an unknown result. Wrap the nullable operand in COALESCE(x, 0) if a missing value should count as zero."
+      },
+      "conceptTags": [
+        "sql",
+        "nulls"
+      ],
+      "id": "sf_6ad7d346d57b125197d8e5c5"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the definition.",
+      "payload": {
+        "text": "COALESCE returns its first argument that is not ____.",
+        "blanks": [
+          "NULL"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "coalesce"
+      ],
+      "id": "sf_892bb861ad788e054c4499a1"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which expression avoids a divide-by-zero error and returns NULL instead when order_count is 0?",
+      "payload": {
+        "choices": [
+          "revenue / COALESCE(order_count, 0)",
+          "revenue / ISNULL(order_count, 1)",
+          "revenue / (order_count IS NOT NULL)",
+          "revenue / NULLIF(order_count, 0)"
+        ],
+        "answer": "revenue / NULLIF(order_count, 0)",
+        "explanation": "NULLIF(order_count, 0) turns 0 into NULL, and dividing by NULL yields NULL rather than raising an error. COALESCE and ISNULL only replace NULLs; they do nothing about zeros."
+      },
+      "conceptTags": [
+        "sql",
+        "nulls",
+        "nullif"
+      ],
+      "id": "sf_23bb08b223da40fb9e4c5f90"
+    }
+  ],
+  "id": "sf_fe31bf1b60ff55274e78f430"
+}

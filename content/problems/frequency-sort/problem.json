@@ -12,7 +12,7 @@
   "order": 25,
   "exercise": "frequency-sort",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Sort Words by Frequency, read the story as a simple input-to-output rule: A search page wants popular words first. Write a function that returns each unique word sorted by frequency from highest to lowest. If two words have the same frequency, sort them alphabetically. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is objects, sorting and counting. Choose the data structure deliberately and check complexity before settling on the first working approach."
+    "beginner": "Example: frequencySort([\"js\",\"ts\",\"js\",\"css\",\"ts\",\"js\"]) produces [\"js\",\"ts\",\"css\"]. Use a key-specific bucket or count so each occurrence changes only its own group.\n\nCompare “breaks ties alphabetically”: input [[\"beta\",\"alpha\",\"beta\",\"alpha\",\"gamma\"]] produces [\"alpha\",\"beta\",\"gamma\"]. Explain which rule causes the difference before writing code.",
+    "junior": "Use a key-specific bucket or count so each occurrence changes only its own group.\n\nTempting mistake: Reinitializing an existing group erases earlier contributions. Distinct-key counts differ from total occurrences.\n\nThe reference uses sort, map. Trace the intermediate value after each operation; count repeated scans inside callbacks separately when estimating cost.\n\nRegression check: preserve the contract illustrated by “breaks ties alphabetically”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

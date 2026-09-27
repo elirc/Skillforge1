@@ -1,0 +1,94 @@
+{
+  "title": "Where State Lives: Lifting, Context, Reducers, Stores",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Pick the smallest home that works for each piece of state:\n\n- **local state** (`useState`) when one component uses it: an open menu, an input draft\n- **lift state up** to the closest common parent when siblings need it, and pass it down as props\n- **useReducer** when several values change together or updates follow rules: a form with submit status, a multi-step wizard, the CRUD screen at the end of this course\n- **context** to avoid prop drilling for values many components read and that change rarely: theme, the current user, a query client\n- a **store** (Zustand, Redux Toolkit) for client state that many distant components read and write often\n- **server state** in TanStack Query or your framework's loaders, not copied into any of the above\n- **URL state** (search params) for anything a user might bookmark or share: filters, sort, page"
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "import { create } from \"zustand\";\nimport { useShallow } from \"zustand/react/shallow\";\n\ntype ListUiState = {\n  filter: \"all\" | \"open\" | \"done\";\n  sidebarOpen: boolean;\n  setFilter: (filter: ListUiState[\"filter\"]) => void;\n  toggleSidebar: () => void;\n};\n\nexport const useListUi = create<ListUiState>()((set) => ({\n  filter: \"all\",\n  sidebarOpen: false,\n  setFilter: (filter) => set({ filter }),               // shallow-merged into state\n  toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),\n}));\n\n// Subscribe to a slice: this component re-renders only when filter changes.\nconst filter = useListUi((s) => s.filter);\n// Several values: useShallow compares the picked object key by key.\nconst { filter: f, sidebarOpen } = useListUi(useShallow((s) => ({ filter: s.filter, sidebarOpen: s.sidebarOpen })));"
+    },
+    {
+      "type": "prose",
+      "body": "The re-render behaviour is the main difference between context and a store. Every component that calls `useContext(Ctx)` re-renders whenever the provider's `value` changes, even if it only reads one field. A store hook with a **selector** re-renders only when the selected value changes by `Object.is`. Calling the store hook with no selector subscribes to the whole state object, which is replaced on every `set`, so that component re-renders on every update."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Do not copy server data into a client store or context \"to share it\". You then own caching, invalidation, and staleness by hand. Call the same `useQuery` in both components; TanStack Query deduplicates the request and shares the cache."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Two sibling components need the same selected product id; what is the simplest correct place for that state?",
+      "payload": {
+        "choices": [
+          "A global store",
+          "Each sibling's own useState",
+          "Their closest common parent, passed down as props",
+          "localStorage"
+        ],
+        "answer": "Their closest common parent, passed down as props",
+        "explanation": "Lifting state up is the default answer; reach for context or a store only when prop drilling becomes painful."
+      },
+      "conceptTags": [
+        "react",
+        "state-architecture",
+        "lifting-state"
+      ],
+      "id": "sf_b2584b4ef0dc150e2df744a8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A context value { user, theme } changes theme; which consumers re-render?",
+      "payload": {
+        "choices": [
+          "Only components that read theme",
+          "Only the provider",
+          "None, context is not reactive",
+          "Every component that reads that context"
+        ],
+        "answer": "Every component that reads that context",
+        "explanation": "Context has no selectors. Split rarely- and often-changing values into separate contexts, or use a store with selectors."
+      },
+      "conceptTags": [
+        "react",
+        "context",
+        "rendering"
+      ],
+      "id": "sf_bdf12578930ff0f955f153f2"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the Zustand helper that makes a multi-value selector compare key by key.",
+      "payload": {
+        "text": "useStore(____((s) => ({ page: s.page, sort: s.sort })))",
+        "blanks": [
+          "useShallow"
+        ]
+      },
+      "conceptTags": [
+        "zustand",
+        "state-architecture",
+        "rendering"
+      ],
+      "id": "sf_d5ed983d51851fe01e30abf8"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Simulate a Zustand-style store: apply set() patches and count how many times each selector-based subscriber re-renders.",
+      "exercise": "run-store",
+      "conceptTags": [
+        "zustand",
+        "state-architecture",
+        "rendering",
+        "selectors"
+      ],
+      "id": "sf_f1057485cfc763c94f761567"
+    }
+  ],
+  "id": "sf_5ab45d50f962bd67ac0f8589"
+}

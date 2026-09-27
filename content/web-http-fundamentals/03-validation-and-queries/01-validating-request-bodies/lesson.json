@@ -1,0 +1,98 @@
+{
+  "title": "Validating Request Bodies",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A create endpoint checks its input in layers, and each layer has its own status code:\n- **Media type**: the body is not JSON (for example a form post) -> **415 Unsupported Media Type**.\n- **Syntax**: the JSON does not parse, or is an array when an object was expected -> **400**.\n- **Semantics**: the JSON parses but fields are missing or wrong -> **400** with a field-keyed `errors` map (or 422 if your API uses it).\n- **Business rules** that need the database, such as a duplicate SKU -> **409**."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "HTTP/1.1 400 Bad Request\nContent-Type: application/problem+json\n\n{\n  \"type\": \"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\n  \"title\": \"One or more validation errors occurred.\",\n  \"status\": 400,\n  \"errors\": {\n    \"name\": [\"Name is required.\"],\n    \"price\": [\"Price must be a positive number.\"]\n  }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Report **every** invalid field at once, so a form can highlight all of them in one round trip. Copy only the fields you expect into your entity: binding a request straight onto an entity lets a client set `isAdmin` or `id` (**over-posting**)."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public record CreateProductDto(\n    [Required, MaxLength(100)] string Name,\n    [Range(0.01, double.MaxValue)] decimal Price,\n    [RegularExpression(@\"^[A-Z]{3}-\\d{4}$\")] string Sku);\n\n// [ApiController] (or .WithParameterValidation / FluentValidation in minimal APIs)\n// returns the 400 ValidationProblemDetails above before your code runs.\nvar product = new Product { Name = dto.Name.Trim(), Price = dto.Price, Sku = dto.Sku };"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Client-side validation is for user experience; server-side validation is for correctness. Anyone can send a request with curl, so the server must re-check everything."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A client posts a form-encoded body to an endpoint that only accepts JSON. Which status fits best?",
+      "payload": {
+        "choices": [
+          "415 Unsupported Media Type",
+          "406 Not Acceptable",
+          "404 Not Found",
+          "500 Internal Server Error"
+        ],
+        "answer": "415 Unsupported Media Type",
+        "explanation": "415 is about the request body's format (Content-Type). 406 is about the response format the client asked for with Accept."
+      },
+      "conceptTags": [
+        "http",
+        "validation",
+        "status-codes"
+      ],
+      "id": "sf_f64713d75fd649b4a523ade4"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why map a request DTO onto a new entity instead of binding the request directly to the entity?",
+      "payload": {
+        "choices": [
+          "To stop over-posting of fields like isAdmin or id",
+          "Because entities cannot be serialized",
+          "To make the request faster",
+          "Because HTTP forbids it"
+        ],
+        "answer": "To stop over-posting of fields like isAdmin or id",
+        "explanation": "Binding straight to an entity lets a client set any property it can name. A DTO lists exactly the fields a client may set."
+      },
+      "conceptTags": [
+        "validation",
+        "security",
+        "dto"
+      ],
+      "id": "sf_fc3d5eb5ced508a807fae449"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the response member.",
+      "payload": {
+        "text": "ASP.NET Core's validation problem details put per-field messages in the ____ member.",
+        "blanks": [
+          "errors"
+        ]
+      },
+      "conceptTags": [
+        "validation",
+        "problem-details"
+      ],
+      "id": "sf_d5a2b5ef0fc653cf4f34185d"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Validate a POST /products request in layers: 415 for a non-JSON content type, 400 for malformed JSON or a non-object, 400 with every field error, or 201 with only the allowed fields.",
+      "exercise": "validate-create-product",
+      "conceptTags": [
+        "http",
+        "validation",
+        "problem-details",
+        "over-posting"
+      ],
+      "id": "sf_84e9971800dd374da8249cef"
+    }
+  ],
+  "id": "sf_7c270a14b9d29b81b051b6fc"
+}

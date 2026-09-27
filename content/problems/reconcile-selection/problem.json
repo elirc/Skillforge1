@@ -12,7 +12,7 @@
   "order": 80,
   "exercise": "reconcile-selection",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Reconcile Selection, read the story as a simple input-to-output rule: A React table keeps selected row ids in state, but rows can disappear after filtering. Write a helper that returns only selected ids that still exist in the current rows, preserving the selection order. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, state and sets. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: reconcileSelection([\"a\",\"b\",\"c\"], [{\"id\":\"a\"},{\"id\":\"c\"}]) produces [\"a\",\"c\"]. Evaluate the selection rule for every record and preserve the qualifying values in the required order.\n\nCompare “returns empty when nothing remains”: input [[\"x\"],[{\"id\":\"a\"}]] produces []. Explain which rule causes the difference before writing code.",
+    "junior": "Evaluate the selection rule for every record and preserve the qualifying values in the required order.\n\nTempting mistake: Selecting a display position after a list changes can identify the wrong item. Use the domain key when matching two collections.\n\nThe reference uses map, filter. Trace the intermediate value after each operation; count repeated scans inside callbacks separately when estimating cost.\n\nRegression check: preserve the contract illustrated by “returns empty when nothing remains”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

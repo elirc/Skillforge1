@@ -1,0 +1,99 @@
+{
+  "title": "Correlation IDs and Tracing",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "When a user reports \"my order failed at 10:42\", you need every log line from that one request, across the API, the database calls, and the other services it called. A **correlation id** makes that possible: pick one id per request, attach it to every log entry (structured logging scopes), pass it on to downstream calls, and return it to the client in the response and in problem details."
+    },
+    {
+      "type": "prose",
+      "body": "The modern standard is **W3C Trace Context**: a `traceparent` header shaped `00-<32 hex trace-id>-<16 hex parent-id>-<2 hex flags>`. OpenTelemetry and ASP.NET Core read and propagate it automatically, so the trace id works as your correlation id across services. Many systems also accept a simpler `X-Correlation-Id` header."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "GET /orders/1001 HTTP/1.1\ntraceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01\n\nHTTP/1.1 500 Internal Server Error\nContent-Type: application/problem+json\nX-Correlation-Id: 4bf92f3577b34da6a3ce929d0e0e4736\n\n{\"title\":\"An unexpected error occurred.\",\"status\":500,\"traceId\":\"4bf92f3577b34da6a3ce929d0e0e4736\"}"
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "app.Use(async (ctx, next) =>\n{\n    var id = Activity.Current?.TraceId.ToString() ?? ctx.TraceIdentifier;\n    ctx.Response.Headers[\"X-Correlation-Id\"] = id;\n    using (logger.BeginScope(new Dictionary<string, object> { [\"CorrelationId\"] = id }))\n        await next();\n});"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Validate incoming ids before using them. A client-supplied value containing newlines or megabytes of text can forge log lines or bloat your logs. Accept a short, strict format, or generate your own."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is the main purpose of a correlation id?",
+      "payload": {
+        "choices": [
+          "To find every log entry and downstream call belonging to one request",
+          "To authenticate the user",
+          "To make responses cacheable",
+          "To version the API"
+        ],
+        "answer": "To find every log entry and downstream call belonging to one request",
+        "explanation": "One id threads through logs and services, so you can reconstruct a single request's story when debugging."
+      },
+      "conceptTags": [
+        "observability",
+        "logging",
+        "tracing"
+      ],
+      "id": "sf_b49577d4444abd5117072e1c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why include the trace or correlation id in a 500 problem details body?",
+      "payload": {
+        "choices": [
+          "It makes the error retryable",
+          "Browsers require it",
+          "Support can find the matching server logs without exposing internal details",
+          "It replaces the status code"
+        ],
+        "answer": "Support can find the matching server logs without exposing internal details",
+        "explanation": "The client sees only a generic message plus an id; engineers use the id to find the full exception in the logs."
+      },
+      "conceptTags": [
+        "observability",
+        "problem-details",
+        "errors"
+      ],
+      "id": "sf_44f6852101278ed7202e88c9"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the W3C header.",
+      "payload": {
+        "text": "W3C Trace Context propagates the trace id between services in the ____ header.",
+        "blanks": [
+          "traceparent"
+        ]
+      },
+      "conceptTags": [
+        "observability",
+        "tracing",
+        "headers"
+      ],
+      "id": "sf_f295f41a1d64000153983342"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Choose a request's correlation id from a valid W3C traceparent, a safe X-Correlation-Id, or a generated id, and echo it in the response headers.",
+      "exercise": "trace-request",
+      "conceptTags": [
+        "observability",
+        "tracing",
+        "correlation-id",
+        "headers"
+      ],
+      "id": "sf_54df1a261b243b94786319a4"
+    }
+  ],
+  "id": "sf_539ef87b35bb1d36fb777e0b"
+}

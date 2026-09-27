@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "function average(scores) {\n  if (scores.length === 0) return 0;\n  return scores.reduce((sum, n) => sum + n, 0) / scores.length;\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The guard handles the case where division is invalid, then exits. The remaining path can assume a nonempty list. Separating the exceptional case reduces nested conditions."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function mean(values) {\n  if (values.length === 0) return null;\n  return values.reduce((sum, n) => sum + n, 0) / values.length;\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Returning zero for empty input may be confused with a real average of zero. Pick a fallback deliberately."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Write a caller that displays 'No readings' only for null.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -17,15 +35,32 @@
       "prompt": "Complete the idea.",
       "payload": {
         "text": "A guard clause returns ____ when an input is invalid so the rest of the function can assume good data.",
-        "blanks": ["early"]
+        "blanks": [
+          "early"
+        ]
       },
-      "conceptTags": ["error-handling", "guard-clauses"]
+      "conceptTags": [
+        "error-handling",
+        "guard-clauses"
+      ],
+      "id": "sf_79d0a466897acf3611c09f4f"
     },
     {
       "type": "CODE",
       "prompt": "Return the average of the scores, or 0 when the array is empty.",
       "exercise": "safe-average",
-      "conceptTags": ["error-handling", "guard-clauses"]
+      "conceptTags": [
+        "error-handling",
+        "guard-clauses"
+      ],
+      "id": "sf_d143b8b5a9b4c2c57f26186d",
+      "hints": [
+        "Returning zero for empty input may be confused with a real average of zero. Pick a fallback deliberately.",
+        "The guard handles the case where division is invalid, then exits. The remaining path can assume a nonempty list. Separating the exceptional case reduces nested conditions."
+      ],
+      "walkthrough": "The guard handles the case where division is invalid, then exits. The remaining path can assume a nonempty list. Separating the exceptional case reduces nested conditions."
     }
-  ]
+  ],
+  "id": "sf_540d214b4a2587b2aba473ed",
+  "estimatedMinutes": 12
 }

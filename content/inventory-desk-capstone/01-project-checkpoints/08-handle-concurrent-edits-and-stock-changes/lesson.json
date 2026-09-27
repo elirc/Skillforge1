@@ -1,0 +1,50 @@
+{
+  "id": "sf_e5d191fe1006cceb01ca2df0",
+  "title": "Handle concurrent edits and stock changes",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Prevent stale edits from overwriting newer work and stop simultaneous last-unit reservations from overselling.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read InventoryDesk.Api/Program.cs; InventoryDesk.Api/DeskDb.cs before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet test InventoryDesk.Tests --filter Milestone=08"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** A stale version returns 409 without overwriting; two concurrent reservations of the last unit produce one success, one conflict, and stock zero.\n\n**Make a meaningful variation.** Show the latest product next to the user's unsaved edit when a conflict occurs. Require an explicit choice before replacing either version. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: The version and stock predicates participate in the database write; a preliminary read is not the only safeguard."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** Where must the final stock condition be evaluated? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_398c32bce51c53ee4e404971",
+      "type": "MCQ",
+      "prompt": "Where must the final stock condition be evaluated?",
+      "conceptTags": [
+        "concurrency",
+        "transactions",
+        "optimistic-locking"
+      ],
+      "payload": {
+        "choices": [
+          "In the atomic database update",
+          "Only in a prior browser render",
+          "Only in a separate earlier SELECT"
+        ],
+        "answer": "In the atomic database update",
+        "explanation": "The version and stock predicates participate in the database write; a preliminary read is not the only safeguard."
+      }
+    }
+  ]
+}

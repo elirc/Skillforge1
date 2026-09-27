@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "warning",
       "body": "Connection strings, API keys, signing keys, and tokens do not belong in source control."
+    },
+    {
+      "type": "prose",
+      "body": "`WebApplication.CreateBuilder` layers its sources in a fixed order: `appsettings.json`, then `appsettings.{Environment}.json`, then user secrets (Development only), then environment variables, then command-line arguments. A later source overrides an earlier one key by key. Keys are case-insensitive and use `:` for sections; environment variables cannot contain `:`, so they use `__` instead. The committed files hold safe defaults; secrets come from user secrets locally and from a secret store or the environment in production."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// appsettings.json (committed)            { \"Email\": { \"Host\": \"smtp.example.test\" } }\n// environment variable (from the platform)  Email__Host=smtp.prod.test\n//                                           Email__ApiKey=<from the secret store>\n\nvar host = builder.Configuration[\"Email:Host\"];   // \"smtp.prod.test\": the environment wins\nvar apiKey = builder.Configuration[\"email:apikey\"]; // keys are case-insensitive"
     }
   ],
   "knowledgeItems": [
@@ -22,24 +31,81 @@
       "prompt": "Where should production secrets usually live?",
       "payload": {
         "choices": [
-          "A managed secret store or secure environment-specific configuration",
           "A committed appsettings.Production.json file",
           "A comment in Program.cs",
-          "A public README"
+          "A public README",
+          "A managed secret store or secure environment-specific configuration"
         ],
         "answer": "A managed secret store or secure environment-specific configuration",
         "explanation": "Production secrets should be kept outside source control and accessed through secure configuration channels."
       },
-      "conceptTags": ["configuration", "secrets", "deployment"]
+      "conceptTags": [
+        "configuration",
+        "secrets",
+        "deployment"
+      ],
+      "id": "sf_62c1c43e5d3f2b6f1bddd2af"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the options answer.",
       "payload": {
         "text": "Validate critical options at ____ so the app fails fast when required configuration is missing.",
-        "blanks": ["startup"]
+        "blanks": [
+          "startup"
+        ]
       },
-      "conceptTags": ["configuration", "options-pattern"]
+      "conceptTags": [
+        "configuration",
+        "options-pattern"
+      ],
+      "id": "sf_519040883185bd1972f18bde"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "`appsettings.json` sets `Email:Host`, and the environment variable `Email__Host` is also set. Which value does the app use?",
+      "payload": {
+        "choices": [
+          "The environment variable, because it is added after the JSON files",
+          "The JSON value, because files always win",
+          "Neither: conflicting keys throw at startup",
+          "Whichever value is longer"
+        ],
+        "answer": "The environment variable, because it is added after the JSON files",
+        "explanation": "Configuration sources are layered, and a later source overrides an earlier one for the same key."
+      },
+      "conceptTags": [
+        "configuration",
+        "deployment"
+      ],
+      "id": "sf_c894dc5dbf1b7897a27d82e8"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the configuration rule.",
+      "payload": {
+        "text": "Environment variables use a double ____ in place of the ':' section separator.",
+        "blanks": [
+          "underscore"
+        ]
+      },
+      "conceptTags": [
+        "configuration",
+        "environment-variables"
+      ],
+      "id": "sf_29a793c94b251b743cfe530e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Merge configuration layers with correct precedence, then validate at startup: required keys and secrets committed to appsettings files.",
+      "exercise": "resolve-config",
+      "conceptTags": [
+        "configuration",
+        "secrets",
+        "options-pattern"
+      ],
+      "id": "sf_b4eafd97c7061126f3977619"
     }
-  ]
+  ],
+  "id": "sf_0c58d279e6743938457b6e1f"
 }

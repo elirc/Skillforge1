@@ -1,0 +1,14 @@
+{
+  "slug": "migration-run-order",
+  "title": "Plan Database Migration Order",
+  "prompt": "A deploy script must run schema migrations so that every migration runs after the migrations it depends on. Each migration is `{ id, dependsOn }`. Return `{ ok: true, order }` with every id in a valid run order. When several migrations are ready at the same time, run the one with the alphabetically smallest id first so the plan is deterministic. A dependency on an id that is not in the list has already been applied and is ignored. If some migrations can never run (a cycle, or depending on something inside a cycle), return `{ ok: false, blocked }` with those ids sorted alphabetically.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["graphs", "topological-sort", "cycle-detection", "migrations"],
+  "order": 50001,
+  "exercise": "migration-run-order",
+  "explanation": {
+    "beginner": "Think of each migration as a task with a count of 'things I am still waiting for'. A migration with a count of zero can run right now. Put all of those in a 'ready' list. Repeatedly take the alphabetically smallest ready migration, add it to the run order, and then go to every migration that was waiting on it and lower its count by one; any that drop to zero become ready. If you finish and some migrations were never run, their counts never reached zero, which means they are stuck in a loop (A waits for B, B waits for A) or waiting on something that is. Those are the blocked ones. Before counting, throw away dependencies on ids you do not know about, because those are already in the database.",
+    "junior": "This is Kahn's algorithm. Build an in-degree map and a reverse adjacency list (dependency -> dependents) in O(V + E). Two traps the hidden tests check: (1) dedupe `dependsOn` with a Set before counting, otherwise `['a', 'a']` gives an in-degree of 2 but only one decrement ever happens and the migration is wrongly blocked; (2) filter unknown dependency ids or they hold the count above zero forever. A self-dependency is just a one-node cycle and falls out naturally. Kahn's version of cycle detection is simpler than DFS colouring here because 'blocked' is exactly the set of nodes never emitted, including nodes downstream of a cycle, which a DFS back-edge check would not list. Re-sorting the ready array each step is O(V^2 log V) worst case, fine for a migrations folder; use a min-heap if V is large."
+  }
+}

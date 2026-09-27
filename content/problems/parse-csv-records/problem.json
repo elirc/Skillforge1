@@ -1,0 +1,14 @@
+{
+  "slug": "parse-csv-records",
+  "title": "Parse CSV With Quoted Fields",
+  "prompt": "An admin page imports customers from a CSV export. Write `parseCsv(text)` that returns an array of records, each an array of string fields. Fields are separated by commas and records by `\\n` or `\\r\\n`. A field that starts with a double quote is quoted: it may contain commas, line breaks (kept exactly as written) and doubled quotes `\"\"` meaning one literal quote, and it ends at the matching closing quote. A final line break does not start an extra record, and empty input has no records. If a quoted field is never closed, return `null`.",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": ["parsing", "state-machines", "strings", "csv"],
+  "order": 50005,
+  "exercise": "parse-csv-records",
+  "explanation": {
+    "beginner": "`text.split('\\n')` and then `.split(',')` breaks as soon as a quoted field contains a comma or a line break, so read the text one character at a time instead. Keep three things: the current field, the current record, and a flag saying 'I am inside quotes'. Outside quotes, a comma ends the field, a newline ends the field and the record, and a quote at the very start of a field switches the flag on. Inside quotes, everything is copied into the field except a quote: if the next character is also a quote, add one quote and skip both; otherwise the quoted part is over. When the text ends, push the last field and record unless the text ended right after a newline. If you are still inside quotes at the end, the file is broken, so return null.",
+    "junior": "This is a small finite-state machine and runs in O(n) with one pass. Details that break naive versions: treat `\\r\\n` as one record separator outside quotes but keep it verbatim inside quotes; only a quote at the start of a field opens quoting (a quote in the middle of `ab\"c` is a literal); `\"\"` inside quotes is an escaped quote, but the empty quoted field `\"\"` on its own is a real empty value, so track 'this field was quoted' separately from 'this field is empty' when deciding whether the final record exists; a blank line in the middle is a record with one empty field, while a trailing newline adds nothing. Build fields by appending to a string (or collecting slice indices) rather than re-slicing, and never use regex splitting for CSV: it cannot count quote parity across lines."
+  }
+}

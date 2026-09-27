@@ -9,6 +9,11 @@
       "type": "code-example",
       "language": "typescript",
       "code": "function greet(name: string, greeting?: string): string {\n  return `${greeting ?? \"Hello\"}, ${name}!`;\n}"
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "// A default value also makes a parameter optional for callers,\n// but inside the function it is a plain number.\nfunction repeat(text: string, times: number = 2): string {\n  return text.repeat(times);\n}"
     }
   ],
   "knowledgeItems": [
@@ -16,20 +21,68 @@
       "type": "MCQ",
       "prompt": "What marks a parameter as optional in TypeScript?",
       "payload": {
-        "choices": ["a ? after the name", "a ! after the name", "the word maybe", "wrapping it in []"],
+        "choices": [
+          "a ? after the name",
+          "a ! after the name",
+          "the word maybe",
+          "wrapping it in []"
+        ],
         "answer": "a ? after the name",
         "explanation": "greeting?: string makes greeting optional; its type becomes string | undefined."
       },
-      "conceptTags": ["types", "functions", "optional"]
+      "conceptTags": [
+        "types",
+        "functions",
+        "optional"
+      ],
+      "id": "sf_4baf0cbeaf793fe6cfe5e861"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the idea.",
       "payload": {
         "text": "An optional parameter may be the given value or ____ when the caller omits it.",
-        "blanks": ["undefined"]
+        "blanks": [
+          "undefined"
+        ]
       },
-      "conceptTags": ["types", "optional"]
+      "conceptTags": [
+        "types",
+        "optional"
+      ],
+      "id": "sf_9285e8c7907c835d01421734"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Inside function f(size: number = 3), what is the type of size?",
+      "payload": {
+        "choices": [
+          "number | undefined",
+          "3",
+          "number",
+          "any"
+        ],
+        "answer": "number",
+        "explanation": "A default value fills in undefined, so inside the body size is always a number even though callers may omit it."
+      },
+      "conceptTags": [
+        "types",
+        "optional",
+        "defaults"
+      ],
+      "id": "sf_8a5dfd043862309e46164fba"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Paginate a list: page defaults to 1 and pageSize to 3; clamp the page into range and return { page, totalPages, items }.",
+      "exercise": "paginate",
+      "conceptTags": [
+        "types",
+        "optional",
+        "arrays"
+      ],
+      "id": "sf_c9af836fc2c12f8a5ab31283"
     }
-  ]
+  ],
+  "id": "sf_c0be5f2bfe36fb10dddbf161"
 }

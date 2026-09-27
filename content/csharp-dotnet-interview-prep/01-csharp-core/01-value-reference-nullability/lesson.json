@@ -22,10 +22,10 @@
       "prompt": "In modern C#, what does `string? GitHubUserName` communicate?",
       "payload": {
         "choices": [
-          "The value may intentionally be null",
           "The string is stored on the stack",
           "The property can only be assigned once",
-          "The compiler will encrypt the value"
+          "The compiler will encrypt the value",
+          "The value may intentionally be null"
         ],
         "answer": "The value may intentionally be null",
         "explanation": "Nullable reference type syntax documents that null is allowed and lets the compiler warn when callers forget to handle it."
@@ -34,7 +34,8 @@
         "csharp",
         "nullability",
         "contracts"
-      ]
+      ],
+      "id": "sf_7ef57e74842ab95685b155df"
     },
     {
       "type": "CLOZE",
@@ -49,17 +50,18 @@
         "csharp",
         "nullability",
         "validation"
-      ]
+      ],
+      "id": "sf_61d5c9b07fe486c8e85d64fc"
     },
     {
       "type": "MCQ",
       "prompt": "Which answer best describes why `int CurrentStreak` behaves differently from `LearnerProfile learner`?",
       "payload": {
         "choices": [
-          "`int` is a value type while `LearnerProfile` is a reference type",
           "`int` is always nullable while classes never are",
           "classes are copied field-by-field on assignment",
-          "records are the only reference types in C#"
+          "records are the only reference types in C#",
+          "`int` is a value type while `LearnerProfile` is a reference type"
         ],
         "answer": "`int` is a value type while `LearnerProfile` is a reference type",
         "explanation": "Value types contain their data directly; variables of class type hold references to objects."
@@ -68,7 +70,8 @@
         "csharp",
         "value-types",
         "reference-types"
-      ]
+      ],
+      "id": "sf_d112a4e21936b91e9c3c0dc9"
     },
     {
       "type": "CODE",
@@ -78,7 +81,9 @@
         "csharp",
         "nullability",
         "contracts"
-      ]
+      ],
+      "id": "sf_4a347acb6063fc8e1474e896"
     }
-  ]
+  ],
+  "id": "sf_7462a3644a371c7d02875af1"
 }

@@ -1,0 +1,14 @@
+{
+  "slug": "ts-craft-state-machine-transitions",
+  "title": "Order State Machine Transitions",
+  "prompt": "An order moves through states driven by events. A machine is `{ initial, final?, transitions: { from, event, to }[] }`, where `from` may be `\"*\"` to mean any state. Run a list of events and return `{ state, history, rejected }`. Start in `initial` with `history = [initial]`. For each event: if the current state is listed in `final`, the event is rejected. Otherwise pick the first transition whose `from` equals the current state and whose `event` matches; only if there is none, pick the first matching `\"*\"` transition. If nothing matches, push `\"<event>@<state>\"` to `rejected` and stay. Otherwise move to `to` and append it to `history`, even when it is the same state.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["typescript", "state-machines", "arrays", "workflows"],
+  "order": 60004,
+  "exercise": "state-machine-transitions",
+  "explanation": {
+    "beginner": "Keep a variable for the current state and two arrays for the history and the rejected events. Loop over the events. First ask: am I in a final state (delivered, cancelled)? Then nothing can happen, so reject. Otherwise search the transitions list for one that starts from the current state and has this event name. If you do not find one, search again for a wildcard `*` transition with this event. If you still have nothing, record the rejection in the form `ship@pending` so a support person can read exactly what was attempted and when. If you found one, change the current state and add it to the history.",
+    "junior": "The ordering rule is the interesting part: specific transitions must win over wildcards regardless of their position in the list, so do two searches (or pre-index transitions into a `Map<from, Map<event, to>>` plus a wildcard map for O(1) lookups). Checking final states first means even a global `cancel` cannot resurrect a delivered order, which is how libraries like XState treat final states. Returning the rejected attempts instead of throwing makes the function useful for auditing a replayed event log. In a typed codebase you would make `State` and `Event` string-literal unions and type the transitions as `Record<State, Partial<Record<Event, State>>>` so an impossible transition fails to compile; the data-driven form here is what you use when the machine is configured at runtime. Complexity O(E * T) with linear search, O(E) with the maps."
+  }
+}

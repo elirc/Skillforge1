@@ -1,0 +1,97 @@
+{
+  "title": "Choosing Dictionary, HashSet, and Lookup",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Choosing a collection is choosing which operations are cheap. The interview short list:"
+    },
+    {
+      "type": "prose",
+      "body": "- `List<T>`: ordered, indexed, O(1) append, **O(n) `Contains`**.\n- `HashSet<T>`: unique items, O(1) average `Add`/`Contains`/`Remove`, no order. `Add` returns `false` for a duplicate, which makes it a natural \"seen before?\" check.\n- `Dictionary<TKey, TValue>`: O(1) average lookup by key. Use `TryGetValue` to avoid a double lookup and to avoid `KeyNotFoundException`.\n- `ILookup<TKey, T>` from `ToLookup`: an immutable one-to-many index. A missing key returns an empty sequence instead of throwing.\n- `SortedDictionary` / `SortedSet`: kept in order, O(log n) operations.\n- `Queue<T>`, `Stack<T>`, `PriorityQueue<TElement, TPriority>` for work lists."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var seen = new HashSet<string>();\nforeach (var msg in messages)\n{\n    if (!seen.Add(msg.Id)) continue;          // duplicate delivery: skip\n    Handle(msg);\n}\n\nvar stock = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);\nstock[\"MUG\"] = 5;\nConsole.WriteLine(stock[\"mug\"]);              // 5: the comparer defines \"same key\"\n\nif (stock.TryGetValue(sku, out var qty)) { /* one lookup, no exception */ }\n\nILookup<string, Order> byCustomer = orders.ToLookup(o => o.CustomerId);\nforeach (var order in byCustomer[\"unknown\"]) { } // empty, no exception"
+    },
+    {
+      "type": "prose",
+      "body": "The **comparer** is part of the key's meaning. Pass `StringComparer.OrdinalIgnoreCase` when \"MUG\" and \"mug\" are the same SKU, and `StringComparer.Ordinal` for identifiers. Avoid culture-sensitive comparisons for keys. The first key inserted keeps its original casing, and keys you put in a dictionary must not change while they are in it, or their hash no longer matches their bucket."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Calling `list.Contains(x)` inside a loop over another list is a hidden O(n × m). Converting the inner list to a `HashSet` first is one of the most common and effective fixes in code review."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "You need to skip messages whose Id you have already processed. Which collection fits best?",
+      "payload": {
+        "choices": [
+          "List<string>",
+          "Queue<string>",
+          "HashSet<string>",
+          "SortedList<string, string>"
+        ],
+        "answer": "HashSet<string>",
+        "explanation": "HashSet gives O(1) average membership checks and Add returns false for a duplicate. List.Contains is O(n)."
+      },
+      "conceptTags": [
+        "collections",
+        "hashset",
+        "performance"
+      ],
+      "id": "sf_eb9bb0fe82a5396c1948c943"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does indexing an `ILookup<string, Order>` with a key that has no items return?",
+      "payload": {
+        "choices": [
+          "null",
+          "An empty sequence",
+          "It throws KeyNotFoundException",
+          "The default Order"
+        ],
+        "answer": "An empty sequence",
+        "explanation": "Lookups are designed for one-to-many grouping; a missing key is just a group with no items. A Dictionary indexer throws instead."
+      },
+      "conceptTags": [
+        "collections",
+        "linq",
+        "lookup"
+      ],
+      "id": "sf_4c2e3359c83ef20f42da6fb8"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the lookup.",
+      "payload": {
+        "text": "`if (prices.____(sku, out var price))` reads a dictionary value with a single lookup and no exception when the key is missing.",
+        "blanks": [
+          "TryGetValue"
+        ]
+      },
+      "conceptTags": [
+        "collections",
+        "dictionary"
+      ],
+      "id": "sf_1012ca2bee04cda4e12003a4"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Replay stock events using a HashSet for deduplication, a case-insensitive Dictionary for totals, and a lookup for warehouses.",
+      "exercise": "stock-ledger",
+      "conceptTags": [
+        "collections",
+        "dictionary",
+        "hashset",
+        "lookup"
+      ],
+      "id": "sf_23065fee4115960fa47816f6"
+    }
+  ],
+  "id": "sf_2c173e597caeeeb79936a055"
+}

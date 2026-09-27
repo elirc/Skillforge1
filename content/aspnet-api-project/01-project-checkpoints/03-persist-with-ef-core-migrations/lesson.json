@@ -1,0 +1,50 @@
+{
+  "id": "sf_c4e40a4bc623e4657e76ccf6",
+  "title": "Persist with EF Core migrations",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Represent ownership, unique SKUs, current stock, immutable audit events and retry receipts in real SQLite tables.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read InventoryDesk.Api/DeskDb.cs before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet test InventoryDesk.Tests --filter Milestone=02"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** The initial migration creates the schema on a fresh database; unique SKU enforcement is scoped by owner; negative stock is rejected by a database constraint.\n\n**Make a meaningful variation.** Write a SQL report of net stock adjustments by product using the audit table. Include products that have not been adjusted. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: Primary/foreign keys and money units are explicit; the report does not lose products with no audit rows."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** Why keep an audit entry after a product is deleted? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_e53bbf5432868de4eb0965c5",
+      "type": "MCQ",
+      "prompt": "Why keep an audit entry after a product is deleted?",
+      "conceptTags": [
+        "sql",
+        "schema",
+        "migrations"
+      ],
+      "payload": {
+        "choices": [
+          "The business event remains part of the history",
+          "To recreate the product automatically",
+          "Because foreign keys require orphaned rows"
+        ],
+        "answer": "The business event remains part of the history",
+        "explanation": "Primary/foreign keys and money units are explicit; the report does not lose products with no audit rows."
+      }
+    }
+  ]
+}

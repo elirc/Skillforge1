@@ -1,0 +1,89 @@
+{
+  "title": "Normalize Nested API Data",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "APIs often return nested data: posts that embed their author and comments, comments that embed their author. Stored as-is, the same user appears in many places, and updating their name means finding every copy. Normalizing stores each entity once, in a lookup table keyed by id, and replaces nested objects with ids."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "// Nested (from the API)\n[{ id: 10, title: \"Hello\", author: { id: 1, name: \"Ada\" },\n   comments: [{ id: 100, text: \"Nice\", author: { id: 2, name: \"Lin\" } }] }]\n\n// Normalized (for the app)\n{\n  postIds: [10],\n  posts:    { 10: { id: 10, title: \"Hello\", author: 1, comments: [100] } },\n  comments: { 100: { id: 100, text: \"Nice\", author: 2 } },\n  users:    { 1: { id: 1, name: \"Ada\" }, 2: { id: 2, name: \"Lin\" } }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Lookups become constant-time (users[id]), updates touch one place, and reducers stay shallow. A separate ordered id list (postIds) remembers display order, because object keys are not a reliable ordering tool."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Object keys that look like integers are always enumerated in ascending numeric order, regardless of insertion order. Keep order in an array."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why replace an embedded author object with the author's id?",
+      "payload": {
+        "choices": [
+          "because JSON cannot contain nested objects",
+          "to make the data larger",
+          "so posts can have several authors",
+          "so each user is stored once and updates happen in one place"
+        ],
+        "answer": "so each user is stored once and updates happen in one place",
+        "explanation": "Duplicated copies drift out of sync; a single source per entity avoids that."
+      },
+      "conceptTags": [
+        "normalization",
+        "objects"
+      ],
+      "id": "sf_bdc9f0244e2161aa9783bbc6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does Object.keys({ 20: 'a', 3: 'b', x: 'c' }) return?",
+      "payload": {
+        "choices": [
+          "[\"20\", \"3\", \"x\"]",
+          "[\"x\", \"3\", \"20\"]",
+          "[\"3\", \"20\", \"x\"]",
+          "[3, 20, \"x\"]"
+        ],
+        "answer": "[\"3\", \"20\", \"x\"]",
+        "explanation": "Integer-like keys come first in ascending order, then string keys in insertion order. Keys are always strings."
+      },
+      "conceptTags": [
+        "objects"
+      ],
+      "id": "sf_698a80b6b7be66a9b0e184aa"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the structure.",
+      "payload": {
+        "text": "A normalized users table maps each id to its record, so reading one user is a constant-time ____.",
+        "blanks": [
+          "lookup"
+        ]
+      },
+      "conceptTags": [
+        "normalization",
+        "objects"
+      ],
+      "id": "sf_6b632598417bd0606486087a"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Normalize a list of posts with embedded authors and comments into postIds plus posts, comments and users tables keyed by id.",
+      "exercise": "normalize-posts",
+      "conceptTags": [
+        "normalization",
+        "objects",
+        "arrays"
+      ],
+      "id": "sf_0c4810a58fca7ad74bf7f7e6"
+    }
+  ],
+  "id": "sf_90bb1b6fab3f48fda7c48383"
+}

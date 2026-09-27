@@ -1,0 +1,98 @@
+{
+  "title": "Sequential vs Parallel Awaits",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "`await` inside a loop runs tasks one after another: the total time is the sum of every task. When tasks do not depend on each other, start them all first and await them together with Promise.all. The total time is then the slowest task."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "// Sequential: ~600 ms for 100 + 300 + 200\nconst user = await getUser();\nconst orders = await getOrders();\nconst prefs = await getPrefs();\n\n// Parallel: ~300 ms (the slowest one)\nconst [user2, orders2, prefs2] = await Promise.all([getUser(), getOrders(), getPrefs()]);"
+    },
+    {
+      "type": "prose",
+      "body": "The combinators differ in how they treat failure. Promise.all rejects as soon as any input rejects (fail-fast). Promise.allSettled never rejects: it waits for everything and reports { status: \"fulfilled\", value } or { status: \"rejected\", reason } for each. Promise.race settles with whichever input settles first, success or failure. Promise.any fulfills with the first success and only rejects if every input fails."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const results = await Promise.allSettled([getUser(), getOrders()]);\nfor (const r of results) {\n  if (r.status === \"fulfilled\") use(r.value);\n  else console.warn(r.reason);\n}\n\n// A timeout built from race:\nconst timeout = (ms) =>\n  new Promise((_, reject) => setTimeout(() => reject(new Error(\"timeout\")), ms));\nawait Promise.race([getUser(), timeout(1000)]);"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Promise.all fails fast but does not cancel the other tasks. They keep running; their results are just ignored."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Three independent requests take 200, 500 and 300 ms. Roughly how long does `await Promise.all([...])` take?",
+      "payload": {
+        "choices": [
+          "1000 ms",
+          "200 ms",
+          "500 ms",
+          "300 ms"
+        ],
+        "answer": "500 ms",
+        "explanation": "They run concurrently, so the combined promise settles when the slowest one finishes."
+      },
+      "conceptTags": [
+        "async-await",
+        "promises"
+      ],
+      "id": "sf_53355da6c6baaf75845d3c63"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "You want every result even if some requests fail. Which combinator fits?",
+      "payload": {
+        "choices": [
+          "Promise.all",
+          "Promise.race",
+          "Promise.allSettled",
+          "Promise.any"
+        ],
+        "answer": "Promise.allSettled",
+        "explanation": "allSettled waits for every input and reports each outcome without rejecting."
+      },
+      "conceptTags": [
+        "promises",
+        "error-handling"
+      ],
+      "id": "sf_8e2c9ff62caa88c7a81c424e"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which combinator fulfills with the first successful result and ignores failures unless all inputs fail?",
+      "payload": {
+        "choices": [
+          "Promise.race",
+          "Promise.all",
+          "Promise.any",
+          "Promise.allSettled"
+        ],
+        "answer": "Promise.any",
+        "explanation": "race settles with the first result of either kind; any waits for the first fulfillment."
+      },
+      "conceptTags": [
+        "promises"
+      ],
+      "id": "sf_21e347f54f451585f093538b"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model awaiting a list of tasks either sequentially (a for...of loop with await) or in parallel (Promise.all). Return when and how the combined operation settles.",
+      "exercise": "simulate-await",
+      "conceptTags": [
+        "async-await",
+        "promises",
+        "concurrency"
+      ],
+      "id": "sf_1009bd2fb20124f09186e69b"
+    }
+  ],
+  "id": "sf_047b5c28f73c614457f1e115"
+}

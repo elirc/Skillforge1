@@ -1,0 +1,132 @@
+{
+  "title": "Iterators, Generators, and yield",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A for loop in Python works on any iterable. It calls iter() on the object to get an iterator, then calls next() on the iterator until it raises StopIteration. This is the same protocol as JavaScript's Symbol.iterator and next(), with StopIteration taking the place of { done: true }."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "nums = [10, 20]\nit = iter(nums)\nprint(next(it))   # 10\nprint(next(it))   # 20\nnext(it)          # raises StopIteration -- a for loop catches this for you"
+    },
+    {
+      "type": "prose",
+      "body": "A function that contains yield is a generator function. Calling it runs none of its body; it returns a generator object. Each next() resumes the body until the next yield, hands out that value, and pauses again with all local variables intact. Generators are lazy: they produce values only when asked, so they can describe huge or even infinite sequences."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "def countdown(n):\n    print(\"start\")\n    while n > 0:\n        yield n\n        n -= 1\n    print(\"done\")\n\ngen = countdown(2)     # prints nothing yet\nprint(next(gen))       # start, then 2\nprint(next(gen))       # 1\nprint(list(gen))       # done, then []"
+    },
+    {
+      "type": "prose",
+      "body": "A generator expression is a comprehension in parentheses. It produces items lazily instead of building a list, which matters when you only need to aggregate or stop early."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "total = sum(x * x for x in range(1_000_000))   # no million-item list in memory\n\ndef read_errors(path):\n    with open(path, encoding=\"utf-8\") as f:\n        for line in f:\n            if \"ERROR\" in line:\n                yield line.strip()\n\nfirst = next(read_errors(\"app.log\"), None)  # stops after the first match"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A generator can be consumed only once. After list(gen) has drained it, a second list(gen) returns []. Call the generator function again to start over."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "yield from other_iterable yields every item of another iterable in turn, like yield* in JavaScript."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "With countdown from the lesson, what does gen = countdown(3) print?",
+      "payload": {
+        "choices": [
+          "start",
+          "nothing",
+          "3",
+          "start, then 3"
+        ],
+        "answer": "nothing",
+        "explanation": "Calling a generator function only creates the generator; the body starts running at the first next()."
+      },
+      "conceptTags": [
+        "generators"
+      ],
+      "id": "sf_97f31234c2dc33227730313e"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "gen = (x * 2 for x in [1, 2]); what does print(list(gen), list(gen)) show?",
+      "payload": {
+        "choices": [
+          "[2, 4] [2, 4]",
+          "[] []",
+          "[2, 4] []",
+          "an error"
+        ],
+        "answer": "[2, 4] []",
+        "explanation": "The first list() exhausts the generator, so the second one gets no items."
+      },
+      "conceptTags": [
+        "generators",
+        "iterators"
+      ],
+      "id": "sf_ef8827e2c06cadef0803e3fa"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What exception signals that an iterator has no more items?",
+      "payload": {
+        "choices": [
+          "StopIteration",
+          "IndexError",
+          "EOFError",
+          "GeneratorExit"
+        ],
+        "answer": "StopIteration",
+        "explanation": "next() raises StopIteration when the iterator is exhausted; for loops catch it and end quietly."
+      },
+      "conceptTags": [
+        "iterators"
+      ],
+      "id": "sf_86f75661c5db718e468c38cb"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why write sum(x * x for x in data) instead of sum([x * x for x in data])?",
+      "payload": {
+        "choices": [
+          "it returns a different total",
+          "it avoids building the whole intermediate list in memory",
+          "it runs the loop in parallel",
+          "it sorts the data first"
+        ],
+        "answer": "it avoids building the whole intermediate list in memory",
+        "explanation": "The generator expression produces one value at a time for sum to consume."
+      },
+      "conceptTags": [
+        "generators"
+      ],
+      "id": "sf_7f6e90f3c63aa632c22746cd"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Make the function a generator.",
+      "payload": {
+        "text": "A function becomes a generator function when its body contains the keyword ____.",
+        "blanks": [
+          "yield"
+        ]
+      },
+      "conceptTags": [
+        "generators"
+      ],
+      "id": "sf_ec4d295ea29b704d9d61be02"
+    }
+  ],
+  "id": "sf_cc174dbe600bffdb92148e09"
+}

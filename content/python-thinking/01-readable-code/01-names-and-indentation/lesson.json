@@ -1,18 +1,30 @@
 {
   "title": "Names and Indentation",
   "contentBlocks": [
-    { "type": "prose", "body": "Python uses indentation to group work, making structure visible without braces." }
+    {
+      "type": "prose",
+      "body": "Python uses indentation to group work, making structure visible without braces."
+    }
   ],
   "knowledgeItems": [
     {
       "type": "MCQ",
       "prompt": "What does Python use to group nested code?",
       "payload": {
-        "choices": ["indentation", "curly braces", "semicolons", "HTML tags"],
+        "choices": [
+          "curly braces",
+          "semicolons",
+          "indentation",
+          "HTML tags"
+        ],
         "answer": "indentation",
         "explanation": "Indentation is syntax in Python."
       },
-      "conceptTags": ["control-flow"]
+      "conceptTags": [
+        "control-flow"
+      ],
+      "id": "sf_c504a2e73128ddc9d1d9ae1f"
     }
-  ]
+  ],
+  "id": "sf_71095c4b28ab3a3ff1155249"
 }

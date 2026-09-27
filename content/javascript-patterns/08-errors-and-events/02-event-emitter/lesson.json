@@ -1,0 +1,116 @@
+{
+  "title": "Event Emitters and the Observer Pattern",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "The observer pattern lets one object (the subject) notify any number of listeners when something happens, without knowing who they are. DOM addEventListener, Node's EventEmitter, and most state libraries' subscribe functions are all this pattern. The core is a map from event name to a list of listener functions."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "class Emitter {\n  #listeners = new Map();   // event name -> array of functions\n\n  on(event, listener) {\n    const list = this.#listeners.get(event) ?? [];\n    this.#listeners.set(event, [...list, listener]);\n    return () => this.off(event, listener);   // unsubscribe handle\n  }\n\n  off(event, listener) {\n    const list = this.#listeners.get(event) ?? [];\n    this.#listeners.set(event, list.filter((l) => l !== listener));\n  }\n\n  emit(event, payload) {\n    for (const listener of this.#listeners.get(event) ?? []) {\n      listener(payload);\n    }\n  }\n}\n\nconst cart = new Emitter();\nconst stop = cart.on(\"added\", (item) => console.log(\"added\", item));\ncart.emit(\"added\", \"book\");   // added book\nstop();\ncart.emit(\"added\", \"pen\");    // (nothing)"
+    },
+    {
+      "type": "prose",
+      "body": "Three details separate a solid emitter from a buggy one. Returning an unsubscribe function from on makes cleanup easy (React effects rely on exactly this shape). once registers a wrapper that removes itself before calling the real listener. And emit should iterate over a snapshot of the listener list, so a listener that unsubscribes, or subscribes another listener, during emit cannot make the loop skip or repeat entries."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "once(event, listener) {\n  const wrapper = (payload) => {\n    this.off(event, wrapper);   // remove first, so a throw cannot leave it behind\n    listener(payload);\n  };\n  return this.on(event, wrapper);\n}\n\n// Snapshot: on/off above replace the array instead of mutating it,\n// so the for...of loop in emit keeps walking the old array."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Every on needs a matching off. A component that subscribes on mount and never unsubscribes keeps receiving events after it is gone, and keeps its closures alive: a classic memory leak."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Listeners run synchronously, in registration order, inside emit. One slow listener delays every listener after it and the code that called emit."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does the lesson's on(event, listener) return?",
+      "payload": {
+        "choices": [
+          "a function that unsubscribes that listener",
+          "the number of listeners",
+          "the emitter, for chaining",
+          "a promise for the next event"
+        ],
+        "answer": "a function that unsubscribes that listener",
+        "explanation": "Returning an unsubscribe handle makes cleanup a single call, as in React effects."
+      },
+      "conceptTags": [
+        "observer-pattern",
+        "event-emitter"
+      ],
+      "id": "sf_bcd43ed1dbb77118b1a00a3a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Listeners A then B are registered for \"save\". In what order do they run on emit(\"save\")?",
+      "payload": {
+        "choices": [
+          "B then A",
+          "in parallel",
+          "after the current call stack finishes",
+          "A then B, synchronously"
+        ],
+        "answer": "A then B, synchronously",
+        "explanation": "emit loops over the listeners in registration order and calls each one directly."
+      },
+      "conceptTags": [
+        "event-emitter"
+      ],
+      "id": "sf_87f5ce795db5a46981b5f02d"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why should emit iterate over a snapshot of the listener array?",
+      "payload": {
+        "choices": [
+          "so listeners run faster",
+          "so errors are caught automatically",
+          "so events are delivered asynchronously",
+          "so listeners that subscribe or unsubscribe during emit cannot make it skip or repeat entries"
+        ],
+        "answer": "so listeners that subscribe or unsubscribe during emit cannot make it skip or repeat entries",
+        "explanation": "Mutating an array while looping over it shifts indexes; iterating a snapshot avoids that."
+      },
+      "conceptTags": [
+        "event-emitter"
+      ],
+      "id": "sf_33b7a61a6bf7494c5746030a"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the method.",
+      "payload": {
+        "text": "A listener registered with emitter.____(event, fn) runs at most one time and then removes itself.",
+        "blanks": [
+          "once"
+        ]
+      },
+      "conceptTags": [
+        "event-emitter"
+      ],
+      "id": "sf_5e530126ff730baa486e918f"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Finish the Emitter: once must fire only one time, off must remove listeners, and emit must work on a snapshot.",
+      "exercise": "run-emitter",
+      "conceptTags": [
+        "observer-pattern",
+        "event-emitter",
+        "closures"
+      ],
+      "id": "sf_19dac55cc9f55210bbed1b93"
+    }
+  ],
+  "id": "sf_d51ee390d51468940ab26583"
+}

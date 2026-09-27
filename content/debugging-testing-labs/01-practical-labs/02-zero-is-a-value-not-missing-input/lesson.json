@@ -1,0 +1,73 @@
+{
+  "id": "sf_fd298939e9380cb1cb51ad38",
+  "title": "Zero is a value, not missing input",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A fallback operator encodes a rule about absence. Logical OR treats every falsy value as missing, including zero. Nullish coalescing checks only null or undefined. The defect appears when the business contract permits zero, so the regression needs to distinguish zero from absence rather than only testing a normal positive quantity."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export function quantity(value: number | null): number { return value || 1; }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [0]. The required result is 0. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix quantity and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Changing the fallback value does not fix the underlying truthiness error."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_1e257cd06f82563671b18938",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "nullability",
+        "javascript"
+      ],
+      "payload": {
+        "choices": [
+          "It only repeats a happy-path example",
+          "It fails on the original implementation and passes on the corrected contract",
+          "It accepts whatever the current implementation returns"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Use nullish coalescing to default only absent values."
+      }
+    },
+    {
+      "id": "sf_166514834d2949cd236e3c94",
+      "type": "CODE",
+      "prompt": "Fix quantity and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "nullability",
+        "javascript"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Use nullish coalescing to default only absent values.",
+        "Changing the fallback value does not fix the underlying truthiness error."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "function quantity(value) { return value ?? 1; }\n",
+        "mutants": [
+          "function quantity(value) { return value || 1; }\n"
+        ]
+      },
+      "walkthrough": "Use nullish coalescing to default only absent values.\nChanging the fallback value does not fix the underlying truthiness error."
+    }
+  ]
+}

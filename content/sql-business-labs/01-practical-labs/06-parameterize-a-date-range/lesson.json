@@ -1,0 +1,71 @@
+{
+  "id": "sf_dbece22317beb17b70cebf6c",
+  "title": "Parameterize a date range",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A half-open range includes the lower boundary and excludes the upper boundary. It composes cleanly into adjacent windows without counting boundary rows twice. Parameters supply values separately from SQL text. Here dates are normalized ISO calendar-date strings, so lexical ordering matches date ordering; a production timestamp contract also needs an explicit timezone."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE customers(id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nCREATE TABLE orders(id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(id), status TEXT NOT NULL, placed_at TEXT NOT NULL, total_cents INTEGER NOT NULL);\nINSERT INTO customers VALUES(1,'Ada'),(2,'Bo'),(3,'Cy');\nINSERT INTO orders VALUES(10,1,'paid','2026-01-01',1200),(11,1,'cancelled','2026-01-02',500),(12,2,'paid','2026-01-03',800),(13,1,'paid','2026-01-04',400);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Inspect the fixture first, then write your query.\nSELECT * FROM customers ORDER BY id;"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"setup\":\"CREATE TABLE customers(id INTEGER PRIMARY KEY, name TEXT NOT NULL);\\nCREATE TABLE orders(id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(id), status TEXT NOT NULL, placed_at TEXT NOT NULL, total_cents INTEGER NOT NULL);\\nINSERT INTO customers VALUES(1,'Ada'),(2,'Bo'),(3,'Cy');\\nINSERT INTO orders VALUES(10,1,'paid','2026-01-01',1200),(11,1,'cancelled','2026-01-02',500),(12,2,'paid','2026-01-03',800),(13,1,'paid','2026-01-04',400);\",\"params\":{\"$from\":\"2026-01-02\",\"$until\":\"2026-01-04\"}}]. The required result is [{\"id\":11,\"total_cents\":500},{\"id\":12,\"total_cents\":800}]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return id and total_cents for orders from $from inclusive to $until exclusive, ordered by placed_at then id."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Do not concatenate user-supplied dates into SQL; bind the named parameters."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which boundary case would fail if the main comparison, join, or ordering were changed? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed business data case checks a different boundary.\n\n**Transfer it.** Apply the same contract to the Inventory Desk repository. Keep SQL parameters separate from values and compare results against a hand-calculated fixture."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_6c188873bd2a0fa5701d3385",
+      "type": "MCQ",
+      "prompt": "Why exclude the upper boundary?",
+      "conceptTags": [
+        "sql",
+        "parameters",
+        "dates"
+      ],
+      "payload": {
+        "choices": [
+          "SQLite cannot compare equal dates",
+          "It encrypts the date parameter",
+          "Adjacent windows do not double-count boundary rows"
+        ],
+        "answer": "Adjacent windows do not double-count boundary rows",
+        "explanation": "[from, until) gives each boundary row a single window."
+      }
+    },
+    {
+      "id": "sf_b17bd15774bee5142098833b",
+      "type": "CODE",
+      "prompt": "Return id and total_cents for orders from $from inclusive to $until exclusive, ordered by placed_at then id.",
+      "conceptTags": [
+        "sql",
+        "parameters",
+        "dates"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "[from, until) gives each boundary row a single window.",
+        "Do not concatenate user-supplied dates into SQL; bind the named parameters."
+      ],
+      "walkthrough": "[from, until) gives each boundary row a single window.\nDo not concatenate user-supplied dates into SQL; bind the named parameters."
+    }
+  ]
+}

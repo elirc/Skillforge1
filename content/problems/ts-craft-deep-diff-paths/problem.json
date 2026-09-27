@@ -1,0 +1,14 @@
+{
+  "slug": "ts-craft-deep-diff-paths",
+  "title": "Deep Diff of Two Objects to Paths",
+  "prompt": "An audit log needs to show what changed when a record was saved. Write `diff(before, after)` for JSON values and return a list of changes. Each change is `{ path, kind: \"added\", after }`, `{ path, kind: \"removed\", before }`, or `{ path, kind: \"changed\", before, after }` (keys in that order). When both values are plain objects, visit the keys of `before` in order (a key missing from `after` is removed, otherwise recurse), then the keys that exist only in `after` (added). When both are arrays, compare index by index; indexes past the end of `after` are removed, indexes past the end of `before` are added. In every other case, if the two values differ, emit one `changed` entry at the current path (so an object replaced by null or an array is a single change). Paths join object keys with dots and array indexes with brackets: `\"items[0].qty\"`. The root path is the empty string, so a root array item is `\"[0]\"`.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["typescript", "recursion", "objects", "audit-logs", "discriminated-unions"],
+  "order": 60007,
+  "exercise": "deep-diff-paths",
+  "explanation": {
+    "beginner": "Write a recursive `walk(before, after, path)` that pushes into one shared changes array. First ask what the two values are. Two arrays: loop up to the longer length; if one side has run out, that index was added or removed, otherwise walk into the pair with the path `path[i]`. Two plain objects: loop over the old keys (removed if the new object lacks it, otherwise walk into it with `path.key`), then loop over the new keys to find the ones that were added. Anything else (numbers, strings, null, or two different kinds of thing) is a leaf: if they are not the same, record one `changed`. Watch the path helper: at the root the path is empty, so the first key must not start with a dot.",
+    "junior": "Model `Change` as a discriminated union on `kind` so consumers (an audit UI) can switch exhaustively and an `added` change never pretends to have a `before`. Use a single recursive walker with an accumulator rather than concatenating arrays at every level, which is O(n^2) for deep objects. Use `hasOwnProperty` for key presence so a key whose value is `null` counts as present. Comparing leaves with `!==` is enough for primitives; the JSON fallback here only matters for the type-mismatch case. Index-based array diffing is simple and predictable but reports every shifted element after an insertion at the front; audit tools that care use keyed diffing (by `id`) or an LCS-based diff instead, which is worth mentioning in review. Complexity O(n) over the combined size of both values."
+  }
+}

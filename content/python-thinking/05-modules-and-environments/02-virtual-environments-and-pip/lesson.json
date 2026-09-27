@@ -1,0 +1,127 @@
+{
+  "title": "Virtual Environments and pip",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "In JavaScript each project has its own node_modules folder, so two projects can use different versions of the same library. Python installs packages into one site-packages directory per interpreter, so by default every project on the machine shares them. A virtual environment (venv) fixes that: it is a folder containing its own python executable and its own site-packages."
+    },
+    {
+      "type": "code-example",
+      "language": "bash",
+      "code": "$ python -m venv .venv            # create the environment in ./.venv\n$ source .venv/bin/activate       # macOS/Linux\n> .venv\\Scripts\\activate          # Windows\n(.venv) $ python -m pip install requests\n(.venv) $ python -m pip freeze > requirements.txt\n(.venv) $ deactivate"
+    },
+    {
+      "type": "prose",
+      "body": "Activating only changes your shell's PATH so that python and pip point at the venv's copies. You can skip activation and call .venv/bin/python directly; that is what editors and CI scripts often do. Running pip as python -m pip guarantees you install into the interpreter you think you are using."
+    },
+    {
+      "type": "prose",
+      "body": "pip is the package installer, like npm install. PyPI is the package index, like the npm registry. A requirements.txt lists pinned versions for reproducible installs (roughly a lockfile). Modern projects declare their metadata and dependencies in pyproject.toml, which plays the role of package.json; tools such as uv, Poetry, or pip-tools add real lockfiles on top."
+    },
+    {
+      "type": "code-example",
+      "language": "bash",
+      "code": "# requirements.txt\nrequests==2.32.3\npytest==8.3.2\n\n$ python -m pip install -r requirements.txt"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Never commit the .venv folder; add it to .gitignore, just like node_modules. Commit requirements.txt or pyproject.toml plus a lockfile, and recreate the environment from them."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Installing packages globally with sudo pip install can break tools your operating system depends on. Many Linux distributions now refuse it with an 'externally managed environment' error. Use a venv instead."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What problem does a Python virtual environment solve?",
+      "payload": {
+        "choices": [
+          "it makes Python code run faster",
+          "it compiles Python to machine code",
+          "it replaces the need for pip",
+          "it gives each project its own interpreter and installed packages"
+        ],
+        "answer": "it gives each project its own interpreter and installed packages",
+        "explanation": "Without a venv, every project shares one site-packages directory, so version conflicts are likely."
+      },
+      "conceptTags": [
+        "virtual-environments"
+      ],
+      "id": "sf_130e828d4cd574786b91607f"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does activating a venv actually change?",
+      "payload": {
+        "choices": [
+          "your shell's PATH, so python and pip resolve to the venv's copies",
+          "the system-wide Python installation",
+          "the contents of your source files",
+          "the version of PyPI you download from"
+        ],
+        "answer": "your shell's PATH, so python and pip resolve to the venv's copies",
+        "explanation": "Activation is a convenience. Calling .venv/bin/python directly has the same effect without activating."
+      },
+      "conceptTags": [
+        "virtual-environments"
+      ],
+      "id": "sf_4b7ebfc321ef83cd0dc52cfe"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which file is closest to package.json in a modern Python project?",
+      "payload": {
+        "choices": [
+          "pyproject.toml",
+          "setup.cfg.lock",
+          "__init__.py",
+          "site-packages"
+        ],
+        "answer": "pyproject.toml",
+        "explanation": "pyproject.toml holds project metadata, dependencies, and tool configuration."
+      },
+      "conceptTags": [
+        "pip",
+        "packaging"
+      ],
+      "id": "sf_258cef17e99ce4c56e5a8497"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why prefer python -m pip install over a bare pip install?",
+      "payload": {
+        "choices": [
+          "it downloads packages faster",
+          "it skips dependency resolution",
+          "it installs into exactly the interpreter that python points to",
+          "it installs packages globally"
+        ],
+        "answer": "it installs into exactly the interpreter that python points to",
+        "explanation": "A bare pip on PATH may belong to a different Python than the one that will run your code."
+      },
+      "conceptTags": [
+        "pip"
+      ],
+      "id": "sf_56294d2f4f8975a0b09a8651"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Create a virtual environment.",
+      "payload": {
+        "text": "The command python -m ____ .venv creates a virtual environment in the .venv folder.",
+        "blanks": [
+          "venv"
+        ]
+      },
+      "conceptTags": [
+        "virtual-environments"
+      ],
+      "id": "sf_2fc90d4008a99c9fdb305b81"
+    }
+  ],
+  "id": "sf_d1d83d127f71e90d36c022e7"
+}

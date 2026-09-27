@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "success",
       "body": "This mirrors a common spaced-repetition invariant: each learner should have at most one schedule row per knowledge item, and due reviews should be fast to query."
+    },
+    {
+      "type": "prose",
+      "body": "A composite B-tree index is sorted by its first column, then its second, and so on, so a query can only seek on a leftmost prefix of it. With `(UserId, DueAt)`, `WHERE UserId = @u AND DueAt <= @now ORDER BY DueAt` seeks straight to one learner and reads their due rows already in order. `WHERE DueAt <= @now` alone cannot use it, because the rows for one time are scattered across every user. The rule of thumb: equality columns first, then the one range column, and the ORDER BY column right after the equality prefix if you want to skip a sort."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "-- Index: IX_ReviewState_UserId_DueAt (UserId, DueAt)\n\n-- Seek on both columns, rows already ordered by DueAt:\nSELECT Id FROM ReviewStates WHERE UserId = @u AND DueAt <= @now ORDER BY DueAt;\n\n-- Seek on UserId only; Grade is filtered row by row:\nSELECT Id FROM ReviewStates WHERE UserId = @u AND Grade < 3;\n\n-- Cannot seek: DueAt is not a leftmost prefix. Needs its own index or a scan.\nSELECT Id FROM ReviewStates WHERE DueAt <= @now;"
     }
   ],
   "knowledgeItems": [
@@ -30,31 +39,96 @@
         "answer": "To prevent duplicate schedule rows for the same learner and item",
         "explanation": "This unique constraint protects the core review-state invariant."
       },
-      "conceptTags": ["ef-core", "indexes", "invariants"]
+      "conceptTags": [
+        "ef-core",
+        "indexes",
+        "invariants"
+      ],
+      "id": "sf_ec1440550af4308e80e2ed69"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the migration sentence.",
       "payload": {
         "text": "A safe schema migration includes a rollout plan and a ____ plan.",
-        "blanks": ["rollback"]
+        "blanks": [
+          "rollback"
+        ]
       },
-      "conceptTags": ["ef-core", "migrations", "rollback"]
+      "conceptTags": [
+        "ef-core",
+        "migrations",
+        "rollback"
+      ],
+      "id": "sf_09967fbb599a9899bceb2598"
     },
     {
       "type": "MCQ",
       "prompt": "Which index supports fetching a learner's due reviews efficiently?",
       "payload": {
         "choices": [
-          "`(UserId, DueAt)`",
           "`(Title, Description)`",
           "`(EmailVerified, Image)`",
+          "`(UserId, DueAt)`",
           "`(Prompt, Payload)`"
         ],
         "answer": "`(UserId, DueAt)`",
         "explanation": "The due queue filters by user and due time, so the index should match that access pattern."
       },
-      "conceptTags": ["ef-core", "indexes", "query-patterns"]
+      "conceptTags": [
+        "ef-core",
+        "indexes",
+        "query-patterns"
+      ],
+      "id": "sf_a3e090a6268ad8adc11a5d53"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With only an index on `(UserId, DueAt)`, which query cannot seek on it?",
+      "payload": {
+        "choices": [
+          "`WHERE UserId = @u`",
+          "`WHERE DueAt <= @now`",
+          "`WHERE UserId = @u AND DueAt <= @now`",
+          "`WHERE UserId = @u ORDER BY DueAt`"
+        ],
+        "answer": "`WHERE DueAt <= @now`",
+        "explanation": "An index can only be sought on a leftmost prefix of its columns. Without a UserId predicate, DueAt values are spread across the whole index."
+      },
+      "conceptTags": [
+        "ef-core",
+        "indexes",
+        "query-patterns"
+      ],
+      "id": "sf_4ed98f65b537a6cf2a6ac72b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the index design rule.",
+      "payload": {
+        "text": "In a composite index, put the equality-filtered columns first and the ____ column after them.",
+        "blanks": [
+          "range"
+        ]
+      },
+      "conceptTags": [
+        "indexes",
+        "sql",
+        "query-patterns"
+      ],
+      "id": "sf_32d7373f278f1d725d30135e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Act as the query planner: score each index by its leftmost prefix and pick the one a query would use, or report a full scan.",
+      "exercise": "choose-index",
+      "conceptTags": [
+        "ef-core",
+        "indexes",
+        "query-patterns"
+      ],
+      "id": "sf_b2cdbfa7b4f8736eb1f4e1e7"
     }
-  ]
+  ],
+  "id": "sf_c65c2e9351c966ff5d306d17"
 }

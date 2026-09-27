@@ -1,0 +1,19 @@
+
+> skillforgejs@0.1.0 test C:\Users\Owner\Desktop\AstraOrganized2\astra-remaining-improvements\stage\9d3b119f40a0
+> vitest run "--maxWorkers=1" "--minWorkers=1" "--testTimeout=60000" "--hookTimeout=60000"
+
+
+ RUN  v3.2.6 C:/Users/Owner/Desktop/AstraOrganized2/astra-remaining-improvements/stage/9d3b119f40a0
+
+ ↓ tests/unit/csharp-runner.test.ts (12 tests | 12 skipped)
+ ↓ tests/unit/completion.test.ts (5 tests | 5 skipped)
+ ✓ tests/unit/gamification.test.ts (16 tests) 169ms
+ ✓ tests/unit/sandbox.test.ts (4 tests) 2461ms
+   ✓ code sandbox > runs visible tests and returns structured results  1505ms
+   ✓ code sandbox > kills an infinite loop without hanging the app  539ms
+ ✓ tests/unit/srs.test.ts (3 tests) 90ms
+
+ Test Files  3 passed | 2 skipped (5)
+      Tests  23 passed | 17 skipped (40)
+   Start at  14:58:13
+   Duration  89.90s (transform 19.71s, setup 0ms, collect 36.28s, tests 2.72s, environment 66ms, prepare 28.05s)

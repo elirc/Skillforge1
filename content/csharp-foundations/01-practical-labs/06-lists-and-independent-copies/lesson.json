@@ -1,0 +1,66 @@
+{
+  "id": "sf_55425b751e0ec610d80abd61",
+  "title": "Lists and independent copies",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A List grows as elements are added. Assignment copies its reference, not its elements: two variables can point to the same mutable list. Constructing a new List from the input copies its integer elements into an independent collection. This is a shallow copy; if elements were mutable objects, those objects would still be shared."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static List<int> AppendCopy(List<int> source, int value)\n    {\n        return new List<int>(source);\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[1,2],3]. The required result is [1,2,3]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Create a new list containing all source values followed by value, preserving duplicates."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A shallow collection copy does not deep-clone object elements."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** How would you test that the source remains unchanged outside this runner? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the keep duplicates case checks a different boundary.\n\n**Transfer it.** Keep old and new cart snapshots separate for undo and change comparison."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_37d2f91f9a8e589ed3fd2949",
+      "type": "MCQ",
+      "prompt": "Does var copy = source create an independent list?",
+      "conceptTags": [
+        "collections",
+        "references",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "No, both variables refer to the same list",
+          "Yes, all elements are cloned",
+          "Only when the list is empty"
+        ],
+        "answer": "No, both variables refer to the same list",
+        "explanation": "Reference assignment preserves object identity; a constructor creates a new list."
+      }
+    },
+    {
+      "id": "sf_72a3afa9999d465125194ac4",
+      "type": "CODE",
+      "prompt": "Create a new list containing all source values followed by value, preserving duplicates.",
+      "conceptTags": [
+        "collections",
+        "references",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Reference assignment preserves object identity; a constructor creates a new list.",
+        "A shallow collection copy does not deep-clone object elements."
+      ],
+      "walkthrough": "Reference assignment preserves object identity; a constructor creates a new list.\nA shallow collection copy does not deep-clone object elements."
+    }
+  ]
+}

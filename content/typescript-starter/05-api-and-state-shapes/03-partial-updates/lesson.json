@@ -16,17 +16,49 @@
       "type": "MCQ",
       "prompt": "What does Partial<Profile> mean?",
       "payload": {
-        "choices": ["Every Profile field is optional", "Every Profile field is required twice", "Profile becomes an array", "Profile cannot be changed"],
+        "choices": [
+          "Every Profile field is required twice",
+          "Every Profile field is optional",
+          "Profile becomes an array",
+          "Profile cannot be changed"
+        ],
         "answer": "Every Profile field is optional",
         "explanation": "Partial<T> creates a type where each property from T is optional."
       },
-      "conceptTags": ["typescript", "partial", "objects"]
+      "conceptTags": [
+        "typescript",
+        "partial",
+        "objects"
+      ],
+      "id": "sf_51f5d16013a6f9a14e692a75"
     },
     {
       "type": "CODE",
       "prompt": "Merge a profile patch into the existing profile and return a new object.",
       "exercise": "apply-profile-patch",
-      "conceptTags": ["typescript", "partial", "immutability"]
+      "conceptTags": [
+        "typescript",
+        "partial",
+        "immutability"
+      ],
+      "id": "sf_1de6fd6b32018d5a1376ab16"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the opposite utility type.",
+      "payload": {
+        "text": "Where Partial<T> makes every property optional, ____<T> makes every property required.",
+        "blanks": [
+          "Required"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "partial",
+        "utility-types"
+      ],
+      "id": "sf_178f56fb4155a07e6f001821"
     }
-  ]
+  ],
+  "id": "sf_7a2e8dfbd4b69c9e3a838dda"
 }

@@ -11,7 +11,7 @@
   "order": 10035,
   "exercise": "js-easy-inventory-clamp-all",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Inventory Clamp All, read the story as a simple input-to-output rule: A inventory chart must keep every count inside a visible range. Write a function that returns a new array where values below min become min and values above max become max. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and numbers. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: inventoryClampAll([-5,10,35], 0, 30) produces [0,10,30]. Apply both bounds so values inside the interval remain unchanged and outliers move to the nearest permitted bound.\n\nCompare “keeps values inside the range”: input [[0,10],0,30] produces [0,10]. Explain which rule causes the difference before writing code.",
+    "junior": "Apply both bounds so values inside the interval remain unchanged and outliers move to the nearest permitted bound.\n\nTempting mistake: A check for only one boundary leaves the other side invalid. Include exact boundaries in the examples.\n\nThe reference uses map. Trace the intermediate value after each operation; count repeated scans inside callbacks separately when estimating cost.\n\nRegression check: preserve the contract illustrated by “keeps values inside the range”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

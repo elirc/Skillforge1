@@ -1,0 +1,14 @@
+{
+  "slug": "stale-response-reducer",
+  "title": "Ignore Stale Async Responses",
+  "prompt": "A React data layer replays an action log to build its cache. Write `replayRequests(actions)` returning `{ state, ignored }`. `state` maps each key (in the order keys were first requested) to `{ status, data, error, requestId }`. Actions: `{ type: 'request', key, requestId }` sets status `loading`, stores the new requestId, clears `error` and keeps any previous `data` (stale-while-revalidate); a key starts as `{ status: 'idle', data: null, error: null, requestId: null }`. `{ type: 'success', key, requestId, data }` and `{ type: 'failure', key, requestId, error }` apply only when the key is `loading` and the requestId matches the latest request; success sets status `success`, `data` and `error: null`, failure sets status `error` and `error` but keeps `data`. Any response that does not apply is counted in `ignored`. `{ type: 'cancel', key }` on a loading key sets requestId to `null` and status back to `success` if it has data, else `idle`; otherwise it does nothing.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["react", "reducers", "async", "race-conditions", "state-machines"],
+  "order": 50010,
+  "exercise": "stale-response-reducer",
+  "explanation": {
+    "beginner": "Picture a search box: you type 'ca', then 'cat', and the 'ca' results arrive last. If you blindly store every response, the screen shows results for the wrong query. The fix is to remember which request is the newest for each key and throw away responses from any other request. Process the actions one at a time with a switch on `type`. For a response, look up the key's entry; if the entry is not loading or the requestId does not match the one you stored, add one to `ignored` and move on. Keep old data while a new request is loading so the UI does not flash empty, and remember that cancelling means 'no request is current', so any response that trickles in afterwards is ignored too.",
+    "junior": "This is a reducer over a discriminated union of actions, and the core technique is request-id guarding, the same idea as an AbortController or TanStack Query's query cancellation. Guard on both `status === 'loading'` and the id: the id check rejects out-of-order responses, the status check rejects duplicate deliveries of the latest response after it settled. Build new entry objects instead of mutating so the reducer stays pure and the key order of each entry stays `status, data, error, requestId`. A `Record` keeps insertion order for string keys, which gives first-requested order for free; responses and cancels for unknown keys must not create entries. Each action is O(1), so replay is O(n). A useful mental test: after replay, `data` must always come from the latest successful request that was not superseded or cancelled."
+  }
+}

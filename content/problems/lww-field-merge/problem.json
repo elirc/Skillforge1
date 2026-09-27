@@ -1,0 +1,14 @@
+{
+  "slug": "lww-field-merge",
+  "title": "Last-Write-Wins Field Merge",
+  "prompt": "A collaborative settings page stores each document as a map of fields to `{ value, ts, node }`, where `ts` is a logical timestamp and `node` names the device that wrote it. A `value` of `null` is a tombstone meaning the field was deleted. Merge any number of replicas field by field: the entry with the highest `ts` wins, and on equal `ts` the entry with the alphabetically greater `node` wins. Return `{ view, state }`: `state` holds every winning entry (tombstones included) and `view` maps each field whose winner is not a tombstone to its value. Both objects must have their keys sorted alphabetically.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["crdt", "conflict-resolution", "sync", "objects"],
+  "order": 50023,
+  "exercise": "lww-field-merge",
+  "explanation": {
+    "beginner": "Treat every field separately: for 'title', look at the title entry from every replica that has one and keep the 'newest'. Newest means larger `ts`; if two entries have the same `ts`, pick the one whose `node` name sorts later, so every device makes the same choice. A deleted field is still an entry (with value null), and it takes part in the contest like any other: a delete wins over older edits and loses to newer ones. After picking winners into one object, build the view by copying only winners whose value is not null. Finally rebuild both objects with sorted keys so the result does not depend on which replica you looked at first.",
+    "junior": "This is a last-writer-wins register per field (an LWW-map, one of the simplest CRDTs). The merge must be commutative, associative and idempotent so replicas converge regardless of sync order: a total order on `(ts, node)` gives exactly that, which is why the deterministic node tie-break is not optional. Tombstones must be kept in `state`; if you drop deleted fields, a replica that has not heard about the delete will resurrect the old value on the next sync. Check for tombstones with `value === null`, not truthiness, so `0`, `''` and `false` survive. The trade-off to mention in an interview: LWW silently discards one of two concurrent edits; use vector clocks or sibling values when you must surface conflicts. Cost is O(total entries) plus O(f log f) to sort f field names."
+  }
+}

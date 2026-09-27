@@ -1,0 +1,66 @@
+{
+  "id": "sf_5b222e46ea33a008ef1c1ee5",
+  "title": "Queued state and repeated actions",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A click can enqueue multiple updates before React renders again. Each functional state updater receives the preceding queued value, which is necessary when the next value depends on the previous one. Reading count from the render closure twice applies the same old snapshot twice. Test the result after repeated interactions, including a negative starting value, to distinguish the contracts."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// A small controlled field:\n// const [value, setValue] = useState(\"\");\n// <input value={value} onChange={event => setValue(event.target.value)} />"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"props\":{},\"actions\":[{\"type\":\"click\",\"selector\":\"button\"}],\"assertions\":[{\"selector\":\"output\",\"text\":\"2\"}]}]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Show the current count in output and increment it twice per Add two click, starting from the initial prop."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Mutating the local count variable does not schedule a React render."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which assertion proves the user-visible behavior rather than the implementation detail? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the uses initial prop case checks a different boundary.\n\n**Transfer it.** Replace the simulated data boundary with the Inventory Desk API while preserving these component contracts."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_675cfc1f07f959921dbb608e",
+      "type": "MCQ",
+      "prompt": "Which updater safely depends on the latest queued value?",
+      "conceptTags": [
+        "react",
+        "state",
+        "closures"
+      ],
+      "payload": {
+        "choices": [
+          "setCount(previous => previous + 1)",
+          "count++ without setCount",
+          "setCount(count + 1) repeated from one render"
+        ],
+        "answer": "setCount(previous => previous + 1)",
+        "explanation": "Functional updates compose in queue order."
+      }
+    },
+    {
+      "id": "sf_40b617e78a79e3f52c0c9409",
+      "type": "CODE",
+      "prompt": "Show the current count in output and increment it twice per Add two click, starting from the initial prop.",
+      "conceptTags": [
+        "react",
+        "state",
+        "closures"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Functional updates compose in queue order.",
+        "Mutating the local count variable does not schedule a React render."
+      ],
+      "walkthrough": "Functional updates compose in queue order.\nMutating the local count variable does not schedule a React render."
+    }
+  ]
+}

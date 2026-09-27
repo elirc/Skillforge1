@@ -1,0 +1,50 @@
+{
+  "id": "sf_d61799a89e8a007e7f289d4a",
+  "title": "Verify HTTP behavior and operational readiness",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Choose test boundaries that catch real regressions without depending on a particular implementation shape.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read InventoryDesk.Tests/DeskTests.cs; browser-tests/inventory.spec.ts before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet test InventoryDesk.Tests\nnpm run test:e2e"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** Tests use separate databases, run without the learner's application data, and fail when ownership, version checks, or the delete cancellation behavior is intentionally broken.\n\n**Make a meaningful variation.** Introduce one defect in an isolated copy, watch its test fail, restore the fix, and explain which layer caught it. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: Unit tests cover pure rules, HTTP tests cover persistence/security contracts, and a small browser suite covers critical interaction flows."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** Which test proves cookies and real HTTP routing work together? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_0b6aeb2d081cffac376b2294",
+      "type": "MCQ",
+      "prompt": "Which test proves cookies and real HTTP routing work together?",
+      "conceptTags": [
+        "testing",
+        "integration",
+        "playwright"
+      ],
+      "payload": {
+        "choices": [
+          "A test of a standalone string helper",
+          "An HTTP integration test against the test host",
+          "A screenshot without any interaction"
+        ],
+        "answer": "An HTTP integration test against the test host",
+        "explanation": "Unit tests cover pure rules, HTTP tests cover persistence/security contracts, and a small browser suite covers critical interaction flows."
+      }
+    }
+  ]
+}

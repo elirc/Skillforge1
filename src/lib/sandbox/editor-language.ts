@@ -1,6 +1,7 @@
 import { javascript } from "@codemirror/lang-javascript";
 import { StreamLanguage } from "@codemirror/language";
 import { csharp } from "@codemirror/legacy-modes/mode/clike";
+import { standardSQL } from "@codemirror/legacy-modes/mode/sql";
 import type { Extension } from "@codemirror/state";
 import { runtimeForLanguage } from "@/lib/sandbox/shared";
 
@@ -12,7 +13,8 @@ import { runtimeForLanguage } from "@/lib/sandbox/shared";
  * enough for short exercises.
  */
 export function editorLanguage(language: string | null | undefined): Extension {
+  if (language === "sql") return StreamLanguage.define(standardSQL);
   return runtimeForLanguage(language) === "csharp"
     ? StreamLanguage.define(csharp)
-    : javascript({ typescript: true });
+    : javascript({ typescript: true, jsx: language === "react" });
 }

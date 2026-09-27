@@ -1,0 +1,96 @@
+{
+  "title": "Cache-Control and Freshness",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "`Cache-Control` tells browsers and shared caches (CDNs, proxies) what they may keep and for how long. A stored response is **fresh** while its age is below its lifetime; after that it is **stale** and must be revalidated with the server before reuse."
+    },
+    {
+      "type": "prose",
+      "body": "The directives you will actually use:\n- `max-age=N`: fresh for N seconds.\n- `s-maxage=N`: lifetime for **shared** caches only (overrides max-age there).\n- `public` / `private`: `private` means only the user's browser may store it, never a CDN. Use it for anything user-specific.\n- `no-cache`: may be stored, but must be revalidated every time (it does not mean \"do not cache\").\n- `no-store`: never store it at all. Use it for sensitive data such as account pages."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "# a product image that never changes (fingerprinted file name)\nCache-Control: public, max-age=31536000, immutable\n\n# the product list: CDN keeps it 60 s, browsers always check\nCache-Control: public, max-age=0, s-maxage=60\n\n# GET /me: per-user data\nCache-Control: private, no-cache\n\n# a bank statement\nCache-Control: no-store"
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "app.MapGet(\"/products\", ListProducts)\n   .CacheOutput(p => p.Expire(TimeSpan.FromSeconds(60)));   // server-side output cache\n\nctx.Response.Headers.CacheControl = \"private, no-cache\";     // what clients may do"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Forgetting `private` on a per-user response behind a CDN can serve one user's data to another. When in doubt for authenticated responses, use `private` or `no-store`."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does Cache-Control: no-cache mean?",
+      "payload": {
+        "choices": [
+          "The response must never be stored",
+          "The response is fresh forever",
+          "Only CDNs may store it",
+          "The response may be stored but must be revalidated before each reuse"
+        ],
+        "answer": "The response may be stored but must be revalidated before each reuse",
+        "explanation": "no-cache forces revalidation (often a cheap 304). no-store is the directive that forbids storing."
+      },
+      "conceptTags": [
+        "caching",
+        "cache-control"
+      ],
+      "id": "sf_6beff9112e620cf6ed5d2f5c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which directive keeps a per-user response out of a CDN while letting the browser cache it?",
+      "payload": {
+        "choices": [
+          "private",
+          "public",
+          "s-maxage=0",
+          "immutable"
+        ],
+        "answer": "private",
+        "explanation": "private restricts storage to the user's own (private) cache. Shared caches must not store it."
+      },
+      "conceptTags": [
+        "caching",
+        "cache-control",
+        "security"
+      ],
+      "id": "sf_bdafb27cc1f9ede23d74ca97"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the directive.",
+      "payload": {
+        "text": "For sensitive responses that must never be written to any cache, send Cache-Control: ____.",
+        "blanks": [
+          "no-store"
+        ]
+      },
+      "conceptTags": [
+        "caching",
+        "cache-control"
+      ],
+      "id": "sf_2deeed77f68add352aed400e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Parse a Cache-Control header and decide whether a private or shared cache must not store the response, must revalidate it, or may serve it as fresh.",
+      "exercise": "cache-decision",
+      "conceptTags": [
+        "caching",
+        "cache-control",
+        "headers"
+      ],
+      "id": "sf_f801928cff405884fbc0fae5"
+    }
+  ],
+  "id": "sf_c2869664ca71136e4327cce1"
+}

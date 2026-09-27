@@ -1,0 +1,66 @@
+{
+  "id": "sf_96d3fdf2a7d555c63555cdac",
+  "title": "Pagination and URL state",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A shareable list view keeps its page in the URL contract. In this isolated lab, initialSearch stands in for the router query string and a link exposes the next URL. Parse untrusted query values, clamp the page to at least one, and use URLSearchParams to preserve unrelated filters. The real companion UI applies the same contract with browser navigation."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// A small controlled field:\n// const [value, setValue] = useState(\"\");\n// <input value={value} onChange={event => setValue(event.target.value)} />"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"props\":{},\"actions\":[],\"assertions\":[{\"selector\":\"output\",\"text\":\"Page 1\"},{\"selector\":\"a\",\"attribute\":\"href\",\"equals\":\"?page=2\"}]}]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Read page from initialSearch, display Page N, and render a Next link whose href preserves other query parameters and increments page."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A negative or fractional page number should not be used directly as an array offset."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which assertion proves the user-visible behavior rather than the implementation detail? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the invalid page case checks a different boundary.\n\n**Transfer it.** Replace the simulated data boundary with the Inventory Desk API while preserving these component contracts."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_899382215a62389436909c2f",
+      "type": "MCQ",
+      "prompt": "Why preserve unrelated query parameters?",
+      "conceptTags": [
+        "react",
+        "url-state",
+        "pagination"
+      ],
+      "payload": {
+        "choices": [
+          "They make every request faster",
+          "They authenticate the user",
+          "Changing page should keep the active search and filters"
+        ],
+        "answer": "Changing page should keep the active search and filters",
+        "explanation": "The URL is a complete description of the current list view."
+      }
+    },
+    {
+      "id": "sf_700e2cdb1dc2d672acd37955",
+      "type": "CODE",
+      "prompt": "Read page from initialSearch, display Page N, and render a Next link whose href preserves other query parameters and increments page.",
+      "conceptTags": [
+        "react",
+        "url-state",
+        "pagination"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The URL is a complete description of the current list view.",
+        "A negative or fractional page number should not be used directly as an array offset."
+      ],
+      "walkthrough": "The URL is a complete description of the current list view.\nA negative or fractional page number should not be used directly as an array offset."
+    }
+  ]
+}

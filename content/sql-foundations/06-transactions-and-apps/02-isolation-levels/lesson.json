@@ -1,0 +1,98 @@
+{
+  "title": "Isolation Levels and Concurrency Anomalies",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Isolation is the \"I\" in ACID, and it is a dial rather than a switch. Stronger isolation prevents more anomalies but costs more locking, blocking, or retries. Learn the anomalies by their interleavings (r = read, w = write, c = commit):"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Dirty read: T2 reads a value T1 has written but not committed (T1 may roll back)\nT1: w(x)            rollback\nT2:       r(x)\n\n-- Non-repeatable read: T1 reads x twice and gets different committed values\nT1: r(x)                  r(x)\nT2:       w(x)  c\n\n-- Lost update: both read the same value, both write; one write silently wins\nT1: r(x)        w(x)  c\nT2:       r(x)              w(x)  c      -- T1's change is overwritten\n\n-- Phantom: T1 re-runs a range query and sees rows T2 inserted and committed\nT1: SELECT ... WHERE total > 100        SELECT ... WHERE total > 100\nT2:          INSERT (total = 500)  c"
+    },
+    {
+      "type": "prose",
+      "body": "The SQL standard levels, weakest to strongest: READ UNCOMMITTED allows dirty reads. READ COMMITTED prevents dirty reads; it is the default in SQL Server and PostgreSQL. REPEATABLE READ also prevents non-repeatable reads. SERIALIZABLE also prevents phantoms and makes the result equivalent to running the transactions one at a time. SQL Server additionally offers SNAPSHOT (and READ_COMMITTED_SNAPSHOT, on by default in Azure SQL), which reads a consistent row-version snapshot instead of taking shared locks."
+    },
+    {
+      "type": "prose",
+      "body": "Lost updates are the one that bites CRUD apps, and READ COMMITTED does not prevent them: two users load the same record, both edit, both save, and the first save disappears. Engines react differently at higher levels: SQL Server REPEATABLE READ holds shared locks so one writer deadlocks and is chosen as the victim; SQL Server SNAPSHOT raises an update-conflict error; PostgreSQL REPEATABLE READ raises a serialization failure. Either way the app must retry. Usually the better fixes are an atomic update (`SET qty = qty - 1` instead of read-modify-write) or optimistic concurrency."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Optimistic concurrency in EF Core with a SQL Server rowversion column\npublic class Product\n{\n    public int Id { get; set; }\n    public decimal Price { get; set; }\n    [Timestamp] public byte[] RowVersion { get; set; } = default!;\n}\n// UPDATE ... WHERE Id = @id AND RowVersion = @original\n// 0 rows affected => EF throws DbUpdateConcurrencyException; reload and ask the user."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Detect anomalies in a schedule of operations { tx, op: 'read' | 'write' | 'commit' | 'rollback', key? }. dirty-read: a tx reads a key that another still-open tx has written. non-repeatable-read: a tx reads a key, another tx then writes that key and commits, and the first tx reads it again. lost-update: a tx reads a key, another tx writes that key before the first tx reads it again, then the first tx writes it too, and both of them end up committing. Return the distinct anomaly names found, sorted alphabetically.",
+      "exercise": "detect-anomalies",
+      "conceptTags": [
+        "sql",
+        "transactions",
+        "isolation-levels",
+        "concurrency"
+      ],
+      "id": "sf_3086516f58698248b05609be"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is the lowest SQL-standard isolation level that prevents dirty reads?",
+      "payload": {
+        "choices": [
+          "READ UNCOMMITTED",
+          "REPEATABLE READ",
+          "SERIALIZABLE",
+          "READ COMMITTED"
+        ],
+        "answer": "READ COMMITTED",
+        "explanation": "READ UNCOMMITTED is the only standard level that allows dirty reads. READ COMMITTED, the default in SQL Server and PostgreSQL, prevents them."
+      },
+      "conceptTags": [
+        "sql",
+        "isolation-levels"
+      ],
+      "id": "sf_e7791a194d9b1d4215eb6fb3"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Two admins edit the same product price at once in an EF Core app running at READ COMMITTED, and one edit silently disappears. What is the standard fix?",
+      "payload": {
+        "choices": [
+          "Add a rowversion concurrency token so the second save fails with DbUpdateConcurrencyException",
+          "Switch the whole database to READ UNCOMMITTED",
+          "Wrap the save in a try/catch that ignores errors",
+          "Call SaveChanges twice"
+        ],
+        "answer": "Add a rowversion concurrency token so the second save fails with DbUpdateConcurrencyException",
+        "explanation": "Optimistic concurrency adds the original version to the UPDATE's WHERE clause. If someone else saved first, zero rows match and EF reports the conflict instead of overwriting."
+      },
+      "conceptTags": [
+        "sql",
+        "concurrency",
+        "ef-core",
+        "lost-update"
+      ],
+      "id": "sf_d850b3da8de4e254ffc863d0"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Which SQL-standard isolation level is the first to prevent phantom rows?",
+      "payload": {
+        "text": "In the SQL standard, phantoms are first prevented at the ____ isolation level.",
+        "blanks": [
+          "SERIALIZABLE"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "isolation-levels",
+        "phantoms"
+      ],
+      "id": "sf_36ca3271e6e94876281f5a22"
+    }
+  ],
+  "id": "sf_a178f9c2efba99326cff35bb"
+}

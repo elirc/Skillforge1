@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-hard-did-you-mean",
+  "title": "CLI 'Did You Mean?' Suggestions",
+  "prompt": "When a user mistypes a CLI command, print suggestions. Write `suggest(input, commands)`. Trim the input and compare case-insensitively. If the input exactly matches a command, return `[]` (nothing to suggest). Otherwise compute the Levenshtein edit distance (insert, delete, substitute; each costs 1) between the input and every command, keep commands with distance <= `max(1, floor(input.length / 3))` (length after trimming), sort by distance then alphabetically (lowercased), and return at most 3, in the command's original casing.",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": ["dynamic-programming", "edit-distance", "strings", "sorting"],
+  "order": 70008,
+  "exercise": "did-you-mean",
+  "explanation": {
+    "beginner": "Edit distance counts the fewest single-letter edits to turn one word into another: `comit` -> `commit` is one insertion. Build a grid where cell (i, j) is the distance between the first i letters of the input and the first j letters of the command. The top row and left column are 0, 1, 2, ... (building from nothing). Every other cell is the smallest of: the cell above + 1 (delete), the cell to the left + 1 (insert), or the diagonal cell + 0 if the letters match or + 1 if they do not (substitute). The bottom-right cell is the answer. Do that for each command, keep the close ones, sort, and take three.",
+    "junior": "Levenshtein DP is O(m*n) per pair; keep only two rows to make it O(n) space. The threshold scales with input length because one typo in a 3-letter word is a lot more than one typo in a 12-letter word - git uses a similar similarity cutoff. Short-circuit the exact match before computing anything, and normalise case on both sides but return the original casing. A deterministic sort (distance, then name) keeps output stable across runs, which matters for snapshot tests. Note that a transposition (`psuh`) costs 2 here; Damerau-Levenshtein treats it as 1 and gives better typo suggestions. For thousands of candidates, prune with a length difference check (`|m - n| > threshold` can never match) or use a BK-tree."
+  }
+}

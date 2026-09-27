@@ -1,0 +1,73 @@
+{
+  "id": "sf_08cc5fbcde9dd3452ff9c281",
+  "title": "Inclusive range boundary",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A loop or generated range has a boundary contract: this one includes zero and end when end is nonnegative. The broken implementation excludes the final value. A test using a long range can miss the reason for the defect; end=0 isolates it to the smallest meaningful case."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export function range(end: number): number[] { return Array.from({length: Math.max(0,end)},(_,i)=>i); }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [3]. The required result is [0,1,2,3]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix range and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "An empty input and a zero endpoint are different cases."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_37cebc75ce8f31cb16227618",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "boundaries",
+        "arrays"
+      ],
+      "payload": {
+        "choices": [
+          "It only repeats a happy-path example",
+          "It fails on the original implementation and passes on the corrected contract",
+          "It accepts whatever the current implementation returns"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Use an inclusive length of end + 1 for a nonnegative endpoint."
+      }
+    },
+    {
+      "id": "sf_d1641f6628dcaf24a5978724",
+      "type": "CODE",
+      "prompt": "Fix range and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "boundaries",
+        "arrays"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Use an inclusive length of end + 1 for a nonnegative endpoint.",
+        "An empty input and a zero endpoint are different cases."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "function range(end) { return Array.from({ length: Math.max(0, end + 1) }, (_, i) => i); }\n",
+        "mutants": [
+          "function range(end) { return Array.from({ length: Math.max(0, end) }, (_, i) => i); }\n"
+        ]
+      },
+      "walkthrough": "Use an inclusive length of end + 1 for a nonnegative endpoint.\nAn empty input and a zero endpoint are different cases."
+    }
+  ]
+}

@@ -14,6 +14,24 @@
       "type": "callout",
       "tone": "warning",
       "body": "Default sort compares strings, so numeric sorting needs a compare function."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The spread creates an independent array before sort mutates it. The numeric comparator returns a negative value when a belongs before b, zero for a tie, and positive otherwise."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const original = [9, 20, 3];\nconst ordered = [...original].sort((a, b) => a - b);\n// ordered [3, 9, 20]; original unchanged"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Default sort compares string representations: 20 comes before 3. A boolean comparator also fails the three-way contract."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Reverse the comparator for descending order and test equal values.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -21,17 +39,39 @@
       "type": "MCQ",
       "prompt": "Why copy an array before calling sort?",
       "payload": {
-        "choices": ["sort mutates the array", "sort only works on copies", "copying makes sorting async", "copying removes undefined values"],
+        "choices": [
+          "sort only works on copies",
+          "sort mutates the array",
+          "copying makes sorting async",
+          "copying removes undefined values"
+        ],
         "answer": "sort mutates the array",
         "explanation": "Calling sort changes the original array, so copying first avoids side effects."
       },
-      "conceptTags": ["arrays", "sorting", "mutation"]
+      "conceptTags": [
+        "arrays",
+        "sorting",
+        "mutation"
+      ],
+      "id": "sf_6c0eec4b2467b99a017e8f0b"
     },
     {
       "type": "CODE",
       "prompt": "Return scores from highest to lowest without mutating the input array.",
       "exercise": "top-scores",
-      "conceptTags": ["arrays", "sorting", "immutability"]
+      "conceptTags": [
+        "arrays",
+        "sorting",
+        "immutability"
+      ],
+      "id": "sf_cd195f24c691d0043a75bc8a",
+      "hints": [
+        "Default sort compares string representations: 20 comes before 3. A boolean comparator also fails the three-way contract.",
+        "The spread creates an independent array before sort mutates it. The numeric comparator returns a negative value when a belongs before b, zero for a tie, and positive otherwise."
+      ],
+      "walkthrough": "The spread creates an independent array before sort mutates it. The numeric comparator returns a negative value when a belongs before b, zero for a tie, and positive otherwise."
     }
-  ]
+  ],
+  "id": "sf_e10ce79f02c986e4cb163ead",
+  "estimatedMinutes": 12
 }

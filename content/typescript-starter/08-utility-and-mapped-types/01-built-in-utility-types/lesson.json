@@ -1,0 +1,94 @@
+{
+  "title": "Pick, Omit, Record, Required, Readonly",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "TypeScript ships utility types that derive new types from existing ones, so you describe a shape once and reuse it. You have met Partial<T>. The others you will reach for every week are Pick, Omit, Record, Required, and Readonly."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "interface User {\n  id: string;\n  email: string;\n  name: string;\n  passwordHash: string;\n}\n\ntype PublicUser = Omit<User, \"passwordHash\" | \"email\">; // { id; name }\ntype UserPreview = Pick<User, \"id\" | \"name\">;          // same shape, other direction\ntype UsersById = Record<string, PublicUser>;            // lookup table\n\ninterface Settings { theme?: \"light\" | \"dark\"; pageSize?: number }\ntype ResolvedSettings = Required<Settings>;             // both keys mandatory\ntype FrozenSettings = Readonly<ResolvedSettings>;       // no reassignment"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Pick lists what to keep; Omit lists what to drop. Prefer Pick for public API shapes: if someone adds a secret field to User later, a Pick-based type will not leak it, while an Omit-based type will."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Readonly is shallow and compile-time only. Readonly<Settings> stops settings.pageSize = 5, but nested objects stay mutable, and nothing stops mutation at runtime. Use Object.freeze if you need a runtime guarantee."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which type is { id: string; name: string } for the User interface in this lesson?",
+      "payload": {
+        "choices": [
+          "Pick<User, \"id\" | \"name\">",
+          "Omit<User, \"id\" | \"name\">",
+          "Partial<User>",
+          "Record<\"id\" | \"name\", User>"
+        ],
+        "answer": "Pick<User, \"id\" | \"name\">",
+        "explanation": "Pick keeps only the listed keys. Omit with the same keys would keep email and passwordHash instead."
+      },
+      "conceptTags": [
+        "typescript",
+        "utility-types",
+        "pick-omit"
+      ],
+      "id": "sf_a1093cf9b37f183408ca9477"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A teammate adds apiToken to User. Which derived type now exposes it without anyone noticing?",
+      "payload": {
+        "choices": [
+          "Pick<User, \"id\" | \"name\">",
+          "Both",
+          "Omit<User, \"passwordHash\">",
+          "Neither"
+        ],
+        "answer": "Omit<User, \"passwordHash\">",
+        "explanation": "Omit keeps every key it was not told to drop, so new fields flow through automatically. Pick is an allow-list."
+      },
+      "conceptTags": [
+        "typescript",
+        "utility-types",
+        "security"
+      ],
+      "id": "sf_9a31807cc5e7a47b2245772d"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the utility type.",
+      "payload": {
+        "text": "To remove every ? from a type's properties, use ____<T>.",
+        "blanks": [
+          "Required"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "utility-types"
+      ],
+      "id": "sf_09b120932ed3664fb4bf4277"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Resolve saved settings (Partial<Settings>) into a complete Readonly<Required<Settings>>: fall back to defaults for missing or null values, clamp pageSize to 5..100, and trim locale.",
+      "exercise": "resolve-settings",
+      "conceptTags": [
+        "typescript",
+        "utility-types",
+        "required",
+        "readonly"
+      ],
+      "id": "sf_ab7ec239dc3c6b1c01f71a40"
+    }
+  ],
+  "id": "sf_04ccd5043d880abb09371650"
+}

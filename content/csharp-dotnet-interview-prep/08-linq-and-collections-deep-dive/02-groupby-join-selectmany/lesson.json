@@ -1,0 +1,96 @@
+{
+  "title": "GroupBy, Join, GroupJoin, and SelectMany",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "These four operators cover most reporting code, and each maps to a SQL idea:"
+    },
+    {
+      "type": "prose",
+      "body": "- `Join`: an **inner join**. Items with no match on the other side disappear.\n- `GroupJoin`: every outer item with the (possibly empty) sequence of its matches. It is the building block for a **left join**.\n- `SelectMany`: flattens a sequence of sequences, such as orders to order lines. Also used after `GroupJoin` with `DefaultIfEmpty()` to write a left join.\n- `GroupBy`: buckets items by key; each group is an `IGrouping<TKey, T>` with a `Key` and the items."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Inner join: orders without a known customer are dropped.\nvar rows = orders.Join(customers, o => o.CustomerId, c => c.Id,\n    (o, c) => new { o.Id, c.Name });\n\n// GroupJoin: every customer, with their orders (maybe none).\nvar perCustomer = customers.GroupJoin(orders, c => c.Id, o => o.CustomerId,\n    (c, os) => new { c.Name, OrderCount = os.Count() });\n\n// Left join, flattened: one row per order, or one row with null for no orders.\nvar left = customers\n    .GroupJoin(orders, c => c.Id, o => o.CustomerId, (c, os) => new { c, os })\n    .SelectMany(x => x.os.DefaultIfEmpty(), (x, o) => new { x.c.Name, OrderId = o?.Id });\n\n// Flatten, then group.\nvar unitsPerSku = orders\n    .SelectMany(o => o.Lines)\n    .GroupBy(line => line.Sku)\n    .Select(g => new { Sku = g.Key, Units = g.Sum(l => l.Quantity) })\n    .OrderByDescending(x => x.Units).ThenBy(x => x.Sku);"
+    },
+    {
+      "type": "prose",
+      "body": "In LINQ to Objects, `Join` and `GroupJoin` build a hash lookup of the inner sequence, so they run in roughly O(n + m) instead of a nested loop's O(n × m). `GroupBy` also hashes, and it keeps groups in the order their keys first appeared, which is not a sort. Always add an explicit `OrderBy` when the output order matters."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "An inner `Join` hides bad data. An order that points at a deleted customer simply vanishes from the report. When the totals must add up, also count what did not match, or use a left join and report the nulls."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which operator keeps every customer, including customers with no orders, together with their matching orders?",
+      "payload": {
+        "choices": [
+          "Join",
+          "SelectMany",
+          "Zip",
+          "GroupJoin"
+        ],
+        "answer": "GroupJoin",
+        "explanation": "GroupJoin pairs each outer element with the (possibly empty) sequence of inner matches. Join is an inner join and drops unmatched items."
+      },
+      "conceptTags": [
+        "linq",
+        "joins",
+        "csharp"
+      ],
+      "id": "sf_5818f5c0d67e06fb6eaf723e"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does `orders.SelectMany(o => o.Lines)` return?",
+      "payload": {
+        "choices": [
+          "A single flat sequence of all order lines",
+          "A sequence of line arrays, one per order",
+          "The orders that have at least one line",
+          "A dictionary from order to lines"
+        ],
+        "answer": "A single flat sequence of all order lines",
+        "explanation": "SelectMany projects each element to a sequence and concatenates the results. Select would give you a sequence of arrays."
+      },
+      "conceptTags": [
+        "linq",
+        "selectmany"
+      ],
+      "id": "sf_f564131d1b8307042720ce59"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the sentence.",
+      "payload": {
+        "text": "Each group produced by GroupBy exposes the shared key through its ____ property.",
+        "blanks": [
+          "Key"
+        ]
+      },
+      "conceptTags": [
+        "linq",
+        "groupby"
+      ],
+      "id": "sf_c43eca3a5f3a7ee857f023fe"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Build a regional sales report with GroupJoin, SelectMany and GroupBy, rank the top SKUs, and report orders an inner join would drop.",
+      "exercise": "revenue-by-region",
+      "conceptTags": [
+        "linq",
+        "joins",
+        "groupby",
+        "reporting"
+      ],
+      "id": "sf_3ba1703adbb109ecc5bf0bc6"
+    }
+  ],
+  "id": "sf_5f8ff6fee28596a057ef3cff"
+}

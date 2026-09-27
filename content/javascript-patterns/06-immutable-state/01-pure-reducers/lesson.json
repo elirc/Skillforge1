@@ -1,0 +1,95 @@
+{
+  "title": "Pure Reducers and Structural Sharing",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A reducer is a pure function (state, action) => newState. It never changes the state it receives; it returns a new value instead. Because old states are left untouched, you get cheap change detection (a !== b means something changed), undo history, and predictable debugging. React's useReducer and Redux are built on this idea."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function todosReducer(state, action) {\n  switch (action.type) {\n    case \"add\":\n      return [...state, { id: action.id, text: action.text, done: false }];\n    case \"toggle\":\n      return state.map((t) => (t.id === action.id ? { ...t, done: !t.done } : t));\n    case \"remove\":\n      return state.filter((t) => t.id !== action.id);\n    default:\n      return state; // unknown action: same reference, nothing changed\n  }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Copying does not mean deep-cloning everything. With structural sharing you copy only the path that changed and reuse every untouched object. In the toggle case above, the new array contains the same todo objects as before except the one that was toggled."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const next = todosReducer(prev, { type: \"toggle\", id: 2 });\nnext === prev;          // false: the array is new\nnext[0] === prev[0];    // true: untouched todo is shared\nnext[1] === prev[1];    // false: the toggled todo was copied"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "push, splice, sort and direct assignment (todo.done = true) mutate. Prefer spread, map, filter, and toSorted/toSpliced."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which reducer branch is pure?",
+      "payload": {
+        "choices": [
+          "return [...state, newTodo];",
+          "state.push(newTodo); return state;",
+          "state[0].done = true; return state;",
+          "state.length = 0; return state;"
+        ],
+        "answer": "return [...state, newTodo];",
+        "explanation": "Spreading into a new array leaves the original untouched. The others mutate the state they received."
+      },
+      "conceptTags": [
+        "immutability",
+        "reducers"
+      ],
+      "id": "sf_448a48fc0e578dc8b8161555"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "After toggling one todo out of three with map + spread, how many todo objects are newly created?",
+      "payload": {
+        "choices": [
+          "3",
+          "0",
+          "1",
+          "4"
+        ],
+        "answer": "1",
+        "explanation": "Only the toggled todo is copied; the other two objects are shared with the previous state."
+      },
+      "conceptTags": [
+        "immutability",
+        "structural-sharing"
+      ],
+      "id": "sf_44200694637bedeae9677e0a"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the property.",
+      "payload": {
+        "text": "A reducer must be ____: same inputs, same output, and no mutation of its arguments.",
+        "blanks": [
+          "pure"
+        ]
+      },
+      "conceptTags": [
+        "reducers",
+        "pure-functions"
+      ],
+      "id": "sf_81ea3fd3717e3621717271d8"
+    },
+    {
+      "type": "CODE",
+      "prompt": "The todos reducer mutates its state, so the history of snapshots is corrupted. Rewrite it to return new arrays and objects so every snapshot stays correct.",
+      "exercise": "replay-todos",
+      "conceptTags": [
+        "immutability",
+        "reducers",
+        "arrays"
+      ],
+      "id": "sf_e03a007f2d3540f13c209691"
+    }
+  ],
+  "id": "sf_3f423ae0dded26819a962c46"
+}

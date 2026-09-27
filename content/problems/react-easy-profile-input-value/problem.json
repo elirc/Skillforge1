@@ -11,7 +11,7 @@
   "order": 30010,
   "exercise": "react-easy-profile-input-value",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Profile Input Value, read the story as a simple input-to-output rule: A React profile controlled input must always receive a string. Write a helper that returns the provided value unless it is null, then returns an empty string. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react and controlled-inputs. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: profileInputValue(\"hello\") produces \"hello\". Identify exactly which values mean absent under the contract, then select the fallback only for those values.\n\nCompare “converts null to empty string”: input [null] produces \"\". Explain which rule causes the difference before writing code.",
+    "junior": "Identify exactly which values mean absent under the contract, then select the fallback only for those values.\n\nTempting mistake: A truthiness check also replaces 0, false, and an empty string. Nullish absence and falsiness are different rules.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “converts null to empty string”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

@@ -11,7 +11,7 @@
   "order": 17,
   "exercise": "group-by-parity",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Group by Even and Odd, read the story as a simple input-to-output rule: A number sorter needs to split values into even and odd lanes. Write a function that returns an object { even, odd } where each key holds the matching numbers in their original order. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and objects. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: groupByParity([1,2,3,4]) produces {\"even\":[2,4],\"odd\":[1,3]}. Use a key-specific bucket or count so each occurrence changes only its own group.\n\nCompare “handles all even”: input [[2,4,6]] produces {\"even\":[2,4,6],\"odd\":[]}. Explain which rule causes the difference before writing code.",
+    "junior": "Use a key-specific bucket or count so each occurrence changes only its own group.\n\nTempting mistake: Reinitializing an existing group erases earlier contributions. Distinct-key counts differ from total occurrences.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “handles all even”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

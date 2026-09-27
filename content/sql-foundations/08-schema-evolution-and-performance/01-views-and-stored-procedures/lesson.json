@@ -1,0 +1,100 @@
+{
+  "title": "Views and Stored Procedures",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A **view** is a saved SELECT with a name. Querying it is like pasting its query in as a subquery; normally it stores no data. Views are useful for:\n- giving reports a stable, simple shape over messy tables\n- hiding columns (grant access to the view, not the table)\n- naming a business rule once, such as \"active customer\""
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE VIEW active_customers AS\nSELECT id, name, email\nFROM customers\nWHERE deleted_at IS NULL AND status = 'active';\n\nSELECT name FROM active_customers WHERE email LIKE '%@example.com';"
+    },
+    {
+      "type": "prose",
+      "body": "A **stored procedure** is named, parameterized code that runs inside the database: several statements, variables, IF/ELSE, and transactions. It keeps multi-step writes close to the data (one round trip) and lets DBAs grant EXECUTE without granting direct table access. The cost: logic split between app and database is harder to test, version, and deploy, which is why many teams keep business rules in the app and use procedures sparingly."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE PROCEDURE dbo.TransferFunds @FromId int, @ToId int, @Amount int AS\nBEGIN\n  SET XACT_ABORT ON;               -- any error rolls the whole transaction back\n  IF @Amount <= 0 RETURN 1;\n  BEGIN TRAN;\n    UPDATE accounts SET balance = balance - @Amount\n    WHERE id = @FromId AND balance >= @Amount;\n    IF @@ROWCOUNT = 0 BEGIN ROLLBACK; RETURN 4; END\n    UPDATE accounts SET balance = balance + @Amount WHERE id = @ToId;\n  COMMIT;\n  RETURN 0;\nEND;\n\nEXEC dbo.TransferFunds @FromId = 1, @ToId = 2, @Amount = 30;"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "A **materialized** (indexed) view does store its result and must be kept up to date on every write to the base tables. Use it for expensive aggregates that are read far more often than the tables change."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Views are not a security boundary for writes by themselves, and stacking views on views hides expensive joins. If a query on a view is slow, read the plan of the expanded query."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does a regular (non-materialized) view store?",
+      "payload": {
+        "choices": [
+          "A copy of the rows, refreshed nightly",
+          "Only its query definition",
+          "An index on every column",
+          "A cached execution plan and result"
+        ],
+        "answer": "Only its query definition",
+        "explanation": "A plain view is a named query. Each use runs the underlying SELECT against the current data."
+      },
+      "conceptTags": [
+        "sql",
+        "views"
+      ],
+      "id": "sf_c8d96d9b0e91c17a20253d5e"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which is a real advantage of a stored procedure?",
+      "payload": {
+        "choices": [
+          "It makes SQL injection impossible even with dynamic SQL built from strings",
+          "It is easier to unit-test than app code",
+          "It never needs deployment",
+          "Several statements run inside the database in one round trip, with their own transaction"
+        ],
+        "answer": "Several statements run inside the database in one round trip, with their own transaction",
+        "explanation": "Procedures cut round trips and can enforce a multi-step write atomically. Dynamic SQL concatenated inside a procedure is still injectable."
+      },
+      "conceptTags": [
+        "sql",
+        "stored-procedures"
+      ],
+      "id": "sf_773d4a42ec4802c846b7be4a"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the statement.",
+      "payload": {
+        "text": "CREATE ____ active_customers AS SELECT id, name FROM customers WHERE deleted_at IS NULL;",
+        "blanks": [
+          "VIEW"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "views"
+      ],
+      "id": "sf_c80561215ecbf4c2b1d3fd5d"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model the TransferFunds procedure. Check in order: amount must be a positive integer ('invalid-amount'), the accounts must differ ('same-account'), both must exist ('unknown-account'), and the source must have enough balance ('insufficient-funds'). Return `{ status, accounts }`: 'ok' with both balances updated, or the error with balances unchanged. Never mutate the input.",
+      "exercise": "transfer-procedure",
+      "conceptTags": [
+        "sql",
+        "stored-procedures",
+        "transactions"
+      ],
+      "id": "sf_5c6853bf69aab082f7e4b414"
+    }
+  ],
+  "id": "sf_4f72168b78500757b58c66da"
+}

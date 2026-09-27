@@ -1,0 +1,99 @@
+{
+  "title": "Aggregates: COUNT, SUM, AVG, MIN, MAX",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Aggregate functions collapse many rows into one value. Without GROUP BY, the whole filtered table is one group, so the query returns exactly one row, even when the table is empty."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT COUNT(*)                    AS count_star,        -- every row\n       COUNT(amount)               AS count_amount,      -- rows where amount IS NOT NULL\n       COUNT(DISTINCT customer_id) AS distinct_customers, -- unique non-NULL values\n       SUM(amount)                 AS sum_amount,\n       AVG(amount)                 AS avg_amount,        -- SUM / COUNT(amount), not COUNT(*)\n       MIN(amount)                 AS min_amount,\n       MAX(amount)                 AS max_amount\nFROM payments;"
+    },
+    {
+      "type": "prose",
+      "body": "The rules interviewers probe: COUNT(*) counts rows; COUNT(column) counts non-NULL values; COUNT(DISTINCT column) counts unique non-NULL values. SUM, AVG, MIN, and MAX ignore NULLs entirely, so AVG divides by the number of non-NULL values. Over zero rows (or only NULLs), COUNT returns 0 but SUM, AVG, MIN, and MAX return NULL, so wrap them in COALESCE(SUM(amount), 0) when the app expects a number."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "In SQL Server, AVG over an INT column returns an INT and truncates: AVG of 1 and 2 is 1, not 1.5. Cast first, as in AVG(CAST(rating AS decimal(10, 2))), or store money as DECIMAL."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "If a missing amount should count as zero in the average, say so explicitly: AVG(COALESCE(amount, 0)). Otherwise AVG silently leaves those rows out of both the sum and the divisor."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model the aggregate query in the lesson over a payments table. Return one object with keys in this order: countStar, countAmount, distinctCustomers, sumAmount, avgAmount, minAmount, maxAmount. COUNT(DISTINCT customer_id) ignores NULL customers. With no non-NULL amounts, the SUM/AVG/MIN/MAX values are null.",
+      "exercise": "summarize-payments",
+      "conceptTags": [
+        "sql",
+        "aggregates",
+        "count",
+        "nulls"
+      ],
+      "id": "sf_e39ec7054c12fd0269f2209f"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A reviews table has 4 rows with rating values 5, 3, NULL, 4. What does `SELECT COUNT(*), COUNT(rating), AVG(rating * 1.0) FROM reviews` return?",
+      "payload": {
+        "choices": [
+          "4, 4, 3.0",
+          "4, 3, 4.0",
+          "3, 3, 4.0",
+          "4, 3, 3.0"
+        ],
+        "answer": "4, 3, 4.0",
+        "explanation": "COUNT(*) counts all 4 rows, COUNT(rating) skips the NULL (3), and AVG ignores NULLs: (5 + 3 + 4) / 3 = 4.0."
+      },
+      "conceptTags": [
+        "sql",
+        "aggregates",
+        "nulls"
+      ],
+      "id": "sf_5bb383df3d79c8727e5d33f0"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "What do SUM, AVG, MIN, and MAX return when there are no rows to aggregate?",
+      "payload": {
+        "text": "SELECT SUM(total) FROM orders WHERE 1 = 0; returns ____.",
+        "blanks": [
+          "NULL"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "aggregates",
+        "nulls"
+      ],
+      "id": "sf_f4f7632ef4f851894db9add8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "In SQL Server, `stars` is an INT column holding 4 and 5. What does `SELECT AVG(stars) FROM ratings` return?",
+      "payload": {
+        "choices": [
+          "4.5",
+          "5",
+          "NULL",
+          "4"
+        ],
+        "answer": "4",
+        "explanation": "SQL Server's AVG returns the input's data type, so the average of INTs is an INT and 4.5 is truncated to 4. Cast to decimal before averaging."
+      },
+      "conceptTags": [
+        "sql",
+        "aggregates",
+        "sql-server"
+      ],
+      "id": "sf_e0ed80fb46175848b4ddf42c"
+    }
+  ],
+  "id": "sf_1e6a0c323c17e8ab731fcb92"
+}

@@ -11,7 +11,7 @@
   "order": 11017,
   "exercise": "js-medium-course-merge-counts",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Course Merge Counts, read the story as a simple input-to-output rule: A course report receives count objects from two sources. Write a function that returns one object with counts from matching keys added together. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is objects and counting. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: courseMergeCounts({\"open\":2,\"done\":1}, {\"open\":3,\"blocked\":4}) produces {\"open\":5,\"done\":1,\"blocked\":4}. Copy the first collection of counts, then add each contribution from the next collection under the same key.\n\nCompare “handles empty left objects”: input [{},{\"a\":1}] produces {\"a\":1}. Explain which rule causes the difference before writing code.",
+    "junior": "Copy the first collection of counts, then add each contribution from the next collection under the same key.\n\nTempting mistake: Replacing a count loses the earlier contribution; treating an absent count as undefined can produce NaN.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “handles empty left objects”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

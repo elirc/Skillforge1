@@ -1,0 +1,95 @@
+{
+  "title": "Validation and Accessible Errors",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Validate with a pure function from values to errors keyed by field, so the same rules run on blur, on submit, and in tests. Then decide **when** to show each error: showing \"Name is required\" before the user has typed anything is noise. A common rule is to show a field's error once it has been touched, and every error once the user tries to submit. Still block submission while any error exists, visible or not."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "function Field({ id, label, error, ...inputProps }: FieldProps) {\n  const errorId = `${id}-error`;\n  return (\n    <div>\n      <label htmlFor={id}>{label}</label>\n      <input\n        id={id}\n        aria-invalid={error ? true : undefined}\n        aria-describedby={error ? errorId : undefined}\n        {...inputProps}\n      />\n      {error && <p id={errorId} className=\"field-error\">{error}</p>}\n    </div>\n  );\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Accessibility checklist for form errors:\n\n- every input has a real `<label htmlFor>` (a placeholder is not a label)\n- `aria-invalid` marks the field as invalid for screen readers\n- `aria-describedby` points at the error text so it is announced with the field\n- on a failed submit, move focus to the first invalid field or to an error summary\n- do not rely on red colour alone; the message text carries the meaning\n\nUse `useId()` when a reusable component needs unique ids; it is stable across server and client rendering."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Client-side validation is for user experience only. The server must validate again, and its errors (for example \"SKU already exists\") should map onto the same field-keyed shape so the form renders them identically."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which attribute links an input to the element that contains its error message?",
+      "payload": {
+        "choices": [
+          "aria-describedby",
+          "aria-labelledby",
+          "htmlFor",
+          "aria-live"
+        ],
+        "answer": "aria-describedby",
+        "explanation": "aria-describedby names the element(s) whose text describes the input; screen readers read it after the label."
+      },
+      "conceptTags": [
+        "react",
+        "forms",
+        "accessibility"
+      ],
+      "id": "sf_b84d3e437172782863ad5ccf"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "When is a common good time to first show a field's validation error?",
+      "payload": {
+        "choices": [
+          "On the very first keystroke",
+          "After the field is touched or the form is submitted",
+          "Only after the server responds",
+          "Before the user interacts"
+        ],
+        "answer": "After the field is touched or the form is submitted",
+        "explanation": "Waiting for blur or submit avoids shouting at users mid-typing, while still catching every error before submission."
+      },
+      "conceptTags": [
+        "react",
+        "forms",
+        "validation"
+      ],
+      "id": "sf_224cc4dad96b305231c744ea"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the hook that generates a unique, SSR-safe id for a reusable field.",
+      "payload": {
+        "text": "const id = ____();",
+        "blanks": [
+          "useId"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "forms",
+        "accessibility",
+        "hooks"
+      ],
+      "id": "sf_04c4642bea185eabf9472ffc"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Validate a product form and compute each field's accessible props (id, aria-invalid, aria-describedby, message), showing errors only when touched or submitted.",
+      "exercise": "field-error-props",
+      "conceptTags": [
+        "react",
+        "forms",
+        "validation",
+        "accessibility"
+      ],
+      "id": "sf_f3e8896f50ed4d1d3dbb8e46"
+    }
+  ],
+  "id": "sf_2ed3308654a1bfb35dd79ca6"
+}

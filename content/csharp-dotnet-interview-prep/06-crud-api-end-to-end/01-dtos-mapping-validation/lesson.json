@@ -1,0 +1,119 @@
+{
+  "title": "DTOs, Mapping, and Request Validation",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A CRUD API has three shapes for the same thing: the request the client sends, the entity you store, and the response you return. Keep them separate. A `CreateProductRequest` record lists exactly the fields a client may set, so fields like `Id`, `CreatedAt`, `OwnerId` or `IsDeleted` cannot be over-posted: binding an entity directly lets a client set any public property. A `ProductDto` lists exactly what the client may see, so adding a column to the entity never leaks it by accident."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public sealed record CreateProductRequest(string? Name, string? Sku, decimal Price, string[]? Tags);\npublic sealed record ProductDto(string Id, string Sku, string Name, decimal Price, IReadOnlyList<string> Tags);\n\n// Mapping is plain code: explicit, easy to step through, and checked by the compiler.\npublic static class ProductMapping\n{\n    public static ProductDto ToDto(this Product entity) =>\n        new(entity.Id, entity.Sku, entity.Name, entity.Price, entity.Tags.Select(t => t.Name).ToList());\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Validate in two stages. First normalize the input (trim strings, upper-case a SKU, de-duplicate tags) and check its shape without touching the database: required fields, lengths, formats, ranges. Return every problem at once as a 400 `ValidationProblemDetails`, keyed by field name, so the client can fix the whole form in one round trip. Only when the request is valid, run the checks that need data, such as a unique SKU, and report a clash as 409 Conflict. On success, return 201 Created with a `Location` header and the DTO."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "app.MapPost(\"/products\", async (CreateProductRequest request, AppDbContext db, CancellationToken ct) =>\n{\n    var errors = CreateProductValidator.Validate(request);           // Dictionary<string, string[]>\n    if (errors.Count > 0) return Results.ValidationProblem(errors);  // 400\n\n    var sku = request.Sku!.Trim().ToUpperInvariant();\n    if (await db.Products.AnyAsync(p => p.Sku == sku, ct))\n        return Results.Conflict();                                   // 409\n\n    var product = Product.Create(sku, request.Name!.Trim(), request.Price, request.Tags);\n    db.Products.Add(product);\n    await db.SaveChangesAsync(ct);                                   // a unique index still guards races\n\n    return Results.Created($\"/products/{product.Id}\", product.ToDto()); // 201\n});"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "The `AnyAsync` uniqueness check is a friendly error message, not a guarantee: two requests can both pass it. The unique index on `Sku` is what actually enforces the rule, so also catch the unique-constraint violation on `SaveChangesAsync` and turn it into the same 409."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why bind a `CreateProductRequest` record instead of the `Product` entity in a POST endpoint?",
+      "payload": {
+        "choices": [
+          "It stops clients from over-posting fields like Id, OwnerId or IsDeleted",
+          "Entities cannot be deserialized from JSON",
+          "Records are always faster to validate than classes",
+          "It removes the need for a database index"
+        ],
+        "answer": "It stops clients from over-posting fields like Id, OwnerId or IsDeleted",
+        "explanation": "Model binding sets every matching public property. A request DTO limits the contract to the fields a client is allowed to supply."
+      },
+      "conceptTags": [
+        "aspnet-core",
+        "dtos",
+        "security"
+      ],
+      "id": "sf_d44a1445ad41d79af135d745"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A valid create request uses a SKU that already exists. Which status fits best?",
+      "payload": {
+        "choices": [
+          "400 Bad Request",
+          "409 Conflict",
+          "404 Not Found",
+          "500 Internal Server Error"
+        ],
+        "answer": "409 Conflict",
+        "explanation": "The request is well-formed, but it conflicts with the current state of the resource collection. 400 is for input that is invalid on its own."
+      },
+      "conceptTags": [
+        "aspnet-core",
+        "http-status",
+        "validation"
+      ],
+      "id": "sf_1a054575f9737454503bf52b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the success response.",
+      "payload": {
+        "text": "A successful POST that creates a resource returns 201 Created with a ____ header pointing at the new resource.",
+        "blanks": [
+          "Location"
+        ]
+      },
+      "conceptTags": [
+        "aspnet-core",
+        "rest-api",
+        "http-status"
+      ],
+      "id": "sf_54efcdcb70c1bbe1de580544"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why is the uniqueness check done after shape validation rather than before?",
+      "payload": {
+        "choices": [
+          "Validation cannot run once the database has been queried",
+          "Uniqueness errors must always be reported together with shape errors",
+          "It needs a database round trip, which is wasted on a request that is invalid anyway",
+          "EF Core requires validation to run last"
+        ],
+        "answer": "It needs a database round trip, which is wasted on a request that is invalid anyway",
+        "explanation": "Cheap, data-free checks go first and report every problem at once. Checks that need data run only for requests that are otherwise valid."
+      },
+      "conceptTags": [
+        "validation",
+        "crud",
+        "performance"
+      ],
+      "id": "sf_aa3377c4550cd353d1697366"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement POST /products: normalize and validate the request, report errors per field, detect a SKU conflict, and map the result to a DTO.",
+      "exercise": "create-product",
+      "conceptTags": [
+        "aspnet-core",
+        "dtos",
+        "validation",
+        "crud"
+      ],
+      "id": "sf_efe6b435e8c3bcb246fe68ad"
+    }
+  ],
+  "id": "sf_afcef5e20487a32dc0fd9beb"
+}

@@ -32,12 +32,13 @@ const goalPitch: Record<Goal, string> = {
 export function OnboardingForm({
   defaults,
 }: {
-  defaults: { name: string; goal: Goal; experience: Experience; dailyXpGoal: number; focusTags: string[] };
+  defaults: { name: string; goal: Goal; experience: Experience; dailyXpGoal: number; dailyMinutes?: number; focusTags: string[] };
 }) {
   const [name, setName] = useState(defaults.name);
   const [goal, setGoal] = useState<Goal>(defaults.goal);
   const [experience, setExperience] = useState<Experience>(defaults.experience);
   const [dailyXpGoal, setDailyXpGoal] = useState(defaults.dailyXpGoal);
+  const [dailyMinutes, setDailyMinutes] = useState(defaults.dailyMinutes ?? 15);
   const [focusTags, setFocusTags] = useState<string[]>(defaults.focusTags);
   const [isPending, startTransition] = useTransition();
 
@@ -47,14 +48,15 @@ export function OnboardingForm({
 
   function submit() {
     startTransition(async () => {
-      await saveOnboardingAction({ name: name.trim() || "Learner", goal, experience, dailyXpGoal, focusTags });
+      await saveOnboardingAction({ name: name.trim() || "Learner", goal, experience, dailyXpGoal, dailyMinutes, focusTags });
     });
   }
 
   return (
     <div className="space-y-8">
+      <Section title="How much time do you want to spend each day?" hint="Your guided session fits reviews, a lesson, and practice into this budget."><div className="flex gap-2">{[5,15,30,60].map(minutes => <Choice key={minutes} selected={dailyMinutes === minutes} onClick={() => setDailyMinutes(minutes)} compact>{minutes} min</Choice>)}</div></Section>
       <Section title="What should we call you?">
-        <Input value={name} maxLength={40} onChange={(event) => setName(event.target.value)} placeholder="Learner" />
+        <Input aria-label="Display name" value={name} maxLength={40} onChange={(event) => setName(event.target.value)} placeholder="Learner" />
       </Section>
 
       <Section title="What are you here for?">

@@ -1,0 +1,73 @@
+{
+  "id": "sf_9104645e86b5b1b23efd0f21",
+  "title": "Latest version wins",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Responses can arrive out of order. A version gate keeps the current snapshot unless an incoming version is strictly newer. The equal-version case also has a defined contract: preserve the current value. Reproducing the bug means delivering an older or equal snapshot after a newer one, which a happy-path test with increasing versions never does."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export function mergeVersion(current: {version:number;name:string}, incoming: {version:number;name:string}): {version:number;name:string} { return incoming; }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"version\":2,\"name\":\"new\"},{\"version\":1,\"name\":\"old\"}]. The required result is {\"version\":2,\"name\":\"new\"}. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix mergeVersion and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Arrival order is not the same as version order."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_c8875e5f312cc25d93a4ab76",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "concurrency",
+        "state"
+      ],
+      "payload": {
+        "choices": [
+          "It only repeats a happy-path example",
+          "It fails on the original implementation and passes on the corrected contract",
+          "It accepts whatever the current implementation returns"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Compare versions before replacing the snapshot."
+      }
+    },
+    {
+      "id": "sf_7dcd0c936eaf708ca35832c0",
+      "type": "CODE",
+      "prompt": "Fix mergeVersion and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "concurrency",
+        "state"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Compare versions before replacing the snapshot.",
+        "Arrival order is not the same as version order."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "function mergeVersion(current, incoming) { return incoming.version > current.version ? incoming : current; }\n",
+        "mutants": [
+          "function mergeVersion(current, incoming) { return incoming; }\n"
+        ]
+      },
+      "walkthrough": "Compare versions before replacing the snapshot.\nArrival order is not the same as version order."
+    }
+  ]
+}

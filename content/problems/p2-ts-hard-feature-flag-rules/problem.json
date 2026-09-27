@@ -1,0 +1,14 @@
+{
+  "slug": "p2-ts-hard-feature-flag-rules",
+  "title": "Evaluate Feature-Flag Targeting Rules",
+  "prompt": "Feature flags are targeted with rules such as `country in [US, CA] and not plan = free`. Write `evaluateRule(rule, user)` returning `{ ok: true, value }` or `{ ok: false, error }`. Grammar (keywords `and`, `or`, `not`, `in` are case-insensitive): `or` binds loosest, then `and`, then prefix `not`; parentheses group. A comparison is `attr = v`, `attr != v`, `attr in [v1, v2, ...]`, or `attr >= n`, `<=`, `>`, `<`. Words and values are runs of letters, digits, `_`, `.` or `-`. `=`, `!=` and `in` compare `String(user[attr])` with the value text; the numeric operators compare `Number(user[attr])` with `Number(value)`. If `attr` is not an own key of `user`, every comparison is false. Errors: running out of tokens where one is required -> `unexpected end of rule`; any other token that does not fit (including leftovers after a complete rule, or an unknown character) -> `unexpected \"<token>\"`. Parse the whole rule even when the result is already known.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["typescript", "parsing", "recursive-descent", "feature-flags", "tokenizer"],
+  "order": 70017,
+  "exercise": "feature-flag-rules",
+  "explanation": {
+    "beginner": "Split the job in two. The tokenizer turns the text into pieces: words, operators like `>=`, brackets and commas. The parser then reads those pieces with one small function per precedence level: `parseOr` calls `parseAnd` and joins results with `or`; `parseAnd` calls `parseNot` and joins with `and`; `parseNot` handles a leading `not` or falls through to `parsePrimary`, which reads either a bracketed group or a single comparison. Because `and` is handled one level deeper than `or`, `a or b and c` automatically means `a or (b and c)`. Any time you need a token and there is none, report 'unexpected end'; if the token is the wrong kind, report it by name.",
+    "junior": "This is a recursive-descent parser with evaluation folded in; the call stack encodes precedence, the same way SQL and most expression languages do it. Two gotchas: (1) do not short-circuit parsing - `a or <garbage>` must still be an error, so always parse the right operand and then combine booleans; (2) after the top-level `parseOr`, check for leftover tokens (`plan = pro)` otherwise silently succeeds). A sticky regex tokenizer with a final `\\S` alternative turns unknown characters into tokens so they get a precise error. Missing attributes evaluating to false for every operator (including `!=`) is a deliberate safety choice - an untargeted user should not accidentally match. Comparing `NaN` numerically is false, which covers non-numeric values. Real flag systems compile the rule once into an AST and evaluate it per request instead of re-parsing."
+  }
+}

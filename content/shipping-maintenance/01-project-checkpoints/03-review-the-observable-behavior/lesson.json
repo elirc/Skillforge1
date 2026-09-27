@@ -1,0 +1,50 @@
+{
+  "id": "sf_eea7de316fc3575e7ee0577c",
+  "title": "Review the observable behavior",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Review a change as someone who has not seen the author's working session.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read A focused product or test diff before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "git diff --stat\ngit diff --check\ndotnet test InventoryDesk.Tests"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** The review explains the trigger, expected before/after behavior, test evidence and any limitation without relying on conversational history.\n\n**Make a meaningful variation.** Review a price-validation change and identify the missing zero-price or maximum-value boundary. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: Comments point to concrete cases and distinguish a correctness problem from a preference."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** Which review comment is most actionable? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_90620a31e1901ea945b0454b",
+      "type": "MCQ",
+      "prompt": "Which review comment is most actionable?",
+      "conceptTags": [
+        "review",
+        "testing",
+        "communication"
+      ],
+      "payload": {
+        "choices": [
+          "A vague request to improve quality",
+          "A demand to rewrite unrelated code",
+          "A specific input that causes incorrect behavior and an expected result"
+        ],
+        "answer": "A specific input that causes incorrect behavior and an expected result",
+        "explanation": "Comments point to concrete cases and distinguish a correctness problem from a preference."
+      }
+    }
+  ]
+}

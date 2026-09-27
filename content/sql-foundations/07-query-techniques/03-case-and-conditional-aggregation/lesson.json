@@ -1,0 +1,103 @@
+{
+  "title": "CASE Expressions and Conditional Aggregation",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "`CASE` is SQL's if/else. It is an **expression**, so it can appear anywhere a value can: in SELECT, ORDER BY, GROUP BY, or inside an aggregate. The searched form checks conditions top to bottom and returns the first match; without an `ELSE`, a non-match gives NULL."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT id, amount,\n       CASE\n         WHEN amount >= 1000 THEN 'large'\n         WHEN amount >= 100  THEN 'medium'\n         ELSE 'small'\n       END AS size_band\nFROM orders\nORDER BY CASE status WHEN 'pending' THEN 0 ELSE 1 END, created_at;  -- pending first"
+    },
+    {
+      "type": "prose",
+      "body": "Put a CASE **inside** an aggregate and you get conditional aggregation: several filtered totals in one pass over the table. This is the portable way to **pivot** rows into columns, one column per status, month, or plan."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT customer_id,\n       SUM(CASE WHEN status = 'paid'     THEN amount ELSE 0 END) AS paid_total,\n       SUM(CASE WHEN status = 'refunded' THEN amount ELSE 0 END) AS refunded_total,\n       COUNT(CASE WHEN status = 'pending' THEN 1 END)            AS pending_count\nFROM orders\nGROUP BY customer_id\nORDER BY customer_id;\n\n-- PostgreSQL shorthand for the same thing\nSELECT customer_id, COUNT(*) FILTER (WHERE status = 'pending') AS pending_count\nFROM orders GROUP BY customer_id;"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "`COUNT(CASE WHEN ... THEN 1 END)` works because the missing ELSE yields NULL and COUNT(expr) skips NULLs. Writing `ELSE 0` there would be a bug: COUNT counts zeros too."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`SUM(CASE ... END)` without `ELSE 0` returns NULL, not 0, for a group with no matching rows. Add `ELSE 0` or wrap in `COALESCE` when the app expects a number."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does `COUNT(CASE WHEN status = 'paid' THEN 1 ELSE 0 END)` return for 3 paid and 2 pending rows?",
+      "payload": {
+        "choices": [
+          "5",
+          "3",
+          "2",
+          "NULL"
+        ],
+        "answer": "5",
+        "explanation": "COUNT counts every non-NULL value, and 0 is not NULL. Drop the ELSE (so non-matches are NULL) or use SUM instead of COUNT."
+      },
+      "conceptTags": [
+        "sql",
+        "case",
+        "conditional-aggregation"
+      ],
+      "id": "sf_79992ab9a2e9ff7f6566997a"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the CASE expression.",
+      "payload": {
+        "text": "CASE WHEN amount > 100 THEN 'big' ____ 'small' END",
+        "blanks": [
+          "ELSE"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "case"
+      ],
+      "id": "sf_58b4ca1d6575ac728e441fb2"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why use conditional aggregation instead of three separate queries with different WHERE clauses?",
+      "payload": {
+        "choices": [
+          "Separate queries cannot use GROUP BY",
+          "CASE expressions use indexes and WHERE does not",
+          "One scan of the table produces all the columns in one result row per group",
+          "It avoids NULLs entirely"
+        ],
+        "answer": "One scan of the table produces all the columns in one result row per group",
+        "explanation": "Each CASE routes a row into a column during the same GROUP BY, which is both faster and already pivoted into the shape a report wants."
+      },
+      "conceptTags": [
+        "sql",
+        "pivot",
+        "conditional-aggregation"
+      ],
+      "id": "sf_3ac83fb53304b771029ac3ee"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model the pivot query. Return one `{ customerId, paidTotal, refundedTotal, pendingCount }` row per customer, sorted by customerId. paid and refunded sum amounts; pending counts rows. Other statuses still create the group but add nothing. Status comparison is exact.",
+      "exercise": "pivot-statuses",
+      "conceptTags": [
+        "sql",
+        "case",
+        "pivot",
+        "group-by"
+      ],
+      "id": "sf_b83684d0842ead550c30d52c"
+    }
+  ],
+  "id": "sf_591affcb80c2881ac53b3b09"
+}

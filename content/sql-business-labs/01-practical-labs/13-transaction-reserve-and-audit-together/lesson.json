@@ -1,0 +1,71 @@
+{
+  "id": "sf_de1cbf8d2dbede16f038b10b",
+  "title": "Transaction: reserve and audit together",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A business action may require more than one write. Reserving stock and appending an audit record belong in the same transaction so they commit together. The INSERT must run only when the immediately preceding UPDATE changed a row. SQLite changes() reports that update count here. If a later statement fails, application code must roll the transaction back instead of continuing with a partial action."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);\nCREATE TABLE audit(id INTEGER PRIMARY KEY,sku TEXT,delta INTEGER);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Inspect the fixture first, then write your query.\nSELECT * FROM products ORDER BY id;"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"setup\":\"CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);\\nCREATE TABLE audit(id INTEGER PRIMARY KEY,sku TEXT,delta INTEGER);\",\"verify\":\"SELECT stock,(SELECT COUNT(*) FROM audit) AS audit_count FROM products WHERE sku='BOOK';\"}]. The required result is [{\"stock\":3,\"audit_count\":1}]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Reserve two BOOK units and append one audit entry only when the reservation succeeds, in one transaction."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "changes() refers to the most recent completed write; inserting another write between these statements changes its meaning."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which boundary case would fail if the main comparison, join, or ordering were changed? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed business data case checks a different boundary.\n\n**Transfer it.** Apply the same contract to the Inventory Desk repository. Keep SQL parameters separate from values and compare results against a hand-calculated fixture."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_af267851868df47ac933ea92",
+      "type": "MCQ",
+      "prompt": "Why must the audit write share the transaction?",
+      "conceptTags": [
+        "sql",
+        "transactions",
+        "audit"
+      ],
+      "payload": {
+        "choices": [
+          "Transactions automatically retry every failure",
+          "An audit row makes foreign keys unnecessary",
+          "Stock and its audit record should commit together"
+        ],
+        "answer": "Stock and its audit record should commit together",
+        "explanation": "The two writes represent one business event and must have one commit decision."
+      }
+    },
+    {
+      "id": "sf_b9e38b27dcdb43d08fed33ea",
+      "type": "CODE",
+      "prompt": "Reserve two BOOK units and append one audit entry only when the reservation succeeds, in one transaction.",
+      "conceptTags": [
+        "sql",
+        "transactions",
+        "audit"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The two writes represent one business event and must have one commit decision.",
+        "changes() refers to the most recent completed write; inserting another write between these statements changes its meaning."
+      ],
+      "walkthrough": "The two writes represent one business event and must have one commit decision.\nchanges() refers to the most recent completed write; inserting another write between these statements changes its meaning."
+    }
+  ]
+}

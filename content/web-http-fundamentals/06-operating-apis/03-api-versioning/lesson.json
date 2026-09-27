@@ -1,0 +1,96 @@
+{
+  "title": "Versioning an API",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Once clients depend on your API, some changes break them: removing or renaming a field, changing a type, making an optional field required, or changing what a status code means. Adding a new optional field or a new endpoint is usually safe, provided clients ignore unknown fields (tell them to)."
+    },
+    {
+      "type": "prose",
+      "body": "When you must break something, ship a new **version** alongside the old one. The common places to put it:\n- **URL path**: `/v2/products`. Most visible, easy to route and cache.\n- **Header**: `api-version: 2`. Keeps URLs clean.\n- **Query string**: `?api-version=2`. Easy to try in a browser.\nWhichever you pick, have a default, reject unknown versions clearly, and mark old ones as deprecated before removing them."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "GET /v1/products HTTP/1.1\n\nHTTP/1.1 200 OK\nDeprecation: true\nSunset: Wed, 31 Mar 2027 23:59:59 GMT\nLink: </docs/migrate-to-v2>; rel=\"deprecation\""
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Asp.Versioning.Http\nbuilder.Services.AddApiVersioning(o =>\n{\n    o.DefaultApiVersion = new ApiVersion(2);\n    o.AssumeDefaultVersionWhenUnspecified = true;\n    o.ReportApiVersions = true;   // api-supported-versions / api-deprecated-versions headers\n    o.ApiVersionReader = ApiVersionReader.Combine(\n        new UrlSegmentApiVersionReader(),\n        new HeaderApiVersionReader(\"api-version\"),\n        new QueryStringApiVersionReader(\"api-version\"));\n});"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "The cheapest version is the one you never need. Additive changes, tolerant readers, and new fields instead of changed ones keep v1 alive far longer."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which change is normally backward compatible for existing clients?",
+      "payload": {
+        "choices": [
+          "Adding a new optional field to a response",
+          "Renaming a response field",
+          "Changing a field from number to string",
+          "Making an optional request field required"
+        ],
+        "answer": "Adding a new optional field to a response",
+        "explanation": "Clients that ignore unknown fields keep working. The other three break clients that rely on the old contract."
+      },
+      "conceptTags": [
+        "versioning",
+        "compatibility"
+      ],
+      "id": "sf_27197c793ff8ba79f8a2066b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A request says /v2/products but also sends api-version: 3. What is the most sensible response?",
+      "payload": {
+        "choices": [
+          "Serve v3 silently",
+          "400, because the versions conflict",
+          "Serve v2 silently",
+          "301 redirect to /v3/products"
+        ],
+        "answer": "400, because the versions conflict",
+        "explanation": "Guessing hides client bugs. A clear 400 makes the client fix its request."
+      },
+      "conceptTags": [
+        "versioning",
+        "validation"
+      ],
+      "id": "sf_170f19b555b6101b9cc8dd55"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the response header.",
+      "payload": {
+        "text": "Servers announce that a version will be removed on a given date with the ____ header.",
+        "blanks": [
+          "Sunset"
+        ]
+      },
+      "conceptTags": [
+        "versioning",
+        "deprecation",
+        "headers"
+      ],
+      "id": "sf_c0a81ca20b1d8d782e8951f9"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Resolve the API version from the path prefix, api-version header, or query parameter: reject conflicts and unsupported versions, apply the default, flag deprecation, and strip /vN from the path.",
+      "exercise": "resolve-version",
+      "conceptTags": [
+        "versioning",
+        "routing",
+        "headers"
+      ],
+      "id": "sf_b9366339f116acef379f184c"
+    }
+  ],
+  "id": "sf_439d1c81723c4efd6a820ab8"
+}

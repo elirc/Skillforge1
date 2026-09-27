@@ -1,0 +1,93 @@
+{
+  "title": "Authentication vs Authorization",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Authentication** answers \"who are you?\" (a password, a session cookie, a token). **Authorization** answers \"may you do this?\" (roles, ownership, policies). They fail differently: failed authentication is **401**, failed authorization is **403**."
+    },
+    {
+      "type": "prose",
+      "body": "One refinement: when a user asks for something they are not even allowed to know exists, such as another user's private note, answer **404** instead of 403. Otherwise an attacker can probe ids and learn which ones exist."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddAuthorization(o =>\n    o.AddPolicy(\"AdminOnly\", p => p.RequireRole(\"admin\")));\n\napp.MapDelete(\"/notes/{id:int}\", async (int id, ClaimsPrincipal user, AppDb db) =>\n{\n    var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);\n    var note = await db.Notes.FindAsync(id);\n    if (note is null) return Results.NotFound();\n    if (note.OwnerId != userId && !user.IsInRole(\"admin\"))\n        return note.IsPrivate ? Results.NotFound() : Results.Forbid();\n    db.Notes.Remove(note);\n    await db.SaveChangesAsync();\n    return Results.NoContent();\n}).RequireAuthorization();"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Checking \"is signed in\" is not authorization. The most common API vulnerability (broken object level authorization) is an endpoint that loads /notes/{id} for any signed-in user without checking who owns it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A request has no session cookie or token and targets a protected endpoint. Which status?",
+      "payload": {
+        "choices": [
+          "403 Forbidden",
+          "404 Not Found",
+          "401 Unauthorized",
+          "400 Bad Request"
+        ],
+        "answer": "401 Unauthorized",
+        "explanation": "The server cannot tell who is calling, so authentication failed: 401, ideally with WWW-Authenticate."
+      },
+      "conceptTags": [
+        "auth",
+        "authentication",
+        "status-codes"
+      ],
+      "id": "sf_93dd4026fb8f08518390aef9"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why might an API return 404 instead of 403 for another user's private record?",
+      "payload": {
+        "choices": [
+          "To avoid revealing that the record exists",
+          "Because 403 is deprecated",
+          "Because the record was deleted",
+          "So caches can store the response"
+        ],
+        "answer": "To avoid revealing that the record exists",
+        "explanation": "403 confirms the id is real. 404 gives an attacker nothing to enumerate."
+      },
+      "conceptTags": [
+        "auth",
+        "authorization",
+        "security"
+      ],
+      "id": "sf_7108126b104078c5abf4839e"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the concept.",
+      "payload": {
+        "text": "Checking whether a signed-in user may edit a specific record is ____, not authentication.",
+        "blanks": [
+          "authorization"
+        ]
+      },
+      "conceptTags": [
+        "auth",
+        "authorization"
+      ],
+      "id": "sf_6062bf06f618a97f0154da57"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Decide 200, 401, 403, or 404 for reading, updating, or deleting a note based on the user (or none), their roles, ownership, and the note's visibility.",
+      "exercise": "authorize-request",
+      "conceptTags": [
+        "auth",
+        "authorization",
+        "authentication",
+        "status-codes"
+      ],
+      "id": "sf_100e0ee9fe59c6b6a4447c02"
+    }
+  ],
+  "id": "sf_813bcc5aff01bcd77c331038"
+}

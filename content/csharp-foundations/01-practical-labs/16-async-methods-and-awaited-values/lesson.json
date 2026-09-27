@@ -1,0 +1,66 @@
+{
+  "id": "sf_39a2aa15203dc54ad542ac1f",
+  "title": "Async methods and awaited values",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An async method returns a Task that represents eventual completion. await obtains the result while allowing the caller to resume when work finishes. Task.Yield is used here only to force an asynchronous boundary without making network requests. Production I/O methods typically await a database or HTTP operation; adding async alone does not create a background thread."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static async Task<int> DoubleLater(int value)\n    {\n        await Task.Yield(); return 0;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [4]. The required result is 8. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Cross an asynchronous boundary with Task.Yield, then return twice the input."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Do not use .Result to block an asynchronous request path."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Where should cancellation be passed in a real database call? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the negative case checks a different boundary.\n\n**Transfer it.** Carry CancellationToken from an HTTP request into EF Core operations in the API project."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_72cb7bc9b21af4ac072a3133",
+      "type": "MCQ",
+      "prompt": "What does Task<int> represent?",
+      "conceptTags": [
+        "async",
+        "tasks",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "An operation that eventually produces an int",
+          "A thread that must be blocked manually",
+          "An int converted into a string"
+        ],
+        "answer": "An operation that eventually produces an int",
+        "explanation": "The task tracks completion, failure, or cancellation; awaiting it observes the outcome."
+      }
+    },
+    {
+      "id": "sf_c4adf49fe3e96aefa23f62de",
+      "type": "CODE",
+      "prompt": "Cross an asynchronous boundary with Task.Yield, then return twice the input.",
+      "conceptTags": [
+        "async",
+        "tasks",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The task tracks completion, failure, or cancellation; awaiting it observes the outcome.",
+        "Do not use .Result to block an asynchronous request path."
+      ],
+      "walkthrough": "The task tracks completion, failure, or cancellation; awaiting it observes the outcome.\nDo not use .Result to block an asynchronous request path."
+    }
+  ]
+}

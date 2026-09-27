@@ -1,0 +1,71 @@
+{
+  "id": "sf_7fff4fa7814b165488ac4b88",
+  "title": "Low-stock report",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "SQL operates on sets of rows. A WHERE predicate decides which rows belong in a report; SELECT chooses the output columns. For replenishment, an item at its reorder threshold is already due, so the comparison is inclusive. ORDER BY makes the display deterministic. This lab runs real SQLite against a fresh database for every case, including an inventory where nothing is low."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Inspect the fixture first, then write your query.\nSELECT * FROM products ORDER BY id;"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"setup\":\"CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);\"}]. The required result is [{\"sku\":\"BOOK\",\"stock\":5},{\"sku\":\"MUG\",\"stock\":0}]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** List sku and stock for products at or below their reorder_at threshold, ordered by SKU."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Rows have no guaranteed order without ORDER BY."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which boundary case would fail if the main comparison, join, or ordering were changed? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed business data case checks a different boundary.\n\n**Transfer it.** Apply the same contract to the Inventory Desk repository. Keep SQL parameters separate from values and compare results against a hand-calculated fixture."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_e06f351a1b61a1966b11e76e",
+      "type": "MCQ",
+      "prompt": "Should an item exactly at its reorder threshold appear?",
+      "conceptTags": [
+        "sql",
+        "where",
+        "inventory"
+      ],
+      "payload": {
+        "choices": [
+          "No, use <",
+          "Yes, use <=",
+          "Only if its stock is zero"
+        ],
+        "answer": "Yes, use <=",
+        "explanation": "The business rule includes the threshold boundary."
+      }
+    },
+    {
+      "id": "sf_60d03afb21595d380288c9e0",
+      "type": "CODE",
+      "prompt": "List sku and stock for products at or below their reorder_at threshold, ordered by SKU.",
+      "conceptTags": [
+        "sql",
+        "where",
+        "inventory"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The business rule includes the threshold boundary.",
+        "Rows have no guaranteed order without ORDER BY."
+      ],
+      "walkthrough": "The business rule includes the threshold boundary.\nRows have no guaranteed order without ORDER BY."
+    }
+  ]
+}

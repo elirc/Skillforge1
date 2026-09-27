@@ -1,0 +1,97 @@
+{
+  "title": "NULL and Three-Valued Logic",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "NULL means \"unknown\" or \"missing\", not zero and not an empty string. Any comparison involving NULL (=, <>, <, >) produces a third truth value, UNKNOWN. SQL's logic therefore has three values: TRUE, FALSE, and UNKNOWN. WHERE, ON, and HAVING keep a row only when the predicate is TRUE, so UNKNOWN rows are dropped just like FALSE ones."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- AND: FALSE wins, otherwise UNKNOWN wins over TRUE\nTRUE  AND UNKNOWN  -- UNKNOWN\nFALSE AND UNKNOWN  -- FALSE\n-- OR: TRUE wins, otherwise UNKNOWN wins over FALSE\nTRUE  OR  UNKNOWN  -- TRUE\nFALSE OR  UNKNOWN  -- UNKNOWN\n-- NOT flips TRUE/FALSE but leaves UNKNOWN alone\nNOT UNKNOWN        -- UNKNOWN\n\nNULL = NULL        -- UNKNOWN (use IS NULL instead)"
+    },
+    {
+      "type": "prose",
+      "body": "The classic trap is NOT IN with a NULL in the list. `x NOT IN (1, 2, NULL)` expands to `x <> 1 AND x <> 2 AND x <> NULL`. The last comparison is always UNKNOWN, so the whole predicate can never be TRUE, and the query returns zero rows. It happens silently whenever the subquery's column is nullable."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Returns NO rows if any blocked.customer_id is NULL\nSELECT id FROM orders\nWHERE customer_id NOT IN (SELECT customer_id FROM blocked);\n\n-- Safe: NOT EXISTS only asks \"is there a matching row?\"\nSELECT o.id FROM orders o\nWHERE NOT EXISTS (\n  SELECT 1 FROM blocked b WHERE b.customer_id = o.customer_id\n);"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "NOT IN and NOT EXISTS also differ for the outer row: an order with a NULL customer_id is dropped by NOT IN (NULL <> anything is UNKNOWN), but NOT EXISTS keeps it, because no blocked row can match NULL. Know which answer your feature needs."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `SELECT id FROM orders WHERE customer_id NOT IN (SELECT customer_id FROM blocked)` with real three-valued logic. `NOT IN` is TRUE only if every `<>` comparison is TRUE; any NULL on either side makes that comparison UNKNOWN. An empty blocked list makes NOT IN TRUE for every row. Return the ids of the rows kept, in input order.",
+      "exercise": "where-not-in",
+      "conceptTags": [
+        "sql",
+        "nulls",
+        "three-valued-logic",
+        "not-in"
+      ],
+      "id": "sf_23bef87af8f21b2decab2ded"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does `SELECT COUNT(*) FROM users WHERE manager_id = NULL` return when 12 users have no manager?",
+      "payload": {
+        "choices": [
+          "0",
+          "12",
+          "NULL",
+          "An error"
+        ],
+        "answer": "0",
+        "explanation": "manager_id = NULL is UNKNOWN for every row, so no row passes the filter. Write manager_id IS NULL."
+      },
+      "conceptTags": [
+        "sql",
+        "nulls"
+      ],
+      "id": "sf_cd9ff3b57ea95dbe659d37b9"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is `FALSE OR UNKNOWN`?",
+      "payload": {
+        "choices": [
+          "FALSE",
+          "TRUE",
+          "UNKNOWN",
+          "NULL is not allowed with OR"
+        ],
+        "answer": "UNKNOWN",
+        "explanation": "OR is TRUE if either side is TRUE. Here neither side is known to be TRUE, and one side might be, so the result is UNKNOWN."
+      },
+      "conceptTags": [
+        "sql",
+        "three-valued-logic"
+      ],
+      "id": "sf_05718e2035a37f466c963912"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the subquery operator that is safe when the subquery column may contain NULLs.",
+      "payload": {
+        "text": "Replace `WHERE id NOT IN (SELECT ...)` with `WHERE NOT ____ (SELECT 1 FROM ... WHERE ...)` to avoid the NULL trap.",
+        "blanks": [
+          "EXISTS"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "nulls",
+        "not-exists"
+      ],
+      "id": "sf_8585c3b5986652156dd4abc7"
+    }
+  ],
+  "id": "sf_c32e9d46dd49bb4a1695e5b8"
+}

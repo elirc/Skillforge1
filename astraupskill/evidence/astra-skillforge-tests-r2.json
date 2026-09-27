@@ -1,0 +1,24 @@
+{
+  "project": "skillforgejs",
+  "id": "9d3b119f40a0",
+  "command": [
+    "node",
+    "C:/Program Files/nodejs/node_modules/corepack/dist/pnpm.js",
+    "run",
+    "test",
+    "--maxWorkers=1",
+    "--minWorkers=1",
+    "--testTimeout=60000",
+    "--hookTimeout=60000"
+  ],
+  "cwd": "C:\\Users\\Owner\\Desktop\\AstraOrganized2\\astra-remaining-improvements\\stage\\9d3b119f40a0",
+  "environmentOverrides": {},
+  "startedAt": "2026-09-20T21:57:11.703289+00:00",
+  "status": "complete",
+  "log": "astra-skillforge-tests-r2.log",
+  "pid": 33012,
+  "exitCode": 0,
+  "passed": true,
+  "finishedAt": "2026-09-20T21:59:47.323090+00:00",
+  "elapsedSeconds": 155.51
+}

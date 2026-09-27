@@ -1,0 +1,14 @@
+{
+  "slug": "undo-redo-editor",
+  "title": "Undo and Redo With Typing Groups",
+  "prompt": "A notes editor supports undo and redo. Replay `commands` against an initially empty document and return the document text after each command. Commands: `{ type: 'insert', text, t }` appends text; `{ type: 'delete', count, t }` removes the last `count` characters (fewer if the document is shorter); `{ type: 'undo' }` and `{ type: 'redo' }`. Each edit is one undo step, except that an insert arriving within 1000 ms of the previous insert, with no other command in between, joins that insert's undo step (so typing a word undoes as one unit). Any edit clears the redo history. A delete that removes nothing is not an edit: it creates no undo step and does not clear redo. Undo or redo with nothing to undo or redo does nothing. Every non-insert command ends the current typing group.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["stacks", "undo-redo", "state", "command-pattern"],
+  "order": 50021,
+  "exercise": "undo-redo-editor",
+  "explanation": {
+    "beginner": "Use two stacks of snapshots. Before an edit, push the current text onto the undo stack and empty the redo stack. Undo pops the undo stack: push the current text onto redo and restore the popped text. Redo does the mirror image. For typing groups, remember the time of the last insert (and forget it whenever any other command runs). If a new insert comes within 1000 ms of that time, skip the 'push onto undo' step, so the whole burst of typing shares one snapshot taken before the first keystroke. Remember to check that a delete actually removes something before treating it as an edit.",
+    "junior": "Snapshot stacks are the simplest correct design and fine for small documents; for large ones you store inverse commands instead (the Command pattern: each command knows how to `undo()` itself), trading memory for code. The coalescing rule is what real editors do, and its bugs are classic: measure from the previous insert, not the first one in the group, so steady typing stays grouped; reset the group on undo, redo and delete, otherwise an insert after an undo would merge into a step that no longer exists; clear redo only on real edits. `Math.min(count, text.length)` guards the delete, and `text.slice(0, text.length - n)` handles n = 0 correctly, unlike `slice(0, -n)`, which returns '' for n = 0. Each command is O(L) for copying a string of length L."
+  }
+}

@@ -12,7 +12,7 @@
   "order": 36,
   "exercise": "inventory-total",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Inventory Total, read the story as a simple input-to-output rule: A small shop tracks products by quantity and unit price. Write a function that returns the total value of the inventory by multiplying quantity by price for each item and adding the results. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays, objects and reduce. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: inventoryTotal([{\"quantity\":2,\"price\":5},{\"quantity\":3,\"price\":4}]) produces 22. Choose the numeric contribution of each record, then combine those contributions using the contract’s initial value.\n\nCompare “returns zero for no items”: input [[]] produces 0. Explain which rule causes the difference before writing code.",
+    "junior": "Choose the numeric contribution of each record, then combine those contributions using the contract’s initial value.\n\nTempting mistake: A count of records is not a sum of their values. Test empty input and a zero-valued record separately.\n\nThe reference uses reduce. Trace the intermediate value after each operation; count repeated scans inside callbacks separately when estimating cost.\n\nRegression check: preserve the contract illustrated by “returns zero for no items”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

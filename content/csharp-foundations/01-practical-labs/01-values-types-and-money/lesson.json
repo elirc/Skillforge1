@@ -1,0 +1,66 @@
+{
+  "id": "sf_971451524d799e7b2f95ca2f",
+  "title": "Values, types, and money",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A variable has both a value and a type. C# checks which operations are legal before running the method. A price belongs in decimal when the business rule uses decimal currency; quantity belongs in int because this shop sells whole items. Multiplication produces a decimal total, and the m suffix marks a decimal literal. This exercise assumes nonnegative inputs so you can concentrate on the contract; the next lesson adds guards."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static decimal Total(decimal price, int quantity)\n    {\n        return 0m;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [2.5,3]. The required result is 7.5. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return the exact total price for a nonnegative decimal price and integer quantity."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Do not convert the price to int: that discards cents."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** What does a zero quantity contribute to the multiplication? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the decimal cents case checks a different boundary.\n\n**Transfer it.** Use this pure calculation inside an invoice service; let the boundary validate the input."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_1b662a47d0c88a969aba0c01",
+      "type": "MCQ",
+      "prompt": "Why use 0.1m instead of 0.1 for this price?",
+      "conceptTags": [
+        "types",
+        "decimal",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "It rounds to one decimal place",
+          "The m suffix makes the literal decimal",
+          "It formats dollars automatically"
+        ],
+        "answer": "The m suffix makes the literal decimal",
+        "explanation": "A decimal literal uses base-10 representation. Formatting and rounding are separate decisions."
+      }
+    },
+    {
+      "id": "sf_e83338631d26036a2c7c6a13",
+      "type": "CODE",
+      "prompt": "Return the exact total price for a nonnegative decimal price and integer quantity.",
+      "conceptTags": [
+        "types",
+        "decimal",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "A decimal literal uses base-10 representation. Formatting and rounding are separate decisions.",
+        "Do not convert the price to int: that discards cents."
+      ],
+      "walkthrough": "A decimal literal uses base-10 representation. Formatting and rounding are separate decisions.\nDo not convert the price to int: that discards cents."
+    }
+  ]
+}

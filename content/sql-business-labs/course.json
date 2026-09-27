@@ -1,0 +1,21 @@
+{
+  "version": "2",
+  "prerequisites": [],
+  "slug": "sql-business-labs",
+  "title": "SQL Business Labs: Query Real SQLite",
+  "description": "Fourteen executable SQLite labs covering inventory reports, outer joins, revenue, windows, parameters, indexes, atomic stock updates and audit transactions.",
+  "language": "sql",
+  "difficulty": "BEGINNER",
+  "order": 2,
+  "topicTags": [
+    "sql",
+    "sqlite",
+    "crud",
+    "transactions"
+  ],
+  "outcomes": [
+    "Execute reports against real relational tables",
+    "Preserve zero rows, ties and boundary dates",
+    "Write atomic updates with an audit trail"
+  ]
+}

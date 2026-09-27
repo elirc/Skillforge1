@@ -1,0 +1,71 @@
+{
+  "id": "sf_a46c082b319ad275707ef995",
+  "title": "Inventory value by category",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A monetary report should keep its unit clear. This database stores integer cents, so each line's value is price_cents times stock and the category total is a SUM. GROUP BY changes the result grain from one product to one category. A category with products but no stock still has value zero; an empty database has no category groups."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Inspect the fixture first, then write your query.\nSELECT * FROM products ORDER BY id;"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"setup\":\"CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);\"}]. The required result is [{\"category\":\"home\",\"value_cents\":0},{\"category\":\"office\",\"value_cents\":4250}]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return category and value_cents for every category, ordered by category."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "SUM(price_cents) ignores the quantity on hand."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which boundary case would fail if the main comparison, join, or ordering were changed? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed business data case checks a different boundary.\n\n**Transfer it.** Apply the same contract to the Inventory Desk repository. Keep SQL parameters separate from values and compare results against a hand-calculated fixture."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_c98d6df0b31076fef5cd3dc4",
+      "type": "MCQ",
+      "prompt": "What does one output row represent?",
+      "conceptTags": [
+        "sql",
+        "group-by",
+        "aggregation"
+      ],
+      "payload": {
+        "choices": [
+          "One product category",
+          "One product unit",
+          "The whole database regardless of category"
+        ],
+        "answer": "One product category",
+        "explanation": "GROUP BY category produces one aggregate row per observed category."
+      }
+    },
+    {
+      "id": "sf_35ac3e8584f1fe46cc27cbdb",
+      "type": "CODE",
+      "prompt": "Return category and value_cents for every category, ordered by category.",
+      "conceptTags": [
+        "sql",
+        "group-by",
+        "aggregation"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "GROUP BY category produces one aggregate row per observed category.",
+        "SUM(price_cents) ignores the quantity on hand."
+      ],
+      "walkthrough": "GROUP BY category produces one aggregate row per observed category.\nSUM(price_cents) ignores the quantity on hand."
+    }
+  ]
+}

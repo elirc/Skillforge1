@@ -1,0 +1,95 @@
+{
+  "title": "memo, useMemo, and useCallback",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "By default, when a component renders, **all of its children render too**, whether or not their props changed. That is usually fine: rendering is calling functions, and React only touches the DOM where the output differs. Optimise only when you measure a slow render (React DevTools Profiler), typically a large list or an expensive chart.\n\n`memo(Component)` lets a component skip rendering when its props are **shallowly equal** to last time: the same keys, and each value `Object.is`-equal. Primitives compare by value; objects, arrays, functions, and JSX compare by reference."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "const ProductRow = memo(function ProductRow({ product, onSelect }: RowProps) {\n  return <li onClick={() => onSelect(product.id)}>{product.name}</li>;\n});\n\nfunction ProductList({ products, filter }: Props) {\n  const [selected, setSelected] = useState<number | null>(null);\n\n  // Without these, every render creates a new array and a new function,\n  // so memo(ProductRow) would never skip anything.\n  const visible = useMemo(() => products.filter((p) => p.name.includes(filter)), [products, filter]);\n  const handleSelect = useCallback((id: number) => setSelected(id), []);\n\n  return <ul>{visible.map((p) => <ProductRow key={p.id} product={p} onSelect={handleSelect} />)}</ul>;\n}"
+    },
+    {
+      "type": "prose",
+      "body": "When the hooks actually help:\n\n- `useMemo` caches an **expensive calculation**, or keeps an object/array reference stable because it is passed to a `memo` child or used as an effect dependency\n- `useCallback(fn, deps)` is `useMemo(() => fn, deps)`: it keeps a function reference stable for the same reasons\n- neither helps if the child is not wrapped in `memo` and the value is not a dependency anywhere\n- passing `children` JSX to a memo component defeats it, because JSX creates new elements every render\n\nOften a structural fix beats memoisation: move state down into the component that uses it, or pass slow subtrees as `children` so they are created by a parent that does not re-render."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "React Compiler (stable since late 2025) analyses components at build time and inserts this memoisation automatically. In a codebase that uses it, hand-written `useMemo`/`useCallback` is rarely needed, but understanding reference equality still explains what you see in the Profiler."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A memo child receives onSelect={() => select(id)} written inline; how often does it re-render when the parent renders?",
+      "payload": {
+        "choices": [
+          "Never",
+          "Only when id changes",
+          "Only on mount",
+          "Every time"
+        ],
+        "answer": "Every time",
+        "explanation": "An inline arrow is a new function each render, so the shallow comparison always fails. Use useCallback, or pass the id and a stable handler."
+      },
+      "conceptTags": [
+        "react",
+        "performance",
+        "memo",
+        "use-callback"
+      ],
+      "id": "sf_982588046457cb53113251f1"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does useCallback(fn, deps) return?",
+      "payload": {
+        "choices": [
+          "The result of calling fn",
+          "A memoized component",
+          "The same function reference until a dependency changes",
+          "A promise"
+        ],
+        "answer": "The same function reference until a dependency changes",
+        "explanation": "useCallback caches the function itself. useMemo caches the result of calling a function."
+      },
+      "conceptTags": [
+        "react",
+        "performance",
+        "use-callback"
+      ],
+      "id": "sf_40ea4e6e558a883a6b7e3dad"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the wrapper that lets a component skip renders when its props are shallowly equal.",
+      "payload": {
+        "text": "const ProductRow = ____(function ProductRow(props: RowProps) { /* ... */ });",
+        "blanks": [
+          "memo"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "performance",
+        "memo"
+      ],
+      "id": "sf_bf98ab8ade1afa33be4a0a3c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Given the props a parent passes on each render, report on which renders each child renders, with and without React.memo.",
+      "exercise": "child-renders",
+      "conceptTags": [
+        "react",
+        "performance",
+        "memo",
+        "rendering"
+      ],
+      "id": "sf_7e08e1270db5ed7c4f1564a3"
+    }
+  ],
+  "id": "sf_0a411951a5748477af4e6039"
+}

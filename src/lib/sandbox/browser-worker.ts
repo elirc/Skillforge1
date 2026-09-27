@@ -5,7 +5,7 @@ import { buildHarnessSource, sandboxRequestSchema, type SandboxResponse } from "
 // Loading this module on a cold page can itself take longer than that budget.
 self.postMessage({ ready: true });
 
-self.onmessage = (event: MessageEvent<unknown>) => {
+self.onmessage = async (event: MessageEvent<unknown>) => {
   try {
     const request = sandboxRequestSchema.parse(event.data);
     // `buildHarnessSource` produces an IIFE *expression*, so it needs an
@@ -13,7 +13,7 @@ self.onmessage = (event: MessageEvent<unknown>) => {
     // evaluated the harness and then returned undefined. The parentheses are
     // load-bearing too: the source starts on a new line, and a bare `return`
     // followed by a newline is terminated by automatic semicolon insertion.
-    const response = new Function(`return (${buildHarnessSource(request)});`)() as SandboxResponse;
+    const response = await new Function(`return (${buildHarnessSource(request)});`)() as SandboxResponse;
     self.postMessage({ ok: true, response });
   } catch (error) {
     self.postMessage({

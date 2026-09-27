@@ -2,7 +2,7 @@
 
 A local-only, single-learner coding trainer: short lessons, runnable exercises, spaced repetition, and boot.dev-style gamification (XP, levels, streaks, daily quests, achievements) aimed at building CRUD web apps with C#, .NET, and SQL.
 
-Everything lives on your machine. There is no sign-in, no account, no server to deploy, and no data leaves the box — progress is a SQLite file at `data/skillforge.db`.
+Learning progress stays in a local SQLite file at `data/skillforge.db`. Skillforge runs on loopback for one learner. The optional Inventory Desk companion has separate local accounts and a separate database.
 
 ## Quick Start
 
@@ -10,7 +10,8 @@ Everything lives on your machine. There is no sign-in, no account, no server to 
 pnpm install          # or: npm install
 cp .env.example .env  # DATABASE_URL points at data/skillforge.db
 npm run db:setup      # generate client, create the SQLite file, seed content
-npm run csharp:build  # optional: builds the C# exercise runner (needs the .NET SDK)
+npm run csharp:build  # builds the C# exercise runner (requires .NET 10)
+npx playwright install chromium # mounted React grading / browser checks
 npm run dev
 ```
 
@@ -28,16 +29,30 @@ Open `http://localhost:3000`. The first visit creates your learner row; `/onboar
 | `npm run lint` / `npm run typecheck` | ESLint / strict TypeScript. |
 | `npm test` | Vitest unit tests (gamification, SRS, sandbox, C# runner). |
 | `npm run csharp:build` | Build the .NET process that compiles and runs C# exercises. |
-| `npm run test:e2e` | Playwright happy path. Runs against the dev server with a seeded database; not part of CI. |
+| `npm run test:e2e` | Create a temporary database copy, sync it, and run browser journeys on isolated port 3107. |
+| `npm run test:db` | Run completion, review, reward, content-update, and backup regressions in helper-owned databases. |
+| `npm run db:backup` / `npm run db:migrate` | Consistent SQLite backup / additive identity migration for an existing installation. |
+| `npm run runtime:prepare` | Build local SQL/React runtime assets and the companion source download. Also runs before dev/build. |
 | `npm run validate:content` | Assemble course JSON and execute every reference solution. |
+| `npx tsx scripts/check-content.ts --course <slug> --problem-prefix <p>` | Low-memory scoped check while authoring: runs selected exercises one at a time, confirms solutions pass and starters fail, and lints MCQ/CLOZE shape. |
+| `node scripts/test-completion-local.mjs` | Run the completion and review-grading tests against a throwaway SQLite file. |
+| `node scripts/test-backup-local.mjs` | Run the progress export/import round-trip tests against a throwaway SQLite file. |
 
-Your progress survives `db:seed`: content rows are upserted against stable position keys (course + module + lesson order), so their ids -- and the completions and review states pointing at them -- persist across re-seeds. Deleting or reordering a lesson still drops the review history for that slot. Only `db:reset` (or the **Reset progress** button on `/profile`) clears everything.
+Content synchronization uses immutable authored IDs. Reordering keeps lesson and review identities; removed content is archived with its learner history. Existing populated databases are backed up before CLI seeding. Only `db:reset` or Reset progress deliberately clears learner progress.
+
+For an existing installation, stop its dev server, run `npm run db:backup`, `npm run db:migrate`, `npm run db:generate`, then `npm run db:seed`. The migration adds columns without recreating learner tables. Later content updates can be previewed and applied from Profile, with an automatic database backup. Do not use a destructive schema reset to install content.
 
 ## How it works
 
 **Personalization.** `/onboarding` records a goal (`crud-dev`, `interview`, `fundamentals`), an experience level, a daily XP goal, and optional focus tags on the single `User` row. `src/server/feed.ts` turns those into a ranked *Next up* list on the dashboard: due reviews first, then a practice problem chosen to hit your weakest concept tags, then the next unfinished lesson in the language your goal prioritizes. (A problem only outranks the lesson when it actually targets a weak concept; otherwise the lesson comes first.)
 
 **Weakness detection.** Every graded review updates a `ReviewState` (`src/lib/srs/scheduler.ts`). `getWeakConcepts` averages `conceptStrength` per concept tag, which drives both the "Shakiest concepts" panel and problem recommendations. Nothing is hand-configured — it comes from your own recall data.
+
+**Grading.** Review answers are graded on the server (`src/lib/grading.ts`) from the stored card, never from a value the browser sends. Grading a card, recording the attempt, and awarding XP happen in one transaction, as does lesson completion (`src/server/completion.ts`).
+
+**Mastery.** `/mastery` lists every concept tag you have review data for, grouped by course, with a strength band, due count, and tags from finished lessons you have not reviewed yet. Each tag links to `/reviews?tag=<tag>`, which drills only the due cards carrying that concept.
+
+**Backup.** `/profile` can download your progress as JSON and import it back. New exports include the catalog version and immutable lesson/item IDs. The first sync preserves positional aliases for this installation’s legacy exports. Editor drafts have their own browser storage and per-exercise export; they are not part of progress JSON. Import *replaces* current progress in a single transaction and reports anything it had to skip.
 
 **Gamification.** `src/lib/gamification.ts` is the pure engine (unit-tested, no DB):
 
@@ -75,7 +90,10 @@ content/
         add-xp.tests.ts          # exports `functionName` and a typed `tests` array
 ```
 
-- **Order** for modules and lessons comes from the numeric directory prefix; titles live in `module.json` / `lesson.json`.
+- **Identity** is the immutable `id` in every module, lesson, and knowledge item. Run `npm run content:ids` only to fill missing IDs; preserve existing IDs when renaming or moving content. Removed rows are archived, never repurposed for a different concept.
+- **Order** comes from numeric directory prefixes; it is presentation, not identity. Course metadata includes version and prerequisite slugs. Lessons include estimated minutes.
+- **Teaching** should include an objective, worked example and trace, plausible mistake, modification task, independent exercise, hints, and solution walkthrough.
+- **Quality**: `node scripts/check-content-quality.mjs` checks identities and MCQ choices/position bias. The optional `--balance-choices` flag distributes authored answers; the UI also shuffles choices.
 - **MCQ and CLOZE** items are authored inline in `lesson.json`.
 - **CODE** items reference an exercise by file prefix: `{ "type": "CODE", "prompt": "...", "exercise": "add-xp", "conceptTags": [...] }`. Authoring exercises as real TypeScript means they are linted, type-checked, and runnable.
 - Exercise functions must be self-contained (no value imports); only `import type` from `@content/_authoring/types`.
@@ -157,11 +175,29 @@ same trust level as the rest of this repo — you already run its code — but i
 worth stating plainly. The endpoint refuses non-local requests so a web page you
 happen to be visiting cannot post to it. Do not expose this app on a network.
 
-## Not built yet
+## Browser and database checks
 
-- **SQL execution.** Real SQL grading (in-browser SQLite with result-set
-  comparison) is the next step.
-- **Wider C# coverage.** Three lessons in `content/csharp-dotnet-interview-prep/`
-  now carry runnable exercises; the rest are still reading plus MCQ/CLOZE items.
-  Exercises are BCL-only — NuGet packages such as EF Core or FluentValidation are
-  not available to learner code, so those topics are modelled with plain records.
+Run `npm run test:e2e`. The helper makes a consistent temporary copy, applies the additive migration and sync, starts its own loopback server on port 3107, and removes only its own temporary directory afterward. Tests refuse a non-helper database. Unit, isolated database, content, browser, companion, and build checks are included in CI. Install Chromium first with `npx playwright install chromium`.
+
+To check the production server after `npm run build`, set `SKILLFORGE_E2E_PRODUCTION=1` when running the browser helper. The same temporary-database isolation applies.
+
+## Learning paths and projects
+
+The authored catalog contains 15 courses, 287 lessons, and 449 standalone problems. New tracks cover C# foundations, executable SQL business labs, regression testing/debugging, mounted React components, an ASP.NET API, shipping/maintenance, and a twelve-checkpoint Inventory Desk capstone. The original courses remain available, with additional examples in every JavaScript Foundations lesson.
+
+Today offers a time-based session using prerequisites, focus tags, experience, and your daily minutes. Tracks have resume links and completion states. Problems provide URL filters, solved status, pagination, and separate extra drills. Editors save versioned drafts, expose recovery/export, show diagnostics/test differences and console output, and record help as assisted practice. Mastery separates recall estimates from independent code and delayed-retention evidence.
+
+Visit `/projects` for the Inventory Desk source download, or read [its README](projects/inventory-desk/README.md). It includes the ASP.NET/EF Core API, React UI, console inventory/CSV mini-projects, tests, containers, backup tools, and review checkpoints. `/playground/http` sends real HTTP requests to nonpersistent local fixtures. Project quizzes do not execute or certify your companion project; run its acceptance tests yourself.
+
+## Runtime boundaries
+
+- JavaScript functions are awaited in a worker with a timeout and bounded console output.
+- TypeScript keeps typed source and runs a strict semantic compiler before runtime tests. Compile-only labs append type assertions and execute no JavaScript.
+- SQL business labs execute SQLite in a fresh in-memory database for each fixture. The older SQL Foundations array models are labelled with their actual JavaScript runtime.
+- React integration labs mount real components in an isolated iframe and test DOM interactions. Server grading runs the same harness in headless Chromium. These focused labs are separate from the complete companion UI.
+- C# exercise methods remain BCL-only. Real ASP.NET Core and EF Core work lives in the downloadable companion.
+- Python Thinking is explicitly an optional reading/recall track with no Python execution.
+
+## Source-based improvement course
+
+[Start the course](astraupskill/README.md). It complements the existing project and learning documentation with a focused trace, regression, and practice sequence.

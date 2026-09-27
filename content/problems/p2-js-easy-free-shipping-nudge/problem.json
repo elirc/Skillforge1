@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-easy-free-shipping-nudge",
+  "title": "Cheapest Item to Unlock Free Shipping",
+  "prompt": "The cart shows a nudge: 'Add an item for $X to get free shipping'. Write `cheapestToQualify(sortedPrices, subtotal, threshold)`. `sortedPrices` is sorted ascending and may contain duplicates. If `subtotal` already reaches `threshold`, return `0`. Otherwise return the smallest price `p` with `subtotal + p >= threshold`, or `null` if no single item is enough. Use binary search - the catalogue can be large.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": ["binary-search", "arrays", "e-commerce"],
+  "order": 70003,
+  "exercise": "free-shipping-nudge",
+  "explanation": {
+    "beginner": "First work out how much is missing: `need = threshold - subtotal`. If `need` is zero or less, the cart already qualifies, so return 0. Now you want the first price that is at least `need`. Because the list is sorted, you can play 'higher or lower': look at the middle price; if it is too small, the answer must be to the right, otherwise it is this one or something to the left. Keep halving the range until it closes. If the position you land on is past the end of the list, no item is big enough.",
+    "junior": "This is a lower-bound search: find the first index where `prices[i] >= need`. Use a half-open range `lo = 0, hi = n`; while `lo < hi`, `mid = (lo + hi) >> 1`; if `prices[mid] < need` then `lo = mid + 1` else `hi = mid`. At the end `lo` is the insertion point, which also handles duplicates (it lands on the first of equal values) and the empty array (lo = n = 0, so null). O(log n) versus O(n) for `find`. The `need <= 0` early return matters: without it you would recommend the cheapest item to a cart that already qualifies. The half-open form avoids the `mid - 1` off-by-one bugs of the closed-interval version."
+  }
+}

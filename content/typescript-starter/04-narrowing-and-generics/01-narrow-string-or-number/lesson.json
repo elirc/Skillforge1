@@ -16,17 +16,48 @@
       "type": "MCQ",
       "prompt": "What does `typeof value === \"string\"` do for TypeScript?",
       "payload": {
-        "choices": ["Narrows the value to string in that branch", "Converts the value to string", "Deletes non-string values", "Turns off type checking"],
+        "choices": [
+          "Converts the value to string",
+          "Narrows the value to string in that branch",
+          "Deletes non-string values",
+          "Turns off type checking"
+        ],
         "answer": "Narrows the value to string in that branch",
         "explanation": "TypeScript tracks the typeof check and allows string operations inside the matching branch."
       },
-      "conceptTags": ["typescript", "narrowing", "unions"]
+      "conceptTags": [
+        "typescript",
+        "narrowing",
+        "unions"
+      ],
+      "id": "sf_25107a3d9cde819c26551cdb"
     },
     {
       "type": "CODE",
       "prompt": "Format an id: numbers become `#42`; strings are trimmed and uppercased.",
       "exercise": "format-id",
-      "conceptTags": ["typescript", "narrowing", "strings"]
+      "conceptTags": [
+        "typescript",
+        "narrowing",
+        "strings"
+      ],
+      "id": "sf_3b9608ec26f6ede3f9591050"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the operator.",
+      "payload": {
+        "text": "To narrow a union of object types by checking whether a property exists, use the ____ operator, as in \"error\" in result.",
+        "blanks": [
+          "in"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "narrowing"
+      ],
+      "id": "sf_f967dbc5b2eff3c8d369e6e5"
     }
-  ]
+  ],
+  "id": "sf_aa30e2dbe5a860136beb7629"
 }

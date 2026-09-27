@@ -1,0 +1,66 @@
+{
+  "id": "sf_622de92e720bb1d88707269e",
+  "title": "Accessible confirmation and focus",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A destructive UI action should explain what will happen and offer a clear cancellation path. Focus should move into the confirmation panel so a keyboard user reaches its controls immediately. When the panel closes, return focus to the triggering button. This lab uses an aria-modal dialog region and a Cancel action; a production dialog also needs focus trapping and Escape handling, which the native dialog element can help provide."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// A small controlled field:\n// const [value, setValue] = useState(\"\");\n// <input value={value} onChange={event => setValue(event.target.value)} />"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"props\":{},\"actions\":[{\"type\":\"click\",\"selector\":\"button\"}],\"assertions\":[{\"selector\":\"[role=dialog]\",\"count\":1,\"attribute\":\"aria-labelledby\",\"equals\":\"confirm-title\"}]}]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Render Delete; clicking opens a role=dialog panel labelled Delete product? with Cancel and Confirm. Cancel closes it without deletion; Confirm shows Deleted."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "aria-modal describes a modal; it does not implement focus trapping by itself."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which assertion proves the user-visible behavior rather than the implementation detail? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the confirm deletes case checks a different boundary.\n\n**Transfer it.** Replace the simulated data boundary with the Inventory Desk API while preserving these component contracts."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_115f558b5b96208ab5e793d3",
+      "type": "MCQ",
+      "prompt": "What must cancellation preserve?",
+      "conceptTags": [
+        "react",
+        "accessibility",
+        "dialogs"
+      ],
+      "payload": {
+        "choices": [
+          "The product and the user's ability to continue",
+          "Only the visible dialog heading",
+          "A deleted product with a hidden error"
+        ],
+        "answer": "The product and the user's ability to continue",
+        "explanation": "Cancellation exits the proposed action without applying it."
+      }
+    },
+    {
+      "id": "sf_8d79eb61f8e6ad2cda77fe73",
+      "type": "CODE",
+      "prompt": "Render Delete; clicking opens a role=dialog panel labelled Delete product? with Cancel and Confirm. Cancel closes it without deletion; Confirm shows Deleted.",
+      "conceptTags": [
+        "react",
+        "accessibility",
+        "dialogs"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Cancellation exits the proposed action without applying it.",
+        "aria-modal describes a modal; it does not implement focus trapping by itself."
+      ],
+      "walkthrough": "Cancellation exits the proposed action without applying it.\naria-modal describes a modal; it does not implement focus trapping by itself."
+    }
+  ]
+}

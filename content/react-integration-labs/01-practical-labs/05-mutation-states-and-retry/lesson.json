@@ -1,0 +1,66 @@
+{
+  "id": "sf_e76edc6dbf5152eee4f067b3",
+  "title": "Mutation states and retry",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A save interaction needs explicit idle, pending, error, and success states. Disable the action while it is pending so a repeated click cannot create overlapping requests. Keep the form available after a failure and show an actionable error. This lab simulates a first failed attempt followed by a successful retry; the UI should expose each state through a live status region."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// A small controlled field:\n// const [value, setValue] = useState(\"\");\n// <input value={value} onChange={event => setValue(event.target.value)} />"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"props\":{},\"actions\":[{\"type\":\"click\",\"selector\":\"button\"},{\"type\":\"wait\",\"ms\":40}],\"assertions\":[{\"selector\":\"[role=status]\",\"text\":\"Try again\"},{\"selector\":\"button\",\"disabled\":false}]}]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Implement a Save button that first fails with Try again, then succeeds with Saved; show Saving and disable it during each 20ms request."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A loading spinner without disabled controls can still allow duplicate submissions."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which assertion proves the user-visible behavior rather than the implementation detail? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the initial ready case checks a different boundary.\n\n**Transfer it.** Replace the simulated data boundary with the Inventory Desk API while preserving these component contracts."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_5f0e80531923c386695e1a9e",
+      "type": "MCQ",
+      "prompt": "What should happen after a recoverable save failure?",
+      "conceptTags": [
+        "react",
+        "mutations",
+        "errors"
+      ],
+      "payload": {
+        "choices": [
+          "Silently report success",
+          "Clear all input before showing the error",
+          "Keep the input and offer a retry"
+        ],
+        "answer": "Keep the input and offer a retry",
+        "explanation": "A failure should preserve the user's work and make the next action clear."
+      }
+    },
+    {
+      "id": "sf_2d8fe9eec1972629a94e99da",
+      "type": "CODE",
+      "prompt": "Implement a Save button that first fails with Try again, then succeeds with Saved; show Saving and disable it during each 20ms request.",
+      "conceptTags": [
+        "react",
+        "mutations",
+        "errors"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "A failure should preserve the user's work and make the next action clear.",
+        "A loading spinner without disabled controls can still allow duplicate submissions."
+      ],
+      "walkthrough": "A failure should preserve the user's work and make the next action clear.\nA loading spinner without disabled controls can still allow duplicate submissions."
+    }
+  ]
+}

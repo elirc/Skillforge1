@@ -1,0 +1,106 @@
+{
+  "title": "String Functions, LIKE, and Collation",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Everyday string functions (names vary slightly by engine):\n- `UPPER`, `LOWER`, `TRIM` / `LTRIM` / `RTRIM`\n- `LEN` (SQL Server) or `LENGTH` / `CHAR_LENGTH` (PostgreSQL, MySQL)\n- `SUBSTRING(s, start, length)`, 1-based\n- `REPLACE(s, find, with)`, `CONCAT(a, b)` (treats NULL as empty) vs `a + b` / `a || b` (NULL in, NULL out)"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT CONCAT(first_name, ' ', last_name)    AS full_name,\n       UPPER(LEFT(last_name, 1))              AS initial,\n       SUBSTRING(email, CHARINDEX('@', email) + 1, 100) AS domain   -- SQL Server\nFROM users\nWHERE TRIM(email) <> '';"
+    },
+    {
+      "type": "prose",
+      "body": "`LIKE` matches a whole value against a pattern with two wildcards: `%` matches any run of characters (including none) and `_` matches exactly one character. To search for a literal `%` or `_`, declare an escape character."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT name FROM products WHERE name LIKE 'blue%';     -- starts with blue: can seek an index\nSELECT name FROM products WHERE name LIKE '%mug';      -- ends with mug: must scan\nSELECT name FROM products WHERE name LIKE '___ Mug';   -- exactly three characters, then ' Mug'\nSELECT name FROM products WHERE name LIKE '%50\\%%' ESCAPE '\\'; -- contains '50%'"
+    },
+    {
+      "type": "prose",
+      "body": "**Collation** decides how text compares and sorts: case sensitivity (`CI`/`CS`), accent sensitivity (`AI`/`AS`), and language rules. SQL Server's default `SQL_Latin1_General_CP1_CI_AS` is case-insensitive, so `'ADA' = 'ada'` is true. PostgreSQL compares case-sensitively by default; use `ILIKE`, `lower(col)`, or the `citext` type."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A leading wildcard (`LIKE '%term'`) or a function on the column (`WHERE LOWER(email) = @e`) usually prevents an index seek. For case-insensitive lookups use a CI collation or an index on the computed expression; for real text search use full-text search."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Unique constraints follow the collation too. Under a CI collation, `Ada@x.com` and `ada@x.com` collide, which is usually what you want for emails."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which pattern can use an index seek on `name`?",
+      "payload": {
+        "choices": [
+          "LIKE '%blue'",
+          "LIKE '%blue%'",
+          "LIKE 'blue%'",
+          "LIKE LOWER('blue%')"
+        ],
+        "answer": "LIKE 'blue%'",
+        "explanation": "A fixed prefix becomes a range seek (>= 'blue' and < 'bluf'). A leading wildcard means any position can match, so the engine must scan."
+      },
+      "conceptTags": [
+        "sql",
+        "like",
+        "indexes"
+      ],
+      "id": "sf_5219c486935fbdf1af4e69e7"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the wildcard rule.",
+      "payload": {
+        "text": "In LIKE, the wildcard ____ matches exactly one character.",
+        "blanks": [
+          "_"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "like"
+      ],
+      "id": "sf_6d548e149dac9ee69aefd9dd"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Under SQL Server's default CI_AS collation, what is `'Mug' = 'MUG'`?",
+      "payload": {
+        "choices": [
+          "TRUE",
+          "FALSE",
+          "UNKNOWN",
+          "An error"
+        ],
+        "answer": "TRUE",
+        "explanation": "CI means case-insensitive. AS (accent-sensitive) would still make 'cafe' differ from 'café'."
+      },
+      "conceptTags": [
+        "sql",
+        "collation"
+      ],
+      "id": "sf_92be6934bb1f40f588f0e573"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model `WHERE name LIKE @pattern` under a case-insensitive collation. `%` matches any run of characters, `_` exactly one, and a backslash makes the next character literal. The whole value must match. Return matching names in input order. Other characters, including regex symbols like `.` or `(`, are literal.",
+      "exercise": "like-filter",
+      "conceptTags": [
+        "sql",
+        "like",
+        "collation",
+        "strings"
+      ],
+      "id": "sf_8163696596a15a625dd472f5"
+    }
+  ],
+  "id": "sf_e46bf93ec440b0b106025eee"
+}

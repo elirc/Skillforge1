@@ -1,15 +1,19 @@
-import { cpus } from "node:os";
 import { loadAllCourses, loadAllProblems } from "./lib/content";
 import { CsharpRunnerHost, isCsharpRunnerBuilt } from "./lib/csharp-runner";
 import { runCodeInNodeWorker } from "../src/lib/sandbox/node-runner";
 import type { SandboxTest } from "../src/lib/sandbox/shared";
+import { compileTypeScript } from "../src/lib/sandbox/typescript-compiler";
+import { runSqlInNode } from "./lib/sql-runner";
+import { runReactInNode } from "./lib/react-runner";
 
 interface Exercise {
   referenceSolution: string;
   starterCode: string;
   functionName: string;
   tests: SandboxTest[];
-  language?: "javascript" | "csharp";
+  typeChecks?: string;
+  regression?: { factoryName: string; referenceCode: string; mutants: string[] };
+  language?: "javascript" | "typescript" | "csharp" | "sql" | "react";
 }
 
 interface Check {
@@ -20,17 +24,34 @@ interface Check {
    * problem's catalog `language` -- the C#-themed problems in the problem bank
    * are authored and answered in TypeScript.
    */
-  runtime: "javascript" | "csharp";
+  runtime: "javascript" | "typescript" | "csharp" | "sql" | "react";
 }
 
-async function checkJavaScript(label: string, exercise: Exercise): Promise<string | null> {
+async function checkJavaScript(label: string, exercise: Exercise, runtime: Check["runtime"]): Promise<string | null> {
   let result;
   try {
-    result = await runCodeInNodeWorker({
-      code: exercise.referenceSolution,
+    let solution = exercise.referenceSolution;
+    let starter = exercise.starterCode;
+    if (runtime === "typescript") {
+      const compiled = compileTypeScript(solution + (exercise.typeChecks ? `\n${exercise.typeChecks}` : ""));
+      const initial = compileTypeScript(starter + (exercise.typeChecks ? `\n${exercise.typeChecks}` : ""));
+      if (compiled.diagnostics.length) return `${label}: solution ${compiled.diagnostics.map(d => `${d.id} line ${d.line}: ${d.message}`).join("; ")}`;
+      if (exercise.typeChecks) return initial.diagnostics.length ? null : `${label}: compile-only starter already satisfies the contract.`;
+      if (initial.diagnostics.length) return `${label}: starter ${initial.diagnostics.map(d => `${d.id} line ${d.line}: ${d.message}`).join("; ")}`;
+      solution = compiled.code;
+      starter = initial.code;
+    }
+    const run = runtime === "sql" ? runSqlInNode : runtime === "react" ? runReactInNode : runCodeInNodeWorker;
+    result = await run({
+      code: solution,
       functionName: exercise.functionName,
       tests: exercise.tests,
+      regression: exercise.regression,
     });
+    try {
+      const starting = await run({ code: starter, functionName: exercise.functionName, tests: exercise.tests, regression: exercise.regression });
+      if (starting.passed) return `${label}: starter already passes every test; strengthen the task or fixtures.`;
+    } catch { /* An unfinished starter may throw; the reference must still pass. */ }
   } catch (error) {
     return `${label}: ${error instanceof Error ? error.message : String(error)}`;
   }
@@ -91,7 +112,8 @@ async function runPool<T>(items: T[], limit: number, run: (item: T) => Promise<s
     while (cursor < items.length) {
       const item = items[cursor++];
       const failure = await run(item);
-      if (failure) failures.push(failure);
+      if (failure) { failures.push(failure); console.error(failure); }
+      if (cursor % 10 === 0) console.log(`Checked ${cursor}/${items.length} non-C# exercises.`);
     }
   });
 
@@ -100,7 +122,8 @@ async function runPool<T>(items: T[], limit: number, run: (item: T) => Promise<s
 }
 
 async function main() {
-  const [courses, problems] = await Promise.all([loadAllCourses(), loadAllProblems()]);
+  const only = process.env.SKILLFORGE_CONTENT_COURSES?.split(",");
+  const [courses, problems] = await Promise.all([loadAllCourses(only), only ? Promise.resolve([]) : loadAllProblems()]);
 
   const checks: Check[] = [];
 
@@ -113,7 +136,7 @@ async function main() {
           checks.push({
             label: `${course.slug} / ${lesson.title} / ${item.prompt}`,
             exercise: payload,
-            runtime: payload.language === "csharp" ? "csharp" : "javascript",
+            runtime: payload.language ?? "javascript",
           });
         }
       }
@@ -125,15 +148,15 @@ async function main() {
     checks.push({
       label: `problem "${problem.slug}"`,
       exercise: problem as unknown as Exercise,
-      runtime: problem.runtime === "csharp" ? "csharp" : "javascript",
+      runtime: problem.runtime,
     });
   }
 
   const csharpChecks = checks.filter((check) => check.runtime === "csharp");
   const jsChecks = checks.filter((check) => check.runtime !== "csharp");
 
-  const concurrency = Math.max(2, Math.min(8, cpus().length));
-  const failures = await runPool(jsChecks, concurrency, ({ label, exercise }) => checkJavaScript(label, exercise));
+  const concurrency = Math.max(1, Math.min(4, Number(process.env.SKILLFORGE_CONTENT_WORKERS) || 1));
+  const failures = await runPool(jsChecks, concurrency, ({ label, exercise, runtime }) => checkJavaScript(label, exercise, runtime));
 
   // The .NET host is expensive to start and cheap per run, so C# checks share
   // one process and run in sequence rather than in a pool.
@@ -164,8 +187,8 @@ async function main() {
   }
 
   console.log(
-    `Validated ${courses.length} courses (${lessonExercises} lesson exercises, ${csharpChecks.length} of them C#) ` +
-      `and ${problems.length} standalone problems.`,
+    `Validated ${courses.length} courses (${lessonExercises} lesson exercises) ` +
+      `and ${problems.length} standalone problems; ${csharpChecks.length} C# checks across both groups.`,
   );
 }
 

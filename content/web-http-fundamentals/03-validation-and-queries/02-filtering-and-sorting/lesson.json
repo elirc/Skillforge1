@@ -1,0 +1,93 @@
+{
+  "title": "Filtering and Sorting Parameters",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "List endpoints take their options from the query string: `GET /products?status=active&search=lamp&sort=-price,name&page=2&pageSize=50`. Common conventions: one parameter per filter, `sort` as a comma list with `-` for descending, and `page`/`pageSize` (or `limit`/`offset`, or a cursor)."
+    },
+    {
+      "type": "prose",
+      "body": "Treat every parameter as untrusted input:\n- **Allow-list** sort fields and filter values. Passing a raw `sort` string into SQL or `OrderBy` invites injection, or sorting by `passwordHash`.\n- **Cap** `pageSize` so nobody can ask for a million rows.\n- **Reject** invalid values with 400 instead of guessing, but it is fine to ignore unknown parameters such as `utm_source`.\n- Always add a **unique tiebreaker** (usually `id`) to the sort, or rows with equal prices can shuffle between pages."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var sortable = new Dictionary<string, Expression<Func<Product, object>>>\n{\n    [\"name\"] = p => p.Name, [\"price\"] = p => p.Price, [\"createdAt\"] = p => p.CreatedAt,\n};\nif (!sortable.TryGetValue(field, out var key))\n    return Results.ValidationProblem(new() { [\"sort\"] = [$\"Cannot sort by '{field}'.\"] });\n\nquery = desc ? query.OrderByDescending(key) : query.OrderBy(key);\nquery = ((IOrderedQueryable<Product>)query).ThenBy(p => p.Id);   // stable paging"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Without a unique final sort key, SQL does not promise any order among ties. Page 2 can then repeat an item from page 1 and skip another."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why append id to every sort order on a paged list?",
+      "payload": {
+        "choices": [
+          "So rows with equal sort values keep a stable order across pages",
+          "Because SQL requires at least two sort columns",
+          "To make the query use less memory",
+          "So the client can see the ids"
+        ],
+        "answer": "So rows with equal sort values keep a stable order across pages",
+        "explanation": "Ties have no defined order. A unique tiebreaker makes each page deterministic, so items are neither repeated nor skipped."
+      },
+      "conceptTags": [
+        "pagination",
+        "sorting"
+      ],
+      "id": "sf_2c48c8b407a400092fa9fa1a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A client sends ?sort=passwordHash. What should the API do?",
+      "payload": {
+        "choices": [
+          "Sort by it, the client asked",
+          "Silently sort by name",
+          "Return 400 because the field is not on the sort allow-list",
+          "Return 500"
+        ],
+        "answer": "Return 400 because the field is not on the sort allow-list",
+        "explanation": "Only allow-listed fields may be sorted on. A clear 400 tells the client what went wrong without exposing hidden columns."
+      },
+      "conceptTags": [
+        "validation",
+        "sorting",
+        "security"
+      ],
+      "id": "sf_e9c7b61d24c0a435cabd3c2b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the convention.",
+      "payload": {
+        "text": "In ?sort=-price,name the leading ____ means price is sorted in descending order.",
+        "blanks": [
+          "-"
+        ]
+      },
+      "conceptTags": [
+        "sorting",
+        "rest"
+      ],
+      "id": "sf_7969056408afcd4d3837ceb0"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Parse a list endpoint's query string into allow-listed filters, sort terms (with an id tiebreaker), and capped paging values, or return every error.",
+      "exercise": "parse-list-query",
+      "conceptTags": [
+        "rest",
+        "filtering",
+        "sorting",
+        "pagination",
+        "validation"
+      ],
+      "id": "sf_296ba648361c17f41800ea05"
+    }
+  ],
+  "id": "sf_6992d7366e89756bd454b089"
+}

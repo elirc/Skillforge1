@@ -1,0 +1,102 @@
+{
+  "title": "Anatomy of a Request",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Every CRUD app is a conversation of HTTP messages. A **request** is plain text: a request line (`METHOD target HTTP/1.1`), then header lines (`Name: value`), then an empty line, then an optional body. The **response** has the same shape, except its first line is a status line such as `HTTP/1.1 201 Created`."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "POST /products?notify=true HTTP/1.1\nHost: shop.test\nContent-Type: application/json\nAccept: application/json\nContent-Length: 45\n\n{\"name\":\"Desk Lamp\",\"price\":29.5,\"sku\":\"LMP-0042\"}"
+    },
+    {
+      "type": "prose",
+      "body": "A few things to know before you touch a framework:\n- The **target** is the path plus an optional query string after `?`. Query values are percent-encoded: a space arrives as `%20` (or `+` in form-style queries).\n- **Header names are case-insensitive**: `Content-Type`, `content-type` and `CONTENT-TYPE` are the same header. HTTP/2 even sends them all lowercase.\n- A header may appear more than once; for most headers that means the same as one header with the values joined by commas.\n- The **body** is just bytes. `Content-Type` tells the receiver how to read them, `Content-Length` says how many there are."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "HTTP/1.1 201 Created\nLocation: /products/42\nContent-Type: application/json; charset=utf-8\n\n{\"id\":42,\"name\":\"Desk Lamp\",\"price\":29.5,\"sku\":\"LMP-0042\"}"
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// ASP.NET Core has already parsed all of this for you:\napp.MapPost(\"/products\", (HttpRequest req, CreateProductDto dto) =>\n{\n    var notify = req.Query[\"notify\"];          // \"true\"\n    var accept = req.Headers.Accept;            // case-insensitive lookup\n    return Results.Created($\"/products/{42}\", dto);\n});"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Open your browser's DevTools Network tab and click any request: the Headers panel shows exactly these parts. Reading raw messages is the fastest way to debug \"the API is broken\" reports."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which part of an HTTP request is case-insensitive?",
+      "payload": {
+        "choices": [
+          "The path",
+          "Query string values",
+          "The JSON body",
+          "Header names"
+        ],
+        "answer": "Header names",
+        "explanation": "Header names are case-insensitive by specification. Paths and query values are compared exactly, and a JSON body is whatever bytes the client sent."
+      },
+      "conceptTags": [
+        "http",
+        "headers"
+      ],
+      "id": "sf_0f4a0d0b1767a07e531dda83"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What separates the headers from the body in an HTTP/1.1 message?",
+      "payload": {
+        "choices": [
+          "A semicolon",
+          "An empty line (CRLF CRLF)",
+          "The Content-Length header itself",
+          "A closing brace"
+        ],
+        "answer": "An empty line (CRLF CRLF)",
+        "explanation": "Headers end at the first empty line. Everything after it is the body, and Content-Length says how long that body is."
+      },
+      "conceptTags": [
+        "http",
+        "messages"
+      ],
+      "id": "sf_74ab7419951eb497e876d34e"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the header that tells the server how to read the body.",
+      "payload": {
+        "text": "The ____ header says the body is JSON, form data, or something else.",
+        "blanks": [
+          "Content-Type"
+        ]
+      },
+      "conceptTags": [
+        "http",
+        "headers",
+        "content-type"
+      ],
+      "id": "sf_4a84657c4620bf0a26bf8088"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Parse a raw HTTP/1.1 request into { method, path, query, headers, body }: decode the query string, lowercase and join repeated headers, and keep the body after the blank line.",
+      "exercise": "parse-request",
+      "conceptTags": [
+        "http",
+        "messages",
+        "headers",
+        "query-string"
+      ],
+      "id": "sf_f997f31e2a03bae7146181a2"
+    }
+  ],
+  "id": "sf_2f06dc3e60fa750998ea9448"
+}

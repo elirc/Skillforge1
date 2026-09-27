@@ -1,0 +1,95 @@
+{
+  "title": "Pattern Matching and switch Expressions",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A **switch expression** maps an input to a value through a list of patterns. Each arm is tried from top to bottom and the first match wins, so put specific rules before general ones. If no arm matches, it throws `SwitchExpressionException`, and the compiler warns you when it can prove an input is not covered. A discard arm `_` handles everything else."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "static string Classify(int statusCode) => statusCode switch\n{\n    200 or 201 or 204 => \"success\",\n    >= 300 and < 400  => \"redirect\",\n    404               => \"not found\",\n    >= 400 and < 500  => \"client error\",\n    >= 500            => \"server error\",\n    _                 => \"unknown\",\n};"
+    },
+    {
+      "type": "prose",
+      "body": "Patterns combine. **Property patterns** `{ Country: \"US\", Total: >= 50m }` test members, **relational patterns** `>`, `<=` compare against constants, `and`/`or`/`not` compose them, and `is { } x` or `is not null` test for null while binding a variable. **List patterns** (C# 11) match arrays and lists by shape: `[first, ..]`, `[.., last]`, `[]`, and `[_, _]` for exactly two elements. A `..` slice matches zero or more elements."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "decimal Discount(Order order) => order switch\n{\n    { Customer.IsVip: true, Total: > 100m } => 0.15m,\n    { Customer.IsVip: true }                => 0.10m,\n    { Coupon: { Length: > 0 } code } when code.StartsWith(\"SAVE\") => 0.05m,\n    _                                       => 0m,\n};\n\nstring Describe(string[] args) => args switch\n{\n    []                  => \"no arguments\",\n    [\"--help\", ..]      => \"help\",\n    [var only]          => $\"one argument: {only}\",\n    [var first, .., var last] => $\"{first} ... {last}\",\n};"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Order matters. If `{ Country: \"US\" }` came before `{ Country: \"US\", Total: >= 50m }`, the free-shipping arm could never match. The compiler reports an arm that is fully covered by an earlier one as an error, but only when it can prove it, so still read top to bottom."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which list pattern matches any array whose first element is \"express\", including a one-element array?",
+      "payload": {
+        "choices": [
+          "[\"express\", _]",
+          "[\"express\", .., _]",
+          "[.., \"express\"]",
+          "[\"express\", ..]"
+        ],
+        "answer": "[\"express\", ..]",
+        "explanation": "`..` matches zero or more elements, so [\"express\"] alone matches. `[\"express\", _]` needs exactly two elements, and `[\"express\", .., _]` needs at least two."
+      },
+      "conceptTags": [
+        "pattern-matching",
+        "csharp"
+      ],
+      "id": "sf_20f5e562e5a799b5b9384910"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What happens at run time when no arm of a switch expression matches the input?",
+      "payload": {
+        "choices": [
+          "It returns the default value of the result type",
+          "The first arm is used",
+          "Nothing, because the compiler forbids incomplete switches",
+          "A SwitchExpressionException is thrown"
+        ],
+        "answer": "A SwitchExpressionException is thrown",
+        "explanation": "The compiler only warns about non-exhaustive switch expressions. At run time an unmatched input throws, which is why most switches end with a discard `_` arm."
+      },
+      "conceptTags": [
+        "pattern-matching",
+        "csharp"
+      ],
+      "id": "sf_8c67ac82b6e440e497fe831d"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the property pattern.",
+      "payload": {
+        "text": "The pattern `{ Total: >= 50m }` combines a property pattern with a ____ pattern.",
+        "blanks": [
+          "relational"
+        ]
+      },
+      "conceptTags": [
+        "pattern-matching",
+        "csharp"
+      ],
+      "id": "sf_d6b49910353fa3d2a56a378a"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Price a parcel with a switch expression using property, relational and `or` patterns, then add tag surcharges with list patterns.",
+      "exercise": "shipping-quote",
+      "conceptTags": [
+        "pattern-matching",
+        "switch-expressions",
+        "csharp"
+      ],
+      "id": "sf_8b9a334c4bcbb60ce70c1063"
+    }
+  ],
+  "id": "sf_e3f1ed571e8b1d2af61d2b3a"
+}

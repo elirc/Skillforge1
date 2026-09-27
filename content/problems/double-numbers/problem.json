@@ -11,7 +11,7 @@
   "order": 30,
   "exercise": "double-numbers",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Double Numbers, read the story as a simple input-to-output rule: A score preview wants to show what each value would look like after a bonus multiplier. Write a function that returns a new array where every number from the input is doubled. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays and map. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: doubleNumbers([1,2,3]) produces [2,4,6]. Project each included record into the requested output shape, keeping the required input order.\n\nCompare “handles an empty list”: input [[]] produces []. Explain which rule causes the difference before writing code.",
+    "junior": "Project each included record into the requested output shape, keeping the required input order.\n\nTempting mistake: A projection is different from filtering: returning a boolean from map gives booleans, while returning a value from filter only makes a keep decision.\n\nThe reference uses map. Trace the intermediate value after each operation; count repeated scans inside callbacks separately when estimating cost.\n\nRegression check: preserve the contract illustrated by “handles an empty list”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

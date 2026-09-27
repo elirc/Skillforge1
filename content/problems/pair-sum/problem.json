@@ -12,7 +12,7 @@
   "order": 2,
   "exercise": "pair-sum",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Pair Sums to Target, read the story as a simple input-to-output rule: A checkout system wants to know whether two distinct coupons can exactly match a target discount. Write a function that returns true if any two different array positions add up to the target, otherwise false. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays, search and sets. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: pairSum([2,7,11], 9) produces true. As you visit a value, search for target minus that value among earlier values. Store earlier values so one position is never used twice.\n\nCompare “reports no pair”: input [[1,2,3],7] produces false. Explain which rule causes the difference before writing code.",
+    "junior": "As you visit a value, search for target minus that value among earlier values. Store earlier values so one position is never used twice.\n\nTempting mistake: Checking after inserting the current item can accidentally pair an item with itself.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated. A hash lookup approach has expected O(n) time and O(n) space; checking all pairs costs O(n²).\n\nRegression check: preserve the contract illustrated by “reports no pair”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

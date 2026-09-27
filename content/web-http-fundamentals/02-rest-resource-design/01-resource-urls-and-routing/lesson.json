@@ -1,0 +1,101 @@
+{
+  "title": "Resource URLs and Routing",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "REST APIs name **resources** with nouns and let the method say what happens. A collection is plural (`/products`), one member adds its id (`/products/42`). The five CRUD endpoints for one resource look like this:"
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "GET    /products          list (with filters and paging)\nPOST   /products          create -> 201 + Location: /products/42\nGET    /products/42       read one\nPUT    /products/42       replace (or PATCH to change some fields)\nDELETE /products/42       delete -> 204"
+    },
+    {
+      "type": "prose",
+      "body": "Nest only when the child cannot exist without the parent and is usually reached through it: `/users/7/orders` for \"orders of user 7\". Stop at one level; `/orders/1001` should still work on its own. Avoid verbs in paths (`/getProducts`, `/products/42/delete`); for true actions that are not CRUD, a sub-resource such as `POST /orders/1001/cancellation` reads better."
+    },
+    {
+      "type": "prose",
+      "body": "A router matches the path against **patterns** with parameters. When the path matches but the method does not, the correct answer is **405 Method Not Allowed** with an `Allow` header listing the methods that do exist, not 404."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var products = app.MapGroup(\"/products\");\nproducts.MapGet(\"/\", ListProducts);\nproducts.MapPost(\"/\", CreateProduct);\nproducts.MapGet(\"/{id:int}\", GetProduct);\nproducts.MapPut(\"/{id:int}\", ReplaceProduct);\nproducts.MapDelete(\"/{id:int}\", DeleteProduct);\napp.MapGet(\"/users/{userId:int}/orders\", ListOrdersForUser);"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Consistent URLs make an API guessable. If a new developer can predict `GET /categories/3` after seeing `/products/42`, your design is working."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which URL best follows REST resource naming?",
+      "payload": {
+        "choices": [
+          "DELETE /products/42",
+          "POST /deleteProduct?id=42",
+          "GET /products/42/delete",
+          "DELETE /product-delete/42"
+        ],
+        "answer": "DELETE /products/42",
+        "explanation": "The path names the resource and the method names the action. Verbs in the path duplicate the method, and a GET that deletes is dangerous."
+      },
+      "conceptTags": [
+        "rest",
+        "urls"
+      ],
+      "id": "sf_f488142f0ccd2d6c025faa27"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "GET /products/42 exists but a client sends PATCH, which the server does not support. What should it return?",
+      "payload": {
+        "choices": [
+          "404 Not Found",
+          "405 Method Not Allowed with an Allow header",
+          "400 Bad Request",
+          "501 Not Implemented with no headers"
+        ],
+        "answer": "405 Method Not Allowed with an Allow header",
+        "explanation": "The resource exists, so 404 is misleading. 405 plus Allow: GET, PUT, DELETE tells the client exactly what it can do."
+      },
+      "conceptTags": [
+        "rest",
+        "routing",
+        "status-codes"
+      ],
+      "id": "sf_75ebda3e67db159770ce19fb"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the header a 405 response must include.",
+      "payload": {
+        "text": "A 405 response lists the supported methods in the ____ header.",
+        "blanks": [
+          "Allow"
+        ]
+      },
+      "conceptTags": [
+        "http",
+        "routing",
+        "headers"
+      ],
+      "id": "sf_7453779096927a74cacb603e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Build a tiny router: match a method and path against route patterns with :params, returning 200 with params, 405 with the allowed methods, or 404.",
+      "exercise": "match-route",
+      "conceptTags": [
+        "rest",
+        "routing",
+        "urls"
+      ],
+      "id": "sf_2d16d55515a13f494955e4d5"
+    }
+  ],
+  "id": "sf_3b19887ea906534091b6ee7e"
+}

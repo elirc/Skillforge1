@@ -1,0 +1,14 @@
+{
+  "slug": "assign-meeting-rooms",
+  "title": "Assign Meeting Rooms",
+  "prompt": "A booking service must place meetings into as few rooms as possible. Each meeting is `{ id, start, end }` in minutes, and occupies the half-open window [start, end): a meeting ending at 600 frees its room for one starting at 600. Process meetings by start time (meetings with the same start keep their input order). Put each meeting in the lowest-numbered room that is free at its start, opening a new room (numbered from 1) only when none is free. Return `{ roomCount, assignments }` where `assignments` lists `{ id, room }` in the original input order.",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": ["intervals", "greedy", "sorting", "heaps"],
+  "order": 50003,
+  "exercise": "assign-meeting-rooms",
+  "explanation": {
+    "beginner": "Sort a copy of the meetings by start time. Keep a list where position i holds the minute room i+1 becomes free. For each meeting, scan that list from the start and take the first room whose free-at time is less than or equal to the meeting's start; if none qualifies, push a new room. Then set that room's free-at time to the meeting's end and remember which room the meeting got, keyed by id. At the end, walk the ORIGINAL array to build assignments in input order, and the number of rooms is the length of your list. Using `<=` instead of `<` is what lets back-to-back meetings share a room.",
+    "junior": "The greedy is optimal: processing by start time and reusing any free room never uses more rooms than the peak overlap, which is a lower bound. The scan version is O(n log n + n*r). For large inputs use two min-heaps: `busy` keyed by end time (pop everything with end <= start into `free`) and `free` keyed by room number, giving O(n log n). Details the tests check: `Array.prototype.sort` is stable in modern engines, so equal starts keep input order without an extra tie-break; do not sort the caller's array in place (copy with `[...meetings]`); build the result from the original order, not the sorted order; and an empty input returns `roomCount: 0`. Storing the room per id in a Map keeps the final pass O(n)."
+  }
+}

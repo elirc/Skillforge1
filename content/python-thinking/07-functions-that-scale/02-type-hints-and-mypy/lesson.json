@@ -1,0 +1,128 @@
+{
+  "title": "Type Hints and mypy",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Python type hints look like TypeScript annotations, but with one crucial difference: the Python interpreter ignores them at runtime. They are documentation that tools can check. A static checker such as mypy (or pyright, which powers VS Code's Pylance) reads them and reports mistakes before you run the code, the way tsc does."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "def average(scores: list[float]) -> float:\n    return sum(scores) / len(scores)\n\nname: str = \"Ada\"\nages: dict[str, int] = {\"ada\": 36}\n\ndef find_user(user_id: int) -> str | None:   # like string | null\n    return None\n\naverage(\"oops\")   # runs until it fails at runtime; mypy flags it beforehand"
+    },
+    {
+      "type": "code-example",
+      "language": "bash",
+      "code": "$ python -m pip install mypy\n$ mypy app.py\napp.py:10: error: Argument 1 to \"average\" has incompatible type \"str\"; expected \"list[float]\"\nFound 1 error in 1 file (checked 1 source file)"
+    },
+    {
+      "type": "prose",
+      "body": "The common vocabulary maps closely to TypeScript: X | None is an optional value, list[int] and dict[str, int] are generic containers, tuple[int, str] is a fixed-shape tuple, Callable[[int], str] is a function type, Literal[\"open\", \"closed\"] is a union of literal values, and Any switches checking off. TypedDict describes dict shapes and Protocol describes structural interfaces, like a TypeScript interface that any matching object satisfies."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "from typing import Literal, Protocol, TypedDict\n\nStatus = Literal[\"todo\", \"done\"]\n\nclass Todo(TypedDict):\n    title: str\n    status: Status\n\nclass HasName(Protocol):\n    name: str\n\ndef label(item: HasName) -> str:    # any object with a str .name is accepted\n    return item.name.upper()\n\ndef complete(todo: Todo) -> Todo:\n    return {**todo, \"status\": \"done\"}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Hints do not validate data. def f(x: int) called with f(\"3\") still runs; only the checker complains. To validate input at runtime (for example, a JSON request body), use explicit checks or a library such as pydantic."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "By default mypy skips the bodies of functions that have no annotations. Start with annotations on public functions and turn on stricter settings (mypy --strict) once the codebase is mostly typed, just like tightening tsconfig."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "def double(x: int) -> int: return x * 2; what does print(double(\"ab\")) show when run with plain python?",
+      "payload": {
+        "choices": [
+          "a TypeError",
+          "abab",
+          "None",
+          "4"
+        ],
+        "answer": "abab",
+        "explanation": "The interpreter ignores hints, and \"ab\" * 2 is \"abab\". A type checker would flag the call, but Python itself does not."
+      },
+      "conceptTags": [
+        "type-hints"
+      ],
+      "id": "sf_f28a1917630b5bcdb07743ac"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which hint means 'a string or nothing', like string | null in TypeScript?",
+      "payload": {
+        "choices": [
+          "Optional",
+          "str | None",
+          "str?",
+          "Nullable[str]"
+        ],
+        "answer": "str | None",
+        "explanation": "str | None (or the older Optional[str]) is the standard way to allow None."
+      },
+      "conceptTags": [
+        "type-hints"
+      ],
+      "id": "sf_969dc435235fa05b6fb31d71"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does mypy do?",
+      "payload": {
+        "choices": [
+          "checks type hints statically without running the program",
+          "converts Python to TypeScript",
+          "enforces types at runtime",
+          "installs type stubs automatically on import"
+        ],
+        "answer": "checks type hints statically without running the program",
+        "explanation": "mypy is a static analyser, like running tsc --noEmit."
+      },
+      "conceptTags": [
+        "type-hints",
+        "mypy"
+      ],
+      "id": "sf_321ac8cec04bfdfec694f521"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which typing construct describes 'any object with a name attribute of type str', structurally?",
+      "payload": {
+        "choices": [
+          "TypedDict",
+          "Literal",
+          "Final",
+          "Protocol"
+        ],
+        "answer": "Protocol",
+        "explanation": "A Protocol is satisfied by any object with the right attributes, without inheriting from it."
+      },
+      "conceptTags": [
+        "type-hints"
+      ],
+      "id": "sf_8d18bc7ec344e31eadee6c6f"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Annotate the return type.",
+      "payload": {
+        "text": "def total(prices: list[float]) ____ float: declares that total returns a float.",
+        "blanks": [
+          "->"
+        ]
+      },
+      "conceptTags": [
+        "type-hints"
+      ],
+      "id": "sf_1b6c7d213f4b6676e951c877"
+    }
+  ],
+  "id": "sf_38172097eea5281cb2bcdd10"
+}

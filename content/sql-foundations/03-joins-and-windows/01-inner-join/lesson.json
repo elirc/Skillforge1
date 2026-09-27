@@ -1,0 +1,97 @@
+{
+  "title": "INNER JOIN",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Normalized databases spread related facts across tables: customers in one, orders in another, linked by orders.customer_id pointing at customers.id. A join puts them back together. Conceptually, INNER JOIN pairs every row on the left with every row on the right and keeps only the pairs where the ON condition is TRUE."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT c.name, o.id AS order_id, o.total\nFROM customers AS c\nINNER JOIN orders AS o\n        ON o.customer_id = c.id\nORDER BY o.id;"
+    },
+    {
+      "type": "prose",
+      "body": "Three consequences follow. A customer with three orders appears three times, once per matching order. A customer with no orders does not appear at all. And an order whose customer_id is NULL (or points at a missing customer) is dropped too, because NULL = c.id is UNKNOWN, never TRUE. `JOIN` on its own means INNER JOIN."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Use table aliases (c, o) and qualify every column once more than one table is involved. It prevents \"ambiguous column name\" errors and makes it obvious which side each value comes from."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Forgetting the ON condition (or writing an old-style `FROM customers, orders` without a WHERE) produces a CROSS JOIN: every customer paired with every order. 1,000 customers times 50,000 orders is 50 million rows."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `SELECT c.name, o.id AS order_id, o.total FROM customers c INNER JOIN orders o ON o.customer_id = c.id ORDER BY o.id`. Return objects with keys name, orderId, total (in that order). Orders with a NULL or unknown customer id, and customers with no orders, do not appear.",
+      "exercise": "inner-join-orders",
+      "conceptTags": [
+        "sql",
+        "joins",
+        "inner-join"
+      ],
+      "id": "sf_2840dd4bca58b5caa28d05e9"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the join.",
+      "payload": {
+        "text": "SELECT c.name, o.total FROM customers c INNER JOIN orders o ____ o.customer_id = c.id;",
+        "blanks": [
+          "ON"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "joins"
+      ],
+      "id": "sf_efd06de9dc0a3e810772c085"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "customers has 3 rows. Customer 1 has 4 orders, customer 2 has 1, customer 3 has none. How many rows does `customers c INNER JOIN orders o ON o.customer_id = c.id` produce?",
+      "payload": {
+        "choices": [
+          "3",
+          "6",
+          "12",
+          "5"
+        ],
+        "answer": "5",
+        "explanation": "Each matching (customer, order) pair is one row: 4 + 1 = 5. Customer 3 has no match and disappears from an inner join."
+      },
+      "conceptTags": [
+        "sql",
+        "joins",
+        "cardinality"
+      ],
+      "id": "sf_855285785bcaee14ebe66fe8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What happens to an order whose customer_id is NULL in an INNER JOIN to customers?",
+      "payload": {
+        "choices": [
+          "It matches every customer",
+          "It is dropped, because NULL = c.id is UNKNOWN",
+          "It appears with NULL customer columns",
+          "The query raises an error"
+        ],
+        "answer": "It is dropped, because NULL = c.id is UNKNOWN",
+        "explanation": "ON keeps only TRUE pairs. Use a LEFT JOIN from orders if orphaned orders must still appear, with NULLs for the customer columns."
+      },
+      "conceptTags": [
+        "sql",
+        "joins",
+        "nulls"
+      ],
+      "id": "sf_2a373061739e678565f63ae6"
+    }
+  ],
+  "id": "sf_898ca4624157c0a69fafbcbf"
+}

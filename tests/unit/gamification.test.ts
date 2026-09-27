@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  achievementDefinitions,
   applyActivityProgress,
   applyStreak,
   dayKey,
@@ -10,6 +11,7 @@ import {
   streakMultiplier,
   xpForActivity,
   xpForLevel,
+  type AchievementStats,
   type ProgressSnapshot,
 } from "@/lib/gamification";
 
@@ -145,6 +147,7 @@ describe("achievements", () => {
       reviewReps: 5,
       completedLessons: 3,
       solvedProblems: 0,
+      hardProblemsSolved: 0,
       questsCompleted: 0,
     });
 
@@ -160,9 +163,48 @@ describe("achievements", () => {
       reviewReps: 0,
       completedLessons: 0,
       solvedProblems: 0,
+      hardProblemsSolved: 0,
       questsCompleted: 0,
     });
 
     expect(keys).toEqual([]);
+  });
+
+  const zero: AchievementStats = {
+    xp: 0,
+    level: 1,
+    streakCurrent: 0,
+    reviewReps: 0,
+    completedLessons: 0,
+    solvedProblems: 0,
+    hardProblemsSolved: 0,
+    questsCompleted: 0,
+  };
+
+  it("keeps achievement keys unique, since the seed upserts by key", () => {
+    const keys = achievementDefinitions.map((definition) => definition.key);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("unlocks the higher tiers only at their thresholds", () => {
+    expect(earnedAchievementKeys({ ...zero, completedLessons: 24 })).not.toContain("quarter-shelf");
+    expect(earnedAchievementKeys({ ...zero, completedLessons: 25 })).toContain("quarter-shelf");
+    expect(earnedAchievementKeys({ ...zero, completedLessons: 100 })).toEqual(
+      expect.arrayContaining(["module-maker", "quarter-shelf", "century-shelf"]),
+    );
+    expect(earnedAchievementKeys({ ...zero, solvedProblems: 100 })).toEqual(
+      expect.arrayContaining(["green-tests", "problem-grinder", "problem-centurion"]),
+    );
+    expect(earnedAchievementKeys({ ...zero, reviewReps: 249 })).not.toContain("total-recall");
+    expect(earnedAchievementKeys({ ...zero, reviewReps: 250 })).toEqual(expect.arrayContaining(["memory-palace", "total-recall"]));
+    expect(earnedAchievementKeys({ ...zero, streakCurrent: 30 })).toContain("month-of-fire");
+    expect(earnedAchievementKeys({ ...zero, level: 20 })).toEqual(expect.arrayContaining(["level-ten", "level-twenty"]));
+  });
+
+  it("counts hard problems separately from all solved problems", () => {
+    expect(earnedAchievementKeys({ ...zero, solvedProblems: 40 })).not.toContain("hard-mode");
+    expect(earnedAchievementKeys({ ...zero, solvedProblems: 1, hardProblemsSolved: 1 })).toContain("hard-mode");
+    const hardHitter = achievementDefinitions.find((definition) => definition.key === "hard-hitter")!;
+    expect(hardHitter.progress({ ...zero, hardProblemsSolved: 9 })).toEqual({ current: 5, target: 5 });
   });
 });

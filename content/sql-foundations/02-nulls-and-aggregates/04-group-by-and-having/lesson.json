@@ -1,0 +1,98 @@
+{
+  "title": "GROUP BY and HAVING",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "GROUP BY splits the filtered rows into groups that share the same values in the grouping columns, then each aggregate runs once per group. The result has one row per group. HAVING filters those groups after aggregation, the same way WHERE filters rows before it."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "SELECT customer_id,\n       COUNT(*)   AS order_count,\n       SUM(total) AS revenue\nFROM orders\nWHERE status <> 'cancelled'          -- row filter, runs first\nGROUP BY customer_id\nHAVING COUNT(*) >= 2                 -- group filter, runs after aggregation\nORDER BY revenue DESC, customer_id;"
+    },
+    {
+      "type": "prose",
+      "body": "Every column in the SELECT list must either appear in GROUP BY or be inside an aggregate. `SELECT customer_id, email, COUNT(*) ... GROUP BY customer_id` is an error in SQL Server and PostgreSQL, because each group could contain several emails and the database will not guess which one you want. (MySQL without ONLY_FULL_GROUP_BY and SQLite accept it and pick an arbitrary row, which is a bug waiting to happen.)"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Put a condition in WHERE when it is about individual rows (status, dates), and in HAVING only when it needs an aggregate (COUNT(*) >= 2). Filtering early in WHERE means fewer rows to group, which is faster."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Two NULL traps show up together here. `status <> 'cancelled'` is UNKNOWN when status is NULL, so those rows vanish before grouping; write `(status <> 'cancelled' OR status IS NULL)` if they should count. And GROUP BY puts all NULL customer_ids into a single group, unlike WHERE, where NULL never equals NULL."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model the query in the lesson: WHERE status <> 'cancelled' (NULL status is filtered out), GROUP BY customer_id (NULL customers form one group), HAVING COUNT(*) >= @minOrders, ORDER BY revenue DESC, customer_id ASC. Return objects with keys customerId, orderCount, revenue in that order.",
+      "exercise": "top-customers",
+      "conceptTags": [
+        "sql",
+        "group-by",
+        "having",
+        "aggregates"
+      ],
+      "id": "sf_b281552f42fe752978f83b21"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the clause that filters groups after aggregation.",
+      "payload": {
+        "text": "SELECT dept, COUNT(*) FROM employees GROUP BY dept ____ COUNT(*) > 10;",
+        "blanks": [
+          "HAVING"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "having"
+      ],
+      "id": "sf_0d0bdcebaef50bb91099ed8c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why does SQL Server reject `SELECT customer_id, email, COUNT(*) FROM orders GROUP BY customer_id`?",
+      "payload": {
+        "choices": [
+          "COUNT(*) cannot be combined with GROUP BY",
+          "email is neither in GROUP BY nor inside an aggregate, so its value per group is undefined",
+          "GROUP BY must list every column in the table",
+          "customer_id must be aliased"
+        ],
+        "answer": "email is neither in GROUP BY nor inside an aggregate, so its value per group is undefined",
+        "explanation": "Each output row represents a group. Add email to GROUP BY, aggregate it (MAX(email)), or join to customers after grouping."
+      },
+      "conceptTags": [
+        "sql",
+        "group-by"
+      ],
+      "id": "sf_44770c322b2af60b1db0d6ae"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which query returns departments whose average salary is above 80,000, considering only full-time staff?",
+      "payload": {
+        "choices": [
+          "SELECT dept FROM staff WHERE full_time = 1 GROUP BY dept HAVING AVG(salary) > 80000",
+          "SELECT dept FROM staff WHERE AVG(salary) > 80000 AND full_time = 1 GROUP BY dept",
+          "SELECT dept FROM staff GROUP BY dept HAVING full_time = 1 WHERE AVG(salary) > 80000",
+          "SELECT dept, AVG(salary) > 80000 FROM staff GROUP BY dept"
+        ],
+        "answer": "SELECT dept FROM staff WHERE full_time = 1 GROUP BY dept HAVING AVG(salary) > 80000",
+        "explanation": "The row-level condition (full_time) belongs in WHERE; the aggregate condition belongs in HAVING. Aggregates are not allowed in WHERE, and HAVING comes after GROUP BY."
+      },
+      "conceptTags": [
+        "sql",
+        "group-by",
+        "having",
+        "where"
+      ],
+      "id": "sf_e4d167b7ca656777a33acd6c"
+    }
+  ],
+  "id": "sf_470f77b4260a260538aacfd8"
+}

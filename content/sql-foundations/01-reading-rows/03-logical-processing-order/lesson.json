@@ -1,0 +1,101 @@
+{
+  "title": "Logical Processing Order and DISTINCT",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "You write a query starting with SELECT, but the database logically evaluates it in a different order. Knowing that order explains most \"why is this an error?\" moments. The optimizer may physically do the work differently, but the result must match this logical order."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Written order          -- Logical evaluation order\nSELECT DISTINCT city     -- 5. SELECT   6. DISTINCT\nFROM customers           -- 1. FROM / JOIN\nWHERE active = 1         -- 2. WHERE\nGROUP BY city            -- 3. GROUP BY\nHAVING COUNT(*) > 2      -- 4. HAVING\nORDER BY city            -- 7. ORDER BY\nOFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY;  -- 8. OFFSET / FETCH (LIMIT)"
+    },
+    {
+      "type": "prose",
+      "body": "Consequences: WHERE cannot use an alias defined in SELECT, because SELECT has not run yet. ORDER BY can use SELECT aliases, because it runs after SELECT. WHERE cannot contain aggregates like COUNT(*), because groups do not exist yet; that is what HAVING is for."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Error: Invalid column name 'total_with_tax'\nSELECT id, total * 1.2 AS total_with_tax FROM orders WHERE total_with_tax > 100;\n\n-- Fix: repeat the expression (or compute it in a CTE / subquery)\nSELECT id, total * 1.2 AS total_with_tax FROM orders WHERE total * 1.2 > 100;\n\n-- ORDER BY may use the alias\nSELECT id, total * 1.2 AS total_with_tax FROM orders ORDER BY total_with_tax DESC;"
+    },
+    {
+      "type": "prose",
+      "body": "DISTINCT removes duplicate rows from the projected result. It compares whole output rows, not single columns, and it treats all NULLs as equal to each other, so many NULL cities collapse into one NULL row. In SQL Server and SQLite, NULLs sort first in ascending order; PostgreSQL and Oracle sort them last unless you write NULLS FIRST."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Reaching for DISTINCT to hide duplicate rows after a join is a code smell. The duplicates usually mean the join fans out (one row matched many), and DISTINCT papers over it while making the query slower."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `SELECT DISTINCT city FROM customers ORDER BY city` as SQL Server evaluates it: duplicates collapse (all NULLs count as one value), NULL sorts first, and the other cities sort by plain ordinal string comparison. Return the list of cities.",
+      "exercise": "select-distinct",
+      "conceptTags": [
+        "sql",
+        "distinct",
+        "order-by",
+        "nulls"
+      ],
+      "id": "sf_ee45c2182aeb42cc21a93cb8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why does `SELECT price * qty AS line_total FROM items WHERE line_total > 50` fail?",
+      "payload": {
+        "choices": [
+          "Aliases cannot contain underscores",
+          "You must use HAVING for computed columns",
+          "WHERE is evaluated before SELECT, so the alias does not exist yet",
+          "Multiplication is not allowed in SELECT"
+        ],
+        "answer": "WHERE is evaluated before SELECT, so the alias does not exist yet",
+        "explanation": "Logical order is FROM, WHERE, GROUP BY, HAVING, SELECT, DISTINCT, ORDER BY, OFFSET/FETCH. Repeat the expression in WHERE or compute it in a CTE."
+      },
+      "conceptTags": [
+        "sql",
+        "logical-order"
+      ],
+      "id": "sf_52fb754cb8c5c2866b94b8eb"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the clause that runs after SELECT and can therefore use SELECT aliases.",
+      "payload": {
+        "text": "Of WHERE, GROUP BY, and ORDER BY, only ____ BY may reference a column alias defined in the SELECT list.",
+        "blanks": [
+          "ORDER"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "logical-order"
+      ],
+      "id": "sf_c360632c54b1101a35782114"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "customers has 5 rows whose city is NULL. How many NULL rows does `SELECT DISTINCT city FROM customers` return?",
+      "payload": {
+        "choices": [
+          "0",
+          "5",
+          "It depends on the index",
+          "1"
+        ],
+        "answer": "1",
+        "explanation": "DISTINCT (like GROUP BY) treats NULLs as not distinct from each other, so they collapse into a single NULL row, even though NULL = NULL is not TRUE in a WHERE clause."
+      },
+      "conceptTags": [
+        "sql",
+        "distinct",
+        "nulls"
+      ],
+      "id": "sf_53171eaf0dd32de5e35a7d49"
+    }
+  ],
+  "id": "sf_373bc75ba531ffe40996789f"
+}

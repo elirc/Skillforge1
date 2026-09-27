@@ -1,0 +1,66 @@
+{
+  "id": "sf_8a86fa1e777b321723b64b7f",
+  "title": "Records and value equality",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A record supplies value-based equality for its members. Two separately constructed Product records compare equal when their SKU and price match. This is useful for immutable messages and snapshots, but it is not automatically the right identity rule for persisted entities: the same product may remain the same entity after its price changes."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "public sealed record Product(string Sku, decimal Price);\npublic static class Exercise\n{\n    public static bool SameProduct(Product left, Product right)\n    {\n        return false;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"Sku\":\"A\",\"Price\":2},{\"Sku\":\"A\",\"Price\":2}]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Compare two Product records using their generated value equality."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Entity identity and full snapshot equality answer different questions."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Should changing a price create a new product identity? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed key case checks a different boundary.\n\n**Transfer it.** Use DTO records for request and response snapshots while giving entities stable IDs."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_9e8922ba8b61a67225a935a8",
+      "type": "MCQ",
+      "prompt": "What does record equality compare here?",
+      "conceptTags": [
+        "records",
+        "equality",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "Only memory addresses",
+          "Only the type name",
+          "Both SKU and price values"
+        ],
+        "answer": "Both SKU and price values",
+        "explanation": "The positional record includes both declared members in its equality contract."
+      }
+    },
+    {
+      "id": "sf_a4593ddeb030055f40345716",
+      "type": "CODE",
+      "prompt": "Compare two Product records using their generated value equality.",
+      "conceptTags": [
+        "records",
+        "equality",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The positional record includes both declared members in its equality contract.",
+        "Entity identity and full snapshot equality answer different questions."
+      ],
+      "walkthrough": "The positional record includes both declared members in its equality contract.\nEntity identity and full snapshot equality answer different questions."
+    }
+  ]
+}

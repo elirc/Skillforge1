@@ -1,0 +1,14 @@
+{
+  "slug": "evaluate-price-formula",
+  "title": "Evaluate a Pricing Formula",
+  "prompt": "Store admins can type pricing formulas such as `price * qty - discount`. Write `evaluateFormula(formula, vars)` that evaluates the formula and returns a number. Support decimal numbers, variable names (letters, digits and `_`, not starting with a digit) looked up in `vars`, the operators `+ - * /` with the usual precedence and left-to-right associativity, parentheses, unary minus, and any amount of whitespace. Return `null` for a syntax error, an unknown variable, or division by zero. Do not use `eval` or `Function`.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["parsing", "recursion", "recursive-descent", "tokenizing"],
+  "order": 50006,
+  "exercise": "evaluate-price-formula",
+  "explanation": {
+    "beginner": "Do it in two steps. First, tokenize: walk the string and produce a list like `['price', '*', 'qty', '-', 'discount']`, skipping spaces and failing on any character you do not recognise. Second, parse with one small function per precedence level. `parseExpression` handles `+` and `-` by calling `parseTerm` for each side; `parseTerm` handles `*` and `/` by calling `parseFactor`; `parseFactor` handles a number, a variable, a leading minus, or a parenthesised sub-expression (by calling `parseExpression` again). Because multiplication lives one level deeper, `2 + 3 * 4` automatically multiplies first. When parsing finishes, every token must have been used, otherwise the input had junk at the end.",
+    "junior": "This is a recursive-descent parser for the grammar `expr := term (('+'|'-') term)*`, `term := unary (('*'|'/') unary)*`, `unary := '-' unary | primary`, `primary := number | ident | '(' expr ')'`. Using loops (not right recursion) for the binary levels gives left associativity, so `100 - 20 - 5` is 75, not 85. Unary minus binds tighter than `*`, so `-a * b` and `2 * -3` both work, and `--2` is legal. Throw a private error from anywhere in the parser and convert it to `null` at the top, which keeps error handling out of every branch. Check divisors for zero explicitly: JavaScript returns Infinity rather than failing. Validate identifiers with `Object.prototype.hasOwnProperty` so names like `constructor` or `toString` do not resolve to prototype members. Runs in O(n) over the tokens; recursion depth is bounded by parenthesis nesting."
+  }
+}

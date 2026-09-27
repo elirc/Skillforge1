@@ -1,0 +1,1 @@
+WITH ranked AS (SELECT id,customer_id,placed_at,ROW_NUMBER() OVER(PARTITION BY customer_id ORDER BY placed_at DESC,id DESC) AS rn FROM orders) SELECT customer_id,id AS order_id FROM ranked WHERE rn=1 ORDER BY customer_id;

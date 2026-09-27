@@ -1,0 +1,66 @@
+{
+  "id": "sf_bf7fbfb559ee0c2a1c3d6055",
+  "title": "Controlled fields and inline validation",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A controlled field derives its displayed value from React state. Its change handler updates that state, and rendering derives validation from the same value. Keep the input's visible label connected with htmlFor/id. A valid trimmed name enables Save; whitespace alone is not valid. The tests type into a mounted input and inspect both feedback and the button, so a standalone validation function is only one part of the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "// A small controlled field:\n// const [value, setValue] = useState(\"\");\n// <input value={value} onChange={event => setValue(event.target.value)} />"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"props\":{},\"actions\":[],\"assertions\":[{\"selector\":\"button\",\"disabled\":true},{\"selector\":\"[role=status]\",\"text\":\"Name is required\"}]}]. The required result is true. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Render a labelled Name input, a role=status message, and a Save button disabled until a nonblank name is entered."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A field can look populated while validation reads stale state if you keep duplicate sources of truth."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which assertion proves the user-visible behavior rather than the implementation detail? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the spaces are invalid case checks a different boundary.\n\n**Transfer it.** Replace the simulated data boundary with the Inventory Desk API while preserving these component contracts."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_62c1d9f8430a8e771243f18d",
+      "type": "MCQ",
+      "prompt": "What is the source of truth for a controlled input?",
+      "conceptTags": [
+        "react",
+        "forms",
+        "validation"
+      ],
+      "payload": {
+        "choices": [
+          "A separate mutable global variable",
+          "React state passed through value",
+          "The placeholder text"
+        ],
+        "answer": "React state passed through value",
+        "explanation": "value and onChange form a single state/render loop."
+      }
+    },
+    {
+      "id": "sf_389341062011f8bd161e4721",
+      "type": "CODE",
+      "prompt": "Render a labelled Name input, a role=status message, and a Save button disabled until a nonblank name is entered.",
+      "conceptTags": [
+        "react",
+        "forms",
+        "validation"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "value and onChange form a single state/render loop.",
+        "A field can look populated while validation reads stale state if you keep duplicate sources of truth."
+      ],
+      "walkthrough": "value and onChange form a single state/render loop.\nA field can look populated while validation reads stale state if you keep duplicate sources of truth."
+    }
+  ]
+}

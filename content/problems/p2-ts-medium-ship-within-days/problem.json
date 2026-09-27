@@ -1,0 +1,14 @@
+{
+  "slug": "p2-ts-medium-ship-within-days",
+  "title": "Smallest Truck to Ship Within a Deadline",
+  "prompt": "A fulfilment centre must ship `parcels` (weights, in the given order - they are queued on a conveyor) within `days` days. Each day one truck is loaded with the next parcels in order until adding another would exceed its capacity; parcels are never split or reordered. Write `minTruckCapacity(parcels, days)` returning the smallest integer capacity that ships everything within `days`. Return `0` for no parcels. Use binary search on the answer.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["binary-search", "binary-search-on-answer", "greedy"],
+  "order": 70015,
+  "exercise": "ship-within-days",
+  "explanation": {
+    "beginner": "Guessing a capacity is easy to check: load parcels one by one, start a new day whenever the next parcel does not fit, and count the days. Bigger trucks never need more days, so the answers look like 'too small, too small, ..., big enough, big enough'. That lets you binary search. The smallest sensible capacity is the heaviest parcel (otherwise it never fits); the largest you would ever need is the total weight (everything in one day). Test the middle; if it works, try smaller, otherwise try bigger, until the range closes on the smallest capacity that works.",
+    "junior": "Binary search on the answer: the predicate `daysNeeded(cap) <= days` is monotonic in `cap`, so search `[max(parcels), sum(parcels)]` for the first true. Each check is a greedy O(n) pass (filling each day as much as possible is optimal because leaving room never helps a later day), giving O(n log(sum)). The lower bound `max` is essential - with a smaller capacity the greedy loop would open a new day per parcel forever or miscount. Use `lo < hi` with `hi = mid` on success and `lo = mid + 1` on failure. The same pattern solves 'split array largest sum', 'Koko eating bananas' and 'minimum rate limit that finishes a job queue by a deadline'."
+  }
+}

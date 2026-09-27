@@ -1,0 +1,95 @@
+{
+  "title": "Race Conditions and AbortController",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Fetching in an effect has a classic race. The user types `re`, then `react`. Two requests go out, and nothing guarantees they come back in order. If the `re` response arrives last, it overwrites the newer results and the list no longer matches the search box.\n\nThe fix is to make each effect run **own** its request and cancel it in cleanup. React runs the cleanup of the previous run before starting the next one, so the old request is cancelled before its stale response can land."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "function SearchResults({ query }: { query: string }) {\n  const [results, setResults] = useState<Product[]>([]);\n  const [error, setError] = useState<string | null>(null);\n\n  useEffect(() => {\n    const controller = new AbortController();\n    fetch(`/api/products?q=${encodeURIComponent(query)}`, { signal: controller.signal })\n      .then((res) => res.json())\n      .then((data) => setResults(data.items))\n      .catch((err) => {\n        if (err.name !== \"AbortError\") setError(String(err)); // aborts are expected\n      });\n    return () => controller.abort(); // cancels the stale request\n  }, [query]);\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Two ways to stay correct:\n\n- **AbortController**: pass `signal` to `fetch` and call `abort()` in cleanup. The request is actually cancelled, and the promise rejects with an `AbortError` you should ignore\n- an **ignore flag**: `let ignore = false; ... if (!ignore) setResults(data); return () => { ignore = true; }`. The request still completes but its result is dropped\n\nHand-written fetching effects also have to handle caching, deduplication, retries, and refetching on focus. In a real CRUD app, prefer a data library such as TanStack Query, or your framework's data loading, which solve these once."
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Debouncing the search input reduces the number of requests, but it does not remove the race: two requests can still overlap. You still need abort or an ignore flag."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Where should controller.abort() be called when fetching in useEffect?",
+      "payload": {
+        "choices": [
+          "In the effect's cleanup function",
+          "Before calling fetch",
+          "In the .then callback",
+          "In a separate useEffect with []"
+        ],
+        "answer": "In the effect's cleanup function",
+        "explanation": "The cleanup runs before the next effect run and on unmount, which is exactly when the old request becomes stale."
+      },
+      "conceptTags": [
+        "react",
+        "effects",
+        "data-fetching",
+        "abort-controller"
+      ],
+      "id": "sf_4290535d9d79dda1a0da5c89"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What happens to a fetch promise after its AbortController aborts?",
+      "payload": {
+        "choices": [
+          "It resolves with undefined",
+          "It never settles",
+          "It rejects with an AbortError",
+          "It resolves with the partial body"
+        ],
+        "answer": "It rejects with an AbortError",
+        "explanation": "Aborting rejects the promise with a DOMException named AbortError, which your catch should ignore."
+      },
+      "conceptTags": [
+        "javascript",
+        "data-fetching",
+        "abort-controller"
+      ],
+      "id": "sf_ad1c59100f46a2497ff288c8"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the fetch call so it can be cancelled.",
+      "payload": {
+        "text": "fetch(url, { ____: controller.signal })",
+        "blanks": [
+          "signal"
+        ]
+      },
+      "conceptTags": [
+        "javascript",
+        "data-fetching",
+        "abort-controller"
+      ],
+      "id": "sf_340a1b5267b9d99bd62e1604"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Replay out-of-order search responses in naive mode and abort mode, and report what the user sees plus which requests were aborted and applied.",
+      "exercise": "resolve-fetches",
+      "conceptTags": [
+        "react",
+        "effects",
+        "data-fetching",
+        "race-conditions"
+      ],
+      "id": "sf_e04a9b166853d1d43cc63295"
+    }
+  ],
+  "id": "sf_381cdb02a0b6b80274b7d918"
+}

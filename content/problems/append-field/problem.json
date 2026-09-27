@@ -12,7 +12,7 @@
   "order": 84,
   "exercise": "append-field",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Append Field, read the story as a simple input-to-output rule: A React dynamic form adds another field without mutating state. Write a helper that returns a new array with the new value appended to the existing fields. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, state and arrays. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: appendField([\"a\"], \"b\") produces [\"a\",\"b\"]. Copy the old sequence and place the new value after its last element. The old sequence must remain a usable previous state.\n\nCompare “works with empty arrays”: input [[],\"first\"] produces [\"first\"]. Explain which rule causes the difference before writing code.",
+    "junior": "Copy the old sequence and place the new value after its last element. The old sequence must remain a usable previous state.\n\nTempting mistake: push mutates the old array and returns a length, so returning fields.push(value) violates both parts of the contract.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated. Copying n references costs O(n) time and O(n) additional space.\n\nRegression check: preserve the contract illustrated by “works with empty arrays”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

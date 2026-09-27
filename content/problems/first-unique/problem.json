@@ -12,7 +12,7 @@
   "order": 3,
   "exercise": "first-unique",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For First Unique Character, read the story as a simple input-to-output rule: A support queue marks each ticket with a short code. Write a function that scans the code from left to right and returns the first character that appears exactly once. If every character repeats, return an empty string. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is strings, maps and counting. Choose the data structure deliberately and check complexity before settling on the first working approach."
+    "beginner": "Example: firstUnique(\"forge\") produces \"f\". Track the key that defines equality and retain one representative according to the contract’s ordering rule.\n\nCompare “skips repeated leading characters”: input [\"swiss\"] produces \"w\". Explain which rule causes the difference before writing code.",
+    "junior": "Track the key that defines equality and retain one representative according to the contract’s ordering rule.\n\nTempting mistake: Deduplicating objects by reference does not deduplicate equal IDs. Keep duplicate handling and output order explicit.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “skips repeated leading characters”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

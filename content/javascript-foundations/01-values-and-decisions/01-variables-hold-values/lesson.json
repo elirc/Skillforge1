@@ -14,6 +14,24 @@
       "type": "callout",
       "tone": "info",
       "body": "The value can still be an object or array that changes; const protects the binding, not every nested value."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Read the right side first: tickets + 1 uses the old value 2, then assignment stores 3. price stays 5. A name refers to a value; writing a second assignment changes what a let binding refers to."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "let tickets = 2;\ntickets = tickets + 1;\nconst price = 5;\nconsole.log(tickets * price); // 15"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "const prevents reassignment of the binding. It does not make every object stored in that binding deeply immutable."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Change the initial ticket count to 4. Predict both the new count and the total before running.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -21,26 +39,51 @@
       "type": "MCQ",
       "prompt": "Which declaration should you usually choose for a binding that will not be reassigned?",
       "payload": {
-        "choices": ["const", "var", "let", "function"],
+        "choices": [
+          "const",
+          "var",
+          "let",
+          "function"
+        ],
         "answer": "const",
         "explanation": "const communicates that the binding itself should stay attached to the same value."
       },
-      "conceptTags": ["variables", "const"]
+      "conceptTags": [
+        "variables",
+        "const"
+      ],
+      "id": "sf_61c76af69aa763dd4a4a24a2"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the sentence about bindings.",
       "payload": {
         "text": "A variable gives a value a ____ so it can be reused later.",
-        "blanks": ["name"]
+        "blanks": [
+          "name"
+        ]
       },
-      "conceptTags": ["variables"]
+      "conceptTags": [
+        "variables"
+      ],
+      "id": "sf_e8969bf3d0667fecfab00263"
     },
     {
       "type": "CODE",
       "prompt": "Implement addXp so it returns the current XP plus earned XP.",
       "exercise": "add-xp",
-      "conceptTags": ["variables", "expressions"]
+      "conceptTags": [
+        "variables",
+        "expressions"
+      ],
+      "id": "sf_51616f503901925d10d24cc5",
+      "hints": [
+        "const prevents reassignment of the binding. It does not make every object stored in that binding deeply immutable.",
+        "Read the right side first: tickets + 1 uses the old value 2, then assignment stores 3. price stays 5. A name refers to a value; writing a second assignment changes what a let binding refers to."
+      ],
+      "walkthrough": "Read the right side first: tickets + 1 uses the old value 2, then assignment stores 3. price stays 5. A name refers to a value; writing a second assignment changes what a let binding refers to."
     }
-  ]
+  ],
+  "id": "sf_3a8c5bad1a7f9aed58b7a986",
+  "estimatedMinutes": 12
 }

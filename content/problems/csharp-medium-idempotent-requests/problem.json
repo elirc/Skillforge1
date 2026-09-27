@@ -1,0 +1,14 @@
+{
+  "slug": "csharp-medium-idempotent-requests",
+  "title": "Idempotency Keys for a Payments API",
+  "prompt": "A `POST /payments` endpoint accepts an `Idempotency-Key` header so clients can retry safely. Replay `PaymentRequest(Key, Payload, At)` requests (`At` in seconds, non-decreasing) and return one response string each. A blank or whitespace key gets `\"400 missing key\"`. A key that has no stored entry, or whose entry is expired (`At >= storedAt + ttlSeconds`), is processed: payments are numbered from 1 in the order they are created, the response is `\"201 created #{n}\"`, and the key is stored with its payload, time and number. A key with a live entry and the same payload gets `\"200 replay #{n}\"` with the original number; with a different payload it gets `\"422 key reused with different payload\"` and the stored entry is left untouched. Keys are case-sensitive.",
+  "language": "csharp",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["csharp", "idempotency", "api-design", "dictionaries", "aspnet-core"],
+  "order": 50028,
+  "exercise": "csharp-medium-idempotent-requests",
+  "explanation": {
+    "beginner": "Networks fail after the server has done the work but before the client hears back, so the client retries. Without protection, the customer is charged twice. An idempotency key is a unique id the client sends with the request; the server remembers 'key -> what I answered'. Keep a `Dictionary<string, (string Payload, int At, int Number)>`. For each request: reject blank keys; if the key is unknown or its entry is too old, create a new payment, store it, and answer 201; if it is known and the body matches, answer 200 with the same payment number (do not create another); if the body differs, answer 422 because the client is misusing the key.",
+    "junior": "This is the pattern Stripe popularised, and the details are where bugs live. Compare the payload (in practice a hash of the canonical body) so a key reused for a different request is rejected rather than silently replaying the wrong response. Do not overwrite the stored entry on a 422, or a buggy client could 'steal' the key and break the legitimate retry. Expiry uses `>=` so the TTL is an exclusive window. Blank keys must not consume a payment number, so validate before incrementing. `string.IsNullOrWhiteSpace` covers null, empty and spaces. The default `Dictionary<string, ...>` comparer is ordinal and case-sensitive, which is what you want for opaque keys. In a real service the store is a database table with a unique index on the key, the first insert happens inside the same transaction as the payment, and a concurrent duplicate that loses the race gets a 409 while the first is in flight."
+  }
+}

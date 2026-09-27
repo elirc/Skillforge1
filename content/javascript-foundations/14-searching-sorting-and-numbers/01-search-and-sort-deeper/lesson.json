@@ -1,0 +1,126 @@
+{
+  "title": "Searching and Sorting, Deeper",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Arrays have a method for each kind of question you might ask:\n- `find(fn)` the first item that matches, or `undefined`\n- `findIndex(fn)` the position of the first match, or `-1`\n- `some(fn)` is **at least one** item a match? (true/false)\n- `every(fn)` are **all** items a match? (true/false)\n- `includes(value)` is this exact value in the array?"
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const lessons = [\n  { title: \"Arrays\", done: true },\n  { title: \"Loops\", done: false },\n  { title: \"Maps\", done: true },\n];\nlessons.find((l) => !l.done);       // { title: \"Loops\", done: false }\nlessons.findIndex((l) => !l.done);  // 1\nlessons.some((l) => l.done);        // true\nlessons.every((l) => l.done);       // false\n[].every((l) => l.done);            // true: nothing broke the rule"
+    },
+    {
+      "type": "prose",
+      "body": "`sort` needs a **comparator**: a function that gets two items `a` and `b` and returns a negative number if `a` goes first, a positive number if `b` goes first, and `0` if they tie. Without one, sort converts items to strings, so `[10, 9, 100].sort()` gives `[10, 100, 9]`."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const scores = [10, 9, 100];\n[...scores].sort((a, b) => a - b); // [9, 10, 100]  smallest first\n[...scores].sort((a, b) => b - a); // [100, 10, 9]  biggest first\n\n// Sort by score, then by name when scores tie\nplayers.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Sort is **stable** in modern JavaScript: items that compare equal keep their original order. That is why you can sort by name first and then by score, and names stay in order within each score."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`sort` changes the array in place. Copy first with `[...items]` (or use `toSorted` in newer runtimes) when the caller still needs the original order."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Binary search relies on sorted input and shrinks the remaining interval each step. Linear search needs no ordering assumption. Sorting once can pay off for many searches, but sorting for a single lookup has its own cost."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const ids = [2, 5, 8, 11];\n// Looking for 8: midpoint is 5, discard left half; then find 8."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A binary search over unsorted input can confidently discard the part containing the target."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Describe the interval updates when searching for a missing value between 5 and 8.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does `[5, 1, 10].sort()` return?",
+      "payload": {
+        "choices": [
+          "[1, 5, 10]",
+          "[1, 10, 5]",
+          "[10, 5, 1]",
+          "[5, 1, 10]"
+        ],
+        "answer": "[1, 10, 5]",
+        "explanation": "Without a comparator items are compared as strings, and \"10\" comes before \"5\". Use (a, b) => a - b for numbers."
+      },
+      "conceptTags": [
+        "arrays",
+        "sorting",
+        "comparators"
+      ],
+      "id": "sf_fef6aabee3f7349d2f42aa25"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which method answers \"is there at least one unfinished lesson?\"",
+      "payload": {
+        "choices": [
+          "some",
+          "every",
+          "find",
+          "map"
+        ],
+        "answer": "some",
+        "explanation": "some returns true as soon as one item passes the test. every needs all of them to pass."
+      },
+      "conceptTags": [
+        "arrays",
+        "searching"
+      ],
+      "id": "sf_3a348308df4d5328a01490c1"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the method.",
+      "payload": {
+        "text": "items.____(fn) returns the position of the first match, or -1 if none match.",
+        "blanks": [
+          "findIndex"
+        ]
+      },
+      "conceptTags": [
+        "arrays",
+        "searching"
+      ],
+      "id": "sf_afc5dc312d4a13102a4ab0c8"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write rankPlayers(players). Return the players' names ordered by score, highest first. When scores tie, order those names A to Z. Do not change the input array.",
+      "exercise": "rank-players",
+      "conceptTags": [
+        "arrays",
+        "sorting",
+        "comparators",
+        "immutability"
+      ],
+      "id": "sf_083b7e2c88cc7a07683d632c",
+      "hints": [
+        "A binary search over unsorted input can confidently discard the part containing the target.",
+        "Binary search relies on sorted input and shrinks the remaining interval each step. Linear search needs no ordering assumption. Sorting once can pay off for many searches, but sorting for a single lookup has its own cost."
+      ],
+      "walkthrough": "Binary search relies on sorted input and shrinks the remaining interval each step. Linear search needs no ordering assumption. Sorting once can pay off for many searches, but sorting for a single lookup has its own cost."
+    }
+  ],
+  "id": "sf_fbb62af851331ad6db873d27",
+  "estimatedMinutes": 12
+}

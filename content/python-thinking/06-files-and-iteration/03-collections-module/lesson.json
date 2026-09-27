@@ -1,0 +1,131 @@
+{
+  "title": "Counter, defaultdict, and deque",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "The collections module provides specialized containers for jobs that are awkward with plain dicts and lists. Three of them cover most everyday needs: Counter for counting, defaultdict for grouping, and deque for fast queues."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "from collections import Counter\n\nwords = \"the cat and the hat and the bat\".split()\ncounts = Counter(words)\nprint(counts[\"the\"])            # 3\nprint(counts[\"dog\"])            # 0 -- missing keys count as zero, no KeyError\nprint(counts.most_common(2))    # [('the', 3), ('and', 2)]\n\ncounts.update([\"cat\", \"cat\"])   # add more observations\nprint(counts[\"cat\"])            # 3"
+    },
+    {
+      "type": "prose",
+      "body": "A defaultdict takes a factory function. When you read a missing key it calls the factory, stores the result under that key, and returns it. With list as the factory, grouping becomes one line per item and you never have to check whether the key exists."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "from collections import defaultdict\n\norders = [(\"ada\", 30), (\"lin\", 12), (\"ada\", 5)]\nby_customer = defaultdict(list)\nfor name, amount in orders:\n    by_customer[name].append(amount)   # missing key -> new empty list\n\nprint(dict(by_customer))   # {'ada': [30, 5], 'lin': [12]}\n\ntotals = defaultdict(int)  # int() returns 0\nfor name, amount in orders:\n    totals[name] += amount\nprint(totals[\"ada\"])       # 35"
+    },
+    {
+      "type": "prose",
+      "body": "A deque (double-ended queue, pronounced 'deck') appends and pops at both ends in constant time. list.pop(0) has to shift every remaining element, so use a deque for queues and breadth-first search. With maxlen it becomes a bounded buffer that drops the oldest item automatically."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "from collections import deque\n\nqueue = deque([\"a\", \"b\"])\nqueue.append(\"c\")          # add to the right\nprint(queue.popleft())     # a   -- O(1), unlike list.pop(0)\n\nrecent = deque(maxlen=3)\nfor event in [1, 2, 3, 4, 5]:\n    recent.append(event)\nprint(list(recent))        # [3, 4, 5]"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Merely reading a missing key on a defaultdict inserts it. If you only want to check, use key in d or d.get(key), which do not trigger the factory."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "c = Counter(\"banana\"); what does print(c[\"a\"], c[\"z\"]) show?",
+      "payload": {
+        "choices": [
+          "3 0",
+          "3 None",
+          "3 KeyError",
+          "1 0"
+        ],
+        "answer": "3 0",
+        "explanation": "Counting a string counts its characters. Counter returns 0 for missing keys instead of raising KeyError."
+      },
+      "conceptTags": [
+        "collections",
+        "counter"
+      ],
+      "id": "sf_1fad257da9bb4002fee9b604"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "d = defaultdict(list); d[\"x\"].append(1); what does print(dict(d)) show?",
+      "payload": {
+        "choices": [
+          "{'x': [1]}",
+          "{}",
+          "KeyError: 'x'",
+          "{'x': 1}"
+        ],
+        "answer": "{'x': [1]}",
+        "explanation": "Reading the missing key \"x\" calls list() to create an empty list, which append then fills."
+      },
+      "conceptTags": [
+        "collections",
+        "defaultdict"
+      ],
+      "id": "sf_b2ee4511a683fc710c7e9c47"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why use a deque rather than a list for a FIFO queue?",
+      "payload": {
+        "choices": [
+          "popleft() is O(1), while list.pop(0) shifts every element",
+          "deques keep items sorted",
+          "lists cannot hold duplicate items",
+          "deques are immutable"
+        ],
+        "answer": "popleft() is O(1), while list.pop(0) shifts every element",
+        "explanation": "Removing from the front of a list is linear time; a deque is built for both ends."
+      },
+      "conceptTags": [
+        "collections",
+        "deque"
+      ],
+      "id": "sf_2790a4305e4b215303df8026"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "r = deque(maxlen=2); after appending 1, 2 and 3, what is list(r)?",
+      "payload": {
+        "choices": [
+          "[1, 2]",
+          "[1, 2, 3]",
+          "an error on the third append",
+          "[2, 3]"
+        ],
+        "answer": "[2, 3]",
+        "explanation": "A bounded deque drops items from the opposite end when it is full."
+      },
+      "conceptTags": [
+        "collections",
+        "deque"
+      ],
+      "id": "sf_57f2d74ec08c0dbee501b55a"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the method.",
+      "payload": {
+        "text": "Counter(words).____(3) returns the three most frequent items with their counts.",
+        "blanks": [
+          "most_common"
+        ]
+      },
+      "conceptTags": [
+        "collections",
+        "counter"
+      ],
+      "id": "sf_7d539a55a1aca5b71b1568f6"
+    }
+  ],
+  "id": "sf_e39d8ca702f8f71991b9a277"
+}

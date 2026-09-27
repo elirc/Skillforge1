@@ -1,0 +1,14 @@
+{
+  "slug": "lru-cache-operations",
+  "title": "Simulate an LRU Cache",
+  "prompt": "An API gateway keeps the most recently used responses in a fixed-size cache. Simulate it. `capacity` is at least 1 and `ops` is a list of `['put', key, value]` or `['get', key]`. A `get` returns the stored value (or `null` if missing) and marks the key as most recently used; a miss changes nothing. A `put` stores the value and marks the key most recently used; if the key is new and the cache is full, it first evicts the least recently used key. Return one result per op: the value (or `null`) for `get`, and the evicted key (or `null`) for `put`.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["caching", "maps", "lru", "data-structures"],
+  "order": 50017,
+  "exercise": "lru-cache-operations",
+  "explanation": {
+    "beginner": "You need to remember both the values and the order in which keys were last touched. A JavaScript `Map` does both: it remembers insertion order, so if you delete a key and set it again, it moves to the end. That makes the end of the Map 'most recent' and the start 'least recent'. For `get`, if the key exists, read the value, delete it, and set it again to move it to the end. For `put`, if the key already exists delete it first; otherwise, if the Map is full, remove the first key (`map.keys().next().value`) and remember it as the evicted key. Then set the new value.",
+    "junior": "The textbook LRU is a hash map plus a doubly linked list for O(1) get/put; a JS `Map` gives the same O(1) behaviour because delete + set re-inserts at the tail and `keys().next()` yields the head. Edge cases the tests cover: updating an existing key while full must not evict anything (check `has` before the capacity check); a miss must not touch recency; a stored falsy value like `0` must come back as `0`, so test with `has`, not truthiness. Returning the evicted key from `put` is handy for tests and for metrics. In C#, the equivalent is `Dictionary<TKey, LinkedListNode<T>>` plus `LinkedList<T>`, and in production you would reach for `MemoryCache` with a size limit rather than hand-rolling one."
+  }
+}

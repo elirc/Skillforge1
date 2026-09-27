@@ -14,6 +14,24 @@
       "type": "callout",
       "tone": "warning",
       "body": "Spread copies one level deep. Nested objects and arrays are shared by reference unless you copy them too."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Spread creates a new outer object, then the later property overrides points. Keeping the earlier snapshot intact makes state transitions, undo, and comparison easier."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const before = { name: 'Ada', points: 2 };\nconst after = { ...before, points: 3 };\n// before.points is still 2"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Spread is shallow: nested objects are still shared unless their level is copied too."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Add an address object and explain which references before and after would share.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -22,15 +40,33 @@
       "prompt": "Name the syntax.",
       "payload": {
         "text": "{ ...learner, streak: 7 } uses the ____ syntax to copy and override keys.",
-        "blanks": ["spread"]
+        "blanks": [
+          "spread"
+        ]
       },
-      "conceptTags": ["objects", "immutability"]
+      "conceptTags": [
+        "objects",
+        "immutability"
+      ],
+      "id": "sf_0e8d9055d54624d5ceba151c"
     },
     {
       "type": "CODE",
       "prompt": "Return a new learner object with streak set to the given value, leaving the input untouched.",
       "exercise": "with-streak",
-      "conceptTags": ["objects", "immutability", "spread"]
+      "conceptTags": [
+        "objects",
+        "immutability",
+        "spread"
+      ],
+      "id": "sf_438624bf73b3f40198fcfc01",
+      "hints": [
+        "Spread is shallow: nested objects are still shared unless their level is copied too.",
+        "Spread creates a new outer object, then the later property overrides points. Keeping the earlier snapshot intact makes state transitions, undo, and comparison easier."
+      ],
+      "walkthrough": "Spread creates a new outer object, then the later property overrides points. Keeping the earlier snapshot intact makes state transitions, undo, and comparison easier."
     }
-  ]
+  ],
+  "id": "sf_db0a8f60224b50cc2aab74b1",
+  "estimatedMinutes": 12
 }

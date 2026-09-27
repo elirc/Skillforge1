@@ -1,0 +1,99 @@
+{
+  "title": "Typing Component Props",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Props are the inputs of a component, and TypeScript is how you document them. Type them with an interface or type alias and destructure them in the parameter list, with default values for optional props. A default applies when the prop is **missing or undefined**, not when it is `null`.\n\nIn React 19, `ref` is an ordinary prop for function components, so you rarely need `forwardRef` anymore. `children` is typed as `React.ReactNode`, which accepts anything renderable: elements, strings, numbers, arrays, null, and booleans."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "import type { ComponentPropsWithoutRef, ReactNode } from \"react\";\n\ntype Variant = \"primary\" | \"danger\" | \"ghost\";\n\n// Accept every native <button> prop, and add our own.\ntype ButtonProps = ComponentPropsWithoutRef<\"button\"> & {\n  variant?: Variant;\n  icon?: ReactNode;\n};\n\nexport function Button({ variant = \"primary\", type = \"button\", icon, children, ...rest }: ButtonProps) {\n  return (\n    <button type={type} className={`btn btn-${variant}`} {...rest}>\n      {icon}\n      {children}\n    </button>\n  );\n}"
+    },
+    {
+      "type": "prose",
+      "body": "When one component can render in two shapes, model the props as a **discriminated union**. The shared literal field (here `as`) tells TypeScript which other props are allowed, so invalid combinations fail at compile time instead of at runtime:\n\n- `<Action as=\"link\" href=\"/products\" />` is valid\n- `<Action as=\"link\" disabled />` does not compile: links have no `disabled`\n- inside the component, `if (props.as === \"link\")` narrows `props` so `props.href` is available"
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "type ActionProps =\n  | { as: \"link\"; href: string; external?: boolean; label: string }\n  | { as: \"button\"; onClick: () => void; disabled?: boolean; label: string };\n\nfunction Action(props: ActionProps) {\n  if (props.as === \"link\") {\n    return props.external\n      ? <a href={props.href} target=\"_blank\" rel=\"noopener noreferrer\">{props.label}</a>\n      : <a href={props.href}>{props.label}</a>;\n  }\n  return <button type=\"button\" onClick={props.onClick} disabled={props.disabled}>{props.label}</button>;\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A `<button>` inside a `<form>` defaults to `type=\"submit\"`. A reusable Button component should default to `type=\"button\"` so an Edit or Cancel button does not submit the form by accident."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "With function Card({ size = \"md\" }: Props), what is size when rendered as <Card size={null} />?",
+      "payload": {
+        "choices": [
+          "\"md\"",
+          "null",
+          "undefined",
+          "A type error at runtime"
+        ],
+        "answer": "null",
+        "explanation": "Destructuring defaults, like default parameters, only apply to undefined. An explicit null is passed through (and TypeScript would reject it unless the type allows null)."
+      },
+      "conceptTags": [
+        "react",
+        "props",
+        "typescript"
+      ],
+      "id": "sf_39a62ad72588009078b6e9eb"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is the best type for a prop that can hold any renderable content?",
+      "payload": {
+        "choices": [
+          "React.ReactNode",
+          "JSX.Element",
+          "string",
+          "React.FC"
+        ],
+        "answer": "React.ReactNode",
+        "explanation": "ReactNode covers elements, strings, numbers, arrays, null and booleans. JSX.Element only allows a single element."
+      },
+      "conceptTags": [
+        "react",
+        "props",
+        "typescript"
+      ],
+      "id": "sf_ce2c04eefaa4a7cb3b6e6aaf"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the rel value that should accompany target=\"_blank\" on external links.",
+      "payload": {
+        "text": "<a href={url} target=\"_blank\" rel=\"noopener ____\">",
+        "blanks": [
+          "noreferrer"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "security",
+        "links"
+      ],
+      "id": "sf_f58e2bd04061c2f1de78bf6c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Resolve discriminated-union props for an Action component into the tag, class, text, and attributes it would render, applying defaults.",
+      "exercise": "resolve-action-element",
+      "conceptTags": [
+        "react",
+        "props",
+        "typescript",
+        "discriminated-unions"
+      ],
+      "id": "sf_2c7ea1d04586f029e33e3c75"
+    }
+  ],
+  "id": "sf_10842d9d80e4b0aad2b3849f"
+}

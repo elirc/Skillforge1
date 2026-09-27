@@ -1,5 +1,10 @@
 import { test, expect, type Page } from "@playwright/test";
 import { PrismaClient } from "@prisma/client";
+import path from "node:path";
+import { tmpdir } from "node:os";
+
+const owned=process.env.SKILLFORGE_E2E_TEST_DB;
+if(!owned || process.env.DATABASE_URL!==`file:${owned.replaceAll("\\","/")}` || path.dirname(path.dirname(path.resolve(owned)))!==path.resolve(tmpdir()) || !path.basename(path.dirname(owned)).startsWith("skillforge-browser-")) throw new Error("Run npm run test:e2e; these tests require a helper-owned temporary database.");
 
 const LESSON_TITLE = "Variables Hold Values";
 const LOCAL_USER_ID = "local";
@@ -30,8 +35,10 @@ test.beforeEach(async () => {
   }
 });
 
-// Each knowledge check renders as a card: <div class="rounded-lg ..."><div><h3>{prompt}</h3>...</div>...</div>.
-// Scoping to the card by its prompt keeps the MCQ / cloze / code steps independent of render order.
+// Each knowledge check renders as a card: <div class="rounded-lg ..."><div><h3>{prompt}</h3><badge/></div>...</div>.
+// Prompts go through markdown-lite, so `code` spans render as <code> inside the <h3>; the accessible
+// name is still the plain text. Scoping to the card by its prompt keeps the MCQ / cloze / code steps
+// independent of render order.
 function checkCard(page: Page, prompt: RegExp) {
   return page.getByRole("heading", { level: 3, name: prompt }).locator("xpath=../..");
 }
@@ -40,8 +47,9 @@ test("local learner takes a lesson and completes a review", async ({ page }) => 
   // Track catalog -> course
   await page.goto("/tracks", { timeout: NAV_TIMEOUT });
   await expect(page.getByRole("heading", { name: "Tracks" })).toBeVisible({ timeout: NAV_TIMEOUT });
+  await page.screenshot({ path: "test-results/tracks-desktop.png", fullPage: true });
   // The course can be listed twice (under "Continue learning" and in the full grid); either goes to the same place.
-  await page.getByRole("link", { name: /JavaScript Foundations/ }).first().click();
+  await page.getByRole("link", { name: /JavaScript Foundations/ }).last().click();
   await page.waitForURL(/\/courses\/javascript-foundations$/, { timeout: NAV_TIMEOUT });
   await expect(page.getByRole("heading", { name: "JavaScript Foundations" })).toBeVisible({ timeout: NAV_TIMEOUT });
 
@@ -57,25 +65,39 @@ test("local learner takes a lesson and completes a review", async ({ page }) => 
   // editor's .cm-content only exists once the client tree has mounted, so once
   // it is visible the MCQ / cloze buttons below are live too.
   await expect(page.locator(".cm-content")).toBeVisible({ timeout: NAV_TIMEOUT });
+  await page.screenshot({ path: "test-results/lesson-desktop.png", fullPage: true });
 
   // MCQ check
   const mcq = checkCard(page, /Which declaration should you usually choose/);
   const constChoice = mcq.getByRole("button", { name: "const", exact: true });
-  // A selected choice is highlighted; asserting that proves the click reached React state.
+  // A selected choice sets aria-pressed; asserting that proves the click reached React state.
   await expect(async () => {
     await constChoice.click();
-    await expect(constChoice).toHaveClass(/border-emerald-500/);
+    await expect(constChoice).toHaveAttribute("aria-pressed", "true");
   }).toPass({ timeout: 60_000 });
   await mcq.getByRole("button", { name: "Check" }).click();
-  await expect(mcq.getByText("Correct")).toBeVisible();
+  await expect(mcq.getByText("Correct", { exact: true })).toBeVisible();
+  // A correct MCQ answer settles the card: choices lock and the explanation appears.
+  await expect(constChoice).toBeDisabled();
+  await expect(mcq.getByText(/binding itself should stay attached/)).toBeVisible();
 
   // Cloze check
   const cloze = checkCard(page, /Complete the sentence about bindings/);
   const blank = cloze.getByPlaceholder(/A variable gives a value a ____/);
+  const clozeCheck = cloze.getByRole("button", { name: "Check" });
+  // Two misses unlock "Reveal answer"; the learner keeps trying instead of revealing.
+  for (const guess of ["label", "type"]) {
+    await blank.fill(guess);
+    await clozeCheck.click();
+    await expect(cloze.getByText("Not quite. Try again.")).toBeVisible();
+  }
+  await expect(cloze.getByRole("button", { name: "Reveal answer" })).toBeVisible();
   await blank.fill("name");
   await expect(blank).toHaveValue("name");
-  await cloze.getByRole("button", { name: "Check" }).click();
-  await expect(cloze.getByText("Correct")).toBeVisible();
+  await clozeCheck.click();
+  await expect(cloze.getByText("Correct", { exact: true })).toBeVisible();
+  // Answering correctly settles the card, so the reveal offer goes away.
+  await expect(cloze.getByRole("button", { name: "Reveal answer" })).toHaveCount(0);
 
   // Code check: replace the starter code in the CodeMirror editor and run the tests
   const code = checkCard(page, /Implement addXp/);
@@ -102,6 +124,28 @@ test("local learner takes a lesson and completes a review", async ({ page }) => 
   await page.getByRole("button", { name: "Reveal answer" }).click();
   await expect(page.getByText(/^Answer:/)).toBeVisible();
   await page.getByRole("button", { name: "Good", exact: true }).click();
-  // Grading advances the queue (or finishes it when this was the last card).
+  // Grading advances the queue (or finishes it when this was the last card). The
+  // server decides correctness; nothing was answered here, so when the session
+  // sidebar is still showing, its verdict for the graded card must be present.
   await expect(page.getByText(/Card 2 of \d+|Review session complete/)).toBeVisible();
+  if (await page.getByText(/Card 2 of \d+/).isVisible()) {
+    await expect(page.getByText(/^Last card:/)).toBeVisible();
+  }
+
+  // Review by concept tag: this lesson's cards are all tagged #variables.
+  await page.goto("/reviews?tag=variables", { timeout: NAV_TIMEOUT });
+  await expect(page.getByRole("heading", { name: "Reviews due" })).toBeVisible({ timeout: NAV_TIMEOUT });
+  await expect(page.getByText(/Filtered to\s*#variables/)).toBeVisible();
+  // A new filter starts its own session from the first card (or shows the tag's empty state).
+  await expect(page.getByText(/Card 1 of \d+|Nothing due for #variables/)).toBeVisible();
+  await page.getByRole("link", { name: "Clear", exact: true }).click();
+  await page.waitForURL(/\/reviews$/, { timeout: NAV_TIMEOUT });
+
+  // Concept mastery page renders.
+  await page.goto("/mastery", { timeout: NAV_TIMEOUT });
+  await expect(page.getByRole("heading", { level: 1, name: "Concept mastery" })).toBeVisible({ timeout: NAV_TIMEOUT });
+  await expect(page.getByText("#variables").first()).toBeVisible();
+  await page.screenshot({ path: "test-results/mastery-desktop.png", fullPage: true });
+  await page.goto("/", { timeout: NAV_TIMEOUT });
+  await page.screenshot({ path: "test-results/dashboard-desktop.png", fullPage: true });
 });

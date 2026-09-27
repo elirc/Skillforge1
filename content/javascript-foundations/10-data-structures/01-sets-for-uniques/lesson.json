@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const tags = new Set([\"js\", \"arrays\", \"js\"]);\nconst uniqueTags = [...tags]; // [\"js\", \"arrays\"]"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** A Set stores each distinct primitive value once and iterates in insertion order. The second b is already present, so it adds no new entry. Spreading converts the Set back to an array."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const ids = ['b', 'a', 'b', 'c'];\nconst unique = [...new Set(ids)];\n// ['b', 'a', 'c']"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Two different objects with identical fields are still different Set entries because object equality uses identity."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** How would you deduplicate objects by their id instead?\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,38 @@
       "type": "MCQ",
       "prompt": "What does Set do when the same primitive value is added twice?",
       "payload": {
-        "choices": ["Keeps one copy", "Keeps both copies", "Throws an error", "Converts the value to null"],
+        "choices": [
+          "Keeps both copies",
+          "Keeps one copy",
+          "Throws an error",
+          "Converts the value to null"
+        ],
         "answer": "Keeps one copy",
         "explanation": "A Set contains unique values, so repeated primitive values are stored once."
       },
-      "conceptTags": ["sets", "uniqueness"]
+      "conceptTags": [
+        "sets",
+        "uniqueness"
+      ],
+      "id": "sf_3154e2e202204e8664c79883"
     },
     {
       "type": "CODE",
       "prompt": "Return the unique tags in their first-seen order.",
       "exercise": "unique-tags",
-      "conceptTags": ["sets", "arrays", "uniqueness"]
+      "conceptTags": [
+        "sets",
+        "arrays",
+        "uniqueness"
+      ],
+      "id": "sf_7d1cb53a91487f9a263b97ad",
+      "hints": [
+        "Two different objects with identical fields are still different Set entries because object equality uses identity.",
+        "A Set stores each distinct primitive value once and iterates in insertion order. The second b is already present, so it adds no new entry. Spreading converts the Set back to an array."
+      ],
+      "walkthrough": "A Set stores each distinct primitive value once and iterates in insertion order. The second b is already present, so it adds no new entry. Spreading converts the Set back to an array."
     }
-  ]
+  ],
+  "id": "sf_2e6dea98536e9a04fc3ea1c7",
+  "estimatedMinutes": 12
 }

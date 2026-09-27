@@ -16,17 +16,48 @@
       "type": "MCQ",
       "prompt": "For `type User = { id: string; name: string }`, what is `keyof User`?",
       "payload": {
-        "choices": ["\"id\" | \"name\"", "string", "User[]", "id.name"],
+        "choices": [
+          "\"id\" | \"name\"",
+          "string",
+          "User[]",
+          "id.name"
+        ],
         "answer": "\"id\" | \"name\"",
         "explanation": "keyof produces a union of known property names."
       },
-      "conceptTags": ["typescript", "keyof"]
+      "conceptTags": [
+        "typescript",
+        "keyof"
+      ],
+      "id": "sf_0eae26f345a3f47a0cee3218"
     },
     {
       "type": "CODE",
       "prompt": "Return the value at the requested property key.",
       "exercise": "get-property",
-      "conceptTags": ["typescript", "keyof", "generics"]
+      "conceptTags": [
+        "typescript",
+        "keyof",
+        "generics"
+      ],
+      "id": "sf_d6298635d74870b13394d5c0"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the indexed access type.",
+      "payload": {
+        "text": "In getProperty<T, K extends keyof T>, the return type ____ is the type of the property named by K.",
+        "blanks": [
+          "T[K]"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "keyof",
+        "indexed-access"
+      ],
+      "id": "sf_90195df614a962b305e07dae"
     }
-  ]
+  ],
+  "id": "sf_e6e71c977e0ead0e13390874"
 }

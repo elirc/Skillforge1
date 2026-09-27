@@ -1,0 +1,6 @@
+{
+  "name": "inventory-desk-companion", "private": true, "type": "module",
+  "scripts": { "build": "node scripts/build-ui.mjs", "start": "dotnet run --project InventoryDesk.Api", "test": "dotnet test InventoryDesk.Tests", "test:e2e": "node scripts/test-browser.mjs", "backup": "node scripts/database.mjs backup", "restore": "node scripts/database.mjs restore" },
+  "dependencies": { "react": "19.2.4", "react-dom": "19.2.4" },
+  "devDependencies": { "esbuild": "^0.28.2", "@playwright/test": "^1.56.1" }
+}

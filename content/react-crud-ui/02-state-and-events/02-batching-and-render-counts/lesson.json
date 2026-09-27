@@ -1,0 +1,99 @@
+{
+  "title": "Batching and Render Counts",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "React **batches** state updates: it waits until the event handler has finished, applies every queued update, and renders once. Since React 18 this automatic batching also applies inside promises, `setTimeout`, and native event listeners, not only inside React event handlers. So a fetch callback that sets `data`, `loading`, and `error` causes one render, not three."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "async function handleSave() {\n  setSaving(true);\n  setError(null);          // batched with the line above: one render\n  try {\n    const saved = await api.save(draft);\n    setProduct(saved);\n    setSaving(false);      // batched together after the await: one render\n  } catch (err) {\n    setError(String(err));\n    setSaving(false);\n  }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "After the batch, React compares each state value with `Object.is`. If nothing changed, React can skip re-rendering the component and its children. That is why:\n\n- `setTab(\"list\")` when the tab is already `\"list\"` does not re-render\n- setting `open` to `true` and back to `false` in one handler ends where it started\n- `setUser({ ...user })` always counts as a change, because it is a new object"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "React may still call your component once before bailing out in some cases; it will not re-render the children or commit anything. Treat \"a render happened\" as cheap and \"a commit changed the DOM\" as the thing to minimise."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`flushSync` from react-dom forces an update to apply synchronously. It exists for rare cases such as scrolling to a just-added item. It is not a fix for code that reads state right after setting it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Since React 18, which updates are batched automatically?",
+      "payload": {
+        "choices": [
+          "Only updates in React event handlers",
+          "Only updates inside useEffect",
+          "None, unless you call batch()",
+          "Updates in event handlers, promises, and timeouts"
+        ],
+        "answer": "Updates in event handlers, promises, and timeouts",
+        "explanation": "Automatic batching in React 18+ covers every update source, including async callbacks and timers."
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "batching"
+      ],
+      "id": "sf_6a3f8b50b50c331078db2953"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What happens when you set state to a value that is Object.is-equal to the current state?",
+      "payload": {
+        "choices": [
+          "React always re-renders",
+          "React throws a warning",
+          "The state becomes undefined",
+          "React can skip re-rendering the component and its children"
+        ],
+        "answer": "React can skip re-rendering the component and its children",
+        "explanation": "Object.is-equal state is a bail-out signal. Objects and arrays only bail out if they are the same reference."
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "rendering"
+      ],
+      "id": "sf_e1c4a54a841e95543f7a2c34"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "React decides whether state changed by comparing with this function.",
+      "payload": {
+        "text": "____.is(previous, next)",
+        "blanks": [
+          "Object"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "state",
+        "rendering"
+      ],
+      "id": "sf_e8d2e61f11744037576a0961"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Given the setState calls made by each event, count how many re-renders the component goes through with automatic batching and Object.is bail-outs.",
+      "exercise": "count-renders",
+      "conceptTags": [
+        "react",
+        "state",
+        "batching",
+        "rendering"
+      ],
+      "id": "sf_9a46e90394f808c76cf40d2e"
+    }
+  ],
+  "id": "sf_397598010370139b45518b47"
+}

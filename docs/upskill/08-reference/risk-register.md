@@ -10,8 +10,6 @@ closed, with the reason.
 
 | Risk | Evidence | File anchors | Impact | Likelihood | Suggested test | Suggested fix | Confidence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Client-supplied correctness | UI computes and sends `correct` | [`src/features/review/review-session.tsx:59-70`](../../../src/features/review/review-session.tsx#L59-L70) | The learner can inflate their own XP; the ledger stops reflecting real recall | Medium | Action test asserting `correct: true` on a wrong answer | Server derives MCQ/cloze correctness in `gradeReviewItem` | High |
-| Non-transactional review grading | Separate update / insert / award | [`src/server/review.ts:65-91`](../../../src/server/review.ts#L65-L91) | Card rescheduled with no attempt behind it | Medium | Fault injection | `prisma.$transaction` | Medium |
 | Non-transactional progress award | XP, XpEvent, quests, achievements, bonuses are separate writes | [`src/server/gamification.ts:61-123`](../../../src/server/gamification.ts#L61-L123) | Quest progress with no XP event; ring and profile disagree | Medium | Integration test with an induced failure mid-pipeline | Transaction or recovery design | Medium |
 | Read-then-write XP | `addBonusXp` reads progress, then writes level | [`src/server/gamification.ts:41-55`](../../../src/server/gamification.ts#L41-L55) | Lost increment with two tabs open | Low-Medium | Concurrent award test | Atomic `increment`, derive level from the returned value | Medium |
 | Non-transactional lesson completion | Separate completion / seed / reward | [`src/server/actions.ts:27-40`](../../../src/server/actions.ts#L27-L40) | Partial state | Medium | Integration test | Transaction or recovery | Medium |
@@ -22,6 +20,13 @@ closed, with the reason.
 | No backup, no migration history | Schema is applied with `prisma db push`; a destructive change needs `--force-reset` | [`prisma/schema.prisma`](../../../prisma/schema.prisma), `db:reset` in `package.json` | Total, unrecoverable loss of learner progress | Medium | Attempt a destructive change on a populated database | Progress export/import; back up `data/skillforge.db` before schema work | High |
 | Silent enum fallbacks | `.catch()` defaults on stored strings | [`src/server/user.ts:34-36`](../../../src/server/user.ts#L34-L36), [`src/lib/enums.ts`](../../../src/lib/enums.ts) | A bad row changes the feed and quests with no error | Low | Write an invalid value, observe | Log or surface the fallback | Medium |
 | CI lacks E2E | CI seeds SQLite, then lint / typecheck / content / unit / build | [`.github/workflows/ci.yml:22-28`](../../../.github/workflows/ci.yml#L22-L28) | Integration regressions | Medium | CI E2E job | Add `test:e2e`; no database service container is needed | High |
+
+## Closed By Fixes
+
+| Risk | Why it is closed |
+| --- | --- |
+| Client-supplied correctness | [`gradeReviewItem`](../../../src/server/review.ts) grades the response against the stored knowledge item with [`src/lib/grading.ts`](../../../src/lib/grading.ts); any client `correct` is ignored and `again` is always incorrect (`tests/unit/grading.test.ts`, `tests/unit/review-grading.test.ts`). |
+| Non-transactional review grading | The reschedule, attempt insert, and award run in one `$transaction` with bounded SQLite-busy retry; an injected pre-commit failure rolls all of them back (`tests/unit/review-grading.test.ts`). |
 
 ## Closed By The Local-Only Rewrite
 

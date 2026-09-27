@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-medium-csv-import-row-errors",
+  "title": "CSV User Import with Row Errors",
+  "prompt": "An admin uploads a CSV to bulk-create users. Write `importUsers(csv)` returning `{ imported, errors }`. Line 1 is the header; it must contain `name`, `email` and `role` (any order, case-insensitive, trimmed) - if one is missing return `{ imported: [], errors: [{ line: 1, errors: ['missing column: <col>'] }] }` for the first missing one in that order. Lines are split on `\\n` (strip a trailing `\\r`); blank lines are skipped but still count for line numbers. Cells are split on `,` and trimmed (no quoting). For each data line collect every error, in this order: wrong cell count -> only `expected N columns, got M` (N = header length); empty name -> `name is required`; email not matching `x@y.z` (no spaces, one `@`) -> `email is invalid`; role (lowercased; empty means `viewer`) not admin/editor/viewer -> `role must be admin, editor or viewer`; and, if the email is valid, an email (lowercased) already imported -> `duplicate email (first seen on line K)`. A line with no errors is imported as `{ name, email, role }` with lowercased email and role. `errors` lists `{ line, errors }` in file order.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["parsing", "validation", "csv", "crud", "maps"],
+  "order": 70005,
+  "exercise": "csv-import-row-errors",
+  "explanation": {
+    "beginner": "Treat the header as a map from column name to position, so `email,role,name` works as well as `name,email,role`. Then go through the lines one by one, keeping the real line number (index + 1) even for blank lines you skip, because an admin will open the file and look for 'line 7'. For each row, build a small list of problems instead of stopping at the first one - users fix everything in one pass that way. Only rows with an empty problem list are imported. For duplicates, keep a Map from lowercased email to the line where it was imported; that gives you both the check and the 'first seen on line K' number.",
+    "junior": "Separate structure errors from field errors: a wrong column count makes every other message meaningless, so return early with just that. Normalise before comparing (`trim`, `toLowerCase` for email and role) and store the normalised value, otherwise `ADA@x.io` and `ada@x.io` become two accounts. Only register emails from rows that were actually imported - a duplicate of a rejected row is not a duplicate. `split('\\n')` plus stripping `\\r` handles Windows files. Everything is O(rows * columns). A real importer would use a proper CSV parser for quoted commas, cap the number of reported errors, and run the insert in one transaction or report per-row results like this so partial success is explicit."
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "title": "Records, Value Equality, and with-Expressions",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A **record** is a class (or, with `record struct`, a struct) whose compiler-generated members treat it as a value. Two records are equal when they have the same type and every property is equal, not when they are the same object. You also get `ToString()` that prints the properties, a `GetHashCode()` consistent with that equality, and deconstruction for positional records."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public sealed record Money(decimal Amount, string Currency);\n\nvar a = new Money(10m, \"USD\");\nvar b = new Money(10m, \"USD\");\n\nConsole.WriteLine(a == b);                 // True: compared by value\nConsole.WriteLine(ReferenceEquals(a, b));  // False: still two objects\nConsole.WriteLine(a);                      // Money { Amount = 10, Currency = USD }\n\nvar set = new HashSet<Money> { a, b };     // one element: equal hashes and equality\nvar (amount, currency) = a;                // positional records deconstruct"
+    },
+    {
+      "type": "prose",
+      "body": "Records are designed to be immutable. Positional properties are `init`-only, so instead of changing one you make a changed copy with a **with-expression**. The copy is shallow: a `List<T>` property is shared between the original and the copy, and equality compares that list by reference, not by contents."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var price = new Money(10m, \"USD\");\nvar discounted = price with { Amount = 8m };   // new object; price is unchanged\n\npublic sealed record Cart(string Id, List<string> Items);\nvar c1 = new Cart(\"c1\", new List<string> { \"mug\" });\nvar c2 = c1 with { };                          // shallow copy\nc2.Items.Add(\"tee\");                           // c1.Items changed too\nConsole.WriteLine(c1 == c2);                   // True: same list reference\nConsole.WriteLine(new Cart(\"c1\", new() { \"mug\" }) == new Cart(\"c1\", new() { \"mug\" })); // False: different lists"
+    },
+    {
+      "type": "prose",
+      "body": "In interviews, give the trade-off: records suit DTOs, messages, query results, and small domain values such as `Money` or `DateRange`. They are a poor fit for EF Core entities that are tracked by identity and mutated over time, because value equality makes two rows with the same data look like one entity."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Value equality only goes one level deep for collections. If a record holds a `List<T>` or an array, two records with equal contents are **not** equal. Use an `ImmutableArray<T>` with a custom `Equals`, or keep collections out of records you compare."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Two separate `record Point(int X, int Y)` instances both hold (1, 2). What does `p1 == p2` return?",
+      "payload": {
+        "choices": [
+          "False, because they are different objects",
+          "True, because records compare by value",
+          "It does not compile for records",
+          "True only if both are record structs"
+        ],
+        "answer": "True, because records compare by value",
+        "explanation": "The compiler generates Equals, GetHashCode and ==/!= that compare the type and every property. ReferenceEquals would still be false."
+      },
+      "conceptTags": [
+        "records",
+        "equality",
+        "csharp"
+      ],
+      "id": "sf_a5e1d8b5c9bf2127ef2fcae6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does `var b = a with { Price = 5m };` do when `a` is a record?",
+      "payload": {
+        "choices": [
+          "Sets a.Price to 5 and returns a",
+          "Creates a shallow copy of a with Price set to 5, leaving a unchanged",
+          "Creates a deep copy, cloning every nested list",
+          "Only works on record structs"
+        ],
+        "answer": "Creates a shallow copy of a with Price set to 5, leaving a unchanged",
+        "explanation": "A with-expression clones the record (through its copy constructor) and then applies the init assignments. Reference-type properties are shared, not cloned."
+      },
+      "conceptTags": [
+        "records",
+        "immutability",
+        "csharp"
+      ],
+      "id": "sf_5e847c24a7adc690ab16ecb0"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the sentence.",
+      "payload": {
+        "text": "To change one property of an immutable record you write a ____ expression, which returns a modified copy.",
+        "blanks": [
+          "with"
+        ]
+      },
+      "conceptTags": [
+        "records",
+        "immutability"
+      ],
+      "id": "sf_405c96409474086b3abe3a61"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Deduplicate a catalog with record value equality, apply price edits with with-expressions, and report which SKUs really changed.",
+      "exercise": "apply-price-edits",
+      "conceptTags": [
+        "records",
+        "equality",
+        "immutability",
+        "csharp"
+      ],
+      "id": "sf_019d8ab73159fea1578c9811"
+    }
+  ],
+  "id": "sf_c40d2208899abfff8e537407"
+}

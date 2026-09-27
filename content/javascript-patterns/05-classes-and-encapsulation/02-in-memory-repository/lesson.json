@@ -1,0 +1,90 @@
+{
+  "title": "An In-Memory Repository",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A repository hides how records are stored behind a small interface: add, get, update, remove, list. Callers do not know whether data lives in a Map, a database or an API, which makes the storage easy to swap and easy to fake in tests."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "class InMemoryRepo {\n  #items = new Map();\n  #nextId = 1;\n\n  add(name) {\n    const id = this.#nextId++;\n    this.#items.set(id, { id, name });\n    return id;\n  }\n\n  get(id) {\n    const item = this.#items.get(id);\n    return item ? { ...item } : null; // a copy, not the stored object\n  }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Returning copies protects the repository's invariants. If get returned the stored object, a caller could change item.id and corrupt the Map without going through any method. Ids should also never be reused: a counter that only goes up guarantees that a removed record's id cannot accidentally point at a new one."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "The exercise harness can only compare plain data, so the exercise drives the class through a list of commands and returns what each call produced. This is also a handy way to write readable tests for stateful classes."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why does get return `{ ...item }` instead of `item`?",
+      "payload": {
+        "choices": [
+          "because Map values cannot be returned directly",
+          "so callers cannot mutate the stored record behind the repository's back",
+          "to make get faster",
+          "to convert the id to a string"
+        ],
+        "answer": "so callers cannot mutate the stored record behind the repository's back",
+        "explanation": "A shallow copy means changes to the returned object do not affect what the repository stores."
+      },
+      "conceptTags": [
+        "classes",
+        "encapsulation",
+        "immutability"
+      ],
+      "id": "sf_4f1aeba0dd81a5f874f879b5"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Items 1 and 2 exist. Item 2 is removed, then a new item is added. With a #nextId counter, what id does it get?",
+      "payload": {
+        "choices": [
+          "3",
+          "2",
+          "1",
+          "0"
+        ],
+        "answer": "3",
+        "explanation": "The counter only moves forward, so ids are never reused."
+      },
+      "conceptTags": [
+        "classes",
+        "state"
+      ],
+      "id": "sf_8bc6a365e9f88f1948fa09ac"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the method.",
+      "payload": {
+        "text": "Calling map.____(id) removes the entry and returns true if it existed.",
+        "blanks": [
+          "delete"
+        ]
+      },
+      "conceptTags": [
+        "maps"
+      ],
+      "id": "sf_1b481c46c2b1a3f8b77228d6"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement InMemoryRepo with private storage and ids starting at 1. runRepo feeds it commands and returns each result.",
+      "exercise": "run-repo",
+      "conceptTags": [
+        "classes",
+        "encapsulation",
+        "maps"
+      ],
+      "id": "sf_248d7ed3bd52ab441fa7368a"
+    }
+  ],
+  "id": "sf_aba16b5a4d43c06e3e17ee85"
+}

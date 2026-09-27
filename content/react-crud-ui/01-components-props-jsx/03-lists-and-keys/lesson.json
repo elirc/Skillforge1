@@ -1,0 +1,100 @@
+{
+  "title": "Lists, Keys, and Component Identity",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Render a list by mapping data to elements, and give each element a `key` that is **stable, unique among siblings, and tied to the data**, usually the database id. React uses keys to match the elements of this render with those of the previous one. Same key: same component instance, so its state and DOM node survive. New key: a fresh instance is mounted. Missing key: the old instance is unmounted and its state is gone."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "function TodoList({ todos }: { todos: Todo[] }) {\n  return (\n    <ul>\n      {todos.map((todo) => (\n        <TodoRow key={todo.id} todo={todo} />\n      ))}\n    </ul>\n  );\n}\n\nfunction TodoRow({ todo }: { todo: Todo }) {\n  const [note, setNote] = useState(\"\"); // lives with the key, not with the data\n  return (\n    <li>\n      {todo.title}\n      <input value={note} onChange={(e) => setNote(e.target.value)} />\n    </li>\n  );\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Using the array index as the key works only while the list never reorders, filters, or has items inserted before the end. Delete the first todo and every index shifts down by one: the row that used to be index 1 is now index 0, so React gives the old index-0 state (a half-typed note, a checked checkbox, an open menu) to a **different item**.\n\nKeys also let you reset state on purpose. `<EditProductForm key={product.id} product={product} />` mounts a fresh form whenever you switch products, so no leftover draft from the previous product leaks into the next one."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Never generate keys during render with `Math.random()` or `crypto.randomUUID()`. Every render then produces new keys, so every row remounts, loses its state and focus, and re-runs its effects."
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "For items that are created on the client before the server assigns an id, generate the id once when the item is created (for example a temporary `tmp-` id stored in the item) and keep it until the server responds."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which key is the best choice for rows loaded from a database?",
+      "payload": {
+        "choices": [
+          "The array index",
+          "The row's id",
+          "Math.random()",
+          "The row's title"
+        ],
+        "answer": "The row's id",
+        "explanation": "An id is stable across renders and unique among siblings. Titles can repeat or change; random keys remount every row on every render."
+      },
+      "conceptTags": [
+        "react",
+        "lists",
+        "keys"
+      ],
+      "id": "sf_cbd97b8fb69da697cc89cbcb"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "You delete the first row of a list keyed by index; what happens to the local state of the rows?",
+      "payload": {
+        "choices": [
+          "Each state shifts to the next item up",
+          "Every row keeps its own state",
+          "All rows reset",
+          "React throws a key warning"
+        ],
+        "answer": "Each state shifts to the next item up",
+        "explanation": "Index keys match by position. After the delete, the item that moved to index 0 receives the state that belonged to the deleted row."
+      },
+      "conceptTags": [
+        "react",
+        "lists",
+        "keys",
+        "state"
+      ],
+      "id": "sf_ee7093f8f8510c9989352b0e"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the JSX so switching products mounts a fresh form.",
+      "payload": {
+        "text": "<EditProductForm ____={product.id} product={product} />",
+        "blanks": [
+          "key"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "keys",
+        "state"
+      ],
+      "id": "sf_4103f88bdf6a26bf05f1892e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Simulate how React matches rows by key and report which row keeps which local draft with index keys versus id keys.",
+      "exercise": "simulate-keyed-state",
+      "conceptTags": [
+        "react",
+        "lists",
+        "keys",
+        "state"
+      ],
+      "id": "sf_b33e0861f267bd51ea04803e"
+    }
+  ],
+  "id": "sf_5ec7a28babc8de28c6b508f6"
+}

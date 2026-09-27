@@ -9,6 +9,20 @@
       "type": "code-example",
       "language": "csharp",
       "code": "// Incident checklist:\n// 1. What users and endpoints are affected?\n// 2. Did errors, latency, or dependency failures spike?\n// 3. What changed recently?\n// 4. Can we rollback, disable a feature flag, or drain work?\n// 5. What test or monitor prevents this from returning?"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Mitigate first, find the root cause second. Rolling back a bad release takes minutes; a hurried fix-forward under pressure can make the incident worse."
+    },
+    {
+      "type": "prose",
+      "body": "Most incidents follow a change, so line up the error-rate timeline with the deploy and config-change timeline. A spike a few minutes after a deploy makes that deploy the prime suspect, and the mitigation is to roll back to the version before it. A spike hours after the last deploy points elsewhere: a dependency, a traffic change, a data migration, or an expiring certificate. If the suspect is the first release of a feature, there is no known-good version to return to, so ship risky features behind a flag you can turn off."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "app.MapPost(\"/reviews/{id}/grade\", async (string id, GradeRequest request, IFeatureManager features, IGradingService grading, CancellationToken ct) =>\n{\n    // Flip the flag off to mitigate without a redeploy.\n    var result = await features.IsEnabledAsync(\"AdaptiveGrading\")\n        ? await grading.GradeAdaptiveAsync(id, request, ct)\n        : await grading.GradeClassicAsync(id, request, ct);\n\n    return Results.Ok(result);\n});"
     }
   ],
   "knowledgeItems": [
@@ -17,24 +31,83 @@
       "prompt": "A deployment caused lesson completion to fail for every user. What is the strongest first response?",
       "payload": {
         "choices": [
-          "Mitigate impact with rollback or feature flag, then investigate with logs and metrics",
           "Start rewriting the module immediately",
           "Wait to see if users stop reporting it",
-          "Delete failed rows manually without understanding why"
+          "Delete failed rows manually without understanding why",
+          "Mitigate impact with rollback or feature flag, then investigate with logs and metrics"
         ],
         "answer": "Mitigate impact with rollback or feature flag, then investigate with logs and metrics",
         "explanation": "Production debugging balances user impact, evidence gathering, and durable fixes."
       },
-      "conceptTags": ["debugging", "incidents", "production"]
+      "conceptTags": [
+        "debugging",
+        "incidents",
+        "production"
+      ],
+      "id": "sf_8f9d4d141efb1132e1142543"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the incident answer.",
       "payload": {
         "text": "A reliable incident response prioritizes mitigation, evidence, root cause, and ____ coverage.",
-        "blanks": ["regression"]
+        "blanks": [
+          "regression"
+        ]
       },
-      "conceptTags": ["debugging", "testing"]
+      "conceptTags": [
+        "debugging",
+        "testing"
+      ],
+      "id": "sf_48b7cffcf3cab9f554bdbbc3"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Errors spike three hours after the last deploy, and nothing else was released. What is the best next step?",
+      "payload": {
+        "choices": [
+          "Roll back the last deploy immediately; it is always the cause",
+          "Look beyond deploys: dependency health, traffic shape, data changes, and expiring certificates or secrets",
+          "Restart every server and close the incident",
+          "Wait for the next deploy to fix it"
+        ],
+        "answer": "Look beyond deploys: dependency health, traffic shape, data changes, and expiring certificates or secrets",
+        "explanation": "A long gap between a deploy and the spike weakens the deploy hypothesis. Follow the evidence to the other kinds of change."
+      },
+      "conceptTags": [
+        "debugging",
+        "incidents",
+        "production"
+      ],
+      "id": "sf_d38ba51652798343c782976b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the mitigation rule.",
+      "payload": {
+        "text": "When the faulty change is the first release of a feature, there is nothing to roll back to, so turn it off with a feature ____.",
+        "blanks": [
+          "flag"
+        ]
+      },
+      "conceptTags": [
+        "debugging",
+        "incidents",
+        "feature-flags"
+      ],
+      "id": "sf_61e93accb1ac65c65f66928e"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Triage an incident: find the error spike, match it to a deploy, and choose between rollback, disabling a feature, or investigating further.",
+      "exercise": "triage-incident",
+      "conceptTags": [
+        "debugging",
+        "incidents",
+        "production"
+      ],
+      "id": "sf_6e19009f8d2a982471f71f9b"
     }
-  ]
+  ],
+  "id": "sf_9d678667ecbfe56396539ef7"
 }

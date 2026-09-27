@@ -1,0 +1,98 @@
+{
+  "title": "Parameterized Queries and SQL Injection",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "SQL injection happens when user input is pasted into SQL text, so the input can change the query's structure. With `\"SELECT * FROM users WHERE name = '\" + name + \"'\"`, a name of `x' OR '1'='1` returns every user, and worse inputs can modify or drop data. It is still one of the most common serious web vulnerabilities."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Vulnerable: input becomes part of the SQL text\nvar sql = $\"SELECT id, name FROM users WHERE name = '{name}'\";\n\n// Safe: the SQL text is fixed; the value travels separately as a parameter\nawait using var cmd = new SqlCommand(\"SELECT id, name FROM users WHERE name = @name\", conn);\ncmd.Parameters.Add(\"@name\", SqlDbType.NVarChar, 100).Value = name;\n\n// Dapper\nvar users = await conn.QueryAsync<User>(\"SELECT id, name FROM users WHERE name = @name\", new { name });\n\n// EF Core: FromSql / FromSqlInterpolated turn {name} into a DbParameter\nvar rows = db.Users.FromSql($\"SELECT * FROM users WHERE name = {name}\");\n// Dangerous: FromSqlRaw with a string you concatenated yourself\nvar bad = db.Users.FromSqlRaw(\"SELECT * FROM users WHERE name = '\" + name + \"'\");"
+    },
+    {
+      "type": "prose",
+      "body": "Parameters work because the database parses the SQL text first and receives the values separately; a value can never become syntax, whatever quotes or semicolons it contains. As a bonus, the same query text is reused for every value, so the plan cache gets hits instead of compiling a new plan per distinct literal. Escaping quotes by hand is not a substitute; it misses encodings and edge cases."
+    },
+    {
+      "type": "prose",
+      "body": "Parameters can only stand in for values, never for identifiers or keywords: table names, column names, ASC/DESC. When users choose the sort column, map their input through an allow-list of known column names and fall back to a default. Never pass the raw string through, even \"just for ORDER BY\"."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Defense in depth: connect with a database login that has only the permissions the app needs (no db_owner, no DROP), so even a missed injection has a limited blast radius."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Build a parameterized search like a Dapper or ADO.NET repository would. Base query: `SELECT id, name, city, age FROM users`. Add conditions in this order when the filter is not null: name = @pN, city = @pN, age >= @pN (N counts up from 0), joined with AND after WHERE. Append ORDER BY using sortBy only if it is one of name, age, city; otherwise ORDER BY id. Return { sql, params }. Values must never appear in the SQL text.",
+      "exercise": "build-user-query",
+      "conceptTags": [
+        "sql",
+        "sql-injection",
+        "parameters",
+        "security"
+      ],
+      "id": "sf_389a9ed43f00e4b8bac9f114"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why does a parameterized query stop `x' OR '1'='1` from returning every row?",
+      "payload": {
+        "choices": [
+          "The driver deletes every quote character from the input",
+          "The value is sent separately from the already-parsed SQL, so it is compared as a plain string and never parsed as SQL",
+          "Parameters are encrypted before being sent",
+          "The database refuses strings that contain OR"
+        ],
+        "answer": "The value is sent separately from the already-parsed SQL, so it is compared as a plain string and never parsed as SQL",
+        "explanation": "The query looks for a user literally named x' OR '1'='1. Nothing is stripped or escaped; the structure is simply fixed before the value arrives."
+      },
+      "conceptTags": [
+        "sql",
+        "sql-injection",
+        "parameters"
+      ],
+      "id": "sf_ac6f3629d3c8c5cff96c8dd5"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A grid lets users sort by any column via ?sort=... in the URL. How should the ORDER BY be built?",
+      "payload": {
+        "choices": [
+          "Pass it as a parameter: ORDER BY @sort",
+          "Map the input through an allow-list of known column names, defaulting to id",
+          "Concatenate it after escaping single quotes",
+          "Reject requests containing a semicolon and concatenate the rest"
+        ],
+        "answer": "Map the input through an allow-list of known column names, defaulting to id",
+        "explanation": "Identifiers cannot be parameters (ORDER BY @sort sorts by a constant value, which does nothing). Blocklists and escaping miss cases; an allow-list cannot be bypassed."
+      },
+      "conceptTags": [
+        "sql",
+        "sql-injection",
+        "allow-list"
+      ],
+      "id": "sf_a0633e0f9ec5e1438673e8e0"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the SqlCommand collection used to supply values safely.",
+      "payload": {
+        "text": "cmd.____.Add(\"@email\", SqlDbType.NVarChar, 256).Value = email;",
+        "blanks": [
+          "Parameters"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "parameters",
+        "ado-net"
+      ],
+      "id": "sf_d03b7faa1b43d0e28ffe7ae3"
+    }
+  ],
+  "id": "sf_513f21916fc8d2a2fa6511be"
+}

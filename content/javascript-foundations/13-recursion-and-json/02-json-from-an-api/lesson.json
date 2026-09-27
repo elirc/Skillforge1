@@ -1,0 +1,128 @@
+{
+  "title": "Working with JSON from an API",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "APIs send data as JSON **text**. `JSON.parse(text)` turns that text into JavaScript objects and arrays; `JSON.stringify(value)` turns a value back into text. Until you parse it, a response is just a string."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const text = '{\"data\":{\"users\":[{\"id\":1,\"profile\":{\"name\":\"Ada\"}}]}}';\nconst body = JSON.parse(text);\nconsole.log(body.data.users[0].profile.name); // \"Ada\"\n\nJSON.stringify({ id: 1, done: false }); // '{\"id\":1,\"done\":false}'"
+    },
+    {
+      "type": "prose",
+      "body": "Real API data is messy. Fields go missing, values are null, and sometimes the response is an error message instead of what you expected. Three tools keep your code from crashing:\n- `try/catch` around `JSON.parse`, which **throws** on invalid text\n- optional chaining `?.`, which gives `undefined` instead of an error when something along the path is missing\n- `??` to supply a default when a value is `null` or `undefined`"
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function readName(text) {\n  let body;\n  try {\n    body = JSON.parse(text);\n  } catch {\n    return \"Unknown\";            // not JSON at all\n  }\n  return body?.data?.users?.[0]?.profile?.name ?? \"Unknown\";\n}\n\nreadName('{\"data\":{}}');   // \"Unknown\" instead of a crash\nreadName(\"<html>oops\");    // \"Unknown\""
+    },
+    {
+      "type": "prose",
+      "body": "Pick only the fields your screen needs and give each a clear default. The rest of your app then works with a small, predictable shape instead of the whole raw response."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`??` only replaces `null` and `undefined`. `||` also replaces `0`, `\"\"`, and `false`, which is wrong when 0 is a real value (a score of 0, a price of 0)."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Numbers can arrive as strings (\"7\" instead of 7). Check types with `typeof value === \"number\"` before trusting them."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** JSON parsing checks syntax and creates JavaScript values. It does not prove the object follows your API contract. Validate the fields and ranges you depend on before calculating with them."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const data = JSON.parse('{\"count\":3}');\nif (typeof data.count !== 'number') throw new Error('Invalid count');\n// parsing and shape validation are separate"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A type assertion in TypeScript also does not validate incoming JSON at runtime."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Try a syntactically valid response with count set to a string.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does `JSON.parse(\"{bad json\")` do?",
+      "payload": {
+        "choices": [
+          "Returns null",
+          "Returns an empty object",
+          "Throws a SyntaxError",
+          "Returns the original string"
+        ],
+        "answer": "Throws a SyntaxError",
+        "explanation": "Invalid JSON throws, so wrap JSON.parse in try/catch when the text comes from outside your code."
+      },
+      "conceptTags": [
+        "json",
+        "error-handling"
+      ],
+      "id": "sf_eeebae114d90a57a9ce166e6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "`user` has no `profile` property. What is `user.profile?.name`?",
+      "payload": {
+        "choices": [
+          "undefined",
+          "null",
+          "It throws a TypeError",
+          "\"\""
+        ],
+        "answer": "undefined",
+        "explanation": "Optional chaining stops at the missing profile and returns undefined instead of trying to read name from it."
+      },
+      "conceptTags": [
+        "json",
+        "optional-chaining"
+      ],
+      "id": "sf_c447c8472704d052702096a2"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the default.",
+      "payload": {
+        "text": "const count = data.count ____ 0; // use 0 only when count is null or undefined",
+        "blanks": [
+          "??"
+        ]
+      },
+      "conceptTags": [
+        "json",
+        "nullish-coalescing"
+      ],
+      "id": "sf_36a8222fd5f5ff26372f4880"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write parseUsers(json). The text looks like {\"data\":{\"users\":[...]}}. Return [{ id, name, email }] for each user with a numeric id. name comes from profile.name (default \"Unknown\") and email defaults to null. Invalid JSON or a missing users array returns [].",
+      "exercise": "parse-users",
+      "conceptTags": [
+        "json",
+        "optional-chaining",
+        "defaults"
+      ],
+      "id": "sf_2aa54addd4e2d6ecbf3561e9",
+      "hints": [
+        "A type assertion in TypeScript also does not validate incoming JSON at runtime.",
+        "JSON parsing checks syntax and creates JavaScript values. It does not prove the object follows your API contract. Validate the fields and ranges you depend on before calculating with them."
+      ],
+      "walkthrough": "JSON parsing checks syntax and creates JavaScript values. It does not prove the object follows your API contract. Validate the fields and ranges you depend on before calculating with them."
+    }
+  ],
+  "id": "sf_c34554ccc0a66939ba73336d",
+  "estimatedMinutes": 12
+}

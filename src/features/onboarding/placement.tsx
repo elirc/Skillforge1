@@ -1,0 +1,20 @@
+"use client";
+import Link from "next/link";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { shuffledChoices } from "@/lib/shuffle";
+
+const questions = [
+  { prompt: "What does [2, 7, 4].filter(n => n > 3) return?", answer: "[7, 4]", options: ["[7, 4]", "[false, true, true]", "[2]"], why: "filter keeps each original value for which its predicate is true.", course: "javascript-foundations" },
+  { prompt: "A value has type string | null. What makes reading value.length safe?", answer: "Narrow the value by checking for null first", options: ["Narrow the value by checking for null first", "Add a type assertion without checking", "Use any"], why: "Narrowing supplies runtime evidence; assertions do not change the value.", course: "typescript-starter" },
+  { prompt: "Which SQL join keeps customers with no orders?", answer: "Customers LEFT JOIN orders", options: ["Customers LEFT JOIN orders", "Customers INNER JOIN orders", "CROSS JOIN with no condition"], why: "A left join preserves the customer and supplies NULL for the missing order.", course: "sql-business-labs" },
+  { prompt: "In C#, why prefer decimal for a money calculation?", answer: "It represents base-10 fractions such as 0.1 exactly", options: ["It represents base-10 fractions such as 0.1 exactly", "It prevents every possible overflow", "It automatically formats the currency"], why: "Decimal avoids common binary floating-point representation errors; rounding and overflow still need explicit rules.", course: "csharp-foundations" },
+  { prompt: "An authenticated user requests another user's private record. What must the server check?", answer: "Whether this user may access this particular record", options: ["Whether this user may access this particular record", "Only whether the user is signed in", "Whether the button was hidden in the browser"], why: "Authentication identifies the caller. Authorization checks access to this resource on the server.", course: "web-http-fundamentals" },
+  { prompt: "A React component must increment from the latest queued state twice. Which update is suitable?", answer: "setCount(previous => previous + 1)", options: ["setCount(previous => previous + 1)", "count++", "setCount(count + 1) always sees every queued update"], why: "Functional updates receive the previous queued state instead of closing over a stale render value.", course: "react-integration-labs" },
+];
+export function Placement() {
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [show, setShow] = useState(false);
+  const correct = questions.filter((question, index) => answers[index] === question.answer).length;
+  return <div className="space-y-5"><p className="text-slate-500">Six optional questions to spot useful starting topics. This gives recommendations; it does not award mastery or skip prerequisites.</p>{questions.map((question, index) => <fieldset key={question.prompt} className="rounded-lg border p-5"><legend className="px-1 font-medium">{index + 1}. {question.prompt}</legend><div className="space-y-2">{shuffledChoices(question.options, question.prompt).map(option => <label key={option} className="flex gap-2 text-sm"><input type="radio" name={`placement-${index}`} value={option} checked={answers[index] === option} disabled={show} onChange={() => setAnswers(current => ({ ...current, [index]: option }))} />{option}</label>)}</div>{show ? <p className="mt-3 text-sm">{answers[index] === question.answer ? "Correct. " : "Review this idea. "}{question.why} <Link href={`/courses/${question.course}`} className="text-emerald-600 underline">Open the track</Link></p> : null}</fieldset>)}{show ? <p role="status" className="rounded border p-4">{correct} of {questions.length} correct. {correct < 4 ? "Begin with the linked foundation topics, then try the guided session." : "Use the missed topics as a refresher, then try the integration labs."}</p> : <Button disabled={Object.keys(answers).length !== questions.length} onClick={() => setShow(true)}>See recommendations</Button>}</div>;
+}

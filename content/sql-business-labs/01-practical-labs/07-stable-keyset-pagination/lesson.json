@@ -1,0 +1,71 @@
+{
+  "id": "sf_deb352e6472871343d1f28c8",
+  "title": "Stable keyset pagination",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Keyset pagination resumes after a known ordering key instead of skipping a number of current rows. Deleting an earlier row does not shift the cursor. The ordering key must be unique for a single-column cursor; if the UI sorts by price, include a stable tie-breaker such as id and carry both values in the cursor."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Inspect the fixture first, then write your query.\nSELECT * FROM products ORDER BY id;"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [{\"setup\":\"CREATE TABLE products(id INTEGER PRIMARY KEY, sku TEXT UNIQUE NOT NULL, category TEXT NOT NULL, price_cents INTEGER NOT NULL CHECK(price_cents >= 0), stock INTEGER NOT NULL CHECK(stock >= 0), reorder_at INTEGER NOT NULL);\\nINSERT INTO products VALUES (1,'BOOK','office',250,5,5),(2,'MUG','home',900,0,2),(3,'PEN','office',150,20,5);\",\"params\":{\"$after\":1,\"$limit\":2}}]. The required result is [{\"id\":2,\"sku\":\"MUG\"},{\"id\":3,\"sku\":\"PEN\"}]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return id and sku strictly after $after, ordered by id, with at most $limit rows."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Changing ORDER BY without changing the cursor predicate can skip or repeat rows."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Which boundary case would fail if the main comparison, join, or ordering were changed? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the changed business data case checks a different boundary.\n\n**Transfer it.** Apply the same contract to the Inventory Desk repository. Keep SQL parameters separate from values and compare results against a hand-calculated fixture."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_0d9a0c96dfa70373a78c0a42",
+      "type": "MCQ",
+      "prompt": "What does the cursor store in this lab?",
+      "conceptTags": [
+        "sql",
+        "pagination",
+        "ordering"
+      ],
+      "payload": {
+        "choices": [
+          "The number of rows currently in the database",
+          "A random row position",
+          "The last seen product id"
+        ],
+        "answer": "The last seen product id",
+        "explanation": "The cursor refers to a stable ordering value, not a shifting offset."
+      }
+    },
+    {
+      "id": "sf_145d899e51e9655cf9575705",
+      "type": "CODE",
+      "prompt": "Return id and sku strictly after $after, ordered by id, with at most $limit rows.",
+      "conceptTags": [
+        "sql",
+        "pagination",
+        "ordering"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The cursor refers to a stable ordering value, not a shifting offset.",
+        "Changing ORDER BY without changing the cursor predicate can skip or repeat rows."
+      ],
+      "walkthrough": "The cursor refers to a stable ordering value, not a shifting offset.\nChanging ORDER BY without changing the cursor predicate can skip or repeat rows."
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "title": "Looping with enumerate and zip",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Python's for loop always iterates over the items of something, like JavaScript's for...of. There is no C-style for (let i = 0; ...). When you need the index too, wrap the iterable in enumerate, which yields (index, item) pairs that you unpack in the loop header."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "names = [\"Ada\", \"Lin\", \"Sam\"]\nfor i, name in enumerate(names):\n    print(i, name)        # 0 Ada / 1 Lin / 2 Sam\n\nfor rank, name in enumerate(names, start=1):\n    print(f\"{rank}. {name}\")  # 1. Ada ..."
+    },
+    {
+      "type": "prose",
+      "body": "zip walks several iterables in lockstep and yields tuples. It stops at the shortest input. Combined with dict, it turns two parallel lists into a lookup."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "names = [\"Ada\", \"Lin\", \"Sam\"]\nscores = [90, 85]\nfor name, score in zip(names, scores):\n    print(name, score)          # Ada 90 / Lin 85  (Sam is dropped)\n\nlookup = dict(zip([\"a\", \"b\"], [1, 2]))  # {'a': 1, 'b': 2}\n\nfor key, value in lookup.items():       # iterate a dict's pairs\n    print(key, value)"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Writing for i in range(len(items)) works but is considered unidiomatic. Reach for enumerate first."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does print(list(zip([1, 2, 3], [\"a\", \"b\"]))) show?",
+      "payload": {
+        "choices": [
+          "[(1, 'a'), (2, 'b'), (3, None)]",
+          "[1, 'a', 2, 'b']",
+          "a ValueError",
+          "[(1, 'a'), (2, 'b')]"
+        ],
+        "answer": "[(1, 'a'), (2, 'b')]",
+        "explanation": "zip stops as soon as the shortest input runs out."
+      },
+      "conceptTags": [
+        "iteration",
+        "zip"
+      ],
+      "id": "sf_8efd1978a41e15abe0a6561e"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does print(list(enumerate([\"x\", \"y\"], start=1))) show?",
+      "payload": {
+        "choices": [
+          "[(1, 'x'), (2, 'y')]",
+          "[(0, 'x'), (1, 'y')]",
+          "['x', 'y']",
+          "[1, 2]"
+        ],
+        "answer": "[(1, 'x'), (2, 'y')]",
+        "explanation": "enumerate yields (index, item) pairs, and start sets the first index."
+      },
+      "conceptTags": [
+        "iteration",
+        "enumerate"
+      ],
+      "id": "sf_437273620b176279f994b1f6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which loop is the idiomatic way to get both the index and the item of a list?",
+      "payload": {
+        "choices": [
+          "for (i = 0; i < len(items); i++):",
+          "for i, item in enumerate(items):",
+          "for item in items.entries():",
+          "for i in items.index():"
+        ],
+        "answer": "for i, item in enumerate(items):",
+        "explanation": "enumerate is the built-in for index-plus-item iteration; Python has no C-style for loop."
+      },
+      "conceptTags": [
+        "iteration",
+        "enumerate"
+      ],
+      "id": "sf_ea045a73fc5e1d45e670da78"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the built-in.",
+      "payload": {
+        "text": "____(keys, values) pairs up two lists element by element.",
+        "blanks": [
+          "zip"
+        ]
+      },
+      "conceptTags": [
+        "iteration",
+        "zip"
+      ],
+      "id": "sf_0019d7daeb197694479a36bc"
+    }
+  ],
+  "id": "sf_9bee2c0b7fb29281ca497bee"
+}

@@ -1,0 +1,127 @@
+{
+  "title": "Decorators",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Functions in Python are values, just as in JavaScript: you can pass them in, return them, and close over variables. A decorator is simply a function that takes a function and returns a replacement, usually a wrapper that adds behaviour before or after the original call. The @ line is shorthand for reassigning the name."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "import functools\n\ndef log_calls(func):\n    @functools.wraps(func)          # keep func's name and docstring\n    def wrapper(*args, **kwargs):\n        print(f\"calling {func.__name__}{args}\")\n        result = func(*args, **kwargs)\n        print(f\"{func.__name__} returned {result}\")\n        return result\n    return wrapper\n\n@log_calls\ndef add(a, b):\n    return a + b\n\n# @log_calls above means exactly: add = log_calls(add)\nadd(2, 3)\n# calling add(2, 3)\n# add returned 5"
+    },
+    {
+      "type": "prose",
+      "body": "The wrapper accepts *args and **kwargs so it works for any signature, and it must return the original result or callers will get None. functools.wraps copies __name__, __doc__ and friends onto the wrapper; without it, every decorated function would report its name as wrapper."
+    },
+    {
+      "type": "prose",
+      "body": "A decorator that takes arguments is one level deeper: a function that returns a decorator. Decorators stack bottom-up: the one closest to def is applied first."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "def retry(times):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            for attempt in range(1, times + 1):\n                try:\n                    return func(*args, **kwargs)\n                except ConnectionError:\n                    if attempt == times:\n                        raise\n        return wrapper\n    return decorator\n\n@retry(times=3)          # retry(times=3) returns the real decorator\ndef fetch_profile(user_id):\n    ..."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "You already know several built-in decorators: @property, @staticmethod, @classmethod, @dataclass, and @functools.cache (memoization). Frameworks use decorators for routing too, as in Flask's @app.get(\"/users\")."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Forgetting return result inside the wrapper is the most common decorator bug: the decorated function silently starts returning None."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What is @log_calls above def add(...) equivalent to?",
+      "payload": {
+        "choices": [
+          "log_calls = add(log_calls)",
+          "add = log_calls(add)",
+          "add(log_calls)",
+          "log_calls.add = add"
+        ],
+        "answer": "add = log_calls(add)",
+        "explanation": "The decorator receives the function and whatever it returns is bound to the original name."
+      },
+      "conceptTags": [
+        "decorators"
+      ],
+      "id": "sf_217bb5b756a5c9a9a21cfcaa"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A decorator's wrapper calls func(*args, **kwargs) but has no return statement. What does the decorated add(2, 3) return?",
+      "payload": {
+        "choices": [
+          "5",
+          "None",
+          "the wrapper function",
+          "it raises TypeError"
+        ],
+        "answer": "None",
+        "explanation": "A Python function without return returns None, and callers now get the wrapper's result, not add's."
+      },
+      "conceptTags": [
+        "decorators"
+      ],
+      "id": "sf_d02316dbd9fbd6c28bb794d1"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does functools.wraps(func) do for a wrapper?",
+      "payload": {
+        "choices": [
+          "caches func's results",
+          "makes the wrapper run faster",
+          "checks the argument types",
+          "copies func's __name__, __doc__ and other metadata onto the wrapper"
+        ],
+        "answer": "copies func's __name__, __doc__ and other metadata onto the wrapper",
+        "explanation": "Without it, help(add) and add.__name__ would describe the wrapper instead."
+      },
+      "conceptTags": [
+        "decorators"
+      ],
+      "id": "sf_00fe480f86fa99bffd64e313"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With @a on the first line and @b on the second, directly above def f, what is f bound to?",
+      "payload": {
+        "choices": [
+          "b(a(f))",
+          "a(f) and b(f) separately",
+          "a(b(f))",
+          "f unchanged"
+        ],
+        "answer": "a(b(f))",
+        "explanation": "Decorators apply bottom-up: b wraps f first, then a wraps the result."
+      },
+      "conceptTags": [
+        "decorators"
+      ],
+      "id": "sf_1fc152da7a5c2cad267ed436"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Accept any arguments.",
+      "payload": {
+        "text": "A general-purpose wrapper is written as def wrapper(*args, ____): so it can forward keyword arguments too.",
+        "blanks": [
+          "**kwargs"
+        ]
+      },
+      "conceptTags": [
+        "decorators",
+        "functions"
+      ],
+      "id": "sf_9402b14ec0d5eef01530d37a"
+    }
+  ],
+  "id": "sf_00f74dd6aa0ca68e0915d5d1"
+}

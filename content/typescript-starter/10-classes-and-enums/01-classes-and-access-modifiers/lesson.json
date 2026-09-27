@@ -1,0 +1,142 @@
+{
+  "title": "Classes and Access Modifiers",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "TypeScript classes are JavaScript classes with types on their fields, parameters, and return values, plus access modifiers that control who may touch a member. public (the default) is visible everywhere, protected is visible in the class and its subclasses, and private only inside the class that declares it. readonly means the field can be assigned in its declaration or the constructor and never again."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "class Inventory {\n  readonly name: string;\n  private counts = new Map<string, number>();\n  protected changes = 0;\n\n  constructor(name: string) {\n    this.name = name;\n  }\n\n  add(sku: string, qty: number): number {\n    const next = (this.counts.get(sku) ?? 0) + qty;\n    this.counts.set(sku, next);\n    this.changes += 1;\n    return next;\n  }\n}\n\nclass AuditedInventory extends Inventory {\n  report(): string {\n    return `${this.name}: ${this.changes} changes`;  // protected: OK in a subclass\n  }\n}\n\nconst inv = new AuditedInventory(\"main\");\ninv.add(\"pen\", 3);\ninv.name = \"other\";   // error: Cannot assign to 'name' because it is a read-only property\ninv.counts;           // error: Property 'counts' is private\ninv.changes;          // error: Property 'changes' is protected"
+    },
+    {
+      "type": "prose",
+      "body": "Parameter properties are a shorthand: putting a modifier on a constructor parameter declares the field and assigns it in one step. constructor(readonly name: string, private clock: () => number) {} is the same as declaring both fields and assigning them in the body."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "class Session {\n  constructor(\n    readonly userId: string,\n    private readonly now: () => number,   // injected clock, private to the class\n  ) {}\n\n  isExpired(startedAt: number): boolean {\n    return this.now() - startedAt > 30 * 60_000;\n  }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "The important catch: private, protected, and readonly are checked only by the compiler. They are erased from the JavaScript output, so at runtime (session as any).now still works, and JSON.stringify still includes private fields. JavaScript's own #private fields are enforced by the engine at runtime. Use TypeScript modifiers for design intent inside a codebase, and #fields when privacy must hold at runtime too."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "An abstract class cannot be instantiated and can declare abstract methods that subclasses must implement. Use one when subclasses share real code; if they only share a shape, an interface is lighter."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "readonly is shallow. readonly items: string[] stops you reassigning items, but items.push(\"x\") still compiles. Use readonly string[] (or ReadonlyArray<string>) to block mutation of the array itself."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Where can a protected member be accessed?",
+      "payload": {
+        "choices": [
+          "anywhere in the same file",
+          "only inside the declaring class",
+          "anywhere, but not reassigned",
+          "inside the declaring class and its subclasses"
+        ],
+        "answer": "inside the declaring class and its subclasses",
+        "explanation": "protected sits between private (declaring class only) and public (everywhere)."
+      },
+      "conceptTags": [
+        "classes",
+        "access-modifiers"
+      ],
+      "id": "sf_78d37e604f06f35a9e2cd34f"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What happens to a TypeScript private field in the emitted JavaScript?",
+      "payload": {
+        "choices": [
+          "it becomes a #private field",
+          "it is removed from the object",
+          "it is encrypted",
+          "the modifier is erased; the field is an ordinary property at runtime"
+        ],
+        "answer": "the modifier is erased; the field is an ordinary property at runtime",
+        "explanation": "Access modifiers are compile-time only. Use #fields for runtime privacy."
+      },
+      "conceptTags": [
+        "classes",
+        "access-modifiers"
+      ],
+      "id": "sf_6f08b7bda14f9880736cc461"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does constructor(readonly id: string) {} declare?",
+      "payload": {
+        "choices": [
+          "a readonly public field id, assigned from the argument",
+          "only a constructor parameter",
+          "a private field id",
+          "a static property id"
+        ],
+        "answer": "a readonly public field id, assigned from the argument",
+        "explanation": "A modifier on a constructor parameter turns it into a parameter property."
+      },
+      "conceptTags": [
+        "classes",
+        "parameter-properties"
+      ],
+      "id": "sf_45b0e3d1a58e91bc73c647c9"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With readonly tags: string[], which line still compiles?",
+      "payload": {
+        "choices": [
+          "obj.tags.push(\"new\")",
+          "obj.tags = []",
+          "obj.tags = [\"a\"]",
+          "none of them"
+        ],
+        "answer": "obj.tags.push(\"new\")",
+        "explanation": "readonly protects the property binding, not the array it points to."
+      },
+      "conceptTags": [
+        "classes",
+        "readonly"
+      ],
+      "id": "sf_30115b87b58e0dc8e09c3790"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Pick the modifier.",
+      "payload": {
+        "text": "A field marked ____ can be read by subclasses but not by code outside the class hierarchy.",
+        "blanks": [
+          "protected"
+        ]
+      },
+      "conceptTags": [
+        "classes",
+        "access-modifiers"
+      ],
+      "id": "sf_5dd029c0667b011737a97a7a"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Harden the Inventory class: validate quantities, block overdrafts, and make removals throw clear errors instead of producing negative stock.",
+      "exercise": "run-inventory",
+      "conceptTags": [
+        "classes",
+        "access-modifiers",
+        "encapsulation"
+      ],
+      "id": "sf_1f407cffbcdd67b7643435a0"
+    }
+  ],
+  "id": "sf_da818fd11db3b7644c1205d8"
+}

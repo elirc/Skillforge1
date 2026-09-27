@@ -1,0 +1,101 @@
+{
+  "title": "Deferred vs Immediate Execution",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Most LINQ operators (`Where`, `Select`, `OrderBy`, `Skip`, `Take`) are **deferred**: calling them builds a query object and runs nothing. The work happens when something enumerates the query, with `foreach`, or with an **immediate** operator such as `ToList`, `ToArray`, `ToDictionary`, `Count`, `Sum`, `First`, or `Any`."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var numbers = new List<int> { 1, 2, 3 };\nvar evens = numbers.Where(n => n % 2 == 0);   // nothing runs yet\n\nnumbers.Add(4);\nConsole.WriteLine(string.Join(\",\", evens));   // 2,4 : sees the later Add\n\nvar snapshot = numbers.Where(n => n % 2 == 0).ToList();  // runs now, once\nnumbers.Add(6);\nConsole.WriteLine(snapshot.Count);            // 2 : a snapshot does not change"
+    },
+    {
+      "type": "prose",
+      "body": "The classic bug is **multiple enumeration**. Each immediate operator re-runs the whole pipeline, so an `IEnumerable<T>` from a database cursor, an HTTP stream, a file reader, or an expensive `Select` is re-read, re-queried or recomputed every time. It can also return different results each time. Analyzers flag this as CA1851 (\"possible multiple enumerations\")."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "IEnumerable<Order> paid = db.Orders.Where(o => o.Status == \"paid\"); // IQueryable here\n\nvar count = paid.Count();          // query 1\nvar total = paid.Sum(o => o.Total); // query 2\nvar first = paid.First();          // query 3\n\n// Materialize once when you will use the results more than once:\nvar paidList = paid.ToList();      // one query\nvar count2 = paidList.Count;       // in memory from here on"
+    },
+    {
+      "type": "prose",
+      "body": "Deferred execution is still useful: it lets you compose a query in steps and stream large sequences without holding them in memory. Materialize at a deliberate point, usually at the edge of a method that returns data, and return `IReadOnlyList<T>` rather than a lazy `IEnumerable<T>` when callers will enumerate more than once."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A deferred query captures variables, not values. If a lambda uses a local that changes before enumeration, the query sees the new value, and a query built in a `using` block that is enumerated after the block ends reads from a disposed resource."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which of these LINQ calls executes the query immediately?",
+      "payload": {
+        "choices": [
+          "ToList()",
+          "Where(...)",
+          "Select(...)",
+          "OrderBy(...)"
+        ],
+        "answer": "ToList()",
+        "explanation": "Where, Select and OrderBy return a deferred query. ToList enumerates the source and stores the results."
+      },
+      "conceptTags": [
+        "linq",
+        "deferred-execution",
+        "csharp"
+      ],
+      "id": "sf_09d6bc17007753a82adb3db7"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "`var q = source.Where(f);` is followed by `q.Count()`, `q.Sum(x)` and `q.Max(x)`. How many times is `source` enumerated?",
+      "payload": {
+        "choices": [
+          "Once",
+          "Three times",
+          "Zero times",
+          "Twice"
+        ],
+        "answer": "Three times",
+        "explanation": "Each immediate operator enumerates the query again from the source. Call ToList() once and compute all three from the list."
+      },
+      "conceptTags": [
+        "linq",
+        "multiple-enumeration",
+        "performance"
+      ],
+      "id": "sf_7a9334d02667079fa4af530a"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the rule.",
+      "payload": {
+        "text": "Operators like Where and Select use ____ execution: nothing runs until the query is enumerated.",
+        "blanks": [
+          "deferred"
+        ]
+      },
+      "conceptTags": [
+        "linq",
+        "deferred-execution"
+      ],
+      "id": "sf_dec41ea1ecfdba0e7bd76fdc"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Compute several statistics over a cursor-like source while reading it exactly once.",
+      "exercise": "single-pass-report",
+      "conceptTags": [
+        "linq",
+        "deferred-execution",
+        "multiple-enumeration"
+      ],
+      "id": "sf_192f1bebae68712135366a84"
+    }
+  ],
+  "id": "sf_380ea7eb07e35d2ec9783462"
+}

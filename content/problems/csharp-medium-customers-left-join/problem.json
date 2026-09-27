@@ -1,0 +1,14 @@
+{
+  "slug": "csharp-medium-customers-left-join",
+  "title": "Customer Summary With a Left Join",
+  "prompt": "The CRM's customer list shows how much each customer has spent, including customers who never ordered. Given `Customer(Id, Name)` and `CustomerOrder(Id, CustomerId, Total, PlacedAt)`, return one `CustomerSummary(CustomerId, Name, OrderCount, LifetimeValue, LastOrderDate)` per customer: `LifetimeValue` is the sum of their order totals (0 when none), and `LastOrderDate` is the latest `PlacedAt` as `yyyy-MM-dd`, or `\"never\"`. Orders whose `CustomerId` matches no customer are ignored. Order the result by `LifetimeValue` descending, then `Name` (ordinal), then `CustomerId`.",
+  "language": "csharp",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["csharp", "linq", "joins", "sql", "reporting"],
+  "order": 50030,
+  "exercise": "csharp-medium-customers-left-join",
+  "explanation": {
+    "beginner": "An inner join (`Join`) only keeps customers that have at least one order, which would silently hide your newest customers. A left join keeps every customer and attaches whatever orders they have, possibly none. In LINQ that is `GroupJoin`: for each customer it hands you the customer plus the collection of their matching orders. From that collection compute `Count()`, `Sum(o => o.Total)` (which is 0 for an empty collection) and, if there are any orders, the latest date with `Max(o => o.PlacedAt)`. Orders that belong to no customer never show up, because you start from the customers. Then sort with `OrderByDescending(...).ThenBy(...).ThenBy(...)`.",
+    "junior": "`customers.GroupJoin(orders, c => c.Id, o => o.CustomerId, (c, os) => ...)` is LINQ's LEFT OUTER JOIN plus aggregate; EF Core translates it to `LEFT JOIN ... GROUP BY`, and the SQL equivalent is `SELECT c.id, COUNT(o.id), COALESCE(SUM(o.total), 0), MAX(o.placed_at) FROM customers c LEFT JOIN orders o ON ...`. Note `COUNT(o.id)` rather than `COUNT(*)`: counting rows would report 1 for customers with no orders, a classic SQL bug. `GroupJoin` builds a hash lookup of orders, so it runs in O(c + o) rather than O(c * o). `Max` throws on an empty sequence, so guard with `Any()` (or `DefaultIfEmpty`). Keep money as `decimal`, format dates with `yyyy-MM-dd` after aggregation, and give the sort a final unique key (`CustomerId`) so pagination on top of it would be stable."
+  }
+}

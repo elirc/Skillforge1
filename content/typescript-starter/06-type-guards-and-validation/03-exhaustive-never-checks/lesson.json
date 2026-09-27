@@ -1,0 +1,93 @@
+{
+  "title": "Exhaustive Checks with never",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "When you switch over the discriminant of a union, TypeScript removes each handled member as you go. After the last case, nothing is left, and the value's type is never: the type with no possible values. Passing it to a function that accepts only never turns that fact into a compile-time check."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "type Shape =\n  | { kind: \"circle\"; radius: number }\n  | { kind: \"square\"; size: number };\n\nfunction assertNever(value: never): never {\n  throw new Error(`Unhandled value: ${JSON.stringify(value)}`);\n}\n\nfunction area(shape: Shape): number {\n  switch (shape.kind) {\n    case \"circle\":\n      return Math.PI * shape.radius ** 2;\n    case \"square\":\n      return shape.size ** 2;\n    default:\n      return assertNever(shape); // compile error if a kind is missing\n  }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Now add { kind: \"triangle\"; base: number; height: number } to Shape. Without the default branch, area would silently return undefined for triangles. With it, the build fails at assertNever(shape) with Argument of type '{ kind: \"triangle\" ... }' is not assignable to parameter of type 'never', pointing you at every switch that needs a new case."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Compile-time exhaustiveness does not protect you from data a newer server sends to an older client. Decide what the default branch does at runtime: throw (assertNever) for internal state, or return a safe fallback for data that crosses a network boundary."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "In the default branch after handling every member of a union, what is the type of the switched value?",
+      "payload": {
+        "choices": [
+          "unknown",
+          "any",
+          "never",
+          "the full union again"
+        ],
+        "answer": "never",
+        "explanation": "Each case narrows the union; once all members are handled, no type remains, which TypeScript represents as never."
+      },
+      "conceptTags": [
+        "typescript",
+        "never",
+        "exhaustiveness"
+      ],
+      "id": "sf_dc385b69b255d8897e1fc65c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A teammate adds a new kind to the union but forgets one switch. What does assertNever(value) in the default branch cause?",
+      "payload": {
+        "choices": [
+          "A lint warning only",
+          "Nothing until runtime",
+          "A compile error at that switch",
+          "The new kind is handled automatically"
+        ],
+        "answer": "A compile error at that switch",
+        "explanation": "The unhandled member reaches the default branch, so value is no longer never, and passing it to a never parameter fails type checking."
+      },
+      "conceptTags": [
+        "typescript",
+        "never",
+        "exhaustiveness"
+      ],
+      "id": "sf_e79c42b33e27708f6bd3bf02"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the type.",
+      "payload": {
+        "text": "The type with no possible values, used for exhaustive checks, is called ____.",
+        "blanks": [
+          "never"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "never"
+      ],
+      "id": "sf_2320bb04dc5d9c90a4007351"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Describe each notification with an exhaustive switch over kind; unknown kinds from the server fall back to \"Unsupported notification: <kind>\".",
+      "exercise": "describe-notifications",
+      "conceptTags": [
+        "typescript",
+        "never",
+        "discriminated-unions",
+        "exhaustiveness"
+      ],
+      "id": "sf_a672cc6bc9bbb58541281f83"
+    }
+  ],
+  "id": "sf_0dffc66ecf354111b57bc118"
+}

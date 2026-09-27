@@ -34,7 +34,8 @@
         "dotnet",
         "async",
         "task-when-all"
-      ]
+      ],
+      "id": "sf_b68a72280f1f36909e58bbf5"
     },
     {
       "type": "CLOZE",
@@ -49,17 +50,18 @@
         "dotnet",
         "cancellation",
         "reliability"
-      ]
+      ],
+      "id": "sf_094e7c42469e8907217bfbdd"
     },
     {
       "type": "MCQ",
       "prompt": "Why should request-handling code pass a `CancellationToken` into EF Core and external service calls?",
       "payload": {
         "choices": [
-          "So abandoned requests can stop unnecessary work and release resources",
           "So every query becomes transactional",
           "So exceptions are automatically ignored",
-          "So CPU-bound work becomes parallel"
+          "So CPU-bound work becomes parallel",
+          "So abandoned requests can stop unnecessary work and release resources"
         ],
         "answer": "So abandoned requests can stop unnecessary work and release resources",
         "explanation": "Cancellation helps reduce wasted work after a client disconnect or timeout, but it does not replace transactions or retries."
@@ -68,7 +70,8 @@
         "dotnet",
         "cancellation-token",
         "resource-management"
-      ]
+      ],
+      "id": "sf_ca8190fe2f9533aa1570d1df"
     },
     {
       "type": "CODE",
@@ -78,7 +81,9 @@
         "dotnet",
         "async",
         "task-when-all"
-      ]
+      ],
+      "id": "sf_c11778eb7cba221a9b357558"
     }
-  ]
+  ],
+  "id": "sf_4477197f31a41fd6ebd6734b"
 }

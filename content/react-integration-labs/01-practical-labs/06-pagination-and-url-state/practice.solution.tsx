@@ -1,0 +1,1 @@
+export function App({initialSearch=""}:{initialSearch?:string}){const params=new URLSearchParams(initialSearch);const raw=Number(params.get("page"));const page=Number.isInteger(raw)&&raw>0?raw:1;params.set("page",String(page+1));return <div><output>Page {page}</output><a href={"?"+params.toString()}>Next</a></div>;}

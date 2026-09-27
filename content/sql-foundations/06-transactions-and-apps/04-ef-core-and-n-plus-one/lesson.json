@@ -1,0 +1,108 @@
+{
+  "title": "EF Core: LINQ to SQL and the N+1 Problem",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "EF Core translates LINQ over an IQueryable into SQL. Nothing runs until you materialize the query (ToListAsync, FirstOrDefaultAsync, CountAsync, foreach). Everything before that point, including Where, Select, OrderBy, Skip, and Take, becomes part of one SQL statement. Once you call ToList or AsEnumerable, later operators run in memory in your process instead."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var page = await db.Blogs\n    .Where(b => b.Rating >= 4)\n    .OrderBy(b => b.Name).ThenBy(b => b.Id)\n    .Select(b => new BlogRow(b.Id, b.Name, b.Posts.Count()))\n    .Skip(20).Take(10)\n    .ToListAsync(ct);\n\n// Roughly the SQL Server query EF Core sends:\n// SELECT b.Id, b.Name, (SELECT COUNT(*) FROM Posts AS p WHERE b.Id = p.BlogId)\n// FROM Blogs AS b\n// WHERE b.Rating >= 4\n// ORDER BY b.Name, b.Id\n// OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY"
+    },
+    {
+      "type": "prose",
+      "body": "The N+1 problem is one query to load N parents, then one more query per parent to load its children: 1 + N round trips where 1 or 2 would do. In EF Core it comes from lazy-loading proxies (touching blog.Posts triggers a query) or from explicit queries inside a loop. It is invisible with 5 rows in development and crushing with 5,000 in production."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// N+1: one query for blogs, then one per blog inside the loop\nvar blogs = await db.Blogs.ToListAsync(ct);\nforeach (var blog in blogs)\n{\n    var count = await db.Posts.CountAsync(p => p.BlogId == blog.Id, ct);   // SELECT COUNT(*) ... WHERE BlogId = @id\n}\n\n// Fix 1: project exactly what you need; one query\nvar counts = await db.Blogs\n    .Select(b => new { b.Id, b.Name, PostCount = b.Posts.Count() })\n    .ToListAsync(ct);\n\n// Fix 2: eager-load the related rows when you need the entities themselves\nvar withPosts = await db.Blogs.Include(b => b.Posts).AsNoTracking().ToListAsync(ct);"
+    },
+    {
+      "type": "prose",
+      "body": "Include on several collections has its own trap, cartesian explosion: including Posts and Tags joins both, returning posts x tags rows per blog, the same fan-out you saw with SQL joins. AsSplitQuery() tells EF to load each collection with a separate query instead. Also use AsNoTracking() for read-only queries, since change tracking costs memory and CPU you do not need."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "See the SQL before you guess. query.ToQueryString() returns it, and optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information) logs every command. If the same statement shape appears many times in one request's log with only the parameter values changing, you have found an N+1."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`db.Orders.ToList().Where(o => o.Total > 100)` downloads the entire table and filters in C#. Keep filters, projections, and paging on the IQueryable, before the call that materializes it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Build a tiny N+1 detector over a request's SQL log. Normalize each statement: replace string literals ('...', with '' as an escaped quote) with ?, replace standalone numeric literals (\\b\\d+(\\.\\d+)?\\b) with ?, collapse runs of whitespace to one space, and trim. Return { sql, count } for each normalized shape executed at least `threshold` times, sorted by count descending, then sql ascending.",
+      "exercise": "find-repeated-queries",
+      "conceptTags": [
+        "sql",
+        "ef-core",
+        "n-plus-one",
+        "performance"
+      ],
+      "id": "sf_15960aeb06c03a30efdc1f8f"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A page lists 200 orders with each customer's name. The log shows 1 query for orders and 200 queries for customers. What is the best EF Core fix?",
+      "payload": {
+        "choices": [
+          "Project in one query: .Select(o => new { o.Id, CustomerName = o.Customer.Name })",
+          "Add an index on customers.id",
+          "Wrap the loop in a transaction",
+          "Call ToList() earlier so the data is cached"
+        ],
+        "answer": "Project in one query: .Select(o => new { o.Id, CustomerName = o.Customer.Name })",
+        "explanation": "Projection (or Include) makes EF emit a single JOIN. The primary key index already exists; the cost is 200 round trips, not each lookup."
+      },
+      "conceptTags": [
+        "sql",
+        "ef-core",
+        "n-plus-one"
+      ],
+      "id": "sf_bf1be6fd81bc4c8106af82a4"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the EF Core method that eager-loads a navigation property.",
+      "payload": {
+        "text": "var blogs = await db.Blogs.____(b => b.Posts).ToListAsync();",
+        "blanks": [
+          "Include"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "ef-core",
+        "eager-loading"
+      ],
+      "id": "sf_c4a271403818ebd99bbd6f0c"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What SQL does `db.Products.ToList().Where(p => p.Price > 100).Take(10)` send?",
+      "payload": {
+        "choices": [
+          "SELECT TOP(10) ... WHERE Price > 100",
+          "SELECT ... WHERE Price > 100 with no TOP",
+          "SELECT of every product with no WHERE; filtering and Take happen in memory",
+          "Nothing; the query is never executed"
+        ],
+        "answer": "SELECT of every product with no WHERE; filtering and Take happen in memory",
+        "explanation": "ToList() executes the query at that point, so Where and Take run on an in-memory List via LINQ to Objects. Move them before ToList() to translate them into SQL."
+      },
+      "conceptTags": [
+        "sql",
+        "ef-core",
+        "iqueryable"
+      ],
+      "id": "sf_ba3fdd3b5494cfa6d04524db"
+    }
+  ],
+  "id": "sf_df0c8b931dbc72afa3bfac14"
+}

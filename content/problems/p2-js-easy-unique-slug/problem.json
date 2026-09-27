@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-easy-unique-slug",
+  "title": "Unique Slug with Numeric Suffix",
+  "prompt": "A CMS builds URL slugs from post titles and must never reuse one. Write `uniqueSlug(title, existing)`. First slugify: lowercase, replace every run of characters that are not `a-z` or `0-9` with a single `-`, and trim `-` from both ends; if nothing is left, use `untitled`. If that base slug is not in `existing`, return it. Otherwise return `base-2`, `base-3`, ... - the first one not in `existing` (fill gaps: if `post` and `post-3` exist, return `post-2`).",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": ["strings", "regex", "sets", "crud"],
+  "order": 70001,
+  "exercise": "unique-slug",
+  "explanation": {
+    "beginner": "Do it in two steps. Step one turns the title into a slug: lowercase it, then use a regular expression like `/[^a-z0-9]+/g` to replace every run of 'bad' characters with one dash, then remove dashes at the start and end. If the result is empty (the title was only punctuation), use `untitled`. Step two checks for collisions: put the existing slugs into a Set so each lookup is instant. If the base is free, you are done. If not, start a counter at 2 and keep trying `base-2`, `base-3` until you find one that is not in the Set.",
+    "junior": "Normalising with one regex that matches runs (`+`) is what prevents `c-net--tips`; trimming afterwards handles leading and trailing symbols. Build a `Set` once (O(n)) so the probe loop is O(k) for k collisions instead of O(n*k) with `includes`. Start at 2, not 1: that is the convention users expect (`post`, `post-2`). Only suffix when the base itself is taken - `post-2` existing alone does not stop you returning `post`. Watch the digit case `release-2-0`: its suffixed form is `release-2-0-2`, which is why you never try to parse an existing numeric tail. In a real app check-then-insert is racy; back it with a unique index and retry on a constraint violation."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "slug": "p2-ts-easy-permission-matrix",
+  "title": "Render a Role Permission Matrix",
+  "prompt": "An admin settings page shows a grid of roles x resources. Write `buildMatrix(roles, resources, grants)`. Each grant is a string `role:resource:action` where action is `create`, `read`, `update` or `delete`; a resource of `*` means every resource and an action of `*` means every action. Return one row per role, in `roles` order: `{ role, cells }` where `cells` maps each resource (in `resources` order) to a 4-character string of `C`, `R`, `U`, `D` in that order, with `-` for a missing permission (e.g. `-R--`, `CRU-`). Grants that mention a role or resource not in the lists are ignored.",
+  "language": "typescript",
+  "difficulty": "EASY",
+  "conceptTags": ["typescript", "permissions", "sets", "records"],
+  "order": 70011,
+  "exercise": "permission-matrix",
+  "explanation": {
+    "beginner": "First expand every grant into plain facts like `viewer:posts:read`, turning each `*` into the full list, and put those facts into a Set. Then build the output: for each role, for each resource, go through the four actions in order and write the letter if the Set has that fact, otherwise a dash. Because you only ever look up facts for the roles and resources you were given, grants for unknown ones simply never show up.",
+    "junior": "Normalising first (expand wildcards into a `Set<string>` of `role:resource:action` keys) separates parsing from rendering and makes lookups O(1); the render is O(roles * resources * 4). Keep the action list as a `const` tuple so the letter string and the action order can never drift apart. `Object.fromEntries(resources.map(...))` builds `cells` in resource order, which is the column order the UI will iterate. Fixed-width cells (`-R--`) are easier to scan and diff than `R`. Watch out for grants with extra colons or typos in the action name: here they are silently ignored, but a real admin tool should validate grants at write time and surface bad ones."
+  }
+}

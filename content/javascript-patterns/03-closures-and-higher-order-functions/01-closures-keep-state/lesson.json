@@ -1,0 +1,95 @@
+{
+  "title": "Closures Keep Private State",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A closure is a function together with the variables that were in scope where it was created. When an outer function returns an inner function, the inner one keeps access to the outer function's local variables, even after the outer function has finished running. Each call to the outer function creates a fresh set of variables, so every closure gets its own private state."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function makeCounter(start) {\n  let count = start;            // private: nothing outside can touch it\n  return {\n    increment: () => ++count,\n    reset: () => (count = start),\n  };\n}\n\nconst a = makeCounter(0);\nconst b = makeCounter(100);\na.increment(); // 1\na.increment(); // 2\nb.increment(); // 101 -- b has its own count"
+    },
+    {
+      "type": "prose",
+      "body": "Functions that return functions are called function factories. They let you configure behavior once and reuse it: makeMultiplier(3) returns a function that triples its input. A related helper is once(fn), which wraps fn so only the first call runs and later calls return the cached result."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const makeMultiplier = (factor) => (n) => n * factor;\nconst triple = makeMultiplier(3);\ntriple(5); // 15\n\nfunction once(fn) {\n  let called = false;\n  let result;\n  return (...args) => {\n    if (!called) {\n      called = true;\n      result = fn(...args);\n    }\n    return result;\n  };\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A closure captures the variable, not a snapshot of its value. If the variable changes later, the closure sees the new value."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "const a = makeCounter(0); const b = makeCounter(0); a.increment(); a.increment(); What does b.increment() return?",
+      "payload": {
+        "choices": [
+          "3",
+          "2",
+          "0",
+          "1"
+        ],
+        "answer": "1",
+        "explanation": "Each call to makeCounter creates a new `count` variable, so b's counter is independent of a's and starts from 0."
+      },
+      "conceptTags": [
+        "closures",
+        "functions"
+      ],
+      "id": "sf_628edcea0bd99776ee010fc0"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With once(fn) as defined in the lesson, what does `const init = once(() => Math.random()); init() === init()` evaluate to?",
+      "payload": {
+        "choices": [
+          "false",
+          "it throws",
+          "undefined",
+          "true"
+        ],
+        "answer": "true",
+        "explanation": "Only the first call runs fn; every later call returns the cached result, so both calls return the same number."
+      },
+      "conceptTags": [
+        "closures",
+        "higher-order-functions"
+      ],
+      "id": "sf_30c48e8ed4d5078274be50ac"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the pattern.",
+      "payload": {
+        "text": "A function that returns a new configured function, like makeMultiplier(3), is called a function ____.",
+        "blanks": [
+          "factory"
+        ]
+      },
+      "conceptTags": [
+        "closures",
+        "higher-order-functions"
+      ],
+      "id": "sf_3b70a13d99e83fac2da2eb97"
+    },
+    {
+      "type": "CODE",
+      "prompt": "makeCounter returns functions that ignore their state. Fix it so a private `count` lives in the closure, then apply each op (\"inc\", \"dec\", \"reset\") and return the value after each one.",
+      "exercise": "run-counter",
+      "conceptTags": [
+        "closures",
+        "functions",
+        "state"
+      ],
+      "id": "sf_9df664ce414652d4e5170ea4"
+    }
+  ],
+  "id": "sf_efe051b5ad3238b6210ccd8e"
+}

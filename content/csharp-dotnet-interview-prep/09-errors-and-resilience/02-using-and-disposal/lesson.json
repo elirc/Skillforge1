@@ -1,0 +1,102 @@
+{
+  "title": "IDisposable, using, and await using",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "The garbage collector frees memory, but not **unmanaged resources** such as file handles, sockets, database connections, or pooled buffers. Types that own them implement `IDisposable`, and the `using` statement guarantees `Dispose()` runs even when an exception is thrown, because it compiles to `try { ... } finally { resource.Dispose(); }`."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// using declaration (C# 8): disposed at the end of the enclosing block.\nusing var reader = new StreamReader(path);\nvar header = reader.ReadLine();\n\n// Equivalent to:\nvar reader2 = new StreamReader(path);\ntry { var header2 = reader2.ReadLine(); }\nfinally { reader2?.Dispose(); }\n\n// Several resources are disposed in reverse order of creation.\nusing var connection = new SqlConnection(cs);\nusing var command = connection.CreateCommand();   // disposed first"
+    },
+    {
+      "type": "prose",
+      "body": "When cleanup itself is asynchronous, such as flushing a network stream or committing a buffered write, the type implements `IAsyncDisposable` and you write `await using`. `DbContext`, `SqlConnection`, `Stream` and `Utf8JsonWriter` implement both, so in async code prefer `await using` to avoid blocking a thread during cleanup."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public async Task ExportAsync(IEnumerable<Order> orders, CancellationToken ct)\n{\n    await using var stream = File.Create(\"orders.json\");\n    await using var writer = new Utf8JsonWriter(stream);\n    // ... write ...\n}   // writer.DisposeAsync(), then stream.DisposeAsync(), even on failure"
+    },
+    {
+      "type": "prose",
+      "body": "Scope matters when you catch. A `using` declaration inside a `try` block is disposed when the try block ends, so the resource is already closed when the catch runs. In ASP.NET Core you rarely dispose injected services yourself: the DI container disposes what it created when the scope (the request) ends. `HttpClient` is the famous exception to \"always dispose\": use `IHttpClientFactory` or one long-lived instance, because creating and disposing one per request can exhaust sockets."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Implement `Dispose` so it is safe to call more than once, and do not throw from it. A throw from `Dispose` during exception unwinding replaces the original exception, and you lose the real error."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does a `using` statement guarantee?",
+      "payload": {
+        "choices": [
+          "The object is garbage-collected immediately",
+          "Exceptions inside the block are swallowed",
+          "The object cannot be used after the block starts",
+          "Dispose() runs when the block exits, even if an exception is thrown"
+        ],
+        "answer": "Dispose() runs when the block exits, even if an exception is thrown",
+        "explanation": "using compiles to try/finally. It does not free memory or catch exceptions; it only guarantees deterministic cleanup."
+      },
+      "conceptTags": [
+        "idisposable",
+        "using",
+        "csharp"
+      ],
+      "id": "sf_2458710c36e1e2e62da9d593"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Two using declarations open a connection and then a command in the same method. In what order are they disposed?",
+      "payload": {
+        "choices": [
+          "Connection first, then command",
+          "In parallel",
+          "Command first, then connection",
+          "Only the connection is disposed"
+        ],
+        "answer": "Command first, then connection",
+        "explanation": "Resources are disposed in reverse order of declaration, so a resource that depends on another is cleaned up before the thing it depends on."
+      },
+      "conceptTags": [
+        "idisposable",
+        "using"
+      ],
+      "id": "sf_a026f8942fc7ae498b5eeed9"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the declaration.",
+      "payload": {
+        "text": "For a type that implements IAsyncDisposable, write `____ using var stream = File.Create(path);` so cleanup is awaited.",
+        "blanks": [
+          "await"
+        ]
+      },
+      "conceptTags": [
+        "idisposable",
+        "async",
+        "csharp"
+      ],
+      "id": "sf_d51e6053224f9d092eb13852"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Make an import exception-safe with `await using` and `using`: skip unreadable files, abort on bugs, and always close every resource in the right order.",
+      "exercise": "import-with-cleanup",
+      "conceptTags": [
+        "idisposable",
+        "using",
+        "async",
+        "exceptions"
+      ],
+      "id": "sf_7488bc4edfa096dd1bd3ba91"
+    }
+  ],
+  "id": "sf_411d036c349b78a883e18c60"
+}

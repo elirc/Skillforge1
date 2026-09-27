@@ -1,0 +1,136 @@
+{
+  "title": "Numbers, Rounding, and Money",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "JavaScript has one number type, stored in binary floating point. Most decimal fractions cannot be stored exactly, so tiny errors appear:"
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "0.1 + 0.2;            // 0.30000000000000004\n0.1 + 0.2 === 0.3;    // false\n1.005 * 100;          // 100.49999999999999"
+    },
+    {
+      "type": "prose",
+      "body": "For money, the fix is simple: **count whole cents as integers**. Integers (up to about 9 quadrillion) are exact. Convert once on the way in, add and multiply cents, and format only when you display."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const toCents = (price) => Math.round(Number(price) * 100); // \"4.99\" -> 499\nconst total = toCents(\"0.10\") + toCents(\"0.20\");               // 30, exactly\n\nfunction formatCents(cents) {\n  const dollars = Math.floor(cents / 100);\n  const rest = String(cents % 100).padStart(2, \"0\");\n  return `$${dollars}.${rest}`;\n}\nformatCents(1205); // \"$12.05\""
+    },
+    {
+      "type": "prose",
+      "body": "Rounding helpers:\n- `Math.round(2.5)` is 3, `Math.floor` rounds down, `Math.ceil` rounds up, `Math.trunc` drops the decimals\n- `n.toFixed(2)` returns a **string**, and it rounds the stored binary value: `(1.005).toFixed(2)` is \"1.00\", not \"1.01\"\n- `Number(\"abc\")` and `parseFloat(\"abc\")` give `NaN`, which is not equal to anything, even itself"
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const n = Number(\"abc\");\nn === NaN;           // false!\nNumber.isNaN(n);     // true: the reliable check\nNumber(\"\");          // 0  (surprise: empty text becomes 0)\nNumber.isInteger(3); // true\nNumber.isInteger(1.5); // false"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`toFixed` is for display, not math. It returns a string, so `a.toFixed(2) + b.toFixed(2)` joins text: \"1.00\" + \"2.00\" is \"1.002.00\"."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "In real payment systems amounts are usually stored and sent as integer minor units (cents), for exactly these reasons."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Integer minor units keep these price calculations exact within the safe integer range. Formatting converts the result to display text at the boundary. Rounding policy belongs in a stated business rule."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const unitCents = 125;\nconst quantity = 3;\nconst totalCents = unitCents * quantity; // 375\nconst display = (totalCents / 100).toFixed(2); // '3.75'"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "toFixed returns a string. Adding another amount to that string concatenates instead of adding numerically."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Where would you round a percentage discount, and which test distinguishes competing policies?\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "How do you reliably check whether `value` is NaN?",
+      "payload": {
+        "choices": [
+          "Number.isNaN(value)",
+          "value === NaN",
+          "value == NaN",
+          "value === undefined"
+        ],
+        "answer": "Number.isNaN(value)",
+        "explanation": "NaN is the only value not equal to itself, so === NaN is always false. Number.isNaN checks it correctly."
+      },
+      "conceptTags": [
+        "numbers",
+        "nan"
+      ],
+      "id": "sf_50b757898129226dd1d03eec"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why store prices as integer cents?",
+      "payload": {
+        "choices": [
+          "Integers use less memory than decimals",
+          "toFixed only works on integers",
+          "JavaScript cannot display decimals",
+          "Integer math is exact, while decimal fractions like 0.1 are not stored exactly"
+        ],
+        "answer": "Integer math is exact, while decimal fractions like 0.1 are not stored exactly",
+        "explanation": "Adding cents never drifts, so totals always match what a person would calculate."
+      },
+      "conceptTags": [
+        "numbers",
+        "money",
+        "floating-point"
+      ],
+      "id": "sf_60a5aa337fa41b6f07e89ca3"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the conversion.",
+      "payload": {
+        "text": "const cents = Math.____(Number(\"4.99\") * 100);",
+        "blanks": [
+          "round"
+        ]
+      },
+      "conceptTags": [
+        "numbers",
+        "rounding",
+        "money"
+      ],
+      "id": "sf_96646e0b033f8e7a61b6e474"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write cartTotal(lines). Each line has a price string and a quantity. Add the cart up in integer cents and return it formatted like \"$12.34\". Skip a line if its price is empty or not a number, or its quantity is not a positive whole number.",
+      "exercise": "cart-total",
+      "conceptTags": [
+        "numbers",
+        "money",
+        "nan",
+        "formatting"
+      ],
+      "id": "sf_981da003c4c4399e17a553a1",
+      "hints": [
+        "toFixed returns a string. Adding another amount to that string concatenates instead of adding numerically.",
+        "Integer minor units keep these price calculations exact within the safe integer range. Formatting converts the result to display text at the boundary. Rounding policy belongs in a stated business rule."
+      ],
+      "walkthrough": "Integer minor units keep these price calculations exact within the safe integer range. Formatting converts the result to display text at the boundary. Rounding policy belongs in a stated business rule."
+    }
+  ],
+  "id": "sf_fbe7e482ee45d6cf7664024d",
+  "estimatedMinutes": 12
+}

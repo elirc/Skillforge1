@@ -1,0 +1,96 @@
+{
+  "title": "What Is Inside a JWT",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A JSON Web Token is three base64url segments joined by dots: `header.payload.signature`. The header names the signing algorithm (`{\"alg\":\"HS256\",\"typ\":\"JWT\"}`), the payload holds **claims** (`sub` the user id, `exp` expiry and `nbf` not-before as Unix seconds, `iss` issuer, `aud` audience, roles), and the signature proves that someone holding the key produced exactly those two segments."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "// base64url = base64 with - instead of +, _ instead of /, and no = padding\nconst [h, p] = token.split(\".\");\n// h = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9 -> {\"alg\":\"HS256\",\"typ\":\"JWT\"}\n// p = eyJzdWIiOiI0MiIsImV4cCI6MTcwMDAwMzYwMH0 -> {\"sub\":\"42\",\"exp\":1700003600}"
+    },
+    {
+      "type": "prose",
+      "body": "The payload is **encoded, not encrypted**. Paste any JWT into a decoder and you can read it. So never put secrets in it: no passwords, no API keys, no personal data you would not print on a postcard. The signature only stops **changes**, not reading."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddAuthentication().AddJwtBearer(o =>\n{\n    o.Authority = \"https://login.example.com\";\n    o.Audience = \"shop-api\";\n    o.TokenValidationParameters = new()\n    {\n        ValidateIssuer = true, ValidateAudience = true,\n        ValidateLifetime = true, ClockSkew = TimeSpan.FromSeconds(30),\n        ValidAlgorithms = [\"RS256\"],       // never accept \"none\"\n    };\n});"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Decoding is not validating. A server must verify the signature with its key, pin the allowed algorithms (reject `alg: none`), and check `exp`, `nbf`, `iss`, and `aud` before trusting a single claim. Use your framework's JWT handler rather than writing this yourself."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Anyone who gets a copy of a JWT can do which of these without the signing key?",
+      "payload": {
+        "choices": [
+          "Change the role claim and keep a valid signature",
+          "Extend its expiry",
+          "Read every claim in the payload",
+          "Nothing, the payload is encrypted"
+        ],
+        "answer": "Read every claim in the payload",
+        "explanation": "The payload is just base64url-encoded JSON. The signature prevents undetected changes, but it does not hide anything."
+      },
+      "conceptTags": [
+        "jwt",
+        "security"
+      ],
+      "id": "sf_c45c82658c42c78f84c36c93"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which claim holds a JWT's expiry time?",
+      "payload": {
+        "choices": [
+          "iat",
+          "sub",
+          "aud",
+          "exp"
+        ],
+        "answer": "exp",
+        "explanation": "exp is the expiry in Unix seconds. iat is issued-at, sub is the subject (user id), aud is the intended audience."
+      },
+      "conceptTags": [
+        "jwt",
+        "claims"
+      ],
+      "id": "sf_8300830171a0ec17aaa18d03"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the rule.",
+      "payload": {
+        "text": "A JWT payload is encoded, not ____, so never put secrets in it.",
+        "blanks": [
+          "encrypted"
+        ]
+      },
+      "conceptTags": [
+        "jwt",
+        "security"
+      ],
+      "id": "sf_3d409095231216fa968585cc"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Decode a JWT's header and payload by implementing base64url decoding yourself, then reject malformed tokens, alg none, expired tokens, and tokens used before nbf.",
+      "exercise": "decode-jwt",
+      "conceptTags": [
+        "jwt",
+        "base64url",
+        "auth",
+        "claims"
+      ],
+      "id": "sf_2f052d6de8bdfcad0d68edd8"
+    }
+  ],
+  "id": "sf_c4e5a70b95044e2d53df544e"
+}

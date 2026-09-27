@@ -1,0 +1,92 @@
+{
+  "title": "Query Keys, staleTime, and Invalidation",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Server state (products, orders, the current user) is different from client state: it lives somewhere else, other people change it, and your copy goes out of date. TanStack Query manages that copy. Each query has a **query key**, an array that identifies the data, and a `queryFn` that fetches it. Everything the fetch depends on belongs in the key, so `[\"products\", \"list\", { page: 2, sort: \"price\" }]` and page 3 are cached separately."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "const productKeys = {\n  all: [\"products\"] as const,\n  lists: () => [...productKeys.all, \"list\"] as const,\n  list: (params: ListParams) => [...productKeys.lists(), params] as const,\n  detail: (id: number) => [...productKeys.all, \"detail\", id] as const,\n};\n\nfunction useProducts(params: ListParams) {\n  return useQuery({\n    queryKey: productKeys.list(params),\n    queryFn: () => api.listProducts(params),\n    staleTime: 30_000, // fresh for 30 s: no background refetch on mount or focus\n  });\n}\n\nfunction useUpdateProduct() {\n  const queryClient = useQueryClient();\n  return useMutation({\n    mutationFn: api.updateProduct,\n    onSuccess: (product) => {\n      queryClient.setQueryData(productKeys.detail(product.id), product);\n      return queryClient.invalidateQueries({ queryKey: productKeys.lists() });\n    },\n  });\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Key vocabulary (TanStack Query v5):\n\n- **staleTime** (default `0`): how long data counts as fresh. Stale data is still shown, but it is refetched in the background when a component mounts, the window refocuses, or the network reconnects\n- **gcTime** (default 5 minutes, formerly `cacheTime`): how long an unused query stays in the cache before it is garbage-collected\n- **invalidateQueries({ queryKey })**: marks every query whose key **starts with** that key as stale, and immediately refetches the ones currently rendered on screen (active). Inactive ones refetch the next time they are used. Add `exact: true` to match one key only\n- in v5, `isPending` means \"no data yet\"; `isFetching` is true during any fetch, including background refetches"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "A query key factory like `productKeys` keeps keys consistent and makes hierarchical invalidation easy: invalidate `productKeys.lists()` after an edit to refresh every page and sort order at once."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which queries does invalidateQueries({ queryKey: [\"products\"] }) match by default?",
+      "payload": {
+        "choices": [
+          "Only the key [\"products\"]",
+          "Every query in the cache",
+          "Every query whose key starts with \"products\"",
+          "Only queries currently on screen"
+        ],
+        "answer": "Every query whose key starts with \"products\"",
+        "explanation": "Matching is by prefix unless exact: true. Matching queries that are on screen refetch immediately; the rest are marked stale."
+      },
+      "conceptTags": [
+        "tanstack-query",
+        "query-keys",
+        "invalidation"
+      ],
+      "id": "sf_b2d4cdc3d9c19cab7695679b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With the default staleTime of 0, what happens when a component mounts with cached data?",
+      "payload": {
+        "choices": [
+          "Nothing is shown until the refetch finishes",
+          "The cache is ignored",
+          "No refetch happens for 5 minutes",
+          "The cached data shows and a background refetch starts"
+        ],
+        "answer": "The cached data shows and a background refetch starts",
+        "explanation": "Cached data renders instantly; because it is already stale, TanStack Query refetches it in the background."
+      },
+      "conceptTags": [
+        "tanstack-query",
+        "stale-time",
+        "caching"
+      ],
+      "id": "sf_d0d9ac0ec12625b063cbdbae"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the TanStack Query v5 option that controls how long unused data stays in the cache.",
+      "payload": {
+        "text": "useQuery({ queryKey, queryFn, ____: 10 * 60_000 })",
+        "blanks": [
+          "gcTime"
+        ]
+      },
+      "conceptTags": [
+        "tanstack-query",
+        "caching"
+      ],
+      "id": "sf_39266e550e12732e2136d427"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model queryClient.invalidateQueries: match cached keys by prefix, partial object match, or exactly, and split them into refetched, marked stale, and untouched.",
+      "exercise": "plan-invalidation",
+      "conceptTags": [
+        "tanstack-query",
+        "query-keys",
+        "invalidation"
+      ],
+      "id": "sf_b73ae64bba9d39a29070ada6"
+    }
+  ],
+  "id": "sf_d59d56e8172866f83c558879"
+}

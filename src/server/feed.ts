@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { conceptStrength } from "@/lib/srs/scheduler";
 import { parseTags, type Goal } from "@/lib/enums";
 import { getCurrentUser } from "@/server/user";
+import { getWeakConcepts } from "@/server/mastery";
+
+// Re-exported so existing callers (the dashboard) keep importing it from here.
+export { getWeakConcepts };
 
 /**
  * Which languages the learner sees first, by stated goal. The C# / SQL track is
@@ -9,9 +12,9 @@ import { getCurrentUser } from "@/server/user";
  * fundamentals detour.
  */
 const languagePriority: Record<Goal, string[]> = {
-  "crud-dev": ["csharp", "sql", "typescript", "javascript", "python"],
-  interview: ["csharp", "sql", "typescript", "javascript", "python"],
-  fundamentals: ["javascript", "typescript", "csharp", "sql", "python"],
+  "crud-dev": ["csharp", "sql", "web", "javascript", "typescript", "react", "python"],
+  interview: ["csharp", "sql", "typescript", "javascript", "web", "react", "python"],
+  fundamentals: ["javascript", "typescript", "web", "react", "csharp", "sql", "python"],
 };
 
 function rankLanguage(goal: Goal, language: string) {
@@ -30,40 +33,19 @@ export interface NextUpItem {
   badge?: string;
 }
 
-/** The weakest concepts by SRS strength — what the learner is actually shaky on. */
-export async function getWeakConcepts(userId: string, limit = 6, now = new Date()) {
-  const states = await prisma.reviewState.findMany({
-    where: { userId, reps: { gte: 1 } },
-    include: { knowledgeItem: { include: { lesson: { include: { module: { include: { course: true } } } } } } },
-  });
-
-  const byTag = new Map<string, { tag: string; total: number; count: number; course: string }>();
-  for (const state of states) {
-    const tags = parseTags(state.knowledgeItem.conceptTags);
-    const strength = conceptStrength(state, now);
-    const course = state.knowledgeItem.lesson.module.course.title;
-    for (const tag of tags.length > 0 ? tags : ["general"]) {
-      const entry = byTag.get(tag) ?? { tag, total: 0, count: 0, course };
-      entry.total += strength;
-      entry.count += 1;
-      byTag.set(tag, entry);
-    }
-  }
-
-  return Array.from(byTag.values())
-    .map((entry) => ({ tag: entry.tag, course: entry.course, strength: Math.round(entry.total / entry.count), samples: entry.count }))
-    .sort((a, b) => a.strength - b.strength)
-    .slice(0, limit);
-}
-
 /** The next lesson the learner has not completed, respecting course/module/lesson order. */
 export async function getNextLesson(userId: string, goal: Goal) {
+  const learner = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  const focus = parseTags(learner.focusTags);
   const courses = await prisma.course.findMany({
+    where: { archived: false },
     include: {
       modules: {
+        where: { archived: false },
         orderBy: { order: "asc" },
         include: {
           lessons: {
+            where: { archived: false },
             orderBy: { order: "asc" },
             include: { completions: { where: { userId } } },
           },
@@ -73,9 +55,9 @@ export async function getNextLesson(userId: string, goal: Goal) {
     orderBy: { order: "asc" },
   });
 
-  const ordered = [...courses].sort(
-    (a, b) => rankLanguage(goal, a.language) - rankLanguage(goal, b.language) || a.order - b.order,
-  );
+  const completedCourses = new Set(courses.filter(course => course.modules.flatMap(module => module.lessons).every(lesson => lesson.completions.length > 0)).map(course => course.slug));
+  const score = (course: typeof courses[number]) => (learner.experience === "beginner" && course.difficulty !== "BEGINNER" ? 100 : 0) + rankLanguage(goal, course.language) * 10 - parseTags(course.topicTags).filter(tag => focus.includes(tag)).length * 12;
+  const ordered = [...courses].filter(course => parseTags(course.prerequisites).every(slug => completedCourses.has(slug))).sort((a, b) => score(a) - score(b) || a.order - b.order);
 
   for (const course of ordered) {
     for (const courseModule of course.modules) {
@@ -88,6 +70,7 @@ export async function getNextLesson(userId: string, goal: Goal) {
             courseSlug: course.slug,
             courseTitle: course.title,
             language: course.language,
+            estimatedMinutes: lesson.estimatedMinutes,
           };
         }
       }
@@ -99,8 +82,10 @@ export async function getNextLesson(userId: string, goal: Goal) {
 
 /** An unsolved problem, biased toward the learner's weakest concept tags. */
 export async function getRecommendedProblem(userId: string, weakTags: string[], goal: Goal) {
+  const learner = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  const focus = parseTags(learner.focusTags);
   const [problems, solved] = await Promise.all([
-    prisma.problem.findMany({ orderBy: [{ difficulty: "asc" }, { order: "asc" }] }),
+    prisma.problem.findMany({ where: { archived: false }, orderBy: [{ difficulty: "asc" }, { order: "asc" }] }),
     prisma.problemSubmission.findMany({
       where: { userId, passed: true },
       select: { problemId: true },
@@ -115,7 +100,9 @@ export async function getRecommendedProblem(userId: string, weakTags: string[], 
   const scored = unsolved.map((problem) => {
     const tags = parseTags(problem.conceptTags);
     const tagHits = tags.filter((tag) => weakTags.includes(tag)).length;
-    return { problem, tags, score: tagHits * 10 - rankLanguage(goal, problem.language) };
+    const focusHits = tags.filter(tag => focus.includes(tag)).length;
+    const difficultyPenalty = learner.experience === "beginner" ? ({ EASY: 0, MEDIUM: 30, HARD: 60 }[problem.difficulty] ?? 0) : learner.experience === "junior" && problem.difficulty === "HARD" ? 15 : 0;
+    return { problem, tags, score: tagHits * 10 + focusHits * 5 - rankLanguage(goal, problem.language) - difficultyPenalty };
   });
 
   scored.sort((a, b) => b.score - a.score);
@@ -147,7 +134,7 @@ export async function getNextUp(now = new Date()): Promise<NextUpItem[]> {
     });
   }
 
-  const dueCount = await prisma.reviewState.count({ where: { userId: user.id, dueAt: { lte: now } } });
+  const dueCount = await prisma.reviewState.count({ where: { userId: user.id, dueAt: { lte: now }, knowledgeItem: { archived: false } } });
   if (dueCount > 0) {
     items.push({
       kind: "review",
@@ -210,9 +197,11 @@ export interface TrackProgress {
 /** Per-course completion, ordered by the learner's goal then by how far along they are. */
 export async function getTrackProgress(userId: string, goal: Goal): Promise<TrackProgress[]> {
   const courses = await prisma.course.findMany({
+    where: { archived: false },
     include: {
       modules: {
-        include: { lessons: { include: { completions: { where: { userId } } } } },
+        where: { archived: false },
+        include: { lessons: { where: { archived: false }, include: { completions: { where: { userId } } } } },
       },
     },
   });

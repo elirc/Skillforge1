@@ -1,0 +1,2 @@
+import { useState } from "react";
+export function App({products=[]}:{products?:{id:number;name:string}[]}) {const [query,setQuery]=useState("");const visible=products.filter(p=>p.name.toLowerCase().includes(query.trim().toLowerCase()));return <div><label htmlFor="search">Search products</label><input id="search" value={query} onChange={e=>setQuery(e.target.value)}/><ul>{visible.map(p=><li key={p.id}>{p.name}</li>)}</ul>{visible.length===0?<p role="status">No matches</p>:null}</div>;}

@@ -1,0 +1,98 @@
+{
+  "title": "ORDER BY and Stable Paging",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "ORDER BY sorts the result. Each sort key can be ASC (the default) or DESC, and later keys only break ties left by earlier ones. Paging then skips some rows and takes the next few. The syntax differs by database, but the meaning is the same."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- SQL Server (and the SQL standard)\nSELECT id, name, price\nFROM products\nORDER BY price DESC, id ASC\nOFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY;   -- page 3 of 10 rows\n\n-- PostgreSQL, SQLite, MySQL\nSELECT id, name, price\nFROM products\nORDER BY price DESC, id ASC\nLIMIT 10 OFFSET 20;\n\n-- SQL Server shorthand for the first N rows\nSELECT TOP (10) id, name, price FROM products ORDER BY price DESC, id;"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Always finish ORDER BY with a unique column (usually the primary key). If ten products share the same price, `ORDER BY price` alone lets the database order those ten differently on each request, so rows can repeat or vanish between pages."
+    },
+    {
+      "type": "prose",
+      "body": "OFFSET paging is simple, but the database still has to walk past every skipped row, so page 5,000 is slow. For deep or infinite-scroll paging use keyset (seek) pagination: remember the last row's sort values and ask for the rows after them, which an index on (price, id) can answer directly."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Keyset pagination: the next page after the last row shown (price 19.99, id 482)\nSELECT TOP (10) id, name, price\nFROM products\nWHERE price < 19.99 OR (price = 19.99 AND id > 482)\nORDER BY price DESC, id ASC;"
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `SELECT id FROM products ORDER BY price DESC, id ASC OFFSET (@page - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY`. Return the ids on the requested 1-based page (empty if the page is past the end). Do not mutate the input array.",
+      "exercise": "page-products",
+      "conceptTags": [
+        "sql",
+        "order-by",
+        "paging",
+        "offset-fetch"
+      ],
+      "id": "sf_cec807639dd4b5c3d13201a6"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the PostgreSQL paging clause that skips 40 rows and returns 20.",
+      "payload": {
+        "text": "SELECT id FROM posts ORDER BY created_at DESC, id DESC LIMIT 20 ____ 40;",
+        "blanks": [
+          "OFFSET"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "paging"
+      ],
+      "id": "sf_3736ea3fb4e433c46315a7ed"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A product list pages with `ORDER BY price OFFSET @skip ROWS FETCH NEXT 20 ROWS ONLY`. Users report the same product showing up on two pages. What is the best fix?",
+      "payload": {
+        "choices": [
+          "Add a unique tie-breaker: ORDER BY price, id",
+          "Switch FETCH NEXT to TOP",
+          "Add DISTINCT to the SELECT",
+          "Increase the page size"
+        ],
+        "answer": "Add a unique tie-breaker: ORDER BY price, id",
+        "explanation": "Rows with equal prices have no defined order, so each page query may order them differently. A unique final sort key makes the order total and the pages stable."
+      },
+      "conceptTags": [
+        "sql",
+        "order-by",
+        "paging"
+      ],
+      "id": "sf_74288c7ff1c9ced676f0b7ac"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why is keyset (seek) pagination faster than OFFSET for page 10,000?",
+      "payload": {
+        "choices": [
+          "It caches previous pages in the database",
+          "It returns fewer columns",
+          "It seeks straight to the last-seen key in an index instead of reading and discarding every skipped row",
+          "OFFSET disables all indexes"
+        ],
+        "answer": "It seeks straight to the last-seen key in an index instead of reading and discarding every skipped row",
+        "explanation": "OFFSET n still produces and throws away n rows. A WHERE on the sort key lets an index on those columns start exactly where the previous page ended."
+      },
+      "conceptTags": [
+        "sql",
+        "paging",
+        "indexes"
+      ],
+      "id": "sf_bf65e36a82393cc905f7266c"
+    }
+  ],
+  "id": "sf_e619bea8ff00d40d23db54be"
+}

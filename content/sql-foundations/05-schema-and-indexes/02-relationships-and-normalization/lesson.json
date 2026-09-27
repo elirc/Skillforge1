@@ -1,0 +1,98 @@
+{
+  "title": "Relationships and Normalization",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Normalization means storing each fact exactly once. A spreadsheet-style orders table that repeats the customer's name and email on every order has three problems, called anomalies: an update anomaly (changing an email means updating many rows, and missing one leaves the data inconsistent), an insert anomaly (you cannot record a customer until they order), and a delete anomaly (deleting a customer's only order deletes the customer too)."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Denormalized: customer facts repeated on every order\n-- orders_flat(order_id, order_total, customer_email, customer_name)\n\n-- Normalized 1:N: the foreign key lives on the \"many\" side\nCREATE TABLE customers (\n  id    INT IDENTITY PRIMARY KEY,\n  email NVARCHAR(256) NOT NULL UNIQUE,\n  name  NVARCHAR(100) NOT NULL\n);\nCREATE TABLE orders (\n  id          INT PRIMARY KEY,\n  customer_id INT NOT NULL REFERENCES customers(id),\n  total       DECIMAL(10, 2) NOT NULL\n);"
+    },
+    {
+      "type": "prose",
+      "body": "The normal forms in one breath: 1NF means every column holds a single value (no comma-separated lists, no repeating column groups like phone1, phone2, phone3). 2NF means non-key columns depend on the whole key, not part of a composite key. 3NF means non-key columns depend only on the key, not on other non-key columns (customer_name depends on customer_email, not on order_id, so it belongs in customers). For CRUD apps, aiming for 3NF and denormalizing deliberately for measured read performance is the usual rule."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- M:N: students take many courses; courses have many students.\n-- A junction table holds one row per pairing, plus facts about the pairing.\nCREATE TABLE enrollments (\n  student_id  INT NOT NULL REFERENCES students(id),\n  course_id   INT NOT NULL REFERENCES courses(id),\n  enrolled_at DATETIME2 NOT NULL,\n  grade       CHAR(2) NULL,\n  CONSTRAINT PK_enrollments PRIMARY KEY (student_id, course_id)  -- no duplicate pairings\n);\nCREATE INDEX IX_enrollments_course ON enrollments (course_id);    -- for \"students in course X\""
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "EF Core maps these directly: a navigation collection plus a foreign key property gives a 1:N relationship, and a skip navigation (ICollection<Course> on Student and ICollection<Student> on Course) makes EF create the junction table for you. Model the junction as its own entity as soon as the pairing needs data like enrolled_at or grade."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Normalize a flat orders export into customers and orders tables. Customers are identified by email and get ids 1, 2, 3, ... in order of first appearance; the first name seen for an email wins. Return { customers: [{ id, email, name }], orders: [{ id, customerId, total }] } with orders in input order. This is what `INSERT INTO customers ... SELECT DISTINCT` followed by an `INSERT INTO orders ... JOIN customers ON email` migration does.",
+      "exercise": "normalize-orders",
+      "conceptTags": [
+        "sql",
+        "normalization",
+        "foreign-key",
+        "schema-design"
+      ],
+      "id": "sf_df12f23a20a9bd50540cec12"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "How should a many-to-many relationship between students and courses be stored?",
+      "payload": {
+        "choices": [
+          "A comma-separated course_ids column on students",
+          "A junction table enrollments(student_id, course_id) with a composite primary key",
+          "course1_id, course2_id, course3_id columns on students",
+          "A student_id column on courses"
+        ],
+        "answer": "A junction table enrollments(student_id, course_id) with a composite primary key",
+        "explanation": "Each row is one pairing, both columns are foreign keys, and the composite key prevents duplicates. Lists in a column break 1NF and cannot be indexed or constrained."
+      },
+      "conceptTags": [
+        "sql",
+        "schema-design",
+        "many-to-many"
+      ],
+      "id": "sf_158a3c68f8cc564f00848115"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Which table gets the foreign key in a one-to-many relationship?",
+      "payload": {
+        "text": "In a 1:N relationship such as customer to orders, the foreign key column goes on the ____ side (orders.customer_id).",
+        "blanks": [
+          "many"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "schema-design",
+        "one-to-many"
+      ],
+      "id": "sf_437e826db634ff348a56afab"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "orders_flat stores customer_email on every order. A customer changes their email and only some rows get updated. Which anomaly is this?",
+      "payload": {
+        "choices": [
+          "Insert anomaly",
+          "Delete anomaly",
+          "Phantom read",
+          "Update anomaly"
+        ],
+        "answer": "Update anomaly",
+        "explanation": "The same fact is stored in many places, so an update can leave copies disagreeing. Storing the email once in customers removes the problem."
+      },
+      "conceptTags": [
+        "sql",
+        "normalization"
+      ],
+      "id": "sf_b4392a24a80e4ae10a1165e6"
+    }
+  ],
+  "id": "sf_7a1c45432da04e19f9810489"
+}

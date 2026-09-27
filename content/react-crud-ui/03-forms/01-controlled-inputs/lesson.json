@@ -1,0 +1,94 @@
+{
+  "title": "Controlled Inputs",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A **controlled** input gets its value from React state and reports every keystroke through `onChange`; state is the single source of truth, so you can validate, format, or reset it at any time. An **uncontrolled** input keeps its own value in the DOM and you read it on submit (with `FormData` or a ref). Both are valid: controlled inputs suit forms with live validation and dependent fields; uncontrolled ones suit simple forms submitted with a form action."
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "type ProductForm = { name: string; price: string; sku: string };\n\nfunction EditProduct({ initial }: { initial: ProductForm }) {\n  const [values, setValues] = useState(initial);\n  const [touched, setTouched] = useState<Set<keyof ProductForm>>(new Set());\n\n  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {\n    const field = e.target.name as keyof ProductForm;\n    setValues((v) => ({ ...v, [field]: e.target.value }));\n  }\n\n  // Derived, not stored: nothing can get out of sync.\n  const isDirty = (Object.keys(initial) as (keyof ProductForm)[]).some((k) => values[k] !== initial[k]);\n\n  return (\n    <form>\n      <input name=\"name\" value={values.name} onChange={handleChange}\n        onBlur={() => setTouched((t) => new Set(t).add(\"name\"))} />\n      <button type=\"button\" onClick={() => setValues(initial)} disabled={!isDirty}>Reset</button>\n    </form>\n  );\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Things that trip people up:\n\n- `e.target.value` is **always a string**, even for `type=\"number\"`. Keep form state as strings and convert when you validate or submit\n- `value={undefined}` makes an input uncontrolled; switching to a string later triggers React's \"changing an uncontrolled input to be controlled\" warning. Initialise with `\"\"`\n- a `value` without `onChange` makes the field read-only (use `defaultValue` for an uncontrolled starting value)\n- derive `isDirty`, `canSubmit` and similar flags from state during render instead of storing them in more state"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Track **touched** (the user has left the field) separately from values. It is what lets you delay error messages until the user has had a chance to finish typing."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What type is e.target.value for <input type=\"number\">?",
+      "payload": {
+        "choices": [
+          "number",
+          "number | null",
+          "string",
+          "It depends on the browser"
+        ],
+        "answer": "string",
+        "explanation": "DOM input values are strings. Use valueAsNumber or Number() when you need a number, and handle the empty string."
+      },
+      "conceptTags": [
+        "react",
+        "forms",
+        "controlled-inputs"
+      ],
+      "id": "sf_785d49994951aab70f4c9091"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why should isDirty be computed during render instead of kept in its own useState?",
+      "payload": {
+        "choices": [
+          "It can never get out of sync with the values",
+          "useState cannot hold booleans",
+          "It makes the input uncontrolled",
+          "React requires it"
+        ],
+        "answer": "It can never get out of sync with the values",
+        "explanation": "Derived state duplicated into useState must be updated everywhere the source changes; computing it from values avoids that whole class of bug."
+      },
+      "conceptTags": [
+        "react",
+        "forms",
+        "derived-state"
+      ],
+      "id": "sf_62b329ef84ec44cbc57c59ae"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the prop that gives an uncontrolled input its starting value.",
+      "payload": {
+        "text": "<input name=\"sku\" ____=\"ABC-0001\" />",
+        "blanks": [
+          "defaultValue"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "forms",
+        "uncontrolled-inputs"
+      ],
+      "id": "sf_ec6b51a3e09a254a65041244"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Replay change, blur, and reset events on a controlled form and return values, touched fields, and the derived dirty fields.",
+      "exercise": "run-form-events",
+      "conceptTags": [
+        "react",
+        "forms",
+        "controlled-inputs",
+        "derived-state"
+      ],
+      "id": "sf_7186987cd65d0e1be238e49a"
+    }
+  ],
+  "id": "sf_9467f9c8f12b5bcfcac63ec9"
+}

@@ -1,0 +1,66 @@
+{
+  "id": "sf_4c53046e5007ac6752bdcd31",
+  "title": "Interfaces and composition",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An interface describes an operation without choosing its implementation. Both shipping classes supply Fee, so the caller can compose its quote with either strategy. The caller depends on a small contract instead of a concrete delivery class. Dependency injection later automates providing that implementation; the underlying idea is already visible in this local variable. Interface implementations can also be replaced with test doubles at an I/O boundary."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "public interface IShipping { decimal Fee(); }\npublic sealed class StandardShipping : IShipping { public decimal Fee() => 5m; }\npublic sealed class ExpressShipping : IShipping { public decimal Fee() => 12m; }\npublic static class Exercise\n{\n    public static decimal Quote(decimal subtotal, bool expedited)\n    {\n        return subtotal;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [20,false]. The required result is 25. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Choose ExpressShipping when expedited is true, otherwise StandardShipping, and add its Fee to subtotal."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "An interface does not automatically select an implementation or perform dependency injection."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** How would you add a free-shipping policy without editing the quote calculation? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the zero subtotal case checks a different boundary.\n\n**Transfer it.** Inject small payment or storage interfaces where a real boundary benefits from substitution."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_9d74607aa0f233ac04cae562",
+      "type": "MCQ",
+      "prompt": "What can the caller access through IShipping?",
+      "conceptTags": [
+        "interfaces",
+        "composition",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "Every private member of every implementation",
+          "Members declared by the interface",
+          "Only static members"
+        ],
+        "answer": "Members declared by the interface",
+        "explanation": "The interface defines the contract visible to the caller."
+      }
+    },
+    {
+      "id": "sf_d8f1ca9b23d7617b7eddf653",
+      "type": "CODE",
+      "prompt": "Choose ExpressShipping when expedited is true, otherwise StandardShipping, and add its Fee to subtotal.",
+      "conceptTags": [
+        "interfaces",
+        "composition",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "The interface defines the contract visible to the caller.",
+        "An interface does not automatically select an implementation or perform dependency injection."
+      ],
+      "walkthrough": "The interface defines the contract visible to the caller.\nAn interface does not automatically select an implementation or perform dependency injection."
+    }
+  ]
+}

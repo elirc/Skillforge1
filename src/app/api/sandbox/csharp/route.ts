@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { DotnetUnavailableError, runCsharp } from "@/lib/sandbox/dotnet-host";
 import { sandboxRequestSchema } from "@/lib/sandbox/shared";
+import { isLocalRequest } from "@/lib/local-request";
 
 /**
  * Grades a C# submission.
@@ -19,23 +20,6 @@ export const dynamic = "force-dynamic";
 const MAX_BODY_BYTES = 256 * 1024;
 const MAX_CODE_LENGTH = 50_000;
 const MAX_TESTS = 50;
-
-/** Only same-machine callers. Defeats a drive-by POST and DNS rebinding. */
-function isLocalRequest(request: Request): boolean {
-  const host = request.headers.get("host") ?? "";
-  const hostname = host.replace(/:\d+$/, "").replace(/^\[|\]$/g, "");
-  if (!["localhost", "127.0.0.1", "::1"].includes(hostname)) return false;
-
-  const origin = request.headers.get("origin");
-  if (!origin) return true;
-
-  try {
-    const originHost = new URL(origin).hostname.replace(/^\[|\]$/g, "");
-    return ["localhost", "127.0.0.1", "::1"].includes(originHost);
-  } catch {
-    return false;
-  }
-}
 
 export async function POST(request: Request) {
   if (!isLocalRequest(request)) {

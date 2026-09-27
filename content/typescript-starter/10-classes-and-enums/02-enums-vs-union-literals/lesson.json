@@ -1,0 +1,145 @@
+{
+  "title": "Enums vs Union Literal Types",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "TypeScript has two ways to describe a fixed set of named values. An enum is a TypeScript-only construct that also produces a JavaScript object at runtime. A union of string literals is pure type information, erased at compile time, and the values are plain strings."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "// 1. enum: a type AND a runtime object\nenum Status {\n  Pending = \"pending\",\n  Paid = \"paid\",\n  Shipped = \"shipped\",\n}\nfunction label(s: Status) { return s.toUpperCase(); }\nlabel(Status.Paid);   // OK\nlabel(\"paid\");        // error: \"paid\" is not assignable to Status\n\n// 2. union of literals: type only\ntype OrderStatus = \"pending\" | \"paid\" | \"shipped\";\nfunction label2(s: OrderStatus) { return s.toUpperCase(); }\nlabel2(\"paid\");       // OK, and autocomplete still lists the options"
+    },
+    {
+      "type": "prose",
+      "body": "Numeric enums have extra surprises. Members without initializers are numbered from 0, and the compiler generates a reverse mapping, so Object.keys on a numeric enum returns both names and numbers. Numeric enums have also historically accepted arbitrary numbers where the enum type was expected."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "enum Direction { Up, Down }        // Up = 0, Down = 1\nDirection[0];                      // \"Up\" -- reverse mapping\nObject.keys(Direction);            // [\"0\", \"1\", \"Up\", \"Down\"]"
+    },
+    {
+      "type": "prose",
+      "body": "When you also need the values at runtime (to validate input, render a dropdown, or loop), define them once as an as const array or object and derive the union type from it. You get one source of truth, no special emit, and an easy type guard."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "const ORDER_STATUSES = [\"pending\", \"paid\", \"shipped\", \"cancelled\"] as const;\ntype OrderStatus = (typeof ORDER_STATUSES)[number];\n\nfunction isOrderStatus(value: string): value is OrderStatus {\n  return (ORDER_STATUSES as readonly string[]).includes(value);\n}\n\n// A transition table keyed by the union: the compiler checks every key.\nconst NEXT: Record<OrderStatus, Partial<Record<\"pay\" | \"ship\" | \"cancel\", OrderStatus>>> = {\n  pending: { pay: \"paid\", cancel: \"cancelled\" },\n  paid: { ship: \"shipped\", cancel: \"cancelled\" },\n  shipped: {},\n  cancelled: {},\n};"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Many teams default to literal unions plus as const. Newer TypeScript options such as erasableSyntaxOnly and Node's built-in type stripping reject enums outright, because enums are not just erasable type annotations: they generate code."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "const enum is inlined at compile time and needs whole-program information, so it does not work under isolatedModules (which most bundlers and this project use)."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which of these produces a JavaScript object at runtime?",
+      "payload": {
+        "choices": [
+          "enum Status { Paid = \"paid\" }",
+          "type Status = \"paid\" | \"shipped\"",
+          "interface Status { paid: string }",
+          "declare const status: \"paid\""
+        ],
+        "answer": "enum Status { Paid = \"paid\" }",
+        "explanation": "Enums emit code. Type aliases, interfaces, and declare statements are erased."
+      },
+      "conceptTags": [
+        "enums",
+        "unions"
+      ],
+      "id": "sf_bc6480ab48c34a23a0049f9a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "For enum Direction { Up, Down }, what is Direction[1]?",
+      "payload": {
+        "choices": [
+          "1",
+          "undefined",
+          "\"Up\"",
+          "\"Down\""
+        ],
+        "answer": "\"Down\"",
+        "explanation": "Numeric enums get a reverse mapping from value back to name."
+      },
+      "conceptTags": [
+        "enums"
+      ],
+      "id": "sf_4e5d59afbfa2e185b29ce76b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "With the string enum Status from the lesson, does label(\"paid\") compile?",
+      "payload": {
+        "choices": [
+          "yes, the values match",
+          "yes, but only with strict off",
+          "no, a string literal is not assignable to the enum type",
+          "only if Status is a const enum"
+        ],
+        "answer": "no, a string literal is not assignable to the enum type",
+        "explanation": "String enums are nominal: only Status.Paid is accepted, even though its value is \"paid\"."
+      },
+      "conceptTags": [
+        "enums"
+      ],
+      "id": "sf_4480476da62b20a1cf6eaf84"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is (typeof ORDER_STATUSES)[number] for the as const array in the lesson?",
+      "payload": {
+        "choices": [
+          "\"pending\" | \"paid\" | \"shipped\" | \"cancelled\"",
+          "string",
+          "string[]",
+          "number"
+        ],
+        "answer": "\"pending\" | \"paid\" | \"shipped\" | \"cancelled\"",
+        "explanation": "as const keeps the literal types, and indexing with number unions the elements."
+      },
+      "conceptTags": [
+        "unions",
+        "as-const"
+      ],
+      "id": "sf_09236a8459db8d1359469456"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Freeze the literals.",
+      "payload": {
+        "text": "const SIZES = [\"s\", \"m\", \"l\"] ____; keeps each element's literal type so you can derive a union from it.",
+        "blanks": [
+          "as const"
+        ]
+      },
+      "conceptTags": [
+        "as-const",
+        "unions"
+      ],
+      "id": "sf_c012965d90ebb337f1876c3d"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Drive an order through a transition table keyed by a literal union, rejecting unknown events and illegal transitions.",
+      "exercise": "apply-order-events",
+      "conceptTags": [
+        "unions",
+        "as-const",
+        "type-guards"
+      ],
+      "id": "sf_b3648c036267a8608c3cb2cb"
+    }
+  ],
+  "id": "sf_39f10a3f3eccc3c22d03e0f5"
+}

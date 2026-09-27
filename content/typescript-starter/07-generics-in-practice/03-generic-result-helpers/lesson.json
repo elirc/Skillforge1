@@ -1,0 +1,94 @@
+{
+  "title": "Generic Result Helpers",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A Result<T, E> type makes success and failure part of a function's signature instead of hiding failure in a thrown exception. Written generically, one small set of helpers works for every Result in the app: parsing, saving, validating."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };\n\nconst ok = <T>(value: T): Result<T, never> => ({ ok: true, value });\nconst err = <E>(error: E): Result<never, E> => ({ ok: false, error });\n\nfunction mapResult<T, U, E>(result: Result<T, E>, fn: (value: T) => U): Result<U, E> {\n  return result.ok ? ok(fn(result.value)) : result;\n}\n\nconst parsed: Result<number, string> = Number.isNaN(n) ? err(\"not a number\") : ok(n);\nconst doubled = mapResult(parsed, (value) => value * 2); // Result<number, string>"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Notice that mapResult can return the failed result unchanged: a { ok: false; error: E } is a valid Result<U, E> for any U, because it carries no value. The discriminant check result.ok is what makes that safe."
+    },
+    {
+      "type": "prose",
+      "body": "Two ways to combine many results come up constantly. Fail fast stops at the first error, which suits a pipeline where later steps depend on earlier ones. Collect all gathers every error, which suits forms and batch imports, where the user wants to fix everything in one go."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why is Result<never, E> assignable to Result<number, E>?",
+      "payload": {
+        "choices": [
+          "never is the same as any",
+          "Results ignore their type parameters",
+          "It is not assignable; it needs a cast",
+          "never is assignable to every type, so the ok branch fits any T"
+        ],
+        "answer": "never is assignable to every type, so the ok branch fits any T",
+        "explanation": "never is the bottom type. A value of type never can be used where any other type is expected, which is what makes err() usable everywhere."
+      },
+      "conceptTags": [
+        "typescript",
+        "generics",
+        "never"
+      ],
+      "id": "sf_0e69b554b86b1b2e16e6cba6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A signup form validates five fields. Which combining strategy gives the best user experience?",
+      "payload": {
+        "choices": [
+          "Collect all errors and show them together",
+          "Stop at the first error",
+          "Ignore errors and submit",
+          "Throw an exception from the first validator"
+        ],
+        "answer": "Collect all errors and show them together",
+        "explanation": "Fail fast suits dependent steps; independent field checks should all run so the user can fix everything at once."
+      },
+      "conceptTags": [
+        "typescript",
+        "result",
+        "validation"
+      ],
+      "id": "sf_206f20e1f4f69a819f2596e4"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the helper.",
+      "payload": {
+        "text": "A helper that transforms the value inside a successful Result and passes failures through unchanged is usually called ____Result.",
+        "blanks": [
+          "map"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "result",
+        "generics"
+      ],
+      "id": "sf_95395f26934fea30759c9027"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Combine a list of Result<T, E> values: all ok returns { ok: true, value: T[] }, otherwise { ok: false, errors: E[] } with every error in order.",
+      "exercise": "collect-results",
+      "conceptTags": [
+        "typescript",
+        "generics",
+        "result",
+        "discriminated-unions"
+      ],
+      "id": "sf_6b1ed8f109215375b18f4f13"
+    }
+  ],
+  "id": "sf_52cc75fba9ae5f8d998003db"
+}

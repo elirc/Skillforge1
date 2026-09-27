@@ -1,0 +1,14 @@
+{
+  "slug": "effective-permissions",
+  "title": "Resolve Effective Permissions",
+  "prompt": "An admin panel uses role-based access control. Each role is `{ name, inherits, allow, deny }`; a user holds some role names, and also gets every role those roles inherit, transitively (inheritance may contain cycles, and unknown role names are ignored). A pattern matches a permission when it is equal to it, when it is `*`, or when it ends in `:*` and the permission starts with everything before the `*` (so `orders:*` matches `orders:read` but not `orders`). A permission is granted when some reachable role's `allow` matches it and no reachable role's `deny` matches it; deny always wins. Return one boolean per permission in `checks`.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["authorization", "graphs", "sets", "security"],
+  "order": 50024,
+  "exercise": "effective-permissions",
+  "explanation": {
+    "beginner": "First find every role the user really has. Start a to-do list with the user's roles and a 'seen' set. Take a role off the list; if you have seen it or it does not exist, skip it; otherwise mark it seen and add the roles it inherits to the list. The seen set is what stops a loop like A inherits B, B inherits A from running forever. Then gather all allow patterns and all deny patterns from the seen roles. For each check, it is allowed if any allow pattern matches and no deny pattern matches. Write a small `matches(pattern, permission)` helper for the wildcard rule.",
+    "junior": "Role expansion is a graph traversal (BFS/DFS with a visited set), O(R + E) over roles and inheritance edges, and should be computed once per user, not once per check. Deny-overrides is the safe combining rule used by AWS IAM and most RBAC systems: an explicit deny anywhere beats any allow, so you can grant broadly and carve out exceptions. The wildcard check must include the colon (`permission.startsWith('orders:')`), otherwise `orders:*` would also match `ordersArchive:read`, a real privilege-escalation bug. Treat unknown roles as granting nothing (fail closed). Each check is O(P) over collected patterns; for many checks, precompute exact-match sets and a list of prefix patterns. In ASP.NET Core this logic usually lives in an `IAuthorizationHandler` behind a policy."
+  }
+}

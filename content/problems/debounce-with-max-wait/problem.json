@@ -1,0 +1,14 @@
+{
+  "slug": "debounce-with-max-wait",
+  "title": "Simulate a Debounce With maxWait",
+  "prompt": "A search box debounces keystrokes before calling the API. Simulate it without real timers. `events` is a list of `{ t, value }` sorted by time in milliseconds. The debounced call fires with the latest value once `wait` ms pass with no new event. If `maxWait` is not `null`, a burst also fires once `maxWait` ms have passed since the first event of the burst, even if events keep arriving. So a pending burst fires at `min(lastEvent + wait, firstEvent + maxWait)`. A timer that expires at the same millisecond as a new event fires before that event is handled, and the event then starts a new burst. Return the list of calls as `{ t, value }` in time order.",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": ["timers", "simulation", "debounce", "event-loop"],
+  "order": 50007,
+  "exercise": "debounce-with-max-wait",
+  "explanation": {
+    "beginner": "You do not need real timers: the only moments anything can happen are the event times, so walk through the events in order. Keep one 'pending burst' with three facts: the latest value, the time of its first event, and the time of its most recent event. From those you can always compute when it would fire: the smaller of 'last + wait' and 'first + maxWait'. When the next event arrives, first ask: has the pending burst's fire time already been reached (fire time <= this event's time)? If so, record a call at the fire time with the pending value and clear the burst. Then add the event: either update the pending burst or start a new one. After the loop, any burst still pending fires at its computed time.",
+    "junior": "This is discrete-event simulation: rather than ticking a clock, jump between the instants where state can change. The whole function is O(n). The subtle parts are the boundary rules. Using `>=` means a timer due at exactly t fires before the event at t, which matches how a browser runs an expired `setTimeout` callback before a later input handler. `maxWait` must be measured from the first event of the current burst, and it resets after each fire; forgetting to reset it makes every later event fire immediately. The fired value is the latest value, not the first. Treat `maxWait === null` as 'no cap' rather than 0, which would fire on every event. The same model is how you would unit-test a real debounce with fake timers: assert which calls happened at which virtual times."
+  }
+}

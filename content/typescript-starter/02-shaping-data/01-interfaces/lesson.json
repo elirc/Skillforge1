@@ -9,6 +9,11 @@
       "type": "code-example",
       "language": "typescript",
       "code": "interface Learner {\n  name: string;\n  streak: number;\n}\n\nfunction summary(learner: Learner): string {\n  return `${learner.name}: ${learner.streak}`;\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "An interface is erased when TypeScript compiles to JavaScript. It costs nothing at runtime; it only exists so the compiler (and your editor) can check shapes."
     }
   ],
   "knowledgeItems": [
@@ -16,20 +21,62 @@
       "type": "MCQ",
       "prompt": "What does an interface describe?",
       "payload": {
-        "choices": ["the shape of an object: its keys and value types", "the color of the UI", "a database connection", "a loop counter"],
+        "choices": [
+          "the color of the UI",
+          "a database connection",
+          "the shape of an object: its keys and value types",
+          "a loop counter"
+        ],
         "answer": "the shape of an object: its keys and value types",
         "explanation": "Interfaces define the expected properties and their types."
       },
-      "conceptTags": ["types", "interfaces"]
+      "conceptTags": [
+        "types",
+        "interfaces"
+      ],
+      "id": "sf_b6ff160a33bc56a9a4e8b842"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the annotation.",
       "payload": {
         "text": "In an interface, a property that holds text is annotated as name: ____.",
-        "blanks": ["string"]
+        "blanks": [
+          "string"
+        ]
       },
-      "conceptTags": ["types", "interfaces"]
+      "conceptTags": [
+        "types",
+        "interfaces"
+      ],
+      "id": "sf_b08fa919e11d6bb11d854b06"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the idea.",
+      "payload": {
+        "text": "Interfaces are removed during compilation, so they have no cost at ____.",
+        "blanks": [
+          "runtime"
+        ]
+      },
+      "conceptTags": [
+        "types",
+        "interfaces"
+      ],
+      "id": "sf_babb0ee9371f26b38ea9ebfd"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Build a leaderboard: sort learners by XP (ties by name) and return LeaderRow objects { rank, name, xp }.",
+      "exercise": "leaderboard",
+      "conceptTags": [
+        "types",
+        "interfaces",
+        "sorting"
+      ],
+      "id": "sf_7e4c69ff0ee6b8818c5b1c12"
     }
-  ]
+  ],
+  "id": "sf_55176fb720dd1a43f62932e6"
 }

@@ -14,6 +14,15 @@
       "type": "callout",
       "tone": "warning",
       "body": "Sending an email inside the transaction is usually the wrong move. Persist the intent, then let a worker deliver and retry it."
+    },
+    {
+      "type": "prose",
+      "body": "The outbox moves the reliability problem, it does not remove it. The business rows and the outbox row commit in one transaction, so the intent is never lost. A relay then publishes each outbox row and marks it processed, and those are two steps. If the relay crashes between them, the row is still unprocessed after the restart and gets published again. That makes delivery at-least-once, which is why consumers must be idempotent: record handled message ids (an inbox table) and skip duplicates."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Relay: publish, then mark. A crash in between means a redelivery.\nforeach (var message in await db.Outbox.Where(m => m.ProcessedAt == null).OrderBy(m => m.Sequence).Take(50).ToListAsync(ct))\n{\n    await bus.PublishAsync(message.Type, message.Payload, messageId: message.Id, ct);\n    message.ProcessedAt = clock.GetUtcNow();\n    await db.SaveChangesAsync(ct);\n}\n\n// Consumer: dedupe by message id inside the same transaction as the work.\nif (await db.Inbox.AnyAsync(x => x.MessageId == messageId, ct)) return;\ndb.Inbox.Add(new InboxEntry(messageId));\nawait HandleAsync(message, ct);\nawait db.SaveChangesAsync(ct);"
     }
   ],
   "knowledgeItems": [
@@ -22,39 +31,103 @@
       "prompt": "What problem does the outbox pattern solve?",
       "payload": {
         "choices": [
-          "It reliably records an external side-effect request alongside database state",
           "It makes CSS load faster",
           "It removes the need for validation",
-          "It prevents all exceptions"
+          "It prevents all exceptions",
+          "It reliably records an external side-effect request alongside database state"
         ],
         "answer": "It reliably records an external side-effect request alongside database state",
         "explanation": "The outbox pattern helps bridge database commits and external delivery systems without losing intent."
       },
-      "conceptTags": ["system-design", "outbox", "reliability"]
+      "conceptTags": [
+        "system-design",
+        "outbox",
+        "reliability"
+      ],
+      "id": "sf_b4107d9ba4e42cd6577422ee"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the reliability sentence.",
       "payload": {
         "text": "An idempotency key lets a retried operation avoid creating ____ side effects.",
-        "blanks": ["duplicate"]
+        "blanks": [
+          "duplicate"
+        ]
       },
-      "conceptTags": ["system-design", "idempotency"]
+      "conceptTags": [
+        "system-design",
+        "idempotency"
+      ],
+      "id": "sf_a6f3c5719a3b8219d7128faa"
     },
     {
       "type": "MCQ",
       "prompt": "Why should email delivery usually happen outside the database transaction?",
       "payload": {
         "choices": [
-          "External delivery can fail or hang independently of the database commit",
           "Transactions cannot write rows",
           "Email providers require EF Core",
+          "External delivery can fail or hang independently of the database commit",
           "It makes authorization unnecessary"
         ],
         "answer": "External delivery can fail or hang independently of the database commit",
         "explanation": "Persist the intent to send, commit the database transaction, then let a retryable worker perform delivery."
       },
-      "conceptTags": ["system-design", "transactions", "email"]
+      "conceptTags": [
+        "system-design",
+        "transactions",
+        "email"
+      ],
+      "id": "sf_771407e74fda81f21a17e29a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "The outbox relay crashes after publishing a message but before marking its row processed. What happens after it restarts?",
+      "payload": {
+        "choices": [
+          "The message is lost because the broker rolled it back",
+          "The database transaction that created the row is rolled back",
+          "The message is published again, so consumers must deduplicate it",
+          "The relay skips it because the broker remembers it"
+        ],
+        "answer": "The message is published again, so consumers must deduplicate it",
+        "explanation": "The row is still unprocessed, so the relay publishes it again. The outbox guarantees at-least-once delivery, not exactly-once."
+      },
+      "conceptTags": [
+        "system-design",
+        "outbox",
+        "idempotency"
+      ],
+      "id": "sf_4827da00fa3a2565244614b9"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the delivery guarantee.",
+      "payload": {
+        "text": "An outbox relay provides at-____-once delivery, so every consumer must be idempotent.",
+        "blanks": [
+          "least"
+        ]
+      },
+      "conceptTags": [
+        "system-design",
+        "outbox",
+        "reliability"
+      ],
+      "id": "sf_884e376e475f08c10f1926cd"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Simulate an outbox relay that crashes between publishing and marking a row, then restarts, and show what an idempotent consumer handles.",
+      "exercise": "outbox-relay",
+      "conceptTags": [
+        "system-design",
+        "outbox",
+        "idempotency"
+      ],
+      "id": "sf_e8e10ae13d19ed11b24d89b8"
     }
-  ]
+  ],
+  "id": "sf_9054d574718c814e6d1629cd"
 }

@@ -11,7 +11,7 @@
   "order": 31001,
   "exercise": "react-medium-profile-reducer",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Profile Reducer, read the story as a simple input-to-output rule: A React profile reducer supports increment, decrement, and reset actions. Write the reducer that returns the next numeric state. Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react and reducers. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: profileReducer(2, {\"type\":\"increment\"}) produces 3. Choose the targeted field or record, create its new state, and preserve unaffected values from the previous state.\n\nCompare “decrements”: input [2,{\"type\":\"decrement\"}] produces 1. Explain which rule causes the difference before writing code.",
+    "junior": "Choose the targeted field or record, create its new state, and preserve unaffected values from the previous state.\n\nTempting mistake: Mutating the previous state can corrupt undo and comparisons. Copying only the outer collection still shares nested objects.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “decrements”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

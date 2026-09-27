@@ -4,6 +4,24 @@
     {
       "type": "prose",
       "body": "Parameters are local names for inputs passed into a function. Choose parameter names that describe what the function needs."
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Parameters are local names matched to arguments by position. This call binds name to Pens and count to 3. A second call gets its own bindings, so no global variable is needed."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function label(name, count) {\n  return name + ': ' + count;\n}\nlabel('Pens', 3); // 'Pens: 3'"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Swapping arguments changes their meaning even when JavaScript allows both values."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Predict label(3, 'Pens'). How could an object argument make this contract clearer?\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -12,15 +30,32 @@
       "prompt": "Complete the sentence.",
       "payload": {
         "text": "Function ____ are local names for incoming values.",
-        "blanks": ["parameters"]
+        "blanks": [
+          "parameters"
+        ]
       },
-      "conceptTags": ["functions", "parameters"]
+      "conceptTags": [
+        "functions",
+        "parameters"
+      ],
+      "id": "sf_247b4e0c55166052766595f3"
     },
     {
       "type": "CODE",
       "prompt": "Return a friendly label like 'Lesson: Variables'.",
       "exercise": "lesson-label",
-      "conceptTags": ["functions", "strings"]
+      "conceptTags": [
+        "functions",
+        "strings"
+      ],
+      "id": "sf_f9d4678afd5546867aeb4d42",
+      "hints": [
+        "Swapping arguments changes their meaning even when JavaScript allows both values.",
+        "Parameters are local names matched to arguments by position. This call binds name to Pens and count to 3. A second call gets its own bindings, so no global variable is needed."
+      ],
+      "walkthrough": "Parameters are local names matched to arguments by position. This call binds name to Pens and count to 3. A second call gets its own bindings, so no global variable is needed."
     }
-  ]
+  ],
+  "id": "sf_a2d5b09a0c69bce566b6b97d",
+  "estimatedMinutes": 12
 }

@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const counts = new Map();\nfor (const status of statuses) {\n  counts.set(status, (counts.get(status) ?? 0) + 1);\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** A missing key starts at zero. Each occurrence reads the old count, increments it, and writes the new count. Map distinguishes a missing key from a stored value through has."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const counts = new Map();\nfor (const word of ['red', 'blue', 'red']) {\n  counts.set(word, (counts.get(word) ?? 0) + 1);\n}\n// red -> 2, blue -> 1"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "The number of keys measures distinct words, not the total number of occurrences."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Predict counts.size and the sum of all counts. Explain the difference.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -17,15 +35,33 @@
       "prompt": "Complete the Map counting pattern.",
       "payload": {
         "text": "Use counts.____(key) to read the previous value and counts.set(key, next) to store the update.",
-        "blanks": ["get"]
+        "blanks": [
+          "get"
+        ]
       },
-      "conceptTags": ["maps", "counting"]
+      "conceptTags": [
+        "maps",
+        "counting"
+      ],
+      "id": "sf_bb3a14ae5f9f1880b801f99d"
     },
     {
       "type": "CODE",
       "prompt": "Return a plain object that counts how often each status appears.",
       "exercise": "count-statuses",
-      "conceptTags": ["maps", "objects", "counting"]
+      "conceptTags": [
+        "maps",
+        "objects",
+        "counting"
+      ],
+      "id": "sf_d6f71bbe9c3998d51b7b9561",
+      "hints": [
+        "The number of keys measures distinct words, not the total number of occurrences.",
+        "A missing key starts at zero. Each occurrence reads the old count, increments it, and writes the new count. Map distinguishes a missing key from a stored value through has."
+      ],
+      "walkthrough": "A missing key starts at zero. Each occurrence reads the old count, increments it, and writes the new count. Map distinguishes a missing key from a stored value through has."
     }
-  ]
+  ],
+  "id": "sf_a5e8a7ce302fe4e48d46bd02",
+  "estimatedMinutes": 12
 }

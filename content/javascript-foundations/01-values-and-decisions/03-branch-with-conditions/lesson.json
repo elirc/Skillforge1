@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "if (streak > 0) {\n  message = \"Keep going\";\n} else {\n  message = \"Start today\";\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** The condition answers one yes/no question. At exactly 50 the comparison is true, so return exits immediately. At 49 the condition is false and execution reaches the second return."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function shipping(total) {\n  if (total >= 50) return 0;\n  return 6;\n}\nshipping(50); // 0"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Using > instead of >= excludes the boundary. Test below, at, and above a threshold."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Write the expected results for 49, 50, and 51 before changing the threshold.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -17,15 +35,30 @@
       "prompt": "Fill in the missing keyword.",
       "payload": {
         "text": "An ____ statement lets JavaScript choose a path based on a condition.",
-        "blanks": ["if"]
+        "blanks": [
+          "if"
+        ]
       },
-      "conceptTags": ["control-flow"]
+      "conceptTags": [
+        "control-flow"
+      ],
+      "id": "sf_8b4392777f38dadc3b0e0354"
     },
     {
       "type": "CODE",
       "prompt": "Return 'pro' for pro users and 'core' for everyone else.",
       "exercise": "plan-label",
-      "conceptTags": ["control-flow"]
+      "conceptTags": [
+        "control-flow"
+      ],
+      "id": "sf_ac7b2f870e68171a71b91c17",
+      "hints": [
+        "Using > instead of >= excludes the boundary. Test below, at, and above a threshold.",
+        "The condition answers one yes/no question. At exactly 50 the comparison is true, so return exits immediately. At 49 the condition is false and execution reaches the second return."
+      ],
+      "walkthrough": "The condition answers one yes/no question. At exactly 50 the comparison is true, so return exits immediately. At 49 the condition is false and execution reaches the second return."
     }
-  ]
+  ],
+  "id": "sf_0415a1bb5fd40c86246f4813",
+  "estimatedMinutes": 12
 }

@@ -1,0 +1,90 @@
+{
+  "title": "Memoize Expensive Calls",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A higher-order function takes a function as input or returns one. memoize(fn) does both: it returns a wrapper that remembers the result for each input it has seen. The cache lives in the closure, so it persists between calls but stays hidden from everyone else."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "function memoize(fn) {\n  const cache = new Map();\n  return (n) => {\n    if (cache.has(n)) return cache.get(n);\n    const result = fn(n);\n    cache.set(n, result);\n    return result;\n  };\n}\n\nconst slowSquare = (n) => { /* imagine heavy work */ return n * n; };\nconst fastSquare = memoize(slowSquare);\nfastSquare(9); // computes\nfastSquare(9); // served from the cache"
+    },
+    {
+      "type": "prose",
+      "body": "Memoizing is only safe for pure functions: the same input must always give the same output and cause no side effects. Memoizing a function that reads the clock or a database would return stale answers."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Use cache.has(n) rather than `if (cache.get(n))`. A cached result of 0, \"\" or false is falsy and would be recomputed every time."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why must the cache be created inside memoize but outside the returned function?",
+      "payload": {
+        "choices": [
+          "so it is created once per memoized function and survives between calls",
+          "so it is recreated on every call",
+          "because Map cannot be used inside arrow functions",
+          "so it becomes a global variable"
+        ],
+        "answer": "so it is created once per memoized function and survives between calls",
+        "explanation": "If the Map were created inside the returned function, each call would start with an empty cache and nothing would ever be reused."
+      },
+      "conceptTags": [
+        "closures",
+        "memoization"
+      ],
+      "id": "sf_f395557a5cf442b8c877dc8d"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which function is safe to memoize?",
+      "payload": {
+        "choices": [
+          "() => Date.now()",
+          "(id) => fetchUserFromDb(id)",
+          "() => Math.random()",
+          "(n) => n * n"
+        ],
+        "answer": "(n) => n * n",
+        "explanation": "Only a pure function always returns the same result for the same input. The others depend on time, randomness or external data."
+      },
+      "conceptTags": [
+        "memoization",
+        "pure-functions"
+      ],
+      "id": "sf_200ee57d680bb87c3ee6c3e1"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the rule.",
+      "payload": {
+        "text": "Only ____ functions are safe to memoize, because their output depends only on their input.",
+        "blanks": [
+          "pure"
+        ]
+      },
+      "conceptTags": [
+        "memoization",
+        "pure-functions"
+      ],
+      "id": "sf_4416143963d74086e4df8f74"
+    },
+    {
+      "type": "CODE",
+      "prompt": "memoize currently returns fn unchanged. Make it cache results by input so slowSquare runs once per distinct number, and return { results, calls }.",
+      "exercise": "memo-stats",
+      "conceptTags": [
+        "closures",
+        "memoization",
+        "higher-order-functions"
+      ],
+      "id": "sf_7299c5dc6e1568ca64b6342f"
+    }
+  ],
+  "id": "sf_001ab4e27c4504452ec9ebb3"
+}

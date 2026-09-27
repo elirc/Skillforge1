@@ -1,0 +1,102 @@
+{
+  "title": "Safe and Idempotent Methods",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "HTTP methods carry promises that clients, proxies, and browsers rely on. A **safe** method (GET, HEAD, OPTIONS) asks for no change on the server, so crawlers and prefetchers may call it freely. An **idempotent** method has the same effect whether it is sent once or ten times: every safe method, plus PUT (replace with this state) and DELETE (make it gone)."
+    },
+    {
+      "type": "prose",
+      "body": "POST (create, or run an action) and PATCH (apply a change) are neither. That matters on flaky networks: when a request times out, the client cannot tell whether the server did the work. Retrying a PUT is harmless; retrying a POST may charge a card twice."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "POST /payments HTTP/1.1\nIdempotency-Key: 5d3c1e9a-7b0f-4c55-9d1e-0b8a6f2c4e11\nContent-Type: application/json\n\n{\"orderId\":1001,\"amount\":4999}"
+    },
+    {
+      "type": "prose",
+      "body": "The fix is an **Idempotency-Key**: the client generates a unique key per logical operation and resends the same key on retries. The server stores the key with the first response and replays that response for any repeat, instead of doing the work again."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var key = request.Headers[\"Idempotency-Key\"].ToString();\nvar previous = await db.IdempotencyRecords.FindAsync(key);\nif (previous is not null)\n    return Results.Json(previous.Body, statusCode: previous.Status); // replay, do not charge again\n\nvar payment = await payments.ChargeAsync(dto);\ndb.IdempotencyRecords.Add(new(key, 201, payment));\nawait db.SaveChangesAsync();\nreturn Results.Created($\"/payments/{payment.Id}\", payment);"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Never change data in a GET handler (for example `GET /users/5/delete`). Link prefetchers, browser extensions, and search crawlers will happily call it."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which method is idempotent but NOT safe?",
+      "payload": {
+        "choices": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH"
+        ],
+        "answer": "PUT",
+        "explanation": "PUT changes state (not safe) but sending the same PUT twice leaves the same state (idempotent). GET is both; POST and PATCH are neither."
+      },
+      "conceptTags": [
+        "http",
+        "methods",
+        "idempotency"
+      ],
+      "id": "sf_873651faed2bce171018e655"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A client's POST /orders times out. What makes an automatic retry safe?",
+      "payload": {
+        "choices": [
+          "Switching the retry to GET",
+          "Waiting exactly 30 seconds",
+          "Resending with the same Idempotency-Key so the server can replay the first result",
+          "Adding Cache-Control: no-cache"
+        ],
+        "answer": "Resending with the same Idempotency-Key so the server can replay the first result",
+        "explanation": "The server may already have created the order. A stable key lets it detect the repeat and return the original response instead of creating a duplicate."
+      },
+      "conceptTags": [
+        "http",
+        "idempotency",
+        "retries"
+      ],
+      "id": "sf_212e3b8fa0f80011b57ba602"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the definition.",
+      "payload": {
+        "text": "A method is ____ when sending it twice has the same effect on the server as sending it once.",
+        "blanks": [
+          "idempotent"
+        ]
+      },
+      "conceptTags": [
+        "http",
+        "idempotency"
+      ],
+      "id": "sf_6f7ede2441c7c933c77a4241"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Classify a request as safe and/or idempotent and decide whether a client may retry it automatically (POST/PATCH only with a non-empty Idempotency-Key).",
+      "exercise": "retry-policy",
+      "conceptTags": [
+        "http",
+        "methods",
+        "idempotency",
+        "retries"
+      ],
+      "id": "sf_f6d1e6b2ccdf31e05a51f47e"
+    }
+  ],
+  "id": "sf_5de9c4b68c8a13f8970be644"
+}

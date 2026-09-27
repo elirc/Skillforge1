@@ -1,0 +1,14 @@
+{
+  "slug": "csharp-hard-inventory-allocation",
+  "title": "Allocate Orders Across Warehouses",
+  "prompt": "A fulfilment service reserves stock for incoming orders. Given `orders` (each `Order(Id, Priority, Lines)` with `OrderLine(Sku, Quantity)`), `stock` rows `StockLevel(Warehouse, Sku, Quantity)` (the same warehouse and SKU may appear on several rows; add them up), and `warehousePreference` (nearest first), process orders by highest `Priority` first, then by `Id` (ordinal). An order is all-or-nothing: if total remaining stock across all warehouses cannot cover every SKU it needs (adding up lines that repeat a SKU), add its Id to `Backordered` and reserve nothing. Otherwise walk its lines in order and take each line's quantity from warehouses in preference order, emitting `Allocation(OrderId, Sku, Warehouse, Quantity)` for every non-zero take. Return `AllocationResult(Allocations, Backordered)`, both in processing order.",
+  "language": "csharp",
+  "difficulty": "HARD",
+  "conceptTags": ["csharp", "linq", "greedy", "inventory", "transactions"],
+  "order": 50015,
+  "exercise": "csharp-hard-inventory-allocation",
+  "explanation": {
+    "beginner": "Start by turning the stock rows into a dictionary from (warehouse, SKU) to quantity, adding up duplicate rows. Sort the orders so the most important come first. For each order, first CHECK, then ALLOCATE. The check adds up how many of each SKU the order needs and compares it with the total left across all warehouses; if any SKU is short, the order is backordered and you must not touch the stock. Only when the check passes do you go line by line, taking as much as you can from the nearest warehouse, then the next, until the line is filled, subtracting from the dictionary as you go and recording each take.",
+    "junior": "The check-then-apply split is how you keep an operation atomic without a transaction rollback: validating fully before mutating means a failed order never leaves partial reservations behind (in a database you would do both inside one transaction with row locks). Aggregate demand per SKU with `GroupBy(l => l.Sku)` before checking, otherwise an order with two lines of the same SKU can pass a per-line check and then oversell. A tuple key `(string Warehouse, string Sku)` gives value equality for free. `OrderByDescending(o => o.Priority).ThenBy(o => o.Id, StringComparer.Ordinal)` makes the processing deterministic; a stable, explicit comparer matters because culture-sensitive string ordering varies across machines. Complexity is O(orders * lines * warehouses). The greedy nearest-first split is not globally optimal for shipping cost, but it is the common, explainable policy."
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "title": "Deadlocks and Lock Ordering",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Blocking** is normal: transaction B waits because A holds a lock B needs, and B continues when A commits. A **deadlock** is a cycle: A waits for B while B waits for A, so neither can ever finish. The engine's deadlock monitor finds the cycle in its wait-for graph, picks a **victim**, and rolls it back (SQL Server error 1205, PostgreSQL `40P01`)."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Session 1                                -- Session 2\nBEGIN TRAN;                                 BEGIN TRAN;\nUPDATE accounts SET balance -= 10           UPDATE accounts SET balance -= 5\n  WHERE id = 1;  -- locks row 1               WHERE id = 2;  -- locks row 2\nUPDATE accounts SET balance += 10           UPDATE accounts SET balance += 5\n  WHERE id = 2;  -- waits for session 2       WHERE id = 1;  -- waits for session 1: DEADLOCK"
+    },
+    {
+      "type": "prose",
+      "body": "The classic cure is **consistent lock ordering**: every code path takes locks in the same global order, so a cycle cannot form. For transfers, always touch the lower account id first, whatever the direction of the money. Other tools:\n- keep transactions short, with no user or network waits inside them\n- make sure UPDATE/DELETE predicates use an index, so they lock a few rows instead of scanning (and locking) many\n- consider row-versioning isolation (READ COMMITTED SNAPSHOT) so readers stop blocking writers"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- Same transfer, deadlock-free: lock both rows in id order first\nBEGIN TRAN;\nSELECT id FROM accounts WITH (UPDLOCK, ROWLOCK)\nWHERE id IN (@a, @b) ORDER BY id;           -- PostgreSQL: ... ORDER BY id FOR UPDATE\nUPDATE accounts SET balance -= @amt WHERE id = @from;\nUPDATE accounts SET balance += @amt WHERE id = @to;\nCOMMIT;"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "You cannot eliminate every deadlock in a busy system. Treat the deadlock error as **retryable**: roll back, wait a few milliseconds with jitter, and rerun the whole transaction (EF Core's execution strategies can do this)."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "SQL Server records deadlock graphs in the built-in `system_health` Extended Events session. Read it to see exactly which statements and resources formed the cycle."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Transaction B has waited 3 seconds for a row that A holds; A is still running. Is this a deadlock?",
+      "payload": {
+        "choices": [
+          "Yes, any wait over 1 second is a deadlock",
+          "Yes, because B cannot proceed",
+          "Only if both use SERIALIZABLE",
+          "No, it is blocking; B continues when A commits or rolls back"
+        ],
+        "answer": "No, it is blocking; B continues when A commits or rolls back",
+        "explanation": "A deadlock needs a cycle of waits. A one-way wait resolves by itself when the holder finishes."
+      },
+      "conceptTags": [
+        "sql",
+        "deadlocks",
+        "blocking"
+      ],
+      "id": "sf_0b23c2ad643f5fc944fd7363"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Two code paths transfer money between accounts 1 and 2 in opposite directions. What prevents them deadlocking each other?",
+      "payload": {
+        "choices": [
+          "Both lock the lower account id first, whatever the transfer direction",
+          "Use READ UNCOMMITTED",
+          "Add an index on balance",
+          "Run each UPDATE in its own transaction"
+        ],
+        "answer": "Both lock the lower account id first, whatever the transfer direction",
+        "explanation": "With a single global lock order, one transaction always waits for the other at the first lock, so no cycle can form. Splitting the UPDATEs into separate transactions breaks atomicity."
+      },
+      "conceptTags": [
+        "sql",
+        "deadlocks",
+        "lock-ordering"
+      ],
+      "id": "sf_fa7c5035ae01c003c6ff324c"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the sentence.",
+      "payload": {
+        "text": "When the engine detects a deadlock it rolls back one transaction, called the deadlock ____.",
+        "blanks": [
+          "victim"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "deadlocks"
+      ],
+      "id": "sf_6eca18b5497550ccc025deb6"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model the deadlock monitor. `held` says which transaction holds each resource; `waiting` lists what each transaction is waiting for (at most one each). Draw an edge from a waiting tx to the holder of its resource (ignore free resources and a tx waiting on itself). Return the names of every transaction that is on a cycle, sorted. Transactions merely blocked behind a cycle are not included.",
+      "exercise": "find-deadlock",
+      "conceptTags": [
+        "sql",
+        "deadlocks",
+        "graphs"
+      ],
+      "id": "sf_28802c0329c888745d1fc4ac"
+    }
+  ],
+  "id": "sf_93d5912e0f40bcbc1a9e1544"
+}

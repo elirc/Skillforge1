@@ -12,7 +12,7 @@
   "order": 20,
   "exercise": "max-profit",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Best Stock Profit, read the story as a simple input-to-output rule: A stock practice app receives one price per day. Write a function that returns the maximum profit from buying once and selling later. Return 0 when no profitable trade exists. Work through one small example by hand, then write the steps in JavaScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure JavaScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is arrays, greedy and tracking-minimum. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: maxProfit([7,1,5,3,6,4]) produces 5. Track the cheapest earlier buying price and the best profit so far. A candidate sale must use an earlier buy, then update the running minimum.\n\nCompare “returns 0 for decreasing prices”: input [[9,7,4,1]] produces 0. Explain which rule causes the difference before writing code.",
+    "junior": "Track the cheapest earlier buying price and the best profit so far. A candidate sale must use an earlier buy, then update the running minimum.\n\nTempting mistake: Subtracting the global minimum from the global maximum ignores whether buying happened before selling.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated. One pass costs O(n) time and O(1) additional space.\n\nRegression check: preserve the contract illustrated by “returns 0 for decreasing prices”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

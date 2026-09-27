@@ -1,0 +1,68 @@
+{
+  "id": "sf_af3eb156dc3e9234469fd6ae",
+  "title": "Mini-project: stock adjustment plan",
+  "estimatedMinutes": 25,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A stock adjustment should either produce a valid new quantity or leave the old quantity untouched. Calculate in a wider integer type before validating so overflow cannot silently wrap. Return a typed result with the acceptance decision, resulting stock, and a machine-readable reason. This pure domain rule is the first checkpoint in Inventory Desk; concurrent persistence needs another safeguard at the database boundary."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "public sealed record AdjustmentResult(bool Accepted, int Stock, string Reason);\npublic static class Exercise\n{\n    public static AdjustmentResult Adjust(int stock, int delta)\n    {\n        return new AdjustmentResult(false, stock, \"out-of-range\");\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [5,3]. The required result is {\"Accepted\":true,\"Stock\":8,\"Reason\":\"ok\"}. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Apply a signed delta only if the resulting stock stays between zero and int.MaxValue; otherwise preserve the old stock."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A correct in-memory rule alone does not prevent two concurrent requests from overwriting each other."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** What extra test is needed when two requests reserve the same last unit? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the consume all case checks a different boundary.\n\n**Transfer it.** Use this result contract in the Inventory Desk atomic-update milestone."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_9e024cde1bd15b2d9a0c9fde",
+      "type": "MCQ",
+      "prompt": "Why calculate the candidate stock as long?",
+      "conceptTags": [
+        "projects",
+        "inventory",
+        "validation",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "To detect overflow before narrowing to int",
+          "To make a database transaction unnecessary",
+          "To allow negative stock"
+        ],
+        "answer": "To detect overflow before narrowing to int",
+        "explanation": "Widening protects the intermediate sum so the range check observes the true candidate value."
+      }
+    },
+    {
+      "id": "sf_925434e2fa5822aa9c8f8015",
+      "type": "CODE",
+      "prompt": "Apply a signed delta only if the resulting stock stays between zero and int.MaxValue; otherwise preserve the old stock.",
+      "conceptTags": [
+        "projects",
+        "inventory",
+        "validation",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Widening protects the intermediate sum so the range check observes the true candidate value.",
+        "A correct in-memory rule alone does not prevent two concurrent requests from overwriting each other."
+      ],
+      "walkthrough": "Widening protects the intermediate sum so the range check observes the true candidate value.\nA correct in-memory rule alone does not prevent two concurrent requests from overwriting each other."
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "title": "Nullable Reference Types in Practice",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "With `<Nullable>enable</Nullable>` (the default in new projects) `string` means \"should never be null\" and `string?` means \"may be null\". The compiler tracks null-state through your code and warns when you dereference something that might be null or assign a maybe-null value to a non-nullable one. It changes no runtime behaviour: a `string?` and a `string` are the same type at run time."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "#nullable enable\npublic sealed record Customer(string Name, string? Email, Address? Address);\n\nstatic string Contact(Customer customer)\n{\n    // Warning CS8602: Address may be null here.\n    // return customer.Address.City;\n\n    if (customer.Address is { } address)          // null check + binding\n        return address.City;\n\n    return customer.Email?.ToLowerInvariant()      // ?. short-circuits to null\n        ?? \"no contact\";                           // ?? supplies a fallback\n}"
+    },
+    {
+      "type": "prose",
+      "body": "The tools to know: `?.` and `?[]` for conditional access, `??` and `??=` for fallbacks, `is null` / `is not null` (which cannot be fooled by an overloaded `==`), `ArgumentNullException.ThrowIfNull(arg)` for guard clauses, and attributes such as `[NotNullWhen(true)]` that teach the compiler about helpers like `string.IsNullOrEmpty`. The `!` **null-forgiving operator** silences a warning without checking anything, so every `!` is a claim you must be able to defend in review."
+    },
+    {
+      "type": "prose",
+      "body": "The biggest practical trap is the **boundary**. JSON deserialization, EF Core queries over nullable columns, reflection, and older libraries can all put `null` into a property declared as `string`. Validate at the edge (model validation, `required` members, explicit checks) and then trust the annotations inside your core code."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public sealed class CreateCustomerRequest\n{\n    public required string Name { get; init; }   // must be set by the object initializer\n    public string? Email { get; init; }\n}\n\n// System.Text.Json does not enforce non-nullable annotations by default:\nvar request = JsonSerializer.Deserialize<Contact>(\"{\\\"Name\\\": null}\");\n// request.Name is null even though Name is declared as string."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Nullable reference types are compile-time only. They prevent most null bugs in code you control, but they do not stop `null` arriving from JSON, the database, or reflection. Check at the boundary."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "With nullable reference types enabled, what does the `!` in `customer.Address!.City` do at run time?",
+      "payload": {
+        "choices": [
+          "Throws ArgumentNullException if Address is null",
+          "Nothing; it only suppresses the compiler warning",
+          "Returns null instead of throwing",
+          "Converts Address to a non-nullable type"
+        ],
+        "answer": "Nothing; it only suppresses the compiler warning",
+        "explanation": "The null-forgiving operator is purely a compile-time assertion. If Address is null you still get a NullReferenceException."
+      },
+      "conceptTags": [
+        "nullable-reference-types",
+        "csharp"
+      ],
+      "id": "sf_6a2d7d7e00ecf4d120cdcd92"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "An API model declares `public string Name { get; set; }` and a client posts `{\"Name\": null}`. What is Name after default System.Text.Json deserialization?",
+      "payload": {
+        "choices": [
+          "an empty string",
+          "a JsonException is thrown",
+          "the literal string \"null\"",
+          "null"
+        ],
+        "answer": "null",
+        "explanation": "Nullable annotations are not enforced at run time by default, so null flows in. Use validation, `required`, or checks at the boundary."
+      },
+      "conceptTags": [
+        "nullable-reference-types",
+        "validation",
+        "csharp"
+      ],
+      "id": "sf_89b5ede7c7f25d4b7ff88e47"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the fallback.",
+      "payload": {
+        "text": "`var email = customer.Email ____ \"none\";` uses the null-coalescing operator to supply a default.",
+        "blanks": [
+          "??"
+        ]
+      },
+      "conceptTags": [
+        "nullable-reference-types",
+        "csharp"
+      ],
+      "id": "sf_88d26bbfdedffb902083be35"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Build display labels from contacts with optional email, phone and address, using null-safe operators and defending against nulls from JSON.",
+      "exercise": "contact-labels",
+      "conceptTags": [
+        "nullable-reference-types",
+        "csharp",
+        "validation"
+      ],
+      "id": "sf_4d5539d43677ebcaa7a2e95e"
+    }
+  ],
+  "id": "sf_d5a9072333c0c293cbe9f6b8"
+}

@@ -1,0 +1,90 @@
+{
+  "title": "Constrain Generics with extends",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A bare type parameter T could be anything, so inside the function you cannot read any property from it. A constraint, written T extends { id: string }, says T can be any type that has at least an id string. You gain access to item.id, and callers still get their full, specific type back instead of a trimmed-down one."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function byId<T extends { id: string }>(items: T[]): Record<string, T> {\n  const map: Record<string, T> = {};\n  for (const item of items) map[item.id] = item;\n  return map;\n}\n\ntype Todo = { id: string; title: string; done: boolean };\nconst todos: Todo[] = [{ id: \"t1\", title: \"Ship\", done: false }];\nconst lookup = byId(todos);      // Record<string, Todo>\nlookup.t1.done;                  // still typed as boolean\n// byId([{ name: \"no id\" }]);    // error: id is missing"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Compare with the non-generic version function byId(items: { id: string }[]). It accepts the same inputs, but the result only knows about id, so lookup.t1.done would be a compile error. The generic keeps the caller's type flowing through."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Inside function f<T>(item: T), why is item.id a compile error?",
+      "payload": {
+        "choices": [
+          "Generics cannot have properties",
+          "T is unconstrained, so TypeScript cannot assume it has an id",
+          "id is a reserved word",
+          "item must be annotated as any first"
+        ],
+        "answer": "T is unconstrained, so TypeScript cannot assume it has an id",
+        "explanation": "Add a constraint such as T extends { id: string } to allow reading id."
+      },
+      "conceptTags": [
+        "typescript",
+        "generics",
+        "constraints"
+      ],
+      "id": "sf_65a769bd551f4c4dcd58a312"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the constraint.",
+      "payload": {
+        "text": "function latest<T ____ { updatedAt: string }>(items: T[]): T",
+        "blanks": [
+          "extends"
+        ]
+      },
+      "conceptTags": [
+        "typescript",
+        "generics",
+        "constraints"
+      ],
+      "id": "sf_e3c1b8fbc2df147f689ada66"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Given latest<T extends { updatedAt: string }>(items: T[]): T, what does latest(todos) return when todos is Todo[]?",
+      "payload": {
+        "choices": [
+          "{ updatedAt: string }",
+          "unknown",
+          "T[]",
+          "Todo"
+        ],
+        "answer": "Todo",
+        "explanation": "T is inferred as Todo from the argument; the constraint only limits which types are allowed."
+      },
+      "conceptTags": [
+        "typescript",
+        "generics",
+        "inference"
+      ],
+      "id": "sf_b42c32d7c03e607ab9b119c0"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Deduplicate synced records: for each id keep the version with the latest updatedAt (first wins on ties), in first-seen order, returning the caller's full objects.",
+      "exercise": "latest-per-id",
+      "conceptTags": [
+        "typescript",
+        "generics",
+        "constraints",
+        "maps"
+      ],
+      "id": "sf_b4bfd70cfabf4ea574f759c6"
+    }
+  ],
+  "id": "sf_4b7e45fd4d533d7121628df1"
+}

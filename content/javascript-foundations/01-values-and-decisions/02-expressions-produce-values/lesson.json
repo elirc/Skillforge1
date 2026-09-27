@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const passed = score >= 80;\nconst label = `Score: ${score}`;"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** Multiplication produces 12; addition produces 14; the comparison produces the boolean true. Expressions can be nested, but naming intermediate results makes the steps easy to inspect."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const subtotal = 4 * 3;\nconst withFee = subtotal + 2;\nconsole.log(withFee > 10); // true"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "The + operator also joins strings: '4' + 3 is '43'. A number-looking string is still a string."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Replace 4 with the string '4' and compare multiplication with addition.\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,37 @@
       "type": "MCQ",
       "prompt": "What does the expression score >= 80 produce?",
       "payload": {
-        "choices": ["a boolean", "a function", "an array", "nothing"],
+        "choices": [
+          "a boolean",
+          "a function",
+          "an array",
+          "nothing"
+        ],
         "answer": "a boolean",
         "explanation": "Comparison expressions produce true or false."
       },
-      "conceptTags": ["expressions", "booleans"]
+      "conceptTags": [
+        "expressions",
+        "booleans"
+      ],
+      "id": "sf_79953aaa3e3fd3f1d49cb380"
     },
     {
       "type": "CODE",
       "prompt": "Return true when points meets or exceeds the goal.",
       "exercise": "met-goal",
-      "conceptTags": ["expressions", "booleans"]
+      "conceptTags": [
+        "expressions",
+        "booleans"
+      ],
+      "id": "sf_3413f879d0d7e79539ffccc6",
+      "hints": [
+        "The + operator also joins strings: '4' + 3 is '43'. A number-looking string is still a string.",
+        "Multiplication produces 12; addition produces 14; the comparison produces the boolean true. Expressions can be nested, but naming intermediate results makes the steps easy to inspect."
+      ],
+      "walkthrough": "Multiplication produces 12; addition produces 14; the comparison produces the boolean true. Expressions can be nested, but naming intermediate results makes the steps easy to inspect."
     }
-  ]
+  ],
+  "id": "sf_b75efe8b7840d71b280cdd43",
+  "estimatedMinutes": 12
 }

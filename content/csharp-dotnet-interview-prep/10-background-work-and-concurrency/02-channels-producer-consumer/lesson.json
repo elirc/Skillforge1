@@ -1,0 +1,100 @@
+{
+  "title": "Channels and Producer-Consumer Queues",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "`System.Threading.Channels` is the modern async producer-consumer queue: producers call `Writer.WriteAsync`, consumers `await foreach (var item in Reader.ReadAllAsync(ct))`, and nothing blocks a thread while waiting. It is the standard way to hand work from an HTTP request to a background worker in the same process."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "var channel = Channel.CreateBounded<EmailJob>(new BoundedChannelOptions(capacity: 100)\n{\n    FullMode = BoundedChannelFullMode.Wait,   // backpressure\n    SingleReader = true,\n});\n\n// Producer (e.g. an endpoint):\nawait channel.Writer.WriteAsync(new EmailJob(userId), ct);\n\n// Consumer (e.g. a BackgroundService):\nawait foreach (var job in channel.Reader.ReadAllAsync(stoppingToken))\n{\n    await SendAsync(job, stoppingToken);\n}\n\n// Shutdown: no more writes; readers drain what is left, then the loop ends.\nchannel.Writer.Complete();"
+    },
+    {
+      "type": "prose",
+      "body": "**Bounded vs unbounded** is the key design decision. An unbounded channel never makes producers wait, so if consumers fall behind, memory grows until the process dies. A bounded channel forces a choice when it is full, through `BoundedChannelFullMode`:"
+    },
+    {
+      "type": "prose",
+      "body": "- `Wait`: the writer awaits until there is space. This is **backpressure**, and the right default when every item matters.\n- `DropOldest`: evict the oldest buffered item. Good for \"latest value wins\" data such as telemetry or price ticks.\n- `DropNewest`: evict the most recently buffered item to make room.\n- `DropWrite`: discard the item being written; the buffer is unchanged."
+    },
+    {
+      "type": "prose",
+      "body": "`Writer.Complete()` marks the end. Later writes fail (`TryWrite` returns false, `WriteAsync` throws `ChannelClosedException`), but readers still receive every buffered item before `ReadAllAsync` finishes. An in-memory channel is lost if the process restarts, so work that must not be lost belongs in a durable queue or an outbox table."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Channels replace `BlockingCollection<T>` in async code. BlockingCollection blocks a thread while it waits; Channels awaits, which keeps the thread pool free for requests."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which BoundedChannelFullMode applies backpressure by making the producer wait for space?",
+      "payload": {
+        "choices": [
+          "DropOldest",
+          "DropNewest",
+          "DropWrite",
+          "Wait"
+        ],
+        "answer": "Wait",
+        "explanation": "Wait makes WriteAsync await until a consumer frees a slot, so producers slow to the consumer's pace. The Drop modes keep producers fast by discarding data."
+      },
+      "conceptTags": [
+        "channels",
+        "backpressure",
+        "concurrency"
+      ],
+      "id": "sf_ec464429a4a66dc763d20f99"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is the main risk of Channel.CreateUnbounded for a queue fed by HTTP requests?",
+      "payload": {
+        "choices": [
+          "Writes block the request thread",
+          "If consumers fall behind, the buffer grows without limit and can exhaust memory",
+          "Items are delivered out of order",
+          "Only one producer is allowed"
+        ],
+        "answer": "If consumers fall behind, the buffer grows without limit and can exhaust memory",
+        "explanation": "Nothing slows the producers down. A bounded channel makes you choose between backpressure and dropping data."
+      },
+      "conceptTags": [
+        "channels",
+        "backpressure",
+        "reliability"
+      ],
+      "id": "sf_997133054c2c99c0554e6b18"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the shutdown step.",
+      "payload": {
+        "text": "Calling `channel.Writer.____()` signals that no more items will be written, so readers can drain the buffer and finish.",
+        "blanks": [
+          "Complete"
+        ]
+      },
+      "conceptTags": [
+        "channels",
+        "concurrency"
+      ],
+      "id": "sf_2bc4b4aa50f5542b8e7b3492"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model a bounded channel step by step: Wait backpressure with blocked writers, the three drop modes, and completion.",
+      "exercise": "bounded-channel",
+      "conceptTags": [
+        "channels",
+        "backpressure",
+        "producer-consumer"
+      ],
+      "id": "sf_8228e8762c4f48fce454622f"
+    }
+  ],
+  "id": "sf_091ca54daac6ad1a98dea7d4"
+}

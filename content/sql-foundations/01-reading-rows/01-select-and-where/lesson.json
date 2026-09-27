@@ -1,0 +1,98 @@
+{
+  "title": "SELECT Picks Columns, WHERE Picks Rows",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A table is a set of rows that all share the same columns. A SELECT query does two independent jobs: the WHERE clause decides which rows survive (filtering, also called restriction), and the SELECT list decides which columns come back (projection). Keep those two ideas separate and most queries become easy to read."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- users(id, name, email, age)\nSELECT id, name          -- projection: only these columns\nFROM users               -- the source rows\nWHERE age >= 30          -- restriction: only rows where this is TRUE\n  AND email LIKE '%@example.com';"
+    },
+    {
+      "type": "prose",
+      "body": "WHERE keeps a row only when its predicate evaluates to TRUE. Combine conditions with AND, OR, and NOT, and use parentheses whenever you mix AND with OR: AND binds tighter, so `a OR b AND c` means `a OR (b AND c)`. Other everyday predicates are `BETWEEN low AND high` (inclusive on both ends), `IN (1, 2, 3)`, and `LIKE 'Ad%'` where % matches any run of characters and _ matches exactly one."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Avoid SELECT * in application code. It fetches columns you do not need, can stop an index from covering the query, and silently changes shape when someone adds a column. Name the columns you use."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Without ORDER BY, SQL makes no promise about row order. The database is free to return rows in whatever order its plan produces, and that order can change between runs."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model `SELECT id, name FROM users WHERE age >= @minAge`. Return objects with exactly the keys id and name (in that order), keeping the input order. A NULL age compares as UNKNOWN, so that row is filtered out.",
+      "exercise": "select-where",
+      "conceptTags": [
+        "sql",
+        "select",
+        "where",
+        "projection"
+      ],
+      "id": "sf_33290ab8b9289dc7dad3dd7d"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Fill in the keyword that filters rows.",
+      "payload": {
+        "text": "SELECT name FROM users ____ age > 30;",
+        "blanks": [
+          "WHERE"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "where"
+      ],
+      "id": "sf_f11287c793f8c7134fcb9416"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which rows does `WHERE status = 'active' OR role = 'admin' AND country = 'US'` return?",
+      "payload": {
+        "choices": [
+          "Only US users who are active or admins",
+          "Only active admins in the US",
+          "It is a syntax error without parentheses",
+          "Active users from anywhere, plus admins in the US"
+        ],
+        "answer": "Active users from anywhere, plus admins in the US",
+        "explanation": "AND binds tighter than OR, so the predicate is status = 'active' OR (role = 'admin' AND country = 'US'). Add parentheses to say what you mean."
+      },
+      "conceptTags": [
+        "sql",
+        "where",
+        "operator-precedence"
+      ],
+      "id": "sf_f9030dd1bb6d839754e3d1e3"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which predicate is equivalent to `price BETWEEN 10 AND 20`?",
+      "payload": {
+        "choices": [
+          "price > 10 AND price < 20",
+          "price >= 10 AND price <= 20",
+          "price >= 10 AND price < 20",
+          "price IN (10, 20)"
+        ],
+        "answer": "price >= 10 AND price <= 20",
+        "explanation": "BETWEEN is inclusive on both ends. For date-time ranges prefer a half-open range (>= start AND < next day) so you do not miss times late in the last day."
+      },
+      "conceptTags": [
+        "sql",
+        "where",
+        "between"
+      ],
+      "id": "sf_cb88f103f87f7cdd10e540f4"
+    }
+  ],
+  "id": "sf_41e9d6c873edc76b8cfbf106"
+}

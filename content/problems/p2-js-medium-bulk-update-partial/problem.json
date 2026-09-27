@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-medium-bulk-update-partial",
+  "title": "Bulk Update with Partial Failures",
+  "prompt": "A task board lets users edit many tasks at once; some edits may fail and the rest must still apply. Write `applyBulkUpdate(records, updates)`. Records are `{ id, version, status, assignee }`. Each update is `{ id, expectedVersion, changes }`, applied in order against the current state. Check in this order and record the first failure as `{ id, reason }`: unknown id -> `not found`; `version !== expectedVersion` -> `version conflict (expected E, found V)`; empty `changes` -> `no changes`; a key other than `status`/`assignee` -> `field not editable: <first such key>`; a `status` not in open/in_progress/done -> `invalid status: <value>`. If every changed value already equals the current value, the update succeeds without bumping the version and its id goes to `unchanged`. Otherwise apply the changes, increment `version`, and push the id to `updated`. Return `{ records, updated, unchanged, failed }` with records in their original order. Do not mutate the input.",
+  "language": "javascript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["crud", "optimistic-concurrency", "validation", "immutability"],
+  "order": 70006,
+  "exercise": "bulk-update-partial",
+  "explanation": {
+    "beginner": "Copy every record first (`{ ...record }`) so the caller's data is never changed, and put the copies in a Map by id for fast lookup. Then handle the updates one at a time, running the checks in the listed order and stopping at the first one that fails. The version check is 'optimistic locking': the client says 'I edited version 3'; if the task is now version 4, someone else changed it in the meantime and blindly saving would overwrite their work. When an update passes, apply it and add one to the version, so a second update in the same batch that still says 'version 3' is correctly rejected.",
+    "junior": "Returning `{ updated, unchanged, failed }` instead of throwing on the first error is the point: bulk endpoints should report per-item outcomes (HTTP 207-style) so the UI can highlight exactly which rows failed. Apply updates sequentially against the evolving state - two edits to the same id in one batch must chain versions. Detect no-ops before bumping the version; otherwise saving an unchanged form invalidates everyone else's copy and produces spurious conflicts. Use an allowlist for editable fields (mass-assignment protection) and validate values after keys. Copying with `map((r) => ({ ...r }))` is enough because records are flat. Cost is O(n + u * c)."
+  }
+}

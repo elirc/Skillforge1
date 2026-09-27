@@ -1,0 +1,101 @@
+{
+  "title": "Dicts and Sets",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A dict maps keys to values, like a JavaScript object or Map. Keys are written in quotes and accessed with brackets; there is no dot access. Reading a missing key with d[key] raises a KeyError instead of returning undefined, so use d.get(key, default) when a key may be absent. Dicts keep insertion order."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "user = {\"name\": \"Ada\", \"age\": 36}\nprint(user[\"name\"])            # Ada\nprint(user.get(\"email\", \"-\"))  # -   (no KeyError)\nuser[\"email\"] = \"ada@x.dev\"    # add or update\nprint(\"age\" in user)           # True  (checks keys)\nfor key, value in user.items():\n    print(key, value)"
+    },
+    {
+      "type": "prose",
+      "body": "A set is an unordered collection of unique values, like a JavaScript Set, but with math operators built in: | is union, & is intersection, and - is difference. Membership tests with `in` are fast on sets and dicts."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "a = {1, 2, 3}\nb = {2, 3, 4}\nprint(a & b)   # {2, 3}\nprint(a | b)   # {1, 2, 3, 4}\nprint(a - b)   # {1}\nempty = set()  # NOT {} -- that is an empty dict"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Dict keys must be hashable (immutable): strings, numbers and tuples work, lists do not. A tuple like (row, col) makes a handy key for grid coordinates."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What happens with user = {\"name\": \"Ada\"} and print(user[\"email\"])?",
+      "payload": {
+        "choices": [
+          "it prints None",
+          "it prints undefined",
+          "it prints an empty string",
+          "a KeyError is raised"
+        ],
+        "answer": "a KeyError is raised",
+        "explanation": "Bracket access requires the key to exist. user.get(\"email\") would return None instead."
+      },
+      "conceptTags": [
+        "dicts",
+        "exceptions"
+      ],
+      "id": "sf_4691a88931ccfae249470998"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is type({})?",
+      "payload": {
+        "choices": [
+          "set",
+          "list",
+          "tuple",
+          "dict"
+        ],
+        "answer": "dict",
+        "explanation": "Empty braces create an empty dict. Use set() for an empty set."
+      },
+      "conceptTags": [
+        "dicts",
+        "sets"
+      ],
+      "id": "sf_9edcb1c884d1d6b3d2c62df6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does print({1, 2, 3} & {2, 3, 4}) show?",
+      "payload": {
+        "choices": [
+          "{1, 2, 3, 4}",
+          "{2, 3}",
+          "{1, 4}",
+          "{1}"
+        ],
+        "answer": "{2, 3}",
+        "explanation": "& is set intersection: the values present in both sets."
+      },
+      "conceptTags": [
+        "sets"
+      ],
+      "id": "sf_0b6dc8a7c04d0fc098da06c6"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Read safely.",
+      "payload": {
+        "text": "counts.____(word, 0) returns 0 instead of raising when word is not a key.",
+        "blanks": [
+          "get"
+        ]
+      },
+      "conceptTags": [
+        "dicts"
+      ],
+      "id": "sf_f98f17db6e46b6ce0895588b"
+    }
+  ],
+  "id": "sf_7d52af0d786cf10e64073dba"
+}

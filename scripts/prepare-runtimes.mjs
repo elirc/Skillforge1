@@ -1,0 +1,13 @@
+import { createRequire } from "node:module";
+import { mkdir, copyFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { build } from "esbuild";
+const require = createRequire(import.meta.url);
+const sqlDirectory = dirname(require.resolve("sql.js"));
+await mkdir("public/runtimes", { recursive: true });
+for (const file of ["sql-wasm.js", "sql-wasm.wasm"]) await copyFile(join(sqlDirectory, file), join("public/runtimes", file));
+console.log("Prepared local SQLite runtime assets.");
+await build({ entryPoints: ["src/lib/sandbox/react-frame.tsx"], bundle: true, platform: "browser", format: "iife", outfile: "public/runtimes/react-frame.js", define: { "process.env.NODE_ENV": '"production"' }, minify: true });
+console.log("Prepared isolated React component runtime.");
+await import("../projects/inventory-desk/scripts/build-ui.mjs");
+await import("./package-companion.mjs");

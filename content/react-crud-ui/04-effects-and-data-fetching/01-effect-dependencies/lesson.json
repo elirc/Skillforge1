@@ -1,0 +1,99 @@
+{
+  "title": "Effects and Their Dependencies",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "`useEffect` synchronises a component with something **outside React**: a subscription, a timer, a browser API, a network connection. React runs the effect after the render is committed, and runs its cleanup before the next run and on unmount. The dependency array decides when it re-runs:\n\n- no array: after every render\n- `[]`: once after mount (and cleanup on unmount)\n- `[a, b]`: after mount, then whenever `a` or `b` differs from the previous render, compared with `Object.is`"
+    },
+    {
+      "type": "code-example",
+      "language": "tsx",
+      "code": "function ChatRoom({ roomId, serverUrl }: { roomId: string; serverUrl: string }) {\n  useEffect(() => {\n    const connection = createConnection(serverUrl, roomId);\n    connection.connect();\n    return () => connection.disconnect(); // cleanup: undo exactly what setup did\n  }, [serverUrl, roomId]); // every reactive value the effect reads\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Dependencies are compared by identity. An object or function created during render is a **new value every render**, so an effect that depends on it re-runs every time. Fix this by moving the object inside the effect, depending on its primitive fields, or memoising it with `useMemo`/`useCallback` when it genuinely has to be shared.\n\nIn development, `<StrictMode>` mounts every component, runs its effects, cleans them up, and runs them again. This is deliberate: an effect whose cleanup correctly undoes its setup behaves the same either way, and one that does not (a double subscription, a duplicated POST) shows the bug immediately. Production runs effects once per mount."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Many effects should not exist. Data derived from props or state belongs in a variable computed during render; work caused by a user action belongs in the event handler; resetting state when a prop changes is usually a `key`. Effects are for synchronising with external systems."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Do not silence the `react-hooks/exhaustive-deps` lint rule. A missing dependency means the effect keeps using a stale value; the fix is to restructure the code, not to hide the warning."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "An effect lists options in its deps, where options = { page } is created during render; how often does it run?",
+      "payload": {
+        "choices": [
+          "After every render",
+          "Only on mount",
+          "Only when page changes",
+          "Never after mount"
+        ],
+        "answer": "After every render",
+        "explanation": "A new object is created each render, so Object.is always reports a change. Depend on page instead, or move the object into the effect."
+      },
+      "conceptTags": [
+        "react",
+        "effects",
+        "dependencies"
+      ],
+      "id": "sf_8d12b495b2024fc6f2dc2132"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why does an effect run setup, cleanup, setup on mount during development?",
+      "payload": {
+        "choices": [
+          "React has a bug in development",
+          "The dependency array is wrong",
+          "Strict Mode stress-tests that cleanup undoes setup",
+          "The component rendered twice in production"
+        ],
+        "answer": "Strict Mode stress-tests that cleanup undoes setup",
+        "explanation": "Strict Mode re-runs effects once on mount in development only, exposing missing or incorrect cleanups."
+      },
+      "conceptTags": [
+        "react",
+        "effects",
+        "strict-mode"
+      ],
+      "id": "sf_e0c5d0206f39b1c9f9b4ea5a"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the dependency array so the effect runs only once after mount.",
+      "payload": {
+        "text": "useEffect(() => { track(\"page_view\"); }, ____);",
+        "blanks": [
+          "[]"
+        ]
+      },
+      "conceptTags": [
+        "react",
+        "effects",
+        "dependencies"
+      ],
+      "id": "sf_46d72511e189118dc2708156"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Given the dependency array passed on each render, log when React runs and cleans up the effect, including Strict Mode and unmount.",
+      "exercise": "effect-log",
+      "conceptTags": [
+        "react",
+        "effects",
+        "dependencies",
+        "strict-mode"
+      ],
+      "id": "sf_0d34f3edbd542c631dbeaa8b"
+    }
+  ],
+  "id": "sf_2b99e424161b9d3af71adb24"
+}

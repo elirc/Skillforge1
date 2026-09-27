@@ -15,7 +15,7 @@ export async function getProblems(filters: ProblemFilters = {}) {
   const user = await getCurrentUser();
 
   const problems = await prisma.problem.findMany({
-    where: { language: filters.language, difficulty: filters.difficulty },
+    where: { archived: false, language: filters.language, difficulty: filters.difficulty },
   });
 
   const solved = await prisma.problemSubmission.findMany({
@@ -33,6 +33,7 @@ export async function getProblems(filters: ProblemFilters = {}) {
       prompt: problem.prompt,
       explanation: problem.explanation,
       language: problem.language,
+      runtime: problem.runtime,
       difficulty: problem.difficulty as ProblemDifficulty,
       conceptTags: parseTags(problem.conceptTags),
       order: problem.order,
@@ -46,7 +47,7 @@ export async function getProblems(filters: ProblemFilters = {}) {
 }
 
 export async function getProblemBySlug(slug: string) {
-  const problem = await prisma.problem.findUnique({ where: { slug } });
+  const problem = await prisma.problem.findUnique({ where: { slug, archived: false } });
   if (!problem) return null;
   return { ...problem, conceptTags: parseTags(problem.conceptTags) };
 }

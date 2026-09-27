@@ -1,0 +1,66 @@
+{
+  "id": "sf_f43993761b513d2e6077a3a1",
+  "title": "Parsing without exceptions",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Text from a form is untrusted input. TryParse separates a successful conversion from a failed one without using exceptions for expected mistakes. Successful parsing is still only the first check: a parsed negative number violates the positive-quantity rule. Keeping parsing and domain validation visible makes error handling easier to extend."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "\npublic static class Exercise\n{\n    public static int ParseQuantity(string text)\n    {\n        return 0;\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [\"12\"]. The required result is 12. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Parse a positive integer quantity; return zero for invalid, nonpositive, or overflowing input."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "int.Parse throws for malformed user input; TryParse lets the boundary report a normal validation error."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** How would you return a useful error message instead of a zero sentinel? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the overflow case checks a different boundary.\n\n**Transfer it.** Use a structured validation result in the API companion project."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_17f85230611f26111dcfddb6",
+      "type": "MCQ",
+      "prompt": "Does successful parsing prove a quantity is valid for an order?",
+      "conceptTags": [
+        "parsing",
+        "errors",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "No, business constraints must still be checked",
+          "Yes, parsing checks the entire business rule",
+          "Only if the string has two digits"
+        ],
+        "answer": "No, business constraints must still be checked",
+        "explanation": "Parsing validates representation, while the quantity rule validates meaning."
+      }
+    },
+    {
+      "id": "sf_f5dcd6bd156dd26c33e8cf64",
+      "type": "CODE",
+      "prompt": "Parse a positive integer quantity; return zero for invalid, nonpositive, or overflowing input.",
+      "conceptTags": [
+        "parsing",
+        "errors",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Parsing validates representation, while the quantity rule validates meaning.",
+        "int.Parse throws for malformed user input; TryParse lets the boundary report a normal validation error."
+      ],
+      "walkthrough": "Parsing validates representation, while the quantity rule validates meaning.\nint.Parse throws for malformed user input; TryParse lets the boundary report a normal validation error."
+    }
+  ]
+}

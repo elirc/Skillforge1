@@ -1,0 +1,131 @@
+{
+  "title": "Testing with pytest",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "pytest is the de facto Python test runner. It discovers files named test_*.py, runs every function whose name starts with test, and uses the plain assert statement for checks. When an assert fails, pytest rewrites it to show both sides of the comparison, so you rarely need assertEqual-style helpers."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "# cart.py\ndef total(prices, discount=0):\n    if not 0 <= discount <= 1:\n        raise ValueError(\"discount must be between 0 and 1\")\n    return round(sum(prices) * (1 - discount), 2)\n\n# test_cart.py\nimport pytest\nfrom cart import total\n\ndef test_total_adds_prices():\n    assert total([1.5, 2.5]) == 4.0\n\ndef test_discount_is_applied():\n    assert total([10, 10], discount=0.25) == 15.0\n\ndef test_rejects_bad_discount():\n    with pytest.raises(ValueError, match=\"between 0 and 1\"):\n        total([10], discount=2)"
+    },
+    {
+      "type": "code-example",
+      "language": "bash",
+      "code": "$ python -m pytest -q\n...                                                    [100%]\n3 passed in 0.01s"
+    },
+    {
+      "type": "prose",
+      "body": "Parametrize runs one test body with many inputs, similar to test.each in Jest. Fixtures supply setup: a test asks for a fixture by naming it as a parameter, and pytest calls the fixture function and passes its result in. tmp_path is a built-in fixture that gives each test a fresh temporary directory."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "@pytest.mark.parametrize(\"prices, expected\", [\n    ([], 0),\n    ([1, 2, 3], 6),\n    ([0.1, 0.2], 0.3),\n])\ndef test_total_cases(prices, expected):\n    assert total(prices) == expected\n\n@pytest.fixture\ndef sample_prices():\n    return [5, 10, 20]\n\ndef test_uses_fixture(sample_prices):      # the argument name selects the fixture\n    assert total(sample_prices) == 35\n\ndef test_writes_file(tmp_path):            # built-in fixture\n    path = tmp_path / \"out.txt\"\n    path.write_text(\"hi\", encoding=\"utf-8\")\n    assert path.read_text(encoding=\"utf-8\") == \"hi\""
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Useful flags: -q for quiet output, -k name to run tests matching a name, -x to stop at the first failure, and -v to list each test."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Comparing floats with == is fragile: 0.1 + 0.2 == 0.3 is False. Use pytest.approx, as in assert 0.1 + 0.2 == pytest.approx(0.3). The total function above rounds, which is why its tests can use ==."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which function will pytest collect as a test by default?",
+      "payload": {
+        "choices": [
+          "def test_total(): in test_cart.py",
+          "def total_test(): in cart.py",
+          "def check_total(): in test_cart.py",
+          "def Test(): in cart_tests.txt"
+        ],
+        "answer": "def test_total(): in test_cart.py",
+        "explanation": "pytest looks for test_*.py (or *_test.py) files and functions whose names start with test."
+      },
+      "conceptTags": [
+        "pytest",
+        "testing"
+      ],
+      "id": "sf_7f26b0becddff3d7be971d82"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "How do you assert that total([10], discount=2) raises ValueError in pytest?",
+      "payload": {
+        "choices": [
+          "assert total([10], discount=2) == ValueError",
+          "assert raises(total, ValueError)",
+          "with pytest.raises(ValueError): total([10], discount=2)",
+          "try: total([10], discount=2) except: pass"
+        ],
+        "answer": "with pytest.raises(ValueError): total([10], discount=2)",
+        "explanation": "pytest.raises is a context manager that fails the test if the block does not raise that exception."
+      },
+      "conceptTags": [
+        "pytest",
+        "exceptions"
+      ],
+      "id": "sf_8f809ae4717f15fd36868d85"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "How does a test function receive a fixture named sample_prices?",
+      "payload": {
+        "choices": [
+          "by importing sample_prices from conftest",
+          "by declaring a parameter named sample_prices",
+          "by calling sample_prices() itself",
+          "by decorating the test with @sample_prices"
+        ],
+        "answer": "by declaring a parameter named sample_prices",
+        "explanation": "pytest matches parameter names to fixture names and injects the fixture's return value."
+      },
+      "conceptTags": [
+        "pytest",
+        "fixtures"
+      ],
+      "id": "sf_8ee0e872332297485dcbd587"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does print(0.1 + 0.2 == 0.3) show in Python?",
+      "payload": {
+        "choices": [
+          "True",
+          "an error",
+          "0.3",
+          "False"
+        ],
+        "answer": "False",
+        "explanation": "Binary floating point cannot represent these values exactly; compare with pytest.approx or round."
+      },
+      "conceptTags": [
+        "pytest",
+        "floats"
+      ],
+      "id": "sf_902a74b116cbebdb899853c6"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Run one body with many inputs.",
+      "payload": {
+        "text": "The decorator @pytest.mark.____ runs the same test function once per set of arguments.",
+        "blanks": [
+          "parametrize"
+        ]
+      },
+      "conceptTags": [
+        "pytest"
+      ],
+      "id": "sf_7e394afe49a2605f700d3aca"
+    }
+  ],
+  "id": "sf_65dc067a99f7a0eda43df87e"
+}

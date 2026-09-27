@@ -1,0 +1,102 @@
+{
+  "title": "Exceptions",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Python uses try/except where JavaScript uses try/catch, and raise where JavaScript uses throw. Exceptions have specific types, and you catch the ones you expect by name. Many operations that return undefined or NaN in JavaScript raise in Python: int(\"abc\") raises ValueError, a missing dict key raises KeyError, and an out-of-range index raises IndexError."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "def parse_age(text):\n    try:\n        age = int(text)\n    except ValueError:\n        return None\n    if age < 0:\n        raise ValueError(\"age cannot be negative\")\n    return age\n\nprint(parse_age(\"42\"))   # 42\nprint(parse_age(\"abc\"))  # None"
+    },
+    {
+      "type": "prose",
+      "body": "A try statement can also have else (runs only if no exception occurred) and finally (always runs, like JavaScript's finally). Bind the exception with `as` to inspect it. Define your own error types by subclassing Exception."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "class InsufficientFunds(Exception):\n    pass\n\ntry:\n    raise InsufficientFunds(\"balance too low\")\nexcept InsufficientFunds as error:\n    print(\"failed:\", error)     # failed: balance too low\nelse:\n    print(\"no error\")\nfinally:\n    print(\"done\")               # always printed"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A bare `except:` (or `except Exception:` around everything) hides bugs such as typos. Catch the narrowest exception type you can handle."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does int(\"3.5\") do?",
+      "payload": {
+        "choices": [
+          "returns 3",
+          "returns 3.5",
+          "returns None",
+          "raises a ValueError"
+        ],
+        "answer": "raises a ValueError",
+        "explanation": "int() only parses whole-number strings. float(\"3.5\") works, and int(3.5) truncates a float to 3."
+      },
+      "conceptTags": [
+        "exceptions",
+        "types"
+      ],
+      "id": "sf_6f58d0a436b9b68773933556"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A try block prints \"a\" and raises nothing. Its except ValueError clause prints \"b\", its else clause prints \"c\", and its finally clause prints \"d\". What is printed, in order?",
+      "payload": {
+        "choices": [
+          "a c d",
+          "a d",
+          "a b d",
+          "a b c d"
+        ],
+        "answer": "a c d",
+        "explanation": "No exception is raised, so except is skipped, else runs, and finally always runs."
+      },
+      "conceptTags": [
+        "exceptions",
+        "control-flow"
+      ],
+      "id": "sf_a705a873558c49356d599163"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which exception does [1, 2, 3][5] raise?",
+      "payload": {
+        "choices": [
+          "KeyError",
+          "ValueError",
+          "TypeError",
+          "IndexError"
+        ],
+        "answer": "IndexError",
+        "explanation": "Indexing past the end of a list raises IndexError; JavaScript would return undefined."
+      },
+      "conceptTags": [
+        "exceptions",
+        "lists"
+      ],
+      "id": "sf_75a9c72163ac4b0cba53b599"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the keyword.",
+      "payload": {
+        "text": "Python's equivalent of JavaScript's throw is ____.",
+        "blanks": [
+          "raise"
+        ]
+      },
+      "conceptTags": [
+        "exceptions"
+      ],
+      "id": "sf_8e77bd83457fe7308b5fe8df"
+    }
+  ],
+  "id": "sf_382b71ff66d1c52e45050f99"
+}

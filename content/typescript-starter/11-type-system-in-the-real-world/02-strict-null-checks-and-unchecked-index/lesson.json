@@ -1,0 +1,139 @@
+{
+  "title": "strictNullChecks and noUncheckedIndexedAccess",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "With strictNullChecks on (it is part of strict), null and undefined are separate types that are not assignable to string, number, or anything else unless the type says so. A value typed string | undefined must be narrowed before you call string methods on it. This single setting catches the most common JavaScript runtime error: Cannot read properties of undefined."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function findUser(id: string): User | undefined { /* ... */ }\n\nconst user = findUser(\"42\");\nuser.name;                    // error: 'user' is possibly 'undefined'\n\nif (user) user.name;          // narrowed by a truthiness check\nuser?.name;                   // optional chaining: string | undefined\nconst name = user?.name ?? \"guest\";   // default with nullish coalescing\nuser!.name;                   // non-null assertion: silences the check, no runtime effect"
+    },
+    {
+      "type": "prose",
+      "body": "strict does not cover one big hole: indexing. By default arr[i] on a string[] has type string and record[key] on a Record<string, number> has type number, even though both can be undefined at runtime. The noUncheckedIndexedAccess option adds | undefined to every index access, so the compiler makes you handle the missing case."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "// tsconfig: \"noUncheckedIndexedAccess\": true\nconst scores: number[] = [];\nconst first = scores[0];          // number | undefined (without the flag: number)\nfirst.toFixed(1);                 // error: 'first' is possibly 'undefined'\n\nconst prices: Record<string, number> = { pen: 2 };\nconst price = prices[\"book\"];     // number | undefined\nconst total = (price ?? 0) * 3;   // handle it explicitly\n\nfor (const s of scores) s.toFixed(1);   // for...of elements are still plain number\nconst [head, ...rest] = scores;         // head: number | undefined"
+    },
+    {
+      "type": "prose",
+      "body": "Practical habits under these flags: prefer for...of, map, and find over index loops; use arr.at(-1) and check the result; use Map.get (which already returns V | undefined) for lookups; and when you have just checked a length, pull the element into a local variable and narrow it with an if rather than sprinkling ! assertions."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "The ! operator tells the compiler to trust you and emits nothing. If you are wrong, you get the same runtime crash the check was meant to prevent. Reserve it for cases the compiler genuinely cannot see, and prefer a real check."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "?? only falls back on null or undefined, while || also falls back on 0, \"\", and false. For numbers and strings where 0 or \"\" are valid values, ?? is almost always what you want."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "With noUncheckedIndexedAccess on, what is the type of names[0] when names: string[]?",
+      "payload": {
+        "choices": [
+          "string",
+          "string[]",
+          "string | undefined",
+          "unknown"
+        ],
+        "answer": "string | undefined",
+        "explanation": "The flag adds undefined to index access results because the index might be out of range."
+      },
+      "conceptTags": [
+        "strict-null-checks",
+        "no-unchecked-indexed-access"
+      ],
+      "id": "sf_400cb29d3bd8a546669b8fa8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does const n = count ?? 10 give when count is 0?",
+      "payload": {
+        "choices": [
+          "10",
+          "undefined",
+          "0",
+          "a compile error"
+        ],
+        "answer": "0",
+        "explanation": "?? only replaces null and undefined; 0 is kept. count || 10 would give 10."
+      },
+      "conceptTags": [
+        "strict-null-checks",
+        "nullish-coalescing"
+      ],
+      "id": "sf_96127320bb4c1eb1952a47a1"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does the non-null assertion in user!.name do at runtime?",
+      "payload": {
+        "choices": [
+          "throws if user is null",
+          "returns undefined if user is null",
+          "converts null to an empty object",
+          "nothing; it only silences the compiler"
+        ],
+        "answer": "nothing; it only silences the compiler",
+        "explanation": "! is erased from the output. If user is undefined, reading .name still crashes."
+      },
+      "conceptTags": [
+        "strict-null-checks"
+      ],
+      "id": "sf_8cec3b2d00f272255dd5ada6"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Under noUncheckedIndexedAccess, what type does s have in for (const s of scores) when scores: number[]?",
+      "payload": {
+        "choices": [
+          "number",
+          "number | undefined",
+          "unknown",
+          "any"
+        ],
+        "answer": "number",
+        "explanation": "for...of only visits existing elements, so the flag does not add undefined there."
+      },
+      "conceptTags": [
+        "no-unchecked-indexed-access"
+      ],
+      "id": "sf_3e4bfb8a6d6d593559bd93cb"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the option.",
+      "payload": {
+        "text": "The tsconfig option ____ makes arr[i] and record[key] include undefined in their type.",
+        "blanks": [
+          "noUncheckedIndexedAccess"
+        ]
+      },
+      "conceptTags": [
+        "no-unchecked-indexed-access"
+      ],
+      "id": "sf_f045c3d0eba7ccf4a901463d"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Summarize score lists safely: handle missing players and empty lists instead of reading undefined elements.",
+      "exercise": "describe-scores",
+      "conceptTags": [
+        "strict-null-checks",
+        "no-unchecked-indexed-access",
+        "narrowing"
+      ],
+      "id": "sf_f932535ed91c56295a56e97e"
+    }
+  ],
+  "id": "sf_aa0e4a9d4942757485313e2a"
+}

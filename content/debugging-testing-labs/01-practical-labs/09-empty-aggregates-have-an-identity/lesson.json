@@ -1,0 +1,73 @@
+{
+  "id": "sf_02d8494de91011b39ce147ff",
+  "title": "Empty aggregates have an identity",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A reduction needs an identity value when no elements exist. For addition that identity is zero. Omitting the initial accumulator makes reduce use the first element, and an empty array then throws. A useful regression includes the empty case and a normal case so the fix is not simply returning zero for everything."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export function total(values: number[]): number { return values.reduce((sum,value)=>sum+value); }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[]]. The required result is 0. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix total and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A one-element input hides the missing-identity defect."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_e2f8249cf395810a2211783c",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "reduce",
+        "aggregation"
+      ],
+      "payload": {
+        "choices": [
+          "It fails on the original implementation and passes on the corrected contract",
+          "It only repeats a happy-path example",
+          "It accepts whatever the current implementation returns"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Provide zero as the initial accumulator."
+      }
+    },
+    {
+      "id": "sf_78d621609a66aa225a754d28",
+      "type": "CODE",
+      "prompt": "Fix total and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "reduce",
+        "aggregation"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Provide zero as the initial accumulator.",
+        "A one-element input hides the missing-identity defect."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "function total(values) { return values.reduce((sum, value) => sum + value, 0); }\n",
+        "mutants": [
+          "function total(values) { return values.reduce((sum, value) => sum + value); }\n"
+        ]
+      },
+      "walkthrough": "Provide zero as the initial accumulator.\nA one-element input hides the missing-identity defect."
+    }
+  ]
+}

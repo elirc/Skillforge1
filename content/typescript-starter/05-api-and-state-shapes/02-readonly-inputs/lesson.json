@@ -17,15 +17,47 @@
       "prompt": "Complete the readonly array type.",
       "payload": {
         "text": "Use ____<number> when a function should read scores without mutating the input list.",
-        "blanks": ["ReadonlyArray"]
+        "blanks": [
+          "ReadonlyArray"
+        ]
       },
-      "conceptTags": ["typescript", "readonly"]
+      "conceptTags": [
+        "typescript",
+        "readonly"
+      ],
+      "id": "sf_be5b18045e01a31474e293da"
     },
     {
       "type": "CODE",
       "prompt": "Return passing scores from a readonly input without changing the original array.",
       "exercise": "passing-readonly",
-      "conceptTags": ["typescript", "readonly", "arrays"]
+      "conceptTags": [
+        "typescript",
+        "readonly",
+        "arrays"
+      ],
+      "id": "sf_c62e16ba55e5e2f62988b721"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which call is a compile error on scores: ReadonlyArray<number>?",
+      "payload": {
+        "choices": [
+          "scores.filter((s) => s > 70)",
+          "scores.push(100)",
+          "scores.map((s) => s * 2)",
+          "scores.length"
+        ],
+        "answer": "scores.push(100)",
+        "explanation": "ReadonlyArray has no mutating methods such as push, pop, splice, or sort; non-mutating ones like filter and map are fine."
+      },
+      "conceptTags": [
+        "typescript",
+        "readonly",
+        "arrays"
+      ],
+      "id": "sf_7de7f94090f7baff417c0f39"
     }
-  ]
+  ],
+  "id": "sf_a03df49722a3c4dbde848669"
 }

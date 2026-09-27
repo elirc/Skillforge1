@@ -1,0 +1,102 @@
+{
+  "title": "Reading an Execution Plan and Fixing a Slow Query",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An execution plan is the tree of operators the engine chose to answer a query. Data flows from the leaves (table and index access) up to the root. Get the **actual** plan, which includes real row counts, not just the estimated one:\n- SQL Server: \"Include Actual Execution Plan\", or `SET STATISTICS IO, TIME ON`\n- PostgreSQL: `EXPLAIN (ANALYZE, BUFFERS) SELECT ...`"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "EXPLAIN (ANALYZE, BUFFERS)\nSELECT o.id, o.total\nFROM orders o\nWHERE o.customer_id = 42 AND o.status = 'paid'\nORDER BY o.created_at DESC\nLIMIT 20;\n\n-- Seq Scan on orders  (rows=20 est) (actual rows=1,204,881 loops=1)\n--   Filter: (customer_id = 42 AND status = 'paid')\n--   Rows Removed by Filter: 1,204,861"
+    },
+    {
+      "type": "prose",
+      "body": "What to look for, in order:\n- **Scans of big tables** where you expected a seek: a missing index, or a predicate the index cannot use (a function on the column, a leading wildcard, an implicit type conversion)\n- **Estimates far from actuals** (10x or more): stale statistics or parameter sniffing. The optimizer chose a plan for 20 rows and got a million\n- **Key Lookups / heap fetches** repeated thousands of times: the index finds rows but lacks columns the query needs\n- **Sorts and hash spills** to tempdb or disk"
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "-- The fix for the plan above: one composite index that matches\n-- the equality filters first, then the ORDER BY, and covers the SELECT list.\nCREATE INDEX ix_orders_customer_status_created\n  ON orders (customer_id, status, created_at DESC)\n  INCLUDE (total);                    -- SQL Server; PostgreSQL 11+ also supports INCLUDE\n\n-- Now: Index Seek, 20 rows read, no sort, no lookups."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Change one thing at a time and compare the logical reads (pages touched), not just the wall-clock time. Timing is noisy; reads are deterministic and track the work done."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`WHERE CONVERT(varchar, customer_id) = @id` or comparing an nvarchar column to a varchar parameter can turn a seek into a scan through an implicit conversion. Match the column's type in parameters (EF Core does this when the model's column types are right)."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "The plan shows an Index Seek estimated at 1 row that actually returned 80,000. What is the most likely cause?",
+      "payload": {
+        "choices": [
+          "Stale statistics or a plan cached for a different parameter value",
+          "The index is corrupt",
+          "The query has too many columns",
+          "The server is out of memory"
+        ],
+        "answer": "Stale statistics or a plan cached for a different parameter value",
+        "explanation": "Big estimate errors mean the optimizer's picture of the data is wrong. Update statistics, or look for parameter sniffing when the same plan is reused for very different values."
+      },
+      "conceptTags": [
+        "sql",
+        "execution-plans",
+        "statistics"
+      ],
+      "id": "sf_88f9101ffc19c348b81fbab4"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "An index on (customer_id) finds 5,000 rows, then a Key Lookup runs 5,000 times to fetch `total`. What is the usual fix?",
+      "payload": {
+        "choices": [
+          "Add NOLOCK to the query",
+          "Rebuild the table as a heap",
+          "Make the index covering by adding total (e.g. INCLUDE (total))",
+          "Add ORDER BY total"
+        ],
+        "answer": "Make the index covering by adding total (e.g. INCLUDE (total))",
+        "explanation": "A covering index contains every column the query reads, so no per-row trip back to the base table is needed."
+      },
+      "conceptTags": [
+        "sql",
+        "execution-plans",
+        "covering-index"
+      ],
+      "id": "sf_d003cea4e219022dc3023bcd"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the PostgreSQL command.",
+      "payload": {
+        "text": "EXPLAIN (____, BUFFERS) SELECT * FROM orders WHERE id = 1;",
+        "blanks": [
+          "ANALYZE"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "execution-plans"
+      ],
+      "id": "sf_23d2616592e312965c4873f4"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Scan an actual plan for problems. For each node, in order, push: `scan:<id>` for a 'Table Scan' or 'Clustered Index Scan' with actualRows >= 10000; `estimate:<id>` when the larger of estimatedRows/actualRows divided by the smaller (treat 0 as 1) is >= 10; `lookup:<id>` for a 'Key Lookup' with executions >= 1000.",
+      "exercise": "plan-warnings",
+      "conceptTags": [
+        "sql",
+        "execution-plans",
+        "performance"
+      ],
+      "id": "sf_57fbcde7237ebf22f9328f42"
+    }
+  ],
+  "id": "sf_acd750f0fbafebb95d2c25ac"
+}

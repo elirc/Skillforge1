@@ -6,38 +6,30 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { experienceSchema, goalSchema } from "@/lib/enums";
 import { getCurrentUser, updateProfile } from "@/server/user";
-import { awardActivity, noAwardSummary, type AwardSummary } from "@/server/gamification";
-import { gradeReviewItem, recallScoreSchema, seedLessonReviewStates } from "@/server/review";
+import type { AwardSummary } from "@/server/gamification";
+import { gradeReviewItem, recallScoreSchema } from "@/server/review";
+import { completeLessonForUser } from "@/server/completion";
+import { durationMsSchema } from "@/lib/activity-duration";
 
 function revalidateProgressSurfaces() {
   revalidatePath("/");
   revalidatePath("/tracks");
   revalidatePath("/reviews");
   revalidatePath("/profile");
+  revalidatePath("/mastery");
+  revalidatePath("/problems");
 }
 
 const completeLessonSchema = z.object({
   lessonId: z.string(),
+  assisted: z.boolean().optional(),
 });
 
 export async function completeLessonAction(input: z.infer<typeof completeLessonSchema>): Promise<AwardSummary> {
-  const { lessonId } = completeLessonSchema.parse(input);
+  const { lessonId, assisted } = completeLessonSchema.parse(input);
   const user = await getCurrentUser();
 
-  const existing = await prisma.lessonCompletion.findUnique({
-    where: { userId_lessonId: { userId: user.id, lessonId } },
-  });
-
-  await prisma.lessonCompletion.upsert({
-    where: { userId_lessonId: { userId: user.id, lessonId } },
-    update: {},
-    create: { userId: user.id, lessonId },
-  });
-  await seedLessonReviewStates(user.id, lessonId);
-
-  // Re-reading a finished lesson must not farm XP, streak or quest progress,
-  // so a repeat never enters the award pipeline at all.
-  const summary = existing ? await noAwardSummary(user.id) : await awardActivity(user.id, "lesson");
+  const { summary } = await completeLessonForUser(user.id, lessonId, { assisted });
 
   revalidateProgressSurfaces();
   return summary;
@@ -46,18 +38,32 @@ export async function completeLessonAction(input: z.infer<typeof completeLessonS
 const gradeReviewSchema = z.object({
   reviewStateId: z.string(),
   response: z.unknown(),
-  correct: z.boolean(),
+  /**
+   * Accepted for backward compatibility with older clients but never used:
+   * the server derives correctness from the stored knowledge item.
+   */
+  correct: z.boolean().optional(),
   recallScore: recallScoreSchema,
-  durationMs: z.number().int().min(0).max(600_000),
+  durationMs: durationMsSchema,
 });
 
-export async function gradeReviewAction(input: z.infer<typeof gradeReviewSchema>): Promise<AwardSummary> {
-  const parsed = gradeReviewSchema.parse(input);
+export type GradeReviewActionResult = AwardSummary & { correct: boolean; expected: string };
+
+export async function gradeReviewAction(
+  input: z.infer<typeof gradeReviewSchema>,
+): Promise<GradeReviewActionResult> {
+  const { reviewStateId, response, recallScore, durationMs } = gradeReviewSchema.parse(input);
   const user = await getCurrentUser();
-  const { summary } = await gradeReviewItem({ ...parsed, userId: user.id });
+  const { summary, correct, expected } = await gradeReviewItem({
+    userId: user.id,
+    reviewStateId,
+    response,
+    recallScore,
+    durationMs,
+  });
 
   revalidateProgressSurfaces();
-  return summary;
+  return { ...summary, correct, expected };
 }
 
 const onboardingSchema = z.object({
@@ -65,6 +71,7 @@ const onboardingSchema = z.object({
   goal: goalSchema,
   experience: experienceSchema,
   dailyXpGoal: z.number().int().min(20).max(500),
+  dailyMinutes: z.number().int().min(5).max(120).optional(),
   focusTags: z.array(z.string()).max(12).default([]),
 });
 

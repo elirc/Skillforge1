@@ -1,0 +1,23 @@
+{
+  "version": "2",
+  "prerequisites": [
+    "javascript-foundations"
+  ],
+  "slug": "debugging-testing-labs",
+  "title": "Debugging and Regression Testing",
+  "description": "Ten reproducible bugs covering boundaries, absence, sorting, mutation, async work, stale state, key collisions, dates, empty aggregates and authorization. Every fix requires learner-authored regression cases.",
+  "language": "javascript",
+  "difficulty": "INTERMEDIATE",
+  "order": 9,
+  "topicTags": [
+    "testing",
+    "debugging",
+    "regression",
+    "javascript"
+  ],
+  "outcomes": [
+    "Reproduce defects with small counterexamples",
+    "Fix behavior without losing boundary cases",
+    "Write tests that catch the original bug"
+  ]
+}

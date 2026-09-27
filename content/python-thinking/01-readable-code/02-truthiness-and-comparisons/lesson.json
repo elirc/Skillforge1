@@ -1,0 +1,107 @@
+{
+  "title": "Truthiness and Comparisons",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Python's idea of truthy and falsy is close to JavaScript's, with one big surprise: empty containers are falsy. An empty list [], empty dict {}, empty string \"\", 0, 0.0, None and False are all falsy. So `if items:` is the idiomatic way to ask 'is this list non-empty?'."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "// JavaScript\nif ([]) console.log(\"runs\");  // [] is truthy in JS"
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "# Python\nif []:\n    print(\"never runs\")      # [] is falsy in Python\n\nitems = [\"a\"]\nif items:                    # idiomatic non-empty check\n    print(len(items))        # 1"
+    },
+    {
+      "type": "prose",
+      "body": "Python has one equality operator, ==, and it compares values without type coercion: 1 == \"1\" is False, and [1, 2] == [1, 2] is True because lists compare by content. To ask whether two names refer to the very same object, use `is`; the main everyday use is `x is None`. Boolean logic uses the words and, or and not, and comparisons can be chained like math: 0 < x < 10."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "print(1 == \"1\")        # False (no coercion)\nprint([1, 2] == [1, 2]) # True  (compared by value)\nx = 5\nprint(0 < x < 10)      # True  (chained comparison)\nprint(None or \"guest\") # guest (or returns an operand, like ||)"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "There is no === in Python, and no undefined. Missing values are usually None, and you test them with `is None`, not `== None`."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does print(\"yes\" if [] else \"no\") print?",
+      "payload": {
+        "choices": [
+          "no",
+          "yes",
+          "nothing",
+          "a TypeError"
+        ],
+        "answer": "no",
+        "explanation": "Empty lists are falsy in Python (unlike JavaScript, where [] is truthy)."
+      },
+      "conceptTags": [
+        "truthiness",
+        "control-flow"
+      ],
+      "id": "sf_67a6222b8c5b7aa756ba60cc"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does print([1, 2] == [1, 2]) show?",
+      "payload": {
+        "choices": [
+          "True",
+          "False",
+          "true",
+          "an error"
+        ],
+        "answer": "True",
+        "explanation": "Python's == compares lists element by element. Booleans are spelled True and False."
+      },
+      "conceptTags": [
+        "comparisons",
+        "lists"
+      ],
+      "id": "sf_774353cac3dbe6612fe693b9"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which value is truthy in Python?",
+      "payload": {
+        "choices": [
+          "0",
+          "\"\"",
+          "None",
+          "\"0\""
+        ],
+        "answer": "\"0\"",
+        "explanation": "A non-empty string is truthy even if it contains the character 0. The number 0, the empty string and None are falsy."
+      },
+      "conceptTags": [
+        "truthiness"
+      ],
+      "id": "sf_9cc9d49a08745a22f636b560"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Use the idiomatic check.",
+      "payload": {
+        "text": "To test whether a variable holds no value, write `if result is ____:`.",
+        "blanks": [
+          "None"
+        ]
+      },
+      "conceptTags": [
+        "truthiness",
+        "comparisons"
+      ],
+      "id": "sf_a28f5a7e9a38cf74784e9ed7"
+    }
+  ],
+  "id": "sf_ef6945ad313065fd8d7f329c"
+}

@@ -1,0 +1,73 @@
+{
+  "id": "sf_0d7295a402d0e16c7bc67ca3",
+  "title": "Detect accidental input mutation",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A function can return the right sorted result while damaging its caller's input. This exercise exposes both outputs so the contract includes preservation of the original order. A regression must assert that second part, not only that the sorted array looks correct. Immutability is an observable guarantee when another part of the program holds the same reference."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export function sortSnapshot(values: number[]): { sorted: number[]; original: number[] } { const sorted=values.sort((a,b)=>a-b); return {sorted,original:values}; }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[3,1]]. The required result is {\"sorted\":[1,3],\"original\":[3,1]}. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix sortSnapshot and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "An already-sorted fixture cannot reveal this mutation bug."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_4a949c51ae6657ab35dc6510",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "immutability",
+        "references"
+      ],
+      "payload": {
+        "choices": [
+          "It fails on the original implementation and passes on the corrected contract",
+          "It only repeats a happy-path example",
+          "It accepts whatever the current implementation returns"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Sort a copy and preserve the caller's original array."
+      }
+    },
+    {
+      "id": "sf_22030a5347e8ab3e452f2c9c",
+      "type": "CODE",
+      "prompt": "Fix sortSnapshot and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "immutability",
+        "references"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Sort a copy and preserve the caller's original array.",
+        "An already-sorted fixture cannot reveal this mutation bug."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "function sortSnapshot(values) { const sorted = [...values].sort((a, b) => a - b); return { sorted, original: values }; }\n",
+        "mutants": [
+          "function sortSnapshot(values) { const sorted = values.sort((a, b) => a - b); return { sorted, original: values }; }\n"
+        ]
+      },
+      "walkthrough": "Sort a copy and preserve the caller's original array.\nAn already-sorted fixture cannot reveal this mutation bug."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "sf_955ea3c1af124c7bc144b233",
+  "title": "Bind DTOs to domain rules",
+  "estimatedMinutes": 30,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**Objective.** Keep inventory arithmetic independent of HTTP and persistence.\n\nThis is a real project lab in projects/inventory-desk, also available from the Projects page as a source download. Work in an isolated copy of the reference project so you can compare your change with a known baseline. Read InventoryDesk.Api/Domain.cs; InventoryDesk.Tests/DeskTests.cs before editing. Trace one request from the UI or test through the boundary that owns the behavior."
+    },
+    {
+      "type": "code-example",
+      "language": "sh",
+      "code": "dotnet test InventoryDesk.Tests --filter Milestone=01"
+    },
+    {
+      "type": "prose",
+      "body": "**Acceptance criteria.** Zero stock is valid, removing more than available is rejected, and adding to int.MaxValue is rejected without integer wraparound.\n\n**Make a meaningful variation.** Add a maximum per-order reservation rule. Cover the exact maximum and one above it before changing StockRules. Write the observable expectation before editing the implementation. If the variation exposes a defect, keep the smallest failing fixture as a regression test."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Review rubric: The calculation is pure, boundaries are named in tests, and invalid actions preserve the original stock."
+    },
+    {
+      "type": "prose",
+      "body": "**Explain the boundary.** Which rules can be tested without starting an HTTP server? Describe both a successful case and a rejected or missing-data case. Compare actual output with the acceptance criteria, including status codes, persisted values, and user-visible feedback where relevant.\n\n**Evidence to keep.** Save the focused test result, a short before/after diff, and a note explaining one tradeoff. Completing the quiz records this lesson's concepts; it does not run the companion checks or certify that the project milestone is finished."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_80422894e725e0ddff090bad",
+      "type": "MCQ",
+      "prompt": "Which rules can be tested without starting an HTTP server?",
+      "conceptTags": [
+        "csharp",
+        "domain",
+        "testing"
+      ],
+      "payload": {
+        "choices": [
+          "Cookie transport behavior",
+          "A database transaction's commit behavior",
+          "Pure stock and validation rules"
+        ],
+        "answer": "Pure stock and validation rules",
+        "explanation": "The calculation is pure, boundaries are named in tests, and invalid actions preserve the original stock."
+      }
+    }
+  ]
+}

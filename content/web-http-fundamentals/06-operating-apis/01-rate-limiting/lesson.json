@@ -1,0 +1,95 @@
+{
+  "title": "Rate Limiting and 429",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Rate limiting protects an API from abuse, runaway scripts, and brute-force logins. When a client exceeds its quota, answer **429 Too Many Requests** with a `Retry-After` header (seconds to wait), so well-behaved clients back off instead of hammering you."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "HTTP/1.1 429 Too Many Requests\nRetry-After: 15\nContent-Type: application/problem+json\n\n{\"title\":\"Too many requests\",\"status\":429,\"detail\":\"Limit is 100 requests per minute.\"}"
+    },
+    {
+      "type": "prose",
+      "body": "Common algorithms:\n- **Fixed window**: count requests per client per clock minute. Simple, but allows a burst of 2x the limit across a window boundary (100 at 12:00:59, 100 more at 12:01:00).\n- **Sliding window**: weighs the previous window in, smoothing that burst.\n- **Token bucket**: tokens refill at a steady rate up to a maximum; each request spends one. Allows short bursts but caps the average.\n\nPartition by API key or user id where you can; by IP only for anonymous traffic (many users can share one IP)."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddRateLimiter(o =>\n{\n    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;\n    o.AddPolicy(\"per-user\", ctx => RateLimitPartition.GetFixedWindowLimiter(\n        ctx.User.Identity?.Name ?? ctx.Connection.RemoteIpAddress?.ToString() ?? \"anon\",\n        _ => new FixedWindowRateLimiterOptions { PermitLimit = 100, Window = TimeSpan.FromMinutes(1) }));\n});\napp.UseRateLimiter();"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Clients should honor Retry-After and add jitter (a small random delay) to their retries, so thousands of clients do not all retry at the same instant."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which status code and header tell a client it is sending too many requests and when to try again?",
+      "payload": {
+        "choices": [
+          "429 with Retry-After",
+          "503 with Location",
+          "403 with WWW-Authenticate",
+          "400 with Allow"
+        ],
+        "answer": "429 with Retry-After",
+        "explanation": "429 Too Many Requests is the dedicated status, and Retry-After says how long to wait (seconds or an HTTP date)."
+      },
+      "conceptTags": [
+        "rate-limiting",
+        "status-codes"
+      ],
+      "id": "sf_5f68861dcc19a46793d5aac5"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What is the known weakness of a fixed-window limiter of 100 per minute?",
+      "payload": {
+        "choices": [
+          "It cannot limit per user",
+          "A client can send about 200 requests in two seconds around a window boundary",
+          "It always rejects the first request",
+          "It needs a database"
+        ],
+        "answer": "A client can send about 200 requests in two seconds around a window boundary",
+        "explanation": "The counter resets at the boundary, so a full quota at the end of one window plus a full quota at the start of the next makes a double burst."
+      },
+      "conceptTags": [
+        "rate-limiting",
+        "algorithms"
+      ],
+      "id": "sf_bf5549343eb3514512598409"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the header.",
+      "payload": {
+        "text": "A 429 response should include a ____ header saying how many seconds to wait.",
+        "blanks": [
+          "Retry-After"
+        ]
+      },
+      "conceptTags": [
+        "rate-limiting",
+        "headers"
+      ],
+      "id": "sf_300812848d163cc7965ce71c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement a per-client fixed-window rate limiter that returns 200 with the remaining quota or 429 with Retry-After seconds for each call.",
+      "exercise": "rate-limit",
+      "conceptTags": [
+        "rate-limiting",
+        "http",
+        "algorithms"
+      ],
+      "id": "sf_b70a3090735aa56dcf708740"
+    }
+  ],
+  "id": "sf_1d125e63f73ba96ee95d4da5"
+}

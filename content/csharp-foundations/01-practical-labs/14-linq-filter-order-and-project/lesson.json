@@ -1,0 +1,66 @@
+{
+  "id": "sf_1f3fcadd13d5d5e6ffb16756",
+  "title": "LINQ filter, order, and project",
+  "estimatedMinutes": 12,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A LINQ pipeline can make a sequence transformation read in business order. Where decides which rows remain, OrderBy gives a deterministic presentation order, and Select changes each row into a SKU string. ToArray materializes the result. Without a terminal operation, many LINQ operations are deferred and run only when enumerated."
+    },
+    {
+      "type": "code-example",
+      "language": "cs",
+      "code": "public sealed record ProductStock(string Sku, int Stock);\npublic static class Exercise\n{\n    public static string[] AvailableSkus(ProductStock[] products)\n    {\n        return Array.Empty<string>();\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [[{\"Sku\":\"B\",\"Stock\":2},{\"Sku\":\"A\",\"Stock\":1},{\"Sku\":\"C\",\"Stock\":0}]]. The required result is [\"A\",\"B\"]. Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Return SKUs with positive stock, sorted ordinally ascending."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "A query's construction and execution can happen at different times under deferred enumeration."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why should output ordering be part of a test contract? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the negative not available case checks a different boundary.\n\n**Transfer it.** Project database entities into small DTOs before returning an inventory list."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_813e77b5bc3fcb5b37a7d549",
+      "type": "MCQ",
+      "prompt": "Which operation changes a product into its SKU?",
+      "conceptTags": [
+        "linq",
+        "projection",
+        "csharp"
+      ],
+      "payload": {
+        "choices": [
+          "Select",
+          "Where",
+          "OrderBy"
+        ],
+        "answer": "Select",
+        "explanation": "Projection changes the output shape; filtering and ordering retain the element type."
+      }
+    },
+    {
+      "id": "sf_839f6ed442ea9154708fcb57",
+      "type": "CODE",
+      "prompt": "Return SKUs with positive stock, sorted ordinally ascending.",
+      "conceptTags": [
+        "linq",
+        "projection",
+        "csharp"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Projection changes the output shape; filtering and ordering retain the element type.",
+        "A query's construction and execution can happen at different times under deferred enumeration."
+      ],
+      "walkthrough": "Projection changes the output shape; filtering and ordering retain the element type.\nA query's construction and execution can happen at different times under deferred enumeration."
+    }
+  ]
+}

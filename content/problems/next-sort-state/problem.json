@@ -12,7 +12,7 @@
   "order": 76,
   "exercise": "next-sort-state",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Next Sort State, read the story as a simple input-to-output rule: A React table header cycles through sort states when clicked. Write a helper that returns \"asc\" after \"none\", \"desc\" after \"asc\", and \"none\" after \"desc\". Work through one small example by hand, then write the steps in React using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure React function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is react, state-machines and conditionals. Pay attention to edge cases and keep the transformation predictable as the input grows."
+    "beginner": "Example: nextSortState(\"none\") produces \"asc\". State the comparison rule and tie behavior explicitly, and copy input before any in-place sort when the contract preserves it.\n\nCompare “ascending becomes descending”: input [\"asc\"] produces \"desc\". Explain which rule causes the difference before writing code.",
+    "junior": "State the comparison rule and tie behavior explicitly, and copy input before any in-place sort when the contract preserves it.\n\nTempting mistake: A boolean comparator is not a valid three-way numeric comparator. Equal keys also need a predictable tie policy.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “ascending becomes descending”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

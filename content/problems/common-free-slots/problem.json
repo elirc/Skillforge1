@@ -1,0 +1,14 @@
+{
+  "slug": "common-free-slots",
+  "title": "Find Common Free Slots",
+  "prompt": "A scheduling assistant suggests times when everyone on an invite is free. `calendars` has one list of busy intervals `[start, end]` per person, in minutes since midnight, unsorted and possibly overlapping; intervals are half-open, so `[600, 660]` leaves 660 free, and an interval with `start === end` blocks nothing. Busy time can extend outside the working day. Given the working window `[dayStart, dayEnd]` and a minimum `duration`, return every maximal window inside the working day where nobody is busy and whose length is at least `duration`, as `[start, end]` pairs sorted by start.",
+  "language": "typescript",
+  "difficulty": "HARD",
+  "conceptTags": ["intervals", "sorting", "sweep-line", "scheduling"],
+  "order": 50011,
+  "exercise": "common-free-slots",
+  "explanation": {
+    "beginner": "Whose calendar a busy block came from does not matter: if anyone is busy, the slot is gone. So pour every busy block from every person into one list, cut each block down to the working day, drop blocks that end up empty, and sort by start time. Now walk the list with a 'free from' marker that starts at the beginning of the day. For each block, if it starts after the marker, the time between the marker and the block's start is free. Then move the marker to the block's end, but only if that is later than where it already is (a short block inside a long one must not move it backwards). After the last block, the time from the marker to the end of the day is also free. Keep only gaps that are long enough.",
+    "junior": "Flatten, clip to `[dayStart, dayEnd]`, filter `start < end`, sort by start: O(n log n) for n busy blocks across all people; the sweep is O(n). The `cursor = Math.max(cursor, end)` line is the heart of it and handles overlapping, touching and nested blocks without a separate merge pass. Clipping first avoids negative gaps from blocks that start before the day. Empty intervals must be discarded, otherwise `[600, 600]` splits one free window into two. Because the sweep produces maximal gaps, you only need `end - start >= duration` as a filter; do not chop gaps into duration-sized pieces unless the UI asks for bookable slots. The same pattern powers 'find a time' features in calendar products, usually after converting everyone's timezones to UTC."
+  }
+}

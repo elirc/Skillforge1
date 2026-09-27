@@ -1,0 +1,14 @@
+{
+  "slug": "parse-nested-query-string",
+  "title": "Parse a Nested Query String",
+  "prompt": "A product listing page stores its filters in the URL, like `?filter[status][]=open&user[address][city]=Oslo`. Write `parseQuery(query)` that returns a nested object. Rules: an optional leading `?` is ignored; pairs are split on `&` and empty pieces skipped; a pair without `=` has the value `\"\"`; keys and values are decoded by turning `+` into a space and then percent-decoding (if percent-decoding fails, keep the text with `+` already replaced). A decoded key of the form `name[a][b]` nests objects, and a final `[]` appends to an array; `[]` anywhere else makes the pair invalid, so skip it. A key that is not a name followed by complete bracket groups is used as a flat key. A repeated key replaces the earlier value, and if an existing value has the wrong shape (a string where an object or array is needed, or the other way round) it is replaced too. For safety, skip any pair whose path contains `__proto__`, `constructor` or `prototype`. All values stay strings.",
+  "language": "javascript",
+  "difficulty": "HARD",
+  "conceptTags": ["parsing", "urls", "objects", "security"],
+  "order": 50012,
+  "exercise": "parse-nested-query-string",
+  "explanation": {
+    "beginner": "Handle one `key=value` pair at a time. Split on the first `=` only (values may contain `=`), decode both halves, then break the key into a path: `user[address][city]` becomes `['user', 'address', 'city']`, and `tags[]` becomes `['tags', '']` where the empty string means 'append'. Walk the path from the top of the result object: for every step except the last, make sure the next container exists and is the right kind (an array if the next step is '', otherwise a plain object), creating or replacing it if not. On the last step either push the value (for '') or set it. Check the path for `__proto__` and friends before walking, otherwise a URL can change the behaviour of every object in the app.",
+    "junior": "This mirrors what libraries such as `qs` do, and each rule protects against a real bug. Decode `+` before `decodeURIComponent`, since `%2B` must stay a literal plus; wrap the decode in try/catch because `%E0%A4%A` throws a URIError that would otherwise crash the page for a bad link. Decode the key before splitting it into segments, so encoded brackets like `a%5Bb%5D` still nest. Parse the key with an anchored regex such as `/^([^[\\]]+)((?:\\[[^[\\]]*\\])*)$/`, then pull segments out with `matchAll`. Prototype pollution is the security point: assigning `obj['__proto__']['admin'] = '1'` modifies `Object.prototype`, so reject those segments outright (or build on `Object.create(null)`). Checking container shape with `Array.isArray` and a plain-object test before descending prevents writing properties onto strings. Overall O(total length of the query)."
+  }
+}

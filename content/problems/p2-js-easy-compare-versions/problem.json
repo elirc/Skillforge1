@@ -1,0 +1,14 @@
+{
+  "slug": "p2-js-easy-compare-versions",
+  "title": "Compare App Version Strings",
+  "prompt": "The update checker must decide whether the installed app version is older than the latest release. Write `compareVersions(a, b)` returning `-1` if `a` is older, `1` if `a` is newer and `0` if they are equal. Versions are dot-separated non-negative integers, optionally prefixed with `v` (`v2.0.1`). Missing parts count as `0`, so `1.2` equals `1.2.0`. Compare numerically, part by part: `1.10.0` is newer than `1.9.3`.",
+  "language": "javascript",
+  "difficulty": "EASY",
+  "conceptTags": ["strings", "parsing", "comparison"],
+  "order": 70002,
+  "exercise": "compare-versions",
+  "explanation": {
+    "beginner": "Comparing the strings directly does not work: as text, `1.10` sorts before `1.9` because the character `1` comes before `9`. Instead remove a leading `v`, split each version on `.`, and turn every piece into a number. Then walk both lists side by side from the left, using `0` when one list is shorter. The first position where the numbers differ decides the answer; if you reach the end without a difference, the versions are equal.",
+    "junior": "Parse with `s.replace(/^v/, '').split('.').map(Number)` and loop to `Math.max(a.length, b.length)` with `?? 0` for missing parts. That handles `1.2` vs `1.2.0` and `1.01` vs `1.1` (both parse to 1). It is O(n) in the number of parts. Returning -1/0/1 makes it a valid `Array.prototype.sort` comparator. Real semver adds pre-release tags (`1.0.0-beta < 1.0.0`) and build metadata that is ignored in precedence; if you need those, use a library rather than growing this function."
+  }
+}

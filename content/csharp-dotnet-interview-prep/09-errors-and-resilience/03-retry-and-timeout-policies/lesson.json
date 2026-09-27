@@ -1,0 +1,101 @@
+{
+  "title": "Retry and Timeout Policies",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Networks fail briefly all the time, so calls to other services need a resilience policy. The core pieces, as provided by Polly and `Microsoft.Extensions.Http.Resilience`:"
+    },
+    {
+      "type": "prose",
+      "body": "- **Retry only transient failures**: timeouts, 5xx, 408, 429, and dropped connections. A 400 or a validation error will fail the same way every time.\n- **Exponential backoff with jitter**: wait 100 ms, 200 ms, 400 ms and so on, with some randomness and a cap, so a thousand clients do not retry in lockstep and flatten a recovering service.\n- **Per-attempt timeout**: one hung call must not use the whole budget.\n- **Total timeout / budget**: stop retrying when the caller's deadline would pass anyway.\n- **Circuit breaker**: after many failures, fail fast for a while instead of adding load."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "builder.Services.AddHttpClient<PaymentsClient>()\n    .AddResilienceHandler(\"payments\", pipeline =>\n    {\n        pipeline.AddTimeout(TimeSpan.FromSeconds(10));            // total\n        pipeline.AddRetry(new HttpRetryStrategyOptions\n        {\n            MaxRetryAttempts = 3,\n            BackoffType = DelayBackoffType.Exponential,\n            UseJitter = true,\n            Delay = TimeSpan.FromMilliseconds(200),\n        });\n        pipeline.AddCircuitBreaker(new HttpCircuitBreakerStrategyOptions());\n        pipeline.AddTimeout(TimeSpan.FromSeconds(2));             // per attempt\n    });"
+    },
+    {
+      "type": "prose",
+      "body": "Retries have a precondition: the operation must be **idempotent**, or be made idempotent with an idempotency key. Retrying a POST that charged a card but timed out before the response arrived charges the card twice. Also avoid retries at every layer: three layers that each retry three times turn one failure into 27 calls."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Hand-rolled equivalent, useful to explain what the library does.\nfor (var attempt = 1; ; attempt++)\n{\n    using var perAttempt = CancellationTokenSource.CreateLinkedTokenSource(ct);\n    perAttempt.CancelAfter(TimeSpan.FromSeconds(2));\n    try { return await CallAsync(perAttempt.Token); }\n    catch (Exception ex) when (IsTransient(ex) && attempt < maxAttempts)\n    {\n        var delay = TimeSpan.FromMilliseconds(Math.Min(100 * Math.Pow(2, attempt - 1), 2000));\n        await Task.Delay(delay, ct);\n    }\n}"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "Resilience logic is easy to test when time is a parameter. Model the clock (or inject `TimeProvider` in .NET 8+) instead of calling `Task.Delay` in tests; a retry suite then runs in milliseconds and gives the same result every time."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Which failure should a retry policy NOT retry?",
+      "payload": {
+        "choices": [
+          "503 Service Unavailable",
+          "400 Bad Request from validation",
+          "A request timeout",
+          "429 Too Many Requests"
+        ],
+        "answer": "400 Bad Request from validation",
+        "explanation": "A 400 is deterministic: the same request fails the same way. 503, timeouts and 429 are transient (for 429, honour Retry-After)."
+      },
+      "conceptTags": [
+        "resilience",
+        "retries",
+        "http"
+      ],
+      "id": "sf_5c9b2a2d999ef3c02bcaf6aa"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why add jitter to exponential backoff?",
+      "payload": {
+        "choices": [
+          "To make each individual retry faster",
+          "To guarantee the call eventually succeeds",
+          "Because Task.Delay is inaccurate",
+          "So many clients do not retry at the same instant and overload a recovering service"
+        ],
+        "answer": "So many clients do not retry at the same instant and overload a recovering service",
+        "explanation": "Without jitter, clients that failed together retry together in synchronized waves (a thundering herd). Randomness spreads them out."
+      },
+      "conceptTags": [
+        "resilience",
+        "retries",
+        "distributed-systems"
+      ],
+      "id": "sf_0bdc422373bc0ae4109e61c0"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the precondition.",
+      "payload": {
+        "text": "Only retry an operation that is ____, or you risk applying it twice.",
+        "blanks": [
+          "idempotent"
+        ]
+      },
+      "conceptTags": [
+        "resilience",
+        "idempotency"
+      ],
+      "id": "sf_54588fa8647e3d0663719def"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Simulate a retry policy on a virtual clock: transient vs fatal failures, per-attempt timeouts, capped exponential backoff, and a total budget.",
+      "exercise": "retry-timeline",
+      "conceptTags": [
+        "resilience",
+        "retries",
+        "timeouts"
+      ],
+      "id": "sf_e632c091126c17f2f34ee3ae"
+    }
+  ],
+  "id": "sf_01679a06e75c5826dfb58f39"
+}

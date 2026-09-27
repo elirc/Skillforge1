@@ -1,0 +1,2 @@
+export function mergeVersion(current: {version:number;name:string}, incoming: {version:number;name:string}): {version:number;name:string} { return incoming.version > current.version ? incoming : current; }
+export function regressionCases() { return [{"args":[{"version":2,"name":"new"},{"version":1,"name":"old"}],"expected":{"version":2,"name":"new"}},{"args":[{"version":2,"name":"keep"},{"version":2,"name":"same-version"}],"expected":{"version":2,"name":"keep"}},{"args":[{"version":1,"name":"old"},{"version":3,"name":"new"}],"expected":{"version":3,"name":"new"}}]; }

@@ -1,0 +1,103 @@
+{
+  "title": "ETags and Conditional Requests",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An **ETag** is a version identifier for a representation, such as a row version or a hash of the body: `ETag: \"v7\"`. It enables two things."
+    },
+    {
+      "type": "prose",
+      "body": "**Cheap revalidation.** The client sends back the tag it has in `If-None-Match`. If it still matches, the server replies **304 Not Modified** with no body, and the client reuses its cached copy. `Last-Modified` / `If-Modified-Since` is the older, date-based version (one-second precision); when both are sent, `If-None-Match` wins."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "GET /products/42 HTTP/1.1\nIf-None-Match: \"v7\"\n\nHTTP/1.1 304 Not Modified\nETag: \"v7\""
+    },
+    {
+      "type": "prose",
+      "body": "**Optimistic concurrency.** To avoid lost updates, the client sends `If-Match: \"v7\"` with its PUT or PATCH. If someone else saved first, the tag is now `\"v8\"` and the server answers **412 Precondition Failed** instead of overwriting their change. A server can insist on it by answering **428 Precondition Required** when `If-Match` is missing."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// EF Core: a rowversion column becomes the ETag and the concurrency check\nif (!Request.Headers.IfMatch.Contains($\"\\\"{Convert.ToBase64String(product.RowVersion)}\\\"\"))\n    return Results.StatusCode(StatusCodes.Status412PreconditionFailed);\n// SaveChanges also throws DbUpdateConcurrencyException if the row changed meanwhile"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "A weak ETag (`W/\"v7\"`) means \"semantically the same\", e.g. identical data with different whitespace. Weak tags are fine for If-None-Match but never satisfy If-Match, which needs a byte-for-byte (strong) match."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A client sends If-None-Match with the current ETag. What is the ideal response?",
+      "payload": {
+        "choices": [
+          "200 OK with the full body",
+          "412 Precondition Failed",
+          "204 No Content",
+          "304 Not Modified with no body"
+        ],
+        "answer": "304 Not Modified with no body",
+        "explanation": "The client's cached copy is still current, so the server confirms it without resending the body."
+      },
+      "conceptTags": [
+        "caching",
+        "etag",
+        "conditional-requests"
+      ],
+      "id": "sf_10adcdb5f7941632413f0375"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Two users edit product 42. The second PUT carries If-Match: \"v7\" but the product is now \"v8\". What should the server return?",
+      "payload": {
+        "choices": [
+          "409 Conflict with the merged result",
+          "200 OK and overwrite",
+          "304 Not Modified",
+          "412 Precondition Failed"
+        ],
+        "answer": "412 Precondition Failed",
+        "explanation": "The precondition (the version is still v7) is false, so the server refuses to overwrite the other user's change. The client should reload and retry."
+      },
+      "conceptTags": [
+        "etag",
+        "concurrency",
+        "status-codes"
+      ],
+      "id": "sf_db27cf03e254ac80239e6c9b"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the request header.",
+      "payload": {
+        "text": "For optimistic concurrency, a PUT carries the ETag it was based on in the ____ header.",
+        "blanks": [
+          "If-Match"
+        ]
+      },
+      "conceptTags": [
+        "etag",
+        "concurrency",
+        "headers"
+      ],
+      "id": "sf_c161a8254adb0c3603a56c83"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Evaluate conditional headers: If-None-Match (weak) and If-Modified-Since for GET/HEAD (200 or 304), and If-Match (strong) for writes (200, 412, or 428).",
+      "exercise": "evaluate-preconditions",
+      "conceptTags": [
+        "caching",
+        "etag",
+        "conditional-requests",
+        "concurrency"
+      ],
+      "id": "sf_a9b13fbbd9bde7ac1c8420db"
+    }
+  ],
+  "id": "sf_6c158b7619d1d0613d15b450"
+}

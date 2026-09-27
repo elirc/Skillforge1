@@ -1,0 +1,73 @@
+{
+  "id": "sf_d065dba24d0192d0ef2debeb",
+  "title": "UTC day from an offset timestamp",
+  "estimatedMinutes": 15,
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "The calendar date written in a timestamp belongs to its stated offset, not necessarily UTC. Normalize the instant before extracting the reporting day. A noon-UTC example passes either implementation; an offset near midnight exposes the date boundary. This lab accepts valid ISO timestamps and defines the report's timezone explicitly."
+    },
+    {
+      "type": "code-example",
+      "language": "ts",
+      "code": "export function utcDay(timestamp: string): string { return timestamp.slice(0,10); }"
+    },
+    {
+      "type": "prose",
+      "body": "**Trace the contract.** In the first case, the input is [\"2026-01-01T23:30:00-02:00\"]. The required result is \"2026-01-02\". Before running code, explain which input values contribute to the result and which are excluded. Then change one boundary value and predict whether the result changes.\n\n**Your task.** Fix utcDay and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Do not silently mix a user's local day with a UTC reporting day."
+    },
+    {
+      "type": "prose",
+      "body": "**Check your understanding.** Why would a test using only the normal input fail to detect this defect? Write the reason in your own words before opening the solution. Run the additional cases as well as the visible example: the contract boundary 3 case checks a different boundary.\n\n**Transfer it.** Add the regression to a project test suite before applying the fix, observe the failure, then keep it in CI."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "id": "sf_45e98fbb571988af064d4643",
+      "type": "MCQ",
+      "prompt": "What makes this a regression test for the reported defect?",
+      "conceptTags": [
+        "testing",
+        "dates",
+        "timezones"
+      ],
+      "payload": {
+        "choices": [
+          "It only repeats a happy-path example",
+          "It accepts whatever the current implementation returns",
+          "It fails on the original implementation and passes on the corrected contract"
+        ],
+        "answer": "It fails on the original implementation and passes on the corrected contract",
+        "explanation": "Normalize the instant to UTC before taking the calendar-date portion."
+      }
+    },
+    {
+      "id": "sf_71437d98509eeea2d2e9ee3f",
+      "type": "CODE",
+      "prompt": "Fix utcDay and implement regressionCases() returning [{ args, expected }]. Your cases must pass the documented contract and catch the original defect.",
+      "conceptTags": [
+        "testing",
+        "dates",
+        "timezones"
+      ],
+      "exercise": "practice",
+      "hints": [
+        "Normalize the instant to UTC before taking the calendar-date portion.",
+        "Do not silently mix a user's local day with a UTC reporting day."
+      ],
+      "regression": {
+        "factoryName": "regressionCases",
+        "referenceCode": "function utcDay(timestamp) { return new Date(timestamp).toISOString().slice(0, 10); }\n",
+        "mutants": [
+          "function utcDay(timestamp) { return timestamp.slice(0, 10); }\n"
+        ]
+      },
+      "walkthrough": "Normalize the instant to UTC before taking the calendar-date portion.\nDo not silently mix a user's local day with a UTC reporting day."
+    }
+  ]
+}

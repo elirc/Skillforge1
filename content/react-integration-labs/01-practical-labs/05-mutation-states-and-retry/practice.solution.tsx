@@ -1,0 +1,2 @@
+import { useState } from "react";
+export function App(){const [status,setStatus]=useState("Ready");const [attempt,setAttempt]=useState(0);const pending=status==="Saving";function save(){if(pending)return;setStatus("Saving");const next=attempt+1;setAttempt(next);setTimeout(()=>setStatus(next===1?"Try again":"Saved"),20);}return <div><button disabled={pending} onClick={save}>Save</button><p role="status">{status}</p></div>;}

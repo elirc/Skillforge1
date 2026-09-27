@@ -1,0 +1,88 @@
+{
+  "title": "The Iterable Protocol",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "for...of, spread ([...x]), Array.from and array destructuring all work with any iterable, not just arrays. An object is iterable if it has a [Symbol.iterator] method that returns an iterator: an object with a next() method returning { value, done }."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const countdown = {\n  [Symbol.iterator]() {\n    let n = 3;\n    return {\n      next() {\n        return n > 0 ? { value: n--, done: false } : { value: undefined, done: true };\n      },\n    };\n  },\n};\n\n[...countdown];                          // [3, 2, 1]\nfor (const n of countdown) console.log(n); // 3, 2, 1"
+    },
+    {
+      "type": "prose",
+      "body": "Strings, Maps, Sets and arrays are all built-in iterables. Plain objects are not: iterate them with Object.keys, Object.values or Object.entries instead."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`for (const x of { a: 1 })` throws TypeError: object is not iterable. Use `for (const [key, value] of Object.entries(obj))`."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "What does [...new Set([1, 2, 2, 3])] return?",
+      "payload": {
+        "choices": [
+          "[1, 2, 3]",
+          "[1, 2, 2, 3]",
+          "{1, 2, 3}",
+          "a TypeError"
+        ],
+        "answer": "[1, 2, 3]",
+        "explanation": "A Set is iterable and holds unique values, so spreading it yields each value once."
+      },
+      "conceptTags": [
+        "iterables",
+        "sets"
+      ],
+      "id": "sf_8e7bbe78d9982395774e6d31"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which one is NOT iterable with for...of?",
+      "payload": {
+        "choices": [
+          "\"abc\"",
+          "{ a: 1, b: 2 }",
+          "new Map()",
+          "[1, 2]"
+        ],
+        "answer": "{ a: 1, b: 2 }",
+        "explanation": "Plain objects have no Symbol.iterator. Use Object.entries(obj) to loop over them."
+      },
+      "conceptTags": [
+        "iterables",
+        "objects"
+      ],
+      "id": "sf_7b272b0a6a1365670160d86e"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the protocol.",
+      "payload": {
+        "text": "An iterator's next() method returns an object with a value and a ____ flag.",
+        "blanks": [
+          "done"
+        ]
+      },
+      "conceptTags": [
+        "iterables"
+      ],
+      "id": "sf_2a30667e9f3db9d71b0b98f5"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Make range(start, end, step) a real iterable by implementing its iterator's next() method.",
+      "exercise": "range-array",
+      "conceptTags": [
+        "iterables",
+        "loops"
+      ],
+      "id": "sf_435521d68564842b9d1a8df4"
+    }
+  ],
+  "id": "sf_a9d94ca53bad9a8973ca886c"
+}

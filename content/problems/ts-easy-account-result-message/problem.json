@@ -11,7 +11,7 @@
   "order": 20038,
   "exercise": "ts-easy-account-result-message",
   "explanation": {
-    "beginner": "Start by identifying what the function receives and what it must return. For Account Result Message, read the story as a simple input-to-output rule: A TypeScript action returns a small result object for accounts. Write a function that returns the message field. Work through one small example by hand, then write the steps in TypeScript using plain variables before worrying about making the code shorter.",
-    "junior": "Treat this as a small pure TypeScript function: avoid mutating inputs unless the prompt explicitly asks for it, return the requested shape exactly, and let the tests drive the edge cases. The main practice area is typescript and objects. Keep the solution direct and easy to read; the main goal is correctness and clear control flow."
+    "beginner": "Example: accountResultMessage({\"ok\":true,\"message\":\"Saved\"}) produces \"Saved\". Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nCompare “returns error messages”: input [{\"ok\":false,\"message\":\"Try again\"}] produces \"Try again\". Explain which rule causes the difference before writing code.",
+    "junior": "Map each explicitly supported state to its exact output text or value. Separate state selection from formatting.\n\nTempting mistake: Capitalization, whitespace, and boolean-versus-string output are part of the contract; truthiness alone may combine distinct states.\n\nTrace the branch conditions and any accumulator or lookup after each input. Keep the return contract separate from how it is calculated.\n\nRegression check: preserve the contract illustrated by “returns error messages”, then change one boundary in a new test. The solution below is one implementation; another is valid when it preserves the same behavior."
   }
 }

@@ -16,20 +16,66 @@
       "type": "MCQ",
       "prompt": "Which type describes an array of strings?",
       "payload": {
-        "choices": ["string[]", "[string]", "Array(string)", "strings"],
+        "choices": [
+          "[string]",
+          "Array(string)",
+          "string[]",
+          "strings"
+        ],
         "answer": "string[]",
         "explanation": "Append [] to the element type: string[] is an array of strings."
       },
-      "conceptTags": ["types", "arrays"]
+      "conceptTags": [
+        "types",
+        "arrays"
+      ],
+      "id": "sf_ff90ec5a5101fa288697647d"
     },
     {
       "type": "CLOZE",
       "prompt": "Complete the type.",
       "payload": {
         "text": "An object used as a string-keyed lookup of numbers can be typed as ____<string, number>.",
-        "blanks": ["Record"]
+        "blanks": [
+          "Record"
+        ]
       },
-      "conceptTags": ["types", "records"]
+      "conceptTags": [
+        "types",
+        "records"
+      ],
+      "id": "sf_29cff843a2afa72e1f7280dc"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which is another way to write the type string[]?",
+      "payload": {
+        "choices": [
+          "Record<string>",
+          "List<string>",
+          "string{}",
+          "Array<string>"
+        ],
+        "answer": "Array<string>",
+        "explanation": "string[] and Array<string> are the same type; the bracket form is more common."
+      },
+      "conceptTags": [
+        "types",
+        "arrays"
+      ],
+      "id": "sf_7912b429cbde5af9eff0e7da"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Count tags into a Record<string, number>: trim and lowercase each tag and skip blank ones.",
+      "exercise": "count-tags",
+      "conceptTags": [
+        "types",
+        "records",
+        "arrays"
+      ],
+      "id": "sf_8b23f742fadbea4e2d182c5b"
     }
-  ]
+  ],
+  "id": "sf_e4bc4c39e458ba747d97abac"
 }

@@ -1,0 +1,101 @@
+{
+  "title": "Exceptions vs Result Types, and Custom Exceptions",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "Exceptions are for **exceptional** conditions: a broken invariant, a bug, or an infrastructure failure the current method cannot handle. Throwing is relatively expensive, it is invisible in the method signature, and a catch far away is easy to get wrong. For **expected** outcomes, such as invalid input, \"not found\", or a business rule that says no, many teams return a **result** value instead, so the caller has to handle it."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public sealed record Result<T>(bool IsSuccess, T? Value, string? Error)\n{\n    public static Result<T> Ok(T value) => new(true, value, null);\n    public static Result<T> Fail(string error) => new(false, default, error);\n}\n\npublic Result<Order> Place(PlaceOrder cmd)\n{\n    if (cmd.Quantity <= 0) return Result<Order>.Fail(\"quantity must be positive\");\n    if (!_catalog.Exists(cmd.Sku)) return Result<Order>.Fail($\"unknown sku {cmd.Sku}\");\n    return Result<Order>.Ok(new Order(cmd.Sku, cmd.Quantity));\n}\n\n// In an endpoint: expected failures map to 400/404, not to 500.\nvar result = service.Place(cmd);\nreturn result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);"
+    },
+    {
+      "type": "prose",
+      "body": "When you do throw, make exceptions useful. A **custom exception** earns its place when callers need to catch that specific case or read data from it. Derive from `Exception` (not `ApplicationException`), end the name in `Exception`, provide the usual constructors, and expose properties instead of making callers parse the message."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public sealed class InsufficientFundsException : Exception\n{\n    public InsufficientFundsException(string accountId, decimal balance, decimal requested)\n        : base($\"Account {accountId} has {balance} but {requested} was requested.\")\n        => (AccountId, Balance, Requested) = (accountId, balance, requested);\n\n    public string AccountId { get; }\n    public decimal Balance { get; }\n    public decimal Requested { get; }\n}\n\ntry { ledger.Post(transfer); }\ncatch (InsufficientFundsException ex) when (ex.Requested < 100m)   // exception filter\n{\n    logger.LogWarning(\"Small overdraft attempt on {AccountId}\", ex.AccountId);\n}\n// No catch (Exception): an unexpected bug should reach the global handler."
+    },
+    {
+      "type": "prose",
+      "body": "Rules that come up in code review: catch the **most specific** type you can handle; rethrow with `throw;`, never `throw ex;`, which resets the stack trace; wrap with `throw new XException(\"context\", ex)` to add context and keep the original as `InnerException`; and never swallow exceptions with an empty catch."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`catch (Exception)` around business logic turns bugs such as a NullReferenceException into \"the transfer failed\" and hides them. Catch what you expect, and let the rest reach middleware that logs it and returns a 500 with ProblemDetails."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Inside a catch block, why prefer `throw;` over `throw ex;`?",
+      "payload": {
+        "choices": [
+          "throw ex; does not compile inside a catch block",
+          "throw; also logs the exception",
+          "They are identical",
+          "throw; preserves the original stack trace; throw ex; restarts it at the rethrow"
+        ],
+        "answer": "throw; preserves the original stack trace; throw ex; restarts it at the rethrow",
+        "explanation": "Rethrowing with `throw ex;` makes the exception look as if it started in the catch block, which hides where the problem really happened."
+      },
+      "conceptTags": [
+        "exceptions",
+        "csharp",
+        "debugging"
+      ],
+      "id": "sf_7a6bbcba9a31a013dda7299a"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A signup form sends an email address that is already registered. What is the better design for the service method?",
+      "payload": {
+        "choices": [
+          "Return a failed result that the endpoint maps to a 409 or 400",
+          "Throw Exception and let middleware return a 500",
+          "Return null",
+          "Log the problem and pretend the signup succeeded"
+        ],
+        "answer": "Return a failed result that the endpoint maps to a 409 or 400",
+        "explanation": "A duplicate email is an expected outcome, not a bug. A result type puts it in the signature, so the caller must handle it, and it avoids the cost and hidden control flow of exceptions."
+      },
+      "conceptTags": [
+        "exceptions",
+        "result-pattern",
+        "rest-api"
+      ],
+      "id": "sf_2d4d5e7f970056523ffdf946"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the catch clause.",
+      "payload": {
+        "text": "`catch (HttpRequestException ex) ____ (ex.StatusCode == HttpStatusCode.NotFound)` uses an exception filter.",
+        "blanks": [
+          "when"
+        ]
+      },
+      "conceptTags": [
+        "exceptions",
+        "csharp"
+      ],
+      "id": "sf_ee671b0e6d89c9537777d775"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Process a batch of transfers: validation failures as result values, domain failures as custom exceptions caught by type, and no catch-all.",
+      "exercise": "post-transfers",
+      "conceptTags": [
+        "exceptions",
+        "result-pattern",
+        "custom-exceptions"
+      ],
+      "id": "sf_e188ce37b369e85981128581"
+    }
+  ],
+  "id": "sf_9d807b873b1f4ce071ff3ac2"
+}

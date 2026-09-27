@@ -1,0 +1,173 @@
+{
+  "title": "Walkthrough: A CLI Todo App",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "This lesson puts the course together in one small program: a command-line todo list stored in a JSON file. Read it top to bottom and notice which earlier idea each part uses: a dataclass for the data, pathlib and with for the file, argparse for the command line, pure functions that are easy to test, and the __main__ guard."
+    },
+    {
+      "type": "prose",
+      "body": "Step 1, the model and storage. Keeping load and save in their own functions means the rest of the program works with plain Todo objects and never touches JSON directly."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "# todo.py\nfrom __future__ import annotations\nimport argparse\nimport json\nfrom dataclasses import dataclass, asdict\nfrom pathlib import Path\n\nDB = Path(\"todos.json\")\n\n@dataclass\nclass Todo:\n    id: int\n    title: str\n    done: bool = False\n\ndef load(path: Path = DB) -> list[Todo]:\n    if not path.exists():\n        return []\n    with open(path, encoding=\"utf-8\") as f:\n        return [Todo(**row) for row in json.load(f)]\n\ndef save(todos: list[Todo], path: Path = DB) -> None:\n    with open(path, \"w\", encoding=\"utf-8\") as f:\n        json.dump([asdict(t) for t in todos], f, indent=2)"
+    },
+    {
+      "type": "prose",
+      "body": "Step 2, the logic. These functions take a list and return a new result without printing or touching the disk. That separation is what makes them trivial to test with pytest."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "def add(todos: list[Todo], title: str) -> list[Todo]:\n    next_id = max((t.id for t in todos), default=0) + 1\n    return [*todos, Todo(next_id, title)]\n\ndef complete(todos: list[Todo], todo_id: int) -> list[Todo]:\n    if not any(t.id == todo_id for t in todos):\n        raise KeyError(f\"no todo with id {todo_id}\")\n    return [Todo(t.id, t.title, True) if t.id == todo_id else t for t in todos]\n\ndef render(todos: list[Todo]) -> str:\n    return \"\\n\".join(f\"[{'x' if t.done else ' '}] {t.id}. {t.title}\" for t in todos)"
+    },
+    {
+      "type": "prose",
+      "body": "Step 3, the command line. argparse turns sys.argv into a namespace object and generates --help output for free. Subcommands (add, done, list) are declared with add_subparsers."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "def main(argv: list[str] | None = None) -> int:\n    parser = argparse.ArgumentParser(prog=\"todo\")\n    sub = parser.add_subparsers(dest=\"command\", required=True)\n    sub.add_parser(\"list\")\n    add_cmd = sub.add_parser(\"add\")\n    add_cmd.add_argument(\"title\")\n    done_cmd = sub.add_parser(\"done\")\n    done_cmd.add_argument(\"id\", type=int)\n    args = parser.parse_args(argv)\n\n    todos = load()\n    try:\n        if args.command == \"add\":\n            todos = add(todos, args.title)\n        elif args.command == \"done\":\n            todos = complete(todos, args.id)\n    except KeyError as err:\n        print(f\"error: {err}\")\n        return 1\n    save(todos)\n    print(render(todos))\n    return 0\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())"
+    },
+    {
+      "type": "code-example",
+      "language": "bash",
+      "code": "$ python todo.py add \"write tests\"\n[ ] 1. write tests\n$ python todo.py add \"ship it\"\n[ ] 1. write tests\n[ ] 2. ship it\n$ python todo.py done 1\n[x] 1. write tests\n[ ] 2. ship it\n$ python todo.py done 9\nerror: 'no todo with id 9'"
+    },
+    {
+      "type": "prose",
+      "body": "Step 4, a test. Because add and complete are pure, the test needs no files at all. For load and save, pass pytest's tmp_path so the real todos.json is never touched."
+    },
+    {
+      "type": "code-example",
+      "language": "python",
+      "code": "# test_todo.py\nimport pytest\nfrom todo import Todo, add, complete, load, save\n\ndef test_add_assigns_next_id():\n    todos = add([Todo(1, \"a\")], \"b\")\n    assert todos[-1] == Todo(2, \"b\")\n\ndef test_complete_unknown_id_raises():\n    with pytest.raises(KeyError):\n        complete([], 5)\n\ndef test_round_trip(tmp_path):\n    path = tmp_path / \"todos.json\"\n    save([Todo(1, \"a\", True)], path)\n    assert load(path) == [Todo(1, \"a\", True)]"
+    },
+    {
+      "type": "callout",
+      "tone": "success",
+      "body": "main accepts an optional argv list, so tests can call main([\"add\", \"x\"]) directly instead of spawning a process. raise SystemExit(main()) turns its return value into the process exit code."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Ideas for extending it: a delete command, a --all flag on list, storing the file under Path.home(), or packaging it with a [project.scripts] entry in pyproject.toml so it installs as a real todo command."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "todos = [Todo(1, \"a\"), Todo(4, \"b\")]; what id does add(todos, \"c\") give the new todo?",
+      "payload": {
+        "choices": [
+          "5",
+          "3",
+          "2",
+          "1"
+        ],
+        "answer": "5",
+        "explanation": "next_id is the largest existing id plus one, so 4 + 1 = 5."
+      },
+      "conceptTags": [
+        "walkthrough",
+        "functions"
+      ],
+      "id": "sf_3d5855c671a50f3232493b50"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Using the walkthrough's add, what does add([], \"first\")[0].id equal?",
+      "payload": {
+        "choices": [
+          "0",
+          "None",
+          "it raises ValueError",
+          "1"
+        ],
+        "answer": "1",
+        "explanation": "max(..., default=0) returns 0 for an empty sequence instead of raising, so the first id is 1."
+      },
+      "conceptTags": [
+        "walkthrough",
+        "builtins"
+      ],
+      "id": "sf_712dd81178dfdf4d069394d8"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why do add and complete return a new list instead of printing or saving?",
+      "payload": {
+        "choices": [
+          "argparse requires it",
+          "dataclasses cannot be mutated",
+          "pure functions are easy to test and reuse",
+          "json.dump only accepts new lists"
+        ],
+        "answer": "pure functions are easy to test and reuse",
+        "explanation": "Separating logic from I/O lets tests call the functions directly with plain lists."
+      },
+      "conceptTags": [
+        "walkthrough",
+        "testing"
+      ],
+      "id": "sf_6ea8a8ff04aaad27dfa53c56"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What does raise SystemExit(main()) do when main() returns 1?",
+      "payload": {
+        "choices": [
+          "exits the process with status code 1",
+          "prints 1 as an error message and continues",
+          "restarts main",
+          "ignores the value and exits with 0"
+        ],
+        "answer": "exits the process with status code 1",
+        "explanation": "SystemExit's argument becomes the exit status; shells and CI treat non-zero as failure."
+      },
+      "conceptTags": [
+        "walkthrough",
+        "cli"
+      ],
+      "id": "sf_eb6629c9169938ac63d6638d"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which standard-library module does the walkthrough use to parse command-line arguments?",
+      "payload": {
+        "choices": [
+          "sys.flags",
+          "argparse",
+          "getpass",
+          "click"
+        ],
+        "answer": "argparse",
+        "explanation": "argparse ships with Python; click and typer are popular third-party alternatives."
+      },
+      "conceptTags": [
+        "walkthrough",
+        "cli"
+      ],
+      "id": "sf_ae39ebcad13cc87ad3f319e2"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Convert a dataclass for JSON.",
+      "payload": {
+        "text": "dataclasses.____(todo) turns a Todo instance into a plain dict that json.dump can write.",
+        "blanks": [
+          "asdict"
+        ]
+      },
+      "conceptTags": [
+        "walkthrough",
+        "dataclasses"
+      ],
+      "id": "sf_b4815a4ef6500e195f43d597"
+    }
+  ],
+  "id": "sf_c3f539b024003fc2a5625b40"
+}

@@ -1,0 +1,97 @@
+{
+  "title": "Paging, Filtering, and Sorting a List Endpoint",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "A list endpoint is where a CRUD API usually gets slow or leaky. Treat every query-string value as untrusted input: give `page` and `pageSize` defaults and clamp them (a client asking for 100,000 rows should get 100), trim filters and treat blanks as no filter, and build the query with `IQueryable` so filtering, sorting and paging all run in SQL rather than in memory."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "app.MapGet(\"/products\", async ([AsParameters] ListQuery q, AppDbContext db, CancellationToken ct) =>\n{\n    var page = Math.Max(1, q.Page ?? 1);\n    var pageSize = Math.Clamp(q.PageSize ?? 20, 1, 100);\n\n    IQueryable<Product> query = db.Products.AsNoTracking();\n    if (!string.IsNullOrWhiteSpace(q.Search)) query = query.Where(p => p.Name.Contains(q.Search.Trim()));\n    if (!string.IsNullOrWhiteSpace(q.Category)) query = query.Where(p => p.Category == q.Category.Trim());\n\n    query = ApplySort(query, q.Sort);                       // allowlist, ends with ThenBy(p => p.Id)\n\n    var total = await query.CountAsync(ct);\n    var items = await query.Skip((page - 1) * pageSize).Take(pageSize)\n        .Select(p => new ProductListItem(p.Id, p.Name, p.Price))\n        .ToListAsync(ct);\n\n    return Results.Ok(new PagedResult<ProductListItem>(items, page, pageSize, total));\n});"
+    },
+    {
+      "type": "prose",
+      "body": "Sort from an allowlist. Mapping `sort=price` or `sort=-created` to a known expression is safe; building an `OrderBy` from any property name the client sends lets them sort by columns they should not see, and string-built SQL is an injection risk. Always finish with a unique tie-breaker such as `Id`. Without it, rows with equal prices can come back in a different order on each request, so a row can appear on two pages or on none."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "static IQueryable<Product> ApplySort(IQueryable<Product> query, string? sort) =>\n    (sort ?? \"\").Trim().ToLowerInvariant() switch\n    {\n        \"price\"    => query.OrderBy(p => p.Price).ThenBy(p => p.Id),\n        \"-price\"   => query.OrderByDescending(p => p.Price).ThenBy(p => p.Id),\n        \"created\"  => query.OrderBy(p => p.CreatedAt).ThenBy(p => p.Id),\n        \"-created\" => query.OrderByDescending(p => p.CreatedAt).ThenBy(p => p.Id),\n        \"-name\"    => query.OrderByDescending(p => p.Name).ThenBy(p => p.Id),\n        _          => query.OrderBy(p => p.Name).ThenBy(p => p.Id),\n    };"
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Offset paging with a total count is right for admin grids where users jump to page 7. For infinite scroll or large, fast-changing tables, prefer keyset pagination from the query-performance lesson: it stays fast on deep pages and does not skip or repeat rows when data changes."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why must a sorted list endpoint end its ORDER BY with a unique column such as Id?",
+      "payload": {
+        "choices": [
+          "Without it, rows with equal sort values can change order between requests and appear on two pages or none",
+          "SQL requires every ORDER BY to include the primary key",
+          "It makes the query use less memory",
+          "It hides the Id from the client"
+        ],
+        "answer": "Without it, rows with equal sort values can change order between requests and appear on two pages or none",
+        "explanation": "The database may return ties in any order. A unique tie-breaker makes the order total, so page boundaries are stable."
+      },
+      "conceptTags": [
+        "pagination",
+        "sql",
+        "crud"
+      ],
+      "id": "sf_14b20df105f4e7087e74c841"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A client sends `?sort=PasswordHash`. What should a well-built list endpoint do?",
+      "payload": {
+        "choices": [
+          "Sort by PasswordHash, since the client asked for it",
+          "Ignore it and use the default sort, because only allowlisted fields are sortable",
+          "Build the ORDER BY clause from the string",
+          "Return 500 so the client stops trying"
+        ],
+        "answer": "Ignore it and use the default sort, because only allowlisted fields are sortable",
+        "explanation": "Sorting by arbitrary columns leaks information (sort order reveals values) and dynamic SQL invites injection. Map known names to known expressions. Returning 400 is also reasonable; sorting by it is not."
+      },
+      "conceptTags": [
+        "security",
+        "rest-api",
+        "crud"
+      ],
+      "id": "sf_290c49b52db0dacc5bb8fc54"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the paging rule.",
+      "payload": {
+        "text": "Never trust the requested page size: give it a default and ____ it to a maximum such as 100.",
+        "blanks": [
+          "clamp"
+        ]
+      },
+      "conceptTags": [
+        "pagination",
+        "validation"
+      ],
+      "id": "sf_dfee76f8b79326a796317eae"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement GET /products with search and category filters, an allowlisted sort with an Id tie-breaker, clamped paging, and totals.",
+      "exercise": "list-products",
+      "conceptTags": [
+        "crud",
+        "pagination",
+        "linq"
+      ],
+      "id": "sf_7a61b2bb71ba32d83728156e"
+    }
+  ],
+  "id": "sf_63bddb5f9a9f396eca1f7a09"
+}

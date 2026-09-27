@@ -9,6 +9,24 @@
       "type": "code-example",
       "language": "javascript",
       "code": "const total = [10, 20, 5].reduce((sum, value) => sum + value, 0);\n// total is 35"
+    },
+    {
+      "type": "prose",
+      "body": "**Worked example.** reduce carries one accumulator through every element. Its initial value defines the result for empty input and the type of the first callback argument. Addition uses zero as the identity value."
+    },
+    {
+      "type": "code-example",
+      "language": "javascript",
+      "code": "const total = [3, 5, 2].reduce((sum, value) => sum + value, 0);\n// accumulator: 0 -> 3 -> 8 -> 10"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Leaving out the initial value changes the first step and throws on an empty array."
+    },
+    {
+      "type": "prose",
+      "body": "**Try a small change.** Choose the initial value for multiplying a list. Why is zero unsuitable?\n\nThen complete the independent check below without copying the example. Explain the boundary case in words before running it."
     }
   ],
   "knowledgeItems": [
@@ -16,17 +34,37 @@
       "type": "MCQ",
       "prompt": "What is the second argument passed to reduce?",
       "payload": {
-        "choices": ["the starting accumulator value", "the array length", "a callback to run last", "the index to start at"],
+        "choices": [
+          "the array length",
+          "the starting accumulator value",
+          "a callback to run last",
+          "the index to start at"
+        ],
         "answer": "the starting accumulator value",
         "explanation": "reduce(callback, initialValue) seeds the accumulator with initialValue."
       },
-      "conceptTags": ["arrays", "reduce"]
+      "conceptTags": [
+        "arrays",
+        "reduce"
+      ],
+      "id": "sf_627783c4dcbcddec76608302"
     },
     {
       "type": "CODE",
       "prompt": "Return the total of every XP value using reduce (0 for an empty list).",
       "exercise": "total-xp",
-      "conceptTags": ["arrays", "reduce"]
+      "conceptTags": [
+        "arrays",
+        "reduce"
+      ],
+      "id": "sf_d4c00a53fa41430a8b55c746",
+      "hints": [
+        "Leaving out the initial value changes the first step and throws on an empty array.",
+        "reduce carries one accumulator through every element. Its initial value defines the result for empty input and the type of the first callback argument. Addition uses zero as the identity value."
+      ],
+      "walkthrough": "reduce carries one accumulator through every element. Its initial value defines the result for empty input and the type of the first callback argument. Addition uses zero as the identity value."
     }
-  ]
+  ],
+  "id": "sf_3e75d72da59bb70f5a0e9a33",
+  "estimatedMinutes": 12
 }

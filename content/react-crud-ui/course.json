@@ -1,0 +1,53 @@
+{
+  "slug": "react-crud-ui",
+  "title": "React for CRUD UIs",
+  "description": "The React you need to build list, detail, and edit screens: JSX and typed props, state snapshots and batching, keys, controlled forms with accessible errors, effects without races or stale closures, TanStack Query caching and optimistic updates, stores, memoisation, URL state, and a full CRUD reducer. Exercises implement the pure logic React code relies on.",
+  "language": "react",
+  "topicTags": [
+    "react",
+    "jsx",
+    "props",
+    "typescript",
+    "state",
+    "batching",
+    "immutability",
+    "lists",
+    "keys",
+    "forms",
+    "validation",
+    "accessibility",
+    "effects",
+    "data-fetching",
+    "race-conditions",
+    "stale-closures",
+    "tanstack-query",
+    "optimistic-updates",
+    "zustand",
+    "context",
+    "performance",
+    "memo",
+    "url-state",
+    "pagination",
+    "reducers",
+    "crud"
+  ],
+  "difficulty": "INTERMEDIATE",
+  "order": 8,
+  "outcomes": [
+    "Predict what JSX renders, including the 0 && pitfall, and type component props with discriminated unions",
+    "Explain state as a snapshot, use updater functions, and count renders under automatic batching",
+    "Update nested objects and arrays immutably so React sees every change",
+    "Choose stable keys and use keys deliberately to preserve or reset component state",
+    "Build controlled forms with derived dirty state, touched-based validation, and accessible error messages",
+    "Model submit states, map 422/4xx/5xx responses, and use React 19 actions, useActionState, and useFormStatus",
+    "Reason about effect dependencies, Strict Mode double-invocation, race conditions, AbortController, and stale closures",
+    "Design TanStack Query keys, staleTime, invalidation, and optimistic updates with rollback",
+    "Decide where state lives: local, lifted, reducer, context, store, server cache, or URL",
+    "Use memo, useMemo, and useCallback only where reference stability matters",
+    "Build a full CRUD screen with a reducer-driven list, detail, edit, create, and delete confirmation"
+  ],
+  "prerequisites": [
+    "javascript-foundations",
+    "web-http-fundamentals"
+  ]
+}

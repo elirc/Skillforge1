@@ -1,0 +1,103 @@
+{
+  "title": "Indexes, Seeks, and Query Plans",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An index is a sorted copy of some columns (a B-tree) with a pointer back to the full row. Because it is sorted, the database can binary-search to the first matching key and read forward, which is an index seek, instead of reading every row, which is a scan. In SQL Server the clustered index (usually the primary key) is the table itself, sorted by that key; nonclustered indexes are separate structures that point back into it."
+    },
+    {
+      "type": "code-example",
+      "language": "sql",
+      "code": "CREATE INDEX IX_orders_tenant_created_status\n    ON orders (tenant_id, created_at, status)\n    INCLUDE (total);            -- stored in the leaf, not part of the sort key\n\n-- Seeks on tenant_id and created_at (both key columns usable)\nSELECT id, total FROM orders\nWHERE tenant_id = 42 AND created_at >= '2026-01-01';\n\n-- Seeks on tenant_id only: status comes after a skipped column\nSELECT id FROM orders WHERE tenant_id = 42 AND status = 'open';\n\n-- Cannot seek at all: the leading column is not constrained\nSELECT id FROM orders WHERE created_at >= '2026-01-01';"
+    },
+    {
+      "type": "prose",
+      "body": "A composite index is sorted by its first column, then the second within ties of the first, and so on, like a phone book sorted by last name then first name. That gives the left-prefix rule: a seek can use a run of leading columns that all have equality predicates, and then at most one more column with a range predicate (<, >, BETWEEN, LIKE 'abc%'). After a range column, or after a column the query does not constrain, later key columns can only be used to filter rows the seek already found. So put equality columns first and the range column last."
+    },
+    {
+      "type": "prose",
+      "body": "Other things that decide whether an index helps: sargability (a predicate the engine can seek on). `WHERE YEAR(created_at) = 2026` or `WHERE LOWER(email) = @e` wraps the column in a function and forces a scan; rewrite as `created_at >= '2026-01-01' AND created_at < '2027-01-01'`. `LIKE 'abc%'` can seek; `LIKE '%abc'` cannot. Covering: if every column the query needs is in the index (key or INCLUDE), the engine never visits the table; otherwise each match costs a Key Lookup, which gets expensive for many rows. Selectivity: an index on a column with two values (is_deleted) rarely helps on its own."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "Read the plan before guessing. SQL Server: Include Actual Execution Plan in SSMS (or SET STATISTICS IO ON); look for Index Seek vs Index Scan / Table Scan, Key Lookup, and estimated vs actual row counts that differ wildly. PostgreSQL: EXPLAIN ANALYZE shows Index Scan vs Seq Scan. EF Core: ToQueryString() prints the SQL, and you can log it."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Indexes are not free. Every INSERT, UPDATE of an indexed column, and DELETE must maintain every index, and each index costs storage and memory. Index for the queries you actually run, and drop indexes that are never used."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "CODE",
+      "prompt": "Model the B-tree left-prefix rule. Given an index's key columns in order, the columns with equality predicates (in any order), and the one column with a range predicate (or null), return how many leading index columns a seek can use: walk the key columns, counting each equality column; count a range column and then stop; stop at the first column that has no predicate. 0 means the query must scan.",
+      "exercise": "seek-prefix-length",
+      "conceptTags": [
+        "sql",
+        "indexes",
+        "composite-index",
+        "query-plans"
+      ],
+      "id": "sf_4f42ebc258353e4125ada50e"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "There is an index on orders(created_at). Which predicate can use it for a seek?",
+      "payload": {
+        "choices": [
+          "YEAR(created_at) = 2026",
+          "created_at >= '2026-01-01' AND created_at < '2027-01-01'",
+          "CONVERT(date, created_at) LIKE '2026%'",
+          "DATEDIFF(day, created_at, GETDATE()) < 365"
+        ],
+        "answer": "created_at >= '2026-01-01' AND created_at < '2027-01-01'",
+        "explanation": "The other predicates wrap the column in a function, so the engine must compute it for every row (non-sargable). Compare the bare column to a range instead."
+      },
+      "conceptTags": [
+        "sql",
+        "indexes",
+        "sargability"
+      ],
+      "id": "sf_6d79d19b0996e3969ddf9226"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the SQL Server keyword that adds non-key columns to an index's leaf level so it covers a query.",
+      "payload": {
+        "text": "CREATE INDEX IX_orders_customer ON orders (customer_id) ____ (total, status);",
+        "blanks": [
+          "INCLUDE"
+        ]
+      },
+      "conceptTags": [
+        "sql",
+        "indexes",
+        "covering-index"
+      ],
+      "id": "sf_bd43a555d461baf6d268839b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A query plan shows an Index Seek on IX_users_email followed by a Key Lookup for every row. What does the Key Lookup mean?",
+      "payload": {
+        "choices": [
+          "The index is corrupt and is being rebuilt",
+          "The index lacks some selected columns, so each match fetches the rest from the clustered index",
+          "The query is using a table scan",
+          "A foreign key is being checked"
+        ],
+        "answer": "The index lacks some selected columns, so each match fetches the rest from the clustered index",
+        "explanation": "Cheap for a few rows, expensive for thousands. Select fewer columns or INCLUDE the missing ones to make the index covering."
+      },
+      "conceptTags": [
+        "sql",
+        "indexes",
+        "query-plans"
+      ],
+      "id": "sf_62b3482aa4a7bb17972af885"
+    }
+  ],
+  "id": "sf_e54900428cf6dbd5359b4927"
+}

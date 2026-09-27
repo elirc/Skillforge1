@@ -16,17 +16,52 @@
       "type": "MCQ",
       "prompt": "What is the discriminant in `{ ok: true; value: string } | { ok: false; error: string }`?",
       "payload": {
-        "choices": ["ok", "value", "error", "string"],
+        "choices": [
+          "value",
+          "error",
+          "ok",
+          "string"
+        ],
         "answer": "ok",
         "explanation": "The ok field tells TypeScript which variant is present."
       },
-      "conceptTags": ["typescript", "unions", "state"]
+      "conceptTags": [
+        "typescript",
+        "unions",
+        "state"
+      ],
+      "id": "sf_4ccd14a09ee56a3565b5d712"
     },
     {
       "type": "CODE",
       "prompt": "Return the value for successful results, otherwise return `Error: <message>`.",
       "exercise": "result-message",
-      "conceptTags": ["typescript", "discriminated-unions"]
+      "conceptTags": [
+        "typescript",
+        "discriminated-unions"
+      ],
+      "id": "sf_82c155247b2b9230888b09b7"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Inside if (result.ok) { ... } for the Result union, which property can you read safely?",
+      "payload": {
+        "choices": [
+          "result.error",
+          "result.value",
+          "both value and error",
+          "neither"
+        ],
+        "answer": "result.value",
+        "explanation": "Checking the discriminant narrows result to the { ok: true; value: string } branch, which has value but not error."
+      },
+      "conceptTags": [
+        "typescript",
+        "discriminated-unions",
+        "narrowing"
+      ],
+      "id": "sf_dea1d523531969b1b72824db"
     }
-  ]
+  ],
+  "id": "sf_9f794ba1ab5122ec84722a2b"
 }

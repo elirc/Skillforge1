@@ -1,0 +1,102 @@
+{
+  "title": "PUT vs PATCH",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "**PUT** replaces the whole resource with the body you send. Any field you leave out is reset (to null or its default). That makes PUT idempotent and simple, but the client must send every field, including ones it did not touch."
+    },
+    {
+      "type": "prose",
+      "body": "**PATCH** sends only the change. The most common format for JSON APIs is **JSON Merge Patch** (RFC 7396, `Content-Type: application/merge-patch+json`): the patch looks like the resource, keys you include are set, keys set to `null` are removed, nested objects are merged, and arrays are replaced whole."
+    },
+    {
+      "type": "code-example",
+      "language": "http",
+      "code": "PATCH /products/7 HTTP/1.1\nContent-Type: application/merge-patch+json\nIf-Match: \"v12\"\n\n{\"price\":25,\"tags\":null,\"dimensions\":{\"h\":50}}"
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "// before: { id: 7, name: \"Desk Lamp\", price: 30, tags: [\"desk\"], dimensions: { w: 20, h: 45 } }\n// after:  { id: 7, name: \"Desk Lamp\", price: 25, dimensions: { w: 20, h: 50 } }\n// With PUT and body { price: 25 }, name, tags and dimensions would be wiped."
+    },
+    {
+      "type": "prose",
+      "body": "Merge Patch cannot set a field to null (null means remove) and cannot edit one array element. When you need that, use **JSON Patch** (RFC 6902), a list of operations such as `{ \"op\": \"replace\", \"path\": \"/tags/0\", \"value\": \"sale\" }`."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "In C#, a PATCH DTO with plain properties cannot tell \"field missing\" from \"field set to null\". Parse the body as a JSON document (or use a JsonPatchDocument) instead of binding straight to a class with nullable properties."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "A client sends PUT /users/3 with only {\"email\":\"a@b.test\"}. What should happen to the user's name?",
+      "payload": {
+        "choices": [
+          "It stays the same, because it was not sent",
+          "The server must reject the request with 409",
+          "It is cleared, because PUT replaces the whole resource",
+          "PUT ignores missing fields only on Tuesdays"
+        ],
+        "answer": "It is cleared, because PUT replaces the whole resource",
+        "explanation": "PUT means \"make the resource equal to this body\". To change one field and keep the rest, use PATCH."
+      },
+      "conceptTags": [
+        "rest",
+        "put",
+        "patch"
+      ],
+      "id": "sf_8f5adfd68336af3635e186cb"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "In JSON Merge Patch, what does {\"nickname\": null} do?",
+      "payload": {
+        "choices": [
+          "Removes the nickname field",
+          "Sets nickname to the JSON value null",
+          "Leaves nickname unchanged",
+          "Is invalid and returns 400"
+        ],
+        "answer": "Removes the nickname field",
+        "explanation": "In RFC 7396, null is the deletion marker. That is also why Merge Patch cannot store an explicit null."
+      },
+      "conceptTags": [
+        "rest",
+        "patch",
+        "merge-patch"
+      ],
+      "id": "sf_fb1f305e6f7047be67f5c7ed"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Name the method.",
+      "payload": {
+        "text": "To change only a product's price without resending its other fields, send a ____ request.",
+        "blanks": [
+          "PATCH"
+        ]
+      },
+      "conceptTags": [
+        "rest",
+        "patch"
+      ],
+      "id": "sf_59c542b5cef168139f19c95c"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Implement JSON Merge Patch (RFC 7396): merge nested objects, delete keys set to null, replace arrays and scalars, and never mutate the inputs.",
+      "exercise": "merge-patch",
+      "conceptTags": [
+        "rest",
+        "patch",
+        "merge-patch",
+        "immutability"
+      ],
+      "id": "sf_e245bd817f5a6a080c70b769"
+    }
+  ],
+  "id": "sf_a02c19b5f4f58312fbbc7968"
+}

@@ -1,0 +1,14 @@
+{
+  "slug": "opaque-cursor-pagination",
+  "title": "Opaque Cursor Pagination",
+  "prompt": "An activity feed API pages with opaque cursors instead of page numbers. Items are `{ id, createdAt }` (ISO-8601 UTC strings in the same format, so they compare as strings) and the feed is ordered newest first, ties broken by higher `id` first. Write `paginate(items, limit, cursor)`. With `cursor === null` start at the top. A cursor is the base64url encoding (no `=` padding) of `JSON.stringify({ c: createdAt, i: id })` for the last item of the previous page, and the next page holds the items that sort strictly after that position, even if that item has since been deleted. Return `{ ids, nextCursor }`, where `nextCursor` is `null` when nothing follows the page. If the cursor cannot be decoded, is not JSON, or does not have a string `c` and an integer `i`, return `{ error: 'invalid cursor' }`.",
+  "language": "typescript",
+  "difficulty": "MEDIUM",
+  "conceptTags": ["pagination", "api-design", "base64", "sorting", "validation"],
+  "order": 50022,
+  "exercise": "opaque-cursor-pagination",
+  "explanation": {
+    "beginner": "Offset pagination ('skip 20, take 10') breaks when rows are added or deleted between requests: items get skipped or shown twice. A cursor instead says 'continue after this exact item', using the sort values of the last item you saw. Sort a copy of the items newest first (then by id, highest first). To encode the cursor, turn `{ c, i }` into JSON, base64 it with `btoa`, and make it URL-safe by swapping `+` for `-`, `/` for `_`, and dropping trailing `=`. To decode, reverse those steps inside try/catch, then check the shape. Keep the items that come after the cursor position: older timestamp, or same timestamp with a smaller id. Take `limit` of them; if any are left over, the last one you returned becomes the next cursor.",
+    "junior": "This is keyset (seek) pagination behind an opaque token: the SQL equivalent is `WHERE (created_at, id) < (@c, @i) ORDER BY created_at DESC, id DESC LIMIT @limit + 1`, which uses an index instead of scanning skipped rows. Including the unique `id` as a tie-breaker is essential; with `createdAt` alone, rows sharing a timestamp at a page boundary are lost. Fetch `limit + 1` (or check the remainder) to know whether a next page exists without a COUNT query. Encoding the cursor keeps clients from depending on its internals, but base64 is not security: validate everything after decoding (`typeof c === 'string'`, `Number.isInteger(i)`), and sign the cursor with an HMAC if tampering matters. Because the filter is by value, a deleted anchor row still works, which is the key advantage over offsets. Sort is O(n log n); the rest is O(n)."
+  }
+}

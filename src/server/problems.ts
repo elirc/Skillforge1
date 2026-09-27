@@ -2,15 +2,20 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/server/user";
-import { awardActivity, type AwardSummary } from "@/server/gamification";
+import type { AwardSummary } from "@/server/gamification";
+import { saveProblemAttempt } from "@/server/submissions";
+import { durationMsSchema } from "@/lib/activity-duration";
+import { prisma } from "@/lib/prisma";
+import { gradeCode } from "@/server/grade-code";
+import { codeTestSchema } from "@/lib/content-schema";
 
 const submitProblemSchema = z.object({
   problemId: z.string(),
   code: z.string().max(50_000),
   passed: z.boolean(),
-  durationMs: z.number().int().min(0).max(600_000),
+  assisted: z.boolean().optional(),
+  durationMs: durationMsSchema,
 });
 
 export async function recordProblemSubmissionAction(
@@ -19,26 +24,14 @@ export async function recordProblemSubmissionAction(
   const parsed = submitProblemSchema.parse(input);
   const user = await getCurrentUser();
 
-  const alreadySolved = await prisma.problemSubmission.findFirst({
-    where: { userId: user.id, problemId: parsed.problemId, passed: true },
-    select: { id: true },
-  });
-
-  await prisma.problemSubmission.create({
-    data: {
-      userId: user.id,
-      problemId: parsed.problemId,
-      code: parsed.code,
-      passed: parsed.passed,
-      durationMs: parsed.durationMs,
-    },
-  });
-
-  // XP lands on the first green run only; re-solving is practice, not progress.
-  const summary = parsed.passed && !alreadySolved ? await awardActivity(user.id, "exercise") : null;
+  const problem = await prisma.problem.findFirst({ where: { id: parsed.problemId, archived: false } });
+  if (!problem) throw new Error("Problem is no longer available.");
+  const verdict = await gradeCode({ code: parsed.code, functionName: problem.functionName, tests: codeTestSchema.array().parse(problem.tests) }, problem.runtime);
+  const summary = await saveProblemAttempt(user.id, { ...parsed, passed: verdict.passed });
 
   revalidatePath("/");
   revalidatePath("/problems");
   revalidatePath("/profile");
+  revalidatePath("/mastery");
   return summary;
 }

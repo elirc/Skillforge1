@@ -1,0 +1,179 @@
+{
+  "title": "Declaration Merging and Module Augmentation",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "TypeScript lets some declarations with the same name combine into one. The most common case is interface merging: two interface declarations with the same name in the same scope become a single interface with the members of both. This is the main practical difference between interface and type: a type alias with a duplicate name is simply an error."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "interface User {\n  id: string;\n}\ninterface User {\n  email: string;\n}\nconst u: User = { id: \"1\", email: \"a@b.c\" };   // both members required\n\ntype Point = { x: number };\ntype Point = { y: number };   // error: Duplicate identifier 'Point'\n\ninterface Box { size: number }\ninterface Box { size: string } // error: Subsequent property declarations must have the same type"
+    },
+    {
+      "type": "prose",
+      "body": "Merging is what makes augmentation possible: adding members to types you do not own. Global augmentation extends built-in or global types from inside a module with declare global. Module augmentation reopens a library's exported interface with declare module \"library-name\", which is how libraries let you register your own types."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "// types/globals.d.ts -- add a property the app sets on window\nexport {};   // makes this file a module, which declare global requires\ndeclare global {\n  interface Window {\n    appVersion: string;\n  }\n}\n\n// types/express.d.ts -- teach Express that requests carry a user\nimport \"express-serve-static-core\";\ndeclare module \"express-serve-static-core\" {\n  interface Request {\n    user?: { id: string; roles: string[] };\n  }\n}\n\n// anywhere in the app:\n// req.user?.roles   now type-checks\n// window.appVersion now type-checks"
+    },
+    {
+      "type": "prose",
+      "body": "Namespaces, functions, classes, and enums can also merge in specific combinations. For example, a function and a namespace with the same name let you attach typed properties to a function. You will mostly meet these in library type definitions rather than write them yourself."
+    },
+    {
+      "type": "code-example",
+      "language": "typescript",
+      "code": "function greet(name: string) { return greet.prefix + name; }\nnamespace greet {\n  export let prefix = \"Hello, \";\n}\ngreet(\"Ada\");      // \"Hello, Ada\"\ngreet.prefix;      // typed as string"
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "Augmentation only changes types. Declaring window.appVersion does not create it; your code still has to assign it at runtime, or reads will return undefined while the compiler says string."
+    },
+    {
+      "type": "callout",
+      "tone": "info",
+      "body": "An augmentation file must be included by tsconfig (for example through include or typeRoots) or the compiler never sees it. If a module augmentation seems to be ignored, check that the file is a module (has an import or export) and that the module name matches exactly."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Two declarations interface A { x: number } and interface A { y: string } appear in the same file. What is A?",
+      "payload": {
+        "choices": [
+          "a compile error: duplicate identifier",
+          "the second declaration only",
+          "one interface with both x and y",
+          "a union of the two"
+        ],
+        "answer": "one interface with both x and y",
+        "explanation": "Interfaces with the same name in the same scope merge their members."
+      },
+      "conceptTags": [
+        "declaration-merging",
+        "interfaces"
+      ],
+      "id": "sf_15872d79c81b6a56c338f12d"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "What happens with type T = { a: string } followed by type T = { b: string }?",
+      "payload": {
+        "choices": [
+          "the two types merge",
+          "the second replaces the first",
+          "a Duplicate identifier error",
+          "T becomes a union"
+        ],
+        "answer": "a Duplicate identifier error",
+        "explanation": "Type aliases never merge; only interfaces (and certain namespace, class, function, and enum combinations) do."
+      },
+      "conceptTags": [
+        "declaration-merging",
+        "type-aliases"
+      ],
+      "id": "sf_e47ae1d4235be875a1a3d4c9"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Which construct adds a property to the global Window interface from inside a module file?",
+      "payload": {
+        "choices": [
+          "declare global { interface Window { ... } }",
+          "declare module \"window\" { ... }",
+          "type Window = Window & { ... }",
+          "namespace Window { ... }"
+        ],
+        "answer": "declare global { interface Window { ... } }",
+        "explanation": "declare global reopens global declarations from a module, and the interfaces merge."
+      },
+      "conceptTags": [
+        "module-augmentation"
+      ],
+      "id": "sf_86ce2603d42e7af62820cb23"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Why must an augmentation file like globals.d.ts contain export {} or an import?",
+      "payload": {
+        "choices": [
+          "to export the types to other files",
+          "declare global and module augmentation are only allowed in module files",
+          "to make the file run at startup",
+          "because .d.ts files cannot be empty"
+        ],
+        "answer": "declare global and module augmentation are only allowed in module files",
+        "explanation": "A file with no import or export is a global script; the augmentation syntax requires a module."
+      },
+      "conceptTags": [
+        "module-augmentation"
+      ],
+      "id": "sf_2a748104f7708e52632c4b2b"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "After augmenting Express's Request with user?, what is req.user at runtime if no middleware sets it?",
+      "payload": {
+        "choices": [
+          "an empty object",
+          "a compile error",
+          "{ id: \"\", roles: [] }",
+          "undefined"
+        ],
+        "answer": "undefined",
+        "explanation": "Augmentation only affects types; something at runtime must still assign the property."
+      },
+      "conceptTags": [
+        "module-augmentation"
+      ],
+      "id": "sf_05ec45a1123880c1a1abc3a4"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "Two merged interfaces declare the same property with different types. What happens?",
+      "payload": {
+        "choices": [
+          "a compile error",
+          "the property becomes a union",
+          "the later type wins",
+          "the earlier type wins"
+        ],
+        "answer": "a compile error",
+        "explanation": "Non-function members must have identical types across merged declarations. Methods with different signatures become overloads instead."
+      },
+      "conceptTags": [
+        "declaration-merging"
+      ],
+      "id": "sf_6c9f5ff2bd943c7be7eab1ff"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Reopen a library's types.",
+      "payload": {
+        "text": "declare ____ \"express-serve-static-core\" { interface Request { user?: User } } adds a property to a library interface.",
+        "blanks": [
+          "module"
+        ]
+      },
+      "conceptTags": [
+        "module-augmentation"
+      ],
+      "id": "sf_48c97d87e526cc8bb81cd2a8"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Model the compiler: merge interface declarations by name and report the error for conflicting property types.",
+      "exercise": "merge-interfaces",
+      "conceptTags": [
+        "declaration-merging",
+        "interfaces"
+      ],
+      "id": "sf_7a25a02ca712ba6717021234"
+    }
+  ],
+  "id": "sf_36a9ca27dd40ab5ad7d82a66"
+}

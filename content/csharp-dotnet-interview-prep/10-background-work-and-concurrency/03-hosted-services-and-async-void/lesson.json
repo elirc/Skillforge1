@@ -1,0 +1,103 @@
+{
+  "title": "Hosted Services, Cancellation, and async void",
+  "contentBlocks": [
+    {
+      "type": "prose",
+      "body": "An `IHostedService` is started and stopped by the generic host alongside the web server. Most workers derive from `BackgroundService` and override `ExecuteAsync(CancellationToken stoppingToken)`, a long-running loop. The token is cancelled when the app shuts down, and the host waits up to `HostOptions.ShutdownTimeout` (30 seconds by default) for the loop to finish."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "public sealed class EmailWorker(Channel<EmailJob> channel, IServiceScopeFactory scopes,\n    ILogger<EmailWorker> logger) : BackgroundService\n{\n    protected override async Task ExecuteAsync(CancellationToken stoppingToken)\n    {\n        await foreach (var job in channel.Reader.ReadAllAsync(stoppingToken))\n        {\n            try\n            {\n                // Hosted services are singletons: create a scope for scoped services like DbContext.\n                await using var scope = scopes.CreateAsyncScope();\n                var sender = scope.ServiceProvider.GetRequiredService<IEmailSender>();\n                await sender.SendAsync(job, stoppingToken);\n            }\n            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)\n            {\n                break;                                   // shutting down, not an error\n            }\n            catch (Exception ex)\n            {\n                logger.LogError(ex, \"Email job {JobId} failed\", job.Id);  // keep the worker alive\n            }\n        }\n    }\n}"
+    },
+    {
+      "type": "prose",
+      "body": "Three rules keep workers healthy. **Catch per item**: since .NET 6 an unhandled exception from `ExecuteAsync` stops the whole host by default, so one poison message must not end the loop. **Distinguish cancellation**: an `OperationCanceledException` while `stoppingToken` is cancelled means shutdown, but an `HttpClient` timeout also throws `TaskCanceledException` (a subclass) while the app is healthy, so filter with `when (stoppingToken.IsCancellationRequested)`. **Scope your dependencies**: never inject a scoped `DbContext` directly into a singleton worker."
+    },
+    {
+      "type": "prose",
+      "body": "**Why `async void` is dangerous.** An `async void` method returns nothing to await, so the caller cannot know when it finishes or whether it failed. An exception thrown inside it is raised on the synchronization context or thread pool, where nothing can catch it, and that normally **crashes the process**. It is only acceptable for event handlers, which must match a `void` signature, and even then the body should catch its own exceptions. Everywhere else return `Task`."
+    },
+    {
+      "type": "code-example",
+      "language": "csharp",
+      "code": "// Bad: fire-and-forget; an exception here can take down the app.\npublic async void OnOrderPlaced(Order order) => await _email.SendAsync(order);\n\n// Good: return Task so callers await it and exceptions flow to them.\npublic async Task OnOrderPlacedAsync(Order order, CancellationToken ct)\n    => await _email.SendAsync(order, ct);\n\n// Need true background work? Queue it (a Channel) and let a BackgroundService own it."
+    },
+    {
+      "type": "callout",
+      "tone": "warning",
+      "body": "`_ = Task.Run(...)` inside a request is almost as risky as async void: the work is lost when the process recycles, exceptions go unobserved, and it can use scoped services after the request scope has been disposed. Hand the work to a hosted service through a queue instead."
+    }
+  ],
+  "knowledgeItems": [
+    {
+      "type": "MCQ",
+      "prompt": "Why is an `async void` method dangerous outside of event handlers?",
+      "payload": {
+        "choices": [
+          "Callers cannot await it, and an exception inside it cannot be caught by the caller and usually crashes the process",
+          "It always runs synchronously",
+          "It cannot use await",
+          "It leaks memory on every call"
+        ],
+        "answer": "Callers cannot await it, and an exception inside it cannot be caught by the caller and usually crashes the process",
+        "explanation": "There is no Task to observe, so exceptions are rethrown on the thread pool or synchronization context. Return Task instead."
+      },
+      "conceptTags": [
+        "async",
+        "async-void",
+        "csharp"
+      ],
+      "id": "sf_d6a6cc0e58e95597a64378cb"
+    },
+    {
+      "type": "MCQ",
+      "prompt": "A BackgroundService needs a scoped DbContext. What is the correct approach?",
+      "payload": {
+        "choices": [
+          "Inject DbContext into the constructor",
+          "Register the DbContext as a singleton",
+          "Create the DbContext with new inside a static field",
+          "Inject IServiceScopeFactory and create a scope per unit of work"
+        ],
+        "answer": "Inject IServiceScopeFactory and create a scope per unit of work",
+        "explanation": "Hosted services are singletons. Injecting a scoped service directly makes it a captive dependency, one DbContext shared for the app's lifetime and across threads."
+      },
+      "conceptTags": [
+        "hosted-services",
+        "dependency-injection",
+        "ef-core"
+      ],
+      "id": "sf_327e00e2e69ea617972c189c"
+    },
+    {
+      "type": "CLOZE",
+      "prompt": "Complete the catch filter.",
+      "payload": {
+        "text": "`catch (OperationCanceledException) ____ (stoppingToken.IsCancellationRequested)` treats cancellation as a graceful shutdown only when the host is stopping.",
+        "blanks": [
+          "when"
+        ]
+      },
+      "conceptTags": [
+        "hosted-services",
+        "cancellation",
+        "csharp"
+      ],
+      "id": "sf_da58ccfd567f3990ae48f6f4"
+    },
+    {
+      "type": "CODE",
+      "prompt": "Write a BackgroundService-style loop that survives failing jobs, treats timeouts as failures, and stops gracefully on host shutdown.",
+      "exercise": "worker-loop",
+      "conceptTags": [
+        "hosted-services",
+        "cancellation",
+        "async",
+        "exceptions"
+      ],
+      "id": "sf_44dba204aee94bec480f80dc"
+    }
+  ],
+  "id": "sf_033fe8d5a4b29ee5c5a324c2"
+}

@@ -21,7 +21,7 @@
 
 ## Boundary Leaks Or Risks
 
-- Review UI sends `correct` to server in [`src/features/review/review-session.tsx:59-70`](../../../src/features/review/review-session.tsx#L59-L70). For MCQ/cloze, the server could derive correctness from the KnowledgeItem payload.
+- *(Resolved since this was written.)* The review UI used to send `correct` to the server. The server now derives correctness itself in [`gradeReviewItem`](../../../src/server/review.ts) and ignores any client `correct` field ([`src/server/actions.ts`](../../../src/server/actions.ts), `gradeReviewSchema`).
 - Lesson completion relies on client-side pass state before calling the action in [`src/features/lessons/lesson-player.tsx:28-34`](../../../src/features/lessons/lesson-player.tsx#L28-L34). The server enforces only the repeat-credit rule, not "did you actually do the work."
 - Ranking logic sits in the server layer but reads like presentation: [`getNextUp`](../../../src/server/feed.ts#L134-L198) decides both *what* the dashboard shows and *in what order*, with the weights inline. Ask whether the ordering rule is a domain rule or a view concern, and where it would have to live to be unit-testable.
 

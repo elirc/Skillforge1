@@ -37,7 +37,7 @@ Observable behaviors:
 - Teaches others through clear review and RFCs.
 
 Self-assessment:
-- [ ] I can critique the single write path for progress, the client-supplied review correctness, the sandbox's code-execution boundary, and the absence of a migration history.
+- [ ] I can critique the single write path for progress, explain how review correctness *used to be* client-supplied and how the server now derives it (`src/server/review.ts`), the sandbox's code-execution boundary, and the absence of a migration history.
 - [ ] I can design transaction boundaries and say what each one protects.
 - [ ] I can argue for what this codebase should *not* grow, as clearly as for what it should.
 - [ ] I can explain tradeoffs to product and maintainers.

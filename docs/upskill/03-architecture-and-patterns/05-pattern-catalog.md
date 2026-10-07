@@ -103,7 +103,7 @@
 ## Pattern: Cache Revalidation After Mutation
 **Problem it solves:** Server-rendered pages see fresh data after action.
 **Real example:** [`src/server/actions.ts:12-17`](../../../src/server/actions.ts#L12-L17) — one helper revalidates `/`, `/tracks`, `/reviews`, `/profile`, and every progress-changing action calls it.
-**Second example:** [`src/server/problems.ts:40-42`](../../../src/server/problems.ts#L40-L42), which revalidates its own narrower set by hand.
+**Second example:** [`src/server/problems.ts:32-35`](../../../src/server/problems.ts#L32-L35), which revalidates its own set (`/`, `/problems`, `/profile`, `/mastery`) by hand instead of calling the shared helper — a small drift risk if a new progress surface is added to only one list.
 **Failure modes:** Missing route, overly broad invalidation, stale client store.
 **Use it when:** Mutation changes server-rendered data.
 **Avoid it when:** Pure client state changes.

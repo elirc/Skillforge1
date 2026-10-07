@@ -42,7 +42,7 @@ Method:
 ## Scenario: XP Was Awarded Twice, Or Not At All
 **Reproduction:** Complete the same lesson twice, or re-solve a solved problem, and watch the daily ring.
 **First question:** Which branch did the action take?
-**Narrowing path:** All progress funnels through [`awardActivity`](../../../src/server/gamification.ts#L61-L123), so start there and work outward. The repeat-credit branches are [`src/server/actions.ts:38-40`](../../../src/server/actions.ts#L38-L40) and [`src/server/problems.ts:37-38`](../../../src/server/problems.ts#L37-L38); the ledger itself is the `XpEvent` table, readable in Prisma Studio.
+**Narrowing path:** All progress funnels through [`awardActivity`](../../../src/server/gamification.ts#L61-L123), so start there and work outward. The repeat-credit branches are [`src/server/actions.ts:38-40`](../../../src/server/actions.ts#L38-L40) and [`src/server/submissions.ts:20-22`](../../../src/server/submissions.ts#L20-L22); the ledger itself is the `XpEvent` table, readable in Prisma Studio.
 **Likely root causes:** the "already completed" lookup happened after the upsert rather than before; a bonus paid through `addBonusXp` without a matching `XpEvent`; the daily-XP quest read a stale total.
 **Senior lesson:** when a number is wrong, find the single write path before reading any UI code.
 

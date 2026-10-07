@@ -157,12 +157,12 @@
 | Step | Owner | File | What happens | Data shape | Risk |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Query | `queries.ts` | Loads due ReviewState records for the learner | due queue | No pagination on the due queue |
-| 2 | UI | `review-session.tsx:57-68` | Determines correctness and sends recall score | answer + score + duration | Correctness is decided on the client |
-| 3 | Action | `actions.ts:45-60` | Validates score and duration, resolves the learner | parsed input | `correct` is still a client-supplied boolean |
+| 2 | UI | `review-session.tsx` | Sends the learner's response and recall score | response + score + duration | (Earlier versions decided correctness here; current code does not) |
+| 3 | Action | `actions.ts` `gradeReviewAction` | Validates score and duration, resolves the learner | parsed input | A legacy `correct` field is accepted and ignored |
 | 4 | Server domain | `review.ts:47-49` | Fetches ReviewState by id **and** userId | scoped DB row | The scoping is right even though it cannot currently fail |
 | 5 | Scheduler | `scheduler.ts` | Computes dueAt, stability, difficulty, interval | SrsReviewState | Algorithm is simplified |
-| 6 | Persistence | `review.ts:65-88` | Updates ReviewState and creates Attempt | DB writes | No explicit transaction |
-| 7 | Reward | `review.ts:90` | Calls `awardActivity(..., "review", correct)` | AwardSummary | XP amount depends on the client's `correct` flag |
+| 6 | Persistence | `review.ts` `gradeReviewItem` | Updates ReviewState and creates Attempt | DB writes | Now inside one `$transaction` with busy retry |
+| 7 | Reward | `review.ts` | Calls `awardActivity(..., "review", correct)` | AwardSummary | `correct` is the server's verdict (`gradeCode` / `gradeResponse`) |
 
 **Validation and authorization:** Zod validates shape in [`src/server/actions.ts:45-51`](../../../src/server/actions.ts#L45-L51). Row scoping happens in [`src/server/review.ts:47-49`](../../../src/server/review.ts#L47-L49) via `findFirstOrThrow({ where: { id, userId } })`. With one learner that filter can never reject anything — read it as a habit the code keeps rather than a control it enforces.
 

@@ -19,7 +19,7 @@
 Idempotency:
 - `upsert` in LessonCompletion and ReviewState seeding means repeated lesson completion should not duplicate rows: [`src/server/actions.ts:27-36`](../../../src/server/actions.ts#L27-L36), [`src/server/review.ts:17-37`](../../../src/server/review.ts#L17-L37).
 - `ensureTodaysQuests` upserts by `(userId, day, key)` in [`src/server/quests.ts:31-56`](../../../src/server/quests.ts#L31-L56), so it is safe to call on every dashboard load and every award. That is what makes "the day rolled over" a non-event.
-- Idempotency here is not only about duplicate rows. It is about duplicate *credit*: repeating a finished lesson or a solved problem deliberately skips the award pipeline in [`src/server/actions.ts:38-40`](../../../src/server/actions.ts#L38-L40) and [`src/server/problems.ts:37-38`](../../../src/server/problems.ts#L37-L38).
+- Idempotency here is not only about duplicate rows. It is about duplicate *credit*: repeating a finished lesson or a solved problem deliberately skips the award pipeline in [`src/server/actions.ts:38-40`](../../../src/server/actions.ts#L38-L40) and [`src/server/submissions.ts:20-22`](../../../src/server/submissions.ts#L20-L22).
 
 Retries:
 - No explicit retry mechanism exists anywhere. Every side effect happens inside the request that triggered it, and if it fails the learner sees it fail. For a single local user that is a defensible choice; write down which of these flows you would be unwilling to lose silently.

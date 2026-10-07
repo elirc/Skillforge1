@@ -10,7 +10,7 @@
 | Lesson completion action | `lessonId: string` | [`src/server/actions.ts:19-24`](../../../src/server/actions.ts#L19-L24) |
 | Review grading action | recall score, correctness, duration | [`src/server/actions.ts:46-55`](../../../src/server/actions.ts#L46-L55) |
 | Onboarding / settings actions | name, goal, experience, XP goal, focus tags | [`src/server/actions.ts:63-82`](../../../src/server/actions.ts#L63-L82) |
-| Problem submission action | problem id, code size, pass flag, duration | [`src/server/problems.ts:9-19`](../../../src/server/problems.ts#L9-L19) |
+| Problem submission action | problem id, code size (max 50,000), client pass flag (overridden by a server re-grade), duration | [`src/server/problems.ts:13-30`](../../../src/server/problems.ts#L13-L30) |
 | Sandbox request | code/function/tests | [`src/lib/sandbox/shared.ts:3-14`](../../../src/lib/sandbox/shared.ts#L3-L14) |
 
 ## Identity
@@ -27,7 +27,7 @@ Good example:
 - Review grading fetches by both `id` and `userId` in [`src/server/review.ts:47-49`](../../../src/server/review.ts#L47-L49). With one user this guard can never fire, but it is the shape an IDOR guard must have, and keeping it costs nothing.
 
 What replaces access control here:
-- Lesson completion does not check entitlement — there is nothing to be entitled to. What it *does* enforce is anti-farming: a second completion of the same lesson takes the `noAwardSummary` branch instead of the award pipeline in [`src/server/actions.ts:27-40`](../../../src/server/actions.ts#L27-L40). The same rule appears for problems in [`src/server/problems.ts:22-38`](../../../src/server/problems.ts#L22-L38).
+- Lesson completion does not check entitlement — there is nothing to be entitled to. What it *does* enforce is anti-farming: a second completion of the same lesson takes the `noAwardSummary` branch instead of the award pipeline in [`src/server/actions.ts:27-40`](../../../src/server/actions.ts#L27-L40). The same rule appears for problems in [`src/server/submissions.ts:14-22`](../../../src/server/submissions.ts#L14-L22), which awards only when the server verdict passed and no earlier passing submission exists.
 - The course page has no gate at all beyond `notFound()` on an unknown slug in [`src/app/courses/[slug]/page.tsx:46-49`](../../../src/app/courses/%5Bslug%5D/page.tsx#L46-L49). The `Course` model has no `isPro` field and the content schema has no tier.
 - Review correctness is still decided on the client and sent to the server in [`src/features/review/review-session.tsx:62-66`](../../../src/features/review/review-session.tsx#L62-L66). Nobody else can be cheated by this, but the learner can cheat themselves, and the structural point stands: the server trusts a fact it could derive.
 

@@ -80,3 +80,30 @@ A junior asks, "How do I make it work?" A mid-level engineer adds, "Is this the 
 - Inspected `rg --files`, root README, `.env.example`, package scripts, Prisma schema, server modules, review scheduler, sandbox, tests, and CI.
 - Commands previously verified in this workspace include `npm run lint`, `npm run typecheck`, `npm test`, `npm run validate:content`, and `npm run build`.
 - The database is a local SQLite file, so `npm run db:setup` and the E2E suite need no external service. CI runs the same `db:setup` step at [`.github/workflows/ci.yml:23`](../../.github/workflows/ci.yml#L23).
+
+## Status against the current code (re-checked 2026-10-07)
+
+This tree was last substantially refreshed in commit `463bd1f` (2026-09-11). The code was then changed again in
+`b9b79b5` (2026-09-27), which touched 82 files under `src/` and `prisma/` (about +4.7k / -0.8k lines). Read every
+`file#Lx-Ly` anchor in these chapters as **approximate**: the file is right far more often than the line. A
+mechanical check of the 866 relative links in `docs/` found 46 whose line range now runs past the end of the
+file, concentrated on `prisma/seed.ts` (now 25 lines; course content moved to `content/` and is synced by
+`scripts/lib/seed-content.ts`), `src/features/lessons/code-exercise.tsx` (now a 7-line wrapper; the editor and
+runner live in `exercise-workspace.tsx`) and `src/server/problems.ts` (now 37 lines).
+
+Several headline risks in chapters 01, 03 and 08 have since been **fixed in code**. Treat them as historical
+lessons (what the problem was, how it was closed), not as open defects:
+
+| Earlier finding | Current code |
+| --- | --- |
+| Review correctness is client-supplied | Server derives it: `gradeReviewItem` re-grades CODE items with `gradeCode` and grades other types with `gradeResponse` (`src/server/review.ts:83-90`, `:105-106`); the action keeps an optional `correct` field only for old clients and ignores it (`src/server/actions.ts:38-45`). |
+| Problem submissions trust the client's `passed` flag | `recordProblemSubmissionAction` re-grades the submitted code server-side and stores `verdict.passed` (`src/server/problems.ts:27-30`). |
+| Review grading is not transactional | State update, attempt and award run in one `$transaction` with SQLite busy retry (`src/server/review.ts:92-93`). |
+| XP read-then-write can lose increments | `xp: { increment: amount }` (`src/server/gamification.ts:54`). |
+| Repeat lesson credit relies on a read-before-write check | Completion inserts `LessonCompletion` inside a transaction and treats the unique-constraint conflict as "already completed" (`src/server/completion.ts:35-69`). |
+
+Still true: lesson completion does not verify that the learner actually passed the lesson's exercises; the server
+checks only that the lesson exists, is not archived and has knowledge items (`src/server/completion.ts:45-51`).
+
+**Check (do this before citing any line in this tree):** open the cited file, find the named function, and
+re-derive the line range yourself. If the behaviour described differs from the code, the code wins.
